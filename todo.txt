@@ -1,0 +1,8 @@
+
+1. fix function src\shaders\utils\encode_data_color.glsl
+
+2. fix function src\shaders\utils\decode_data_color.glsl
+
+3. Improve dithering function 
+
+4. For some reason when i use raycast_volume_fast function and i degub with dithering goind out instead of in there is some weird behavior

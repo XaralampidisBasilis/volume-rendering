@@ -1,0 +1,5 @@
+https://huggingface.co/datasets/farrell236/NSCLC-Radiomics-NIFTI
+
+volume.nii.gz = LUNG1-001/0_rcctpet_thorax_contrast_dag0.nii.gz
+mask.nii.gz = LUNG1-001/seg-GTV-1.nii.gz
+
