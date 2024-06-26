@@ -17,11 +17,14 @@ varying vec3 v_direction;
 #include ../../includes/gradient_methods.glsl;
 #include ../../includes/lighting_phong.glsl;
 #include ../../includes/color_mapping.glsl;
-// #include ../../includes/raycast_volume.glsl;
-#include ../../includes/raycast_volume_fast.glsl;
+#include ../../includes/raycast_volume.glsl;
+// #include ../../includes/raycast_volume_fast.glsl;
 #include ../../includes/ray_step.glsl;
 
 void main() {
+
+    // gl_FragColor = vec4(vec3(1.0), 1.0);
+    // return;
 
     // Normalize the view direction vector
     vec3 direction = normalize(v_direction);
@@ -38,10 +41,7 @@ void main() {
     float value = 0.0;
     vec3 position = v_camera;
 
-    bool hit = raycast_volume_fast(u_volume_data, v_camera, step, range, position, value);
-
-    if(!hit) discard;
-    // return;
+    bool hit = raycast_volume(u_volume_data, v_camera, step, range, position, value);
 
     if (hit) 
     {

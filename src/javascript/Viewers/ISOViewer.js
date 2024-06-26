@@ -27,8 +27,9 @@ export default class ISOViewer
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
-        this.setControls()
         this.setOccupancy()
+        this.setControls()
+        this.setControlBindings()
     }
 
     setNoisemaps()
@@ -126,6 +127,20 @@ export default class ISOViewer
         this.scene.add(this.mesh)
     }
 
+    setOccupancy()
+    {        
+        this.occupancy = new GPUOccupancy(this.material.uniforms.u_occupancy_resolution.value, this.textures.volume, this.renderer.instance)
+        this.occupancy.setThreshold(this.material.uniforms.u_raycast_threshold.value)
+        this.occupancy.update() 
+
+        this.material.uniforms.u_occupancy_size.value = this.occupancy.sizes.occupancy
+        this.material.uniforms.u_occupancy_block.value = this.occupancy.sizes.block.clone().divide(this.occupancy.sizes.volume)
+        this.material.uniforms.u_occupancy_data.value = this.occupancy.getTexture()       
+
+        if(this.debug.active)
+            this.scene.add(this.occupancy.gpgpu.debug)
+    }
+
     setControls()
     {        
         if(this.debug.active)
@@ -165,6 +180,7 @@ export default class ISOViewer
                     .add(this.material.uniforms.u_raycast_dithering, 'value')
                     .name('dithering')      
             }
+
             const setControlsGradient = (folder) =>
             {    
                 folder
@@ -179,6 +195,7 @@ export default class ISOViewer
                     .name('method')
                     .options({ sobel: 1, central: 2, tetrahedron: 3})                            
             }
+
             const setControlsColormap = (folder) => 
             {
                 const object = { flip: false}
@@ -218,6 +235,7 @@ export default class ISOViewer
                     })
                 
             }
+
             const setControlsLighting = (folder) =>
             {    
                 folder
@@ -265,102 +283,95 @@ export default class ISOViewer
                     .name('attenuation')                    
           
             }
-            const setControlsBindings = () => {
-
-                const thresholdController = this.debug.getController(raycastFolder, 'threshold')
-                const lowController = this.debug.getController(colormapFolder, 'low')
-                const highController = this.debug.getController(colormapFolder, 'high')
-                const powerController = this.debug.getController(lightingFolder, 'power')
-                const attenuationController = this.debug.getController(lightingFolder, 'attenuation')
-
-                // low <= threshold <= high
-                thresholdController.onChange((threshold) => 
-                {
-                    // low <= threshold
-                    lowController
-                        .setValue(Math.min(lowController.getValue(), threshold))
-                        .updateDisplay()
-                    
-                    // threshold <= high
-                    highController
-                        .setValue(Math.max(threshold, highController.getValue()))
-                        .updateDisplay()
-                })
-
-                // low <= threshold <= high
-                lowController.onChange((low) => 
-                {                   
-                    lowController 
-                        .setValue(Math.min(low, thresholdController.getValue(), highController.getValue()))
-                        .updateDisplay()
-                })
-
-                // low <= threshold <= high
-                highController.onChange((high) => 
-                {             
-                    highController 
-                        .setValue(Math.max(lowController.getValue(), thresholdController.getValue(), high))
-                        .updateDisplay()
-                })
-
-                // change power range based on attenuation
-                attenuationController.onChange((attenuation) => 
-                {
-                    if (attenuation)
-                        powerController
-                            .min(0)
-                            .max(20)
-                            .setValue(7)
-                            .updateDisplay()
-                    else
-                        powerController
-                            .min(0)
-                            .max(2)
-                            .setValue(1)
-                            .updateDisplay()
-                })                                                                                        
-            }
 
             setControlsRaycast(raycastFolder)
             setControlsGradient(gradientFolder)
             setControlsColormap(colormapFolder)
             setControlsLighting(lightingFolder)    
-            setControlsBindings()        
         }
     }
 
-    setOccupancy()
-    {        
-        this.occupancy = new GPUOccupancy(this.material.uniforms.u_occupancy_resolution.value, this.textures.volume, this.renderer.instance)
-        this.occupancy.setThreshold(this.material.uniforms.u_raycast_threshold.value)
-        this.occupancy.update() 
+    setControlBindings()
+    {
 
-        this.material.uniforms.u_occupancy_size.value = this.occupancy.sizes.occupancy
-        this.material.uniforms.u_occupancy_block.value = this.occupancy.sizes.block.clone().divide(this.occupancy.sizes.volume)
-        this.material.uniforms.u_occupancy_data.value = this.occupancy.getTexture()       
+        // folders
+        const viewerFolder = this.debug.getFolder(this.debug.ui, 'Viewer')
+        const raycastFolder = this.debug.getFolder(viewerFolder, 'raycast')
+        const colormapFolder = this.debug.getFolder(viewerFolder, 'colormap')
+        const lightingFolder = this.debug.getFolder(viewerFolder, 'lighting')
 
-        if(this.debug.active)
-        {
-            this.scene.add(this.occupancy.gpgpu.debug)
-            
-            // update occupancy map
-            const thresholdController = this.debug.getController(this.debug.ui, 'threshold')
+        // controllers
+        const thresholdController = this.debug.getController(raycastFolder, 'threshold')
+        const lowController = this.debug.getController(colormapFolder, 'low')
+        const highController = this.debug.getController(colormapFolder, 'high')
+        const powerController = this.debug.getController(lightingFolder, 'power')
+        const attenuationController = this.debug.getController(lightingFolder, 'attenuation')
 
-            thresholdController
-                .onFinishChange((threshold) => 
-                {
-                    this.occupancy.setThreshold(threshold)
-                    this.occupancy.update() 
-                    this.material.uniforms.u_occupancy_data.value = this.occupancy.getTexture()            
-                })
-                .onChange(throttleByCalls((threshold) => 
-                {
-                    this.occupancy.setThreshold(threshold)
-                    this.occupancy.update()     
-                    this.material.uniforms.u_occupancy_data.value = this.occupancy.getTexture()
-                    
-                }, 5))
+        const updateOccupancy = (threshold) => {
+
+            this.occupancy.setThreshold(threshold)
+            this.occupancy.update()
+            this.material.uniforms.u_occupancy_data.value = this.occupancy.getTexture()
+
         }
+
+        const throttledUpdateOccupancy = throttleByCalls(updateOccupancy, 3);
+
+        thresholdController
+            .onChange((threshold) => 
+            {
+                // low <= threshold
+                lowController
+                    .setValue(Math.min(lowController.getValue(), threshold))
+                    .updateDisplay()
+                
+                // threshold <= high
+                highController
+                    .setValue(Math.max(threshold, highController.getValue()))
+                    .updateDisplay()
+
+                throttledUpdateOccupancy(threshold)       
+            })
+            .onFinishChange((threshold) => updateOccupancy(threshold))
+
+        // low <= threshold <= high
+        lowController
+            .onChange((low) => 
+            {                   
+                lowController 
+                    .setValue(Math.min(low, thresholdController.getValue(), highController.getValue()))
+                    .updateDisplay()
+            })
+
+
+        // low <= threshold <= high
+        highController
+            .onChange((high) => 
+            {             
+                highController 
+                    .setValue(Math.max(lowController.getValue(), thresholdController.getValue(), high))
+                    .updateDisplay()
+            })
+
+
+        // change power range based on attenuation
+        attenuationController
+            .onChange((attenuation) => 
+            {
+                if (attenuation)
+                    powerController
+                        .min(0)
+                        .max(20)
+                        .setValue(7)
+                        .updateDisplay()
+                else
+                    powerController
+                        .min(0)
+                        .max(2)
+                        .setValue(1)
+                        .updateDisplay()
+            })             
+
     }
    
     update()

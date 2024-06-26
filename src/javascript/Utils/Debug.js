@@ -25,12 +25,12 @@ export default class Debug
         return null
     }
 
-    getFolder(gui, name) 
+    getFolder(gui, title) 
     {
         // Check if the controller is in the main GUI
         for (const folder of gui.foldersRecursive()) 
         {
-            if (folder._name === name)
+            if (folder._title === title)
                 return folder        
         }
 
