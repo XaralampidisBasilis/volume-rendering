@@ -1,4 +1,4 @@
-# Three.js Journey
+# volume-viewer
 
 ## Setup
 Download [Node.js](https://nodejs.org/en/download/).
