@@ -8,12 +8,14 @@ precision highp sampler3D; // highp, mediump, lowp
 uniform sampler3D u_volume_data;
 uniform vec3 u_volume_voxel;
 uniform float u_raycast_resolution;
+uniform vec3 u_occupancy_box_min;
+uniform vec3 u_occupancy_box_max;
 
 varying vec3 v_position;
 varying vec3 v_camera;
 varying vec3 v_direction;
 
-#include ../../utils/intersect_box_unit.glsl;
+#include ../../utils/intersect_box.glsl;
 #include ../../includes/gradient_methods.glsl;
 #include ../../includes/lighting_phong.glsl;
 #include ../../includes/color_mapping.glsl;
@@ -29,7 +31,7 @@ void main()
     vec3 step = ray_step(direction, u_volume_voxel, u_raycast_resolution);       
 
     // intersect volume box with ray and compute the range
-    vec2 range = intersect_box_unit(v_camera, step);
+    vec2 range = intersect_box(u_occupancy_box_min, u_occupancy_box_max, v_camera, step);
     range = max(range, 0.0); // Ensure the range is non-negative
 
     // discard fragments if the ray does not intersect the box

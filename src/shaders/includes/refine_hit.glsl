@@ -9,10 +9,10 @@
  * @param position: Output vec3 where the refined position of the intersection will be stored
  * @param value: Output float where the refined value at the intersection will be stored
  */
-void refine_hit(in sampler3D data, in vec3 end, in vec3 step, in float threshold, in float refinements, out float value)
+void refine_hit(in sampler3D data, in vec3 end, in vec3 step, in float threshold, in float refinements, out vec3 position, out float value)
 {
     vec3 substep = step / refinements;  // Refined substep 
-    vec3 position = end - step;    // Step back to refine the hit point
+    position = end - step;    // Step back to refine the hit point
     value = 0.0;
 
     for (float i = 0.0; i < refinements; i++) {

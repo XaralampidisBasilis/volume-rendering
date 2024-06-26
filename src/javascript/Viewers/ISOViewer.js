@@ -151,6 +151,7 @@ export default class ISOViewer
             const gradientFolder = viewerFolder.addFolder('gradient').close()
             const colormapFolder = viewerFolder.addFolder('colormap').close()
             const lightingFolder = viewerFolder.addFolder('lighting').close()   
+            const occupancyFolder = viewerFolder.addFolder('occupancy').close()   
 
             // controls
             const setControlsRaycast = (folder) => 
@@ -284,10 +285,21 @@ export default class ISOViewer
           
             }
 
+            const setControlsOccupancy = (folder) =>
+            {
+                folder
+                    .add(this.material.uniforms.u_occupancy_resolution, 'value')
+                    .name('blocks')
+                    .min(2)
+                    .max(64)
+                    .step(1) 
+            }
+
             setControlsRaycast(raycastFolder)
             setControlsGradient(gradientFolder)
             setControlsColormap(colormapFolder)
             setControlsLighting(lightingFolder)    
+            setControlsOccupancy(occupancyFolder)
         }
     }
 
@@ -300,6 +312,7 @@ export default class ISOViewer
             const raycastFolder = this.debug.getFolder(viewerFolder, 'raycast')
             const colormapFolder = this.debug.getFolder(viewerFolder, 'colormap')
             const lightingFolder = this.debug.getFolder(viewerFolder, 'lighting')
+            const occupancyFolder = this.debug.getFolder(viewerFolder, 'occupancy')
 
             // controllers
             const thresholdController = this.debug.getController(raycastFolder, 'threshold')
@@ -307,7 +320,9 @@ export default class ISOViewer
             const highController = this.debug.getController(colormapFolder, 'high')
             const powerController = this.debug.getController(lightingFolder, 'power')
             const attenuationController = this.debug.getController(lightingFolder, 'attenuation')
-
+            const blocksController = this.debug.getController(occupancyFolder, 'blocks')
+            
+            // updates
             const updateOccupancy = (threshold) => {
 
                 this.occupancy.setThreshold(threshold)
@@ -316,7 +331,10 @@ export default class ISOViewer
 
             }
 
-            const throttledUpdateOccupancy = throttleByCalls(updateOccupancy, 5);
+            const updateOccupancyThrottled = throttleByCalls(updateOccupancy, 5);
+
+            
+            // Raycast threshold
 
             thresholdController
                 .onChange((threshold) => 
@@ -331,11 +349,20 @@ export default class ISOViewer
                         .setValue(Math.max(threshold, highController.getValue()))
                         .updateDisplay()
 
-                    throttledUpdateOccupancy(threshold)       
+                    updateOccupancyThrottled(threshold)       
                 })
-                .onFinishChange((threshold) => updateOccupancy(threshold))
+                .onFinishChange((threshold) => 
+                {
+                    updateOccupancy(threshold)
 
-            // low <= threshold <= high
+                    this.occupancy.readBoundingBox()
+                    this.material.uniforms.u_occupancy_box_min.value = this.occupancy.box.min
+                    this.material.uniforms.u_occupancy_box_max.value = this.occupancy.box.max
+                })
+
+
+            // Colormap low
+
             lowController
                 .onChange((low) => 
                 {                   
@@ -345,7 +372,8 @@ export default class ISOViewer
                 })
 
 
-            // low <= threshold <= high
+            // Colormap high
+
             highController
                 .onChange((high) => 
                 {             
@@ -355,7 +383,8 @@ export default class ISOViewer
                 })
 
 
-            // change power range based on attenuation
+            // Lighting attenuation
+
             attenuationController
                 .onChange((attenuation) => 
                 {
@@ -371,7 +400,19 @@ export default class ISOViewer
                             .max(2)
                             .setValue(1)
                             .updateDisplay()
-                })     
+                })    
+
+            // Occupancy blocks
+                
+            blocksController
+                .onFinishChange((blocks) =>
+                {
+                    if (this.debug.active)
+                        this.scene.remove(this.occupancy.gpgpu.debug)
+
+                    this.occupancy.dispose()
+                    this.setOccupancy()
+                })
                 
         }
     }

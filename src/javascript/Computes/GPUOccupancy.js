@@ -11,7 +11,8 @@ export default class GPUOccupancy
 
         this.setSizes(texture, resolution)
         this.setTextures(texture)
-        this.setGpgpu(renderer)            
+        this.setGpgpu(renderer)
+        this.setBoundingBox()          
     }
 
     setSizes(texture, resolution)
@@ -28,7 +29,7 @@ export default class GPUOccupancy
         this.textures = {}
         this.textures.volume = texture // assumes intensity data 3D, and data3DTexture
 
-        const data = new Float32Array(this.sizes.occupancy.x * this.sizes.occupancy.y * this.sizes.occupancy.z * 4).fill(0)
+        const data = new Uint8Array(this.sizes.occupancy.x * this.sizes.occupancy.y * this.sizes.occupancy.z * 4).fill(0)
         this.textures.occupancy = new THREE.Data3DTexture(data, this.sizes.occupancy.x, this.sizes.occupancy.y, this.sizes.occupancy.z)
         this.textures.occupancy.format = THREE.RGBAFormat
         this.textures.occupancy.type = THREE.UnsignedByteType // options: UnsignedByteType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedInt5999Type
@@ -40,32 +41,13 @@ export default class GPUOccupancy
         this.textures.occupancy.unpackAlignment = 1
         this.textures.occupancy.needsUpdate = true    
     }
-
-    getTexture()
-    {
-        return this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.variable).texture
-    }
-
-    readTexture()
-    {
-        /* CAN CAUSE PERFORMANCE ISSUES */
-        this.renderer.readRenderTargetPixels(
-            this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.variable),
-            0, 
-            0, 
-            this.gpgpu.size.width, 
-            this.gpgpu.size.height,
-            this.textures.occupancy.image.data
-        )
-        this.textures.occupancy.needsUpdate = true;
-    }
-
+   
     setGpgpu(renderer)
     {
         this.gpgpu = {}
         this.gpgpu.size = new THREE.Vector2(this.sizes.occupancy.x, this.sizes.occupancy.y * this.sizes.occupancy.z)
         this.gpgpu.computation = new GPUComputationRenderer(this.gpgpu.size.x, this.gpgpu.size.y, renderer)        
-        this.gpgpu.computation.setDataType(THREE.UnsignedByteType) // options: UnsignedByteType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedInt5999Type
+        this.gpgpu.computation.setDataType(this.textures.occupancy.type) // options: UnsignedByteType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedInt5999Type
 
         // variable
         this.gpgpu.texture = this.gpgpu.computation.createTexture()
@@ -86,15 +68,102 @@ export default class GPUOccupancy
         // debug
         this.gpgpu.debug = new THREE.Mesh(
             new THREE.PlaneGeometry(this.gpgpu.size.width, this.gpgpu.size.height),
-            new THREE.MeshBasicMaterial({ side: THREE.FrontSide, transparent: true })
+            new THREE.MeshBasicMaterial({ side: THREE.FrontSide, transparent: true, opacity: 0.5 })
         )
         this.gpgpu.debug.material.map = this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.variable).texture
-        this.gpgpu.debug.scale.setScalar(0.01)
+        this.gpgpu.debug.scale.divideScalar(this.gpgpu.size.height)
     }
+
+    setBoundingBox()
+    {
+        this.box = new THREE.Box3()
+        this.box.min = new THREE.Vector3(0, 0, 0)
+        this.box.max = new THREE.Vector3(1, 1, 1)    
+    }     
 
     setThreshold(threshold)
     {
         this.gpgpu.variable.material.uniforms.u_threshold.value = threshold
+    }
+
+    readTexture()
+    {
+        /* CAN CAUSE PERFORMANCE ISSUES */
+        this.renderer.readRenderTargetPixels(
+            this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.variable),
+            0, 
+            0, 
+            this.gpgpu.size.width, 
+            this.gpgpu.size.height,
+            this.textures.occupancy.image.data
+        )
+        this.textures.occupancy.needsUpdate = true;
+    }
+
+    readBoundingBox()
+    {
+        this.readTexture()
+        this.box.min = new THREE.Vector3()
+        this.box.max = new THREE.Vector3()
+
+        const blockMin = new THREE.Vector3()
+        const blockMax = new THREE.Vector3()
+        const occupancy = this.textures.occupancy.image.data;
+        const blocks = this.sizes.occupancy.x * this.sizes.occupancy.x * this.sizes.occupancy.x
+        const area = this.sizes.occupancy.x * this.sizes.occupancy.y
+
+        for (let n = 0; n < blocks; n++) {
+
+            // convert 1d to 3d coordinates
+            const z = Math.floor(n / area)
+            const y = Math.floor((n % area) / this.sizes.occupancy.x)
+            const x = n % this.sizes.occupancy.x
+        
+            // multiply by 4 because each voxel has 4 values (R, G, B, A)
+            if (occupancy[n * 4] > 0) { 
+
+                blockMin.set(x + 0, y + 0, z + 0).multiply(this.sizes.block)
+                blockMax.set(x + 1, y + 1, z + 1).multiply(this.sizes.block)
+
+                this.box.expandByPoint(blockMin)
+                this.box.expandByPoint(blockMax)
+            }
+        }
+
+        // normalize box volume coordinates
+        this.box.min.divide(this.sizes.volume).clampScalar(0, 1)
+        this.box.max.divide(this.sizes.volume).clampScalar(0, 1)
+
+        console.log(this.box)
+        /* nested for loops
+        for (let z = 0; z < this.sizes.occupancy.z; z++) {
+            const Z = this.sizes.occupancy.x * this.sizes.occupancy.y * z
+
+            for (let y = 0; y < this.sizes.occupancy.y; y++) {
+                const Y = this.sizes.occupancy.x * y
+
+                for (let x = 0; x < this.sizes.occupancy.x; x++) {
+
+                    // multiply by 4 because each voxel has 4 values (R, G, B, A)
+                    let n = (x + Y + Z) * 4 
+
+                    if (occupancy[n]) 
+                    { 
+                        blockMin.set(x, y, z).multiply(this.sizes.block)
+                        blockMax.copy(blockMin).add(this.sizes.block)
+
+                        this.box.expandByPoint(blockMin)
+                        this.box.expandByPoint(blockMax)
+                    }
+                }
+            }
+        }
+        */
+    }
+
+    getTexture()
+    {
+        return this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.variable).texture
     }
 
     update()
@@ -105,7 +174,16 @@ export default class GPUOccupancy
 
     dispose()
     {
+        // Dispose textures
+        this.textures.volume.dispose();
+        this.textures.occupancy.dispose();
 
+        // Dispose GPGPU computation renderer
+        this.gpgpu.computation.dispose();
+
+        // Dispose debug mesh and its materials and geometries
+        this.gpgpu.debug.geometry.dispose();
+        this.gpgpu.debug.material.dispose();
     }
 
 }

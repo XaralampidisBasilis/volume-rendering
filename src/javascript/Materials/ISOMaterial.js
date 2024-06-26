@@ -44,6 +44,8 @@ export default function()
         u_occupancy_data:           new THREE.Uniform(),
         u_occupancy_size:           new THREE.Uniform(new THREE.Vector3()),
         u_occupancy_block:          new THREE.Uniform(new THREE.Vector3()),
+        u_occupancy_box_min:        new THREE.Uniform(new THREE.Vector3(0, 0, 0)),
+        u_occupancy_box_max:        new THREE.Uniform(new THREE.Vector3(1, 1, 1)),
         u_occupancy_resolution:     new THREE.Uniform(24),
   
     }

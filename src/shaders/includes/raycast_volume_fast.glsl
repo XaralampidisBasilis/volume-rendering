@@ -49,7 +49,7 @@ bool raycast_volume_fast(sampler3D volume_data, vec3 ray_start, vec3 ray_step, v
 
             if (hit) 
             {
-                // refine_hit(volume_data, position, ray_step, u_raycast_threshold, u_raycast_refinements, value);             
+                // refine_hit(volume_data, position, ray_step, u_raycast_threshold, u_raycast_refinements, position, value);             
                 return true;
             }
         }
