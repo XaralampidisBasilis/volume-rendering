@@ -3,7 +3,7 @@ uniform sampler2D u_occupancy_data;
 uniform vec3 u_occupancy_size;
 uniform vec3 u_occupancy_block;
 uniform float u_raycast_threshold;  
-uniform int u_raycast_refinements;  
+uniform float u_raycast_refinements;  
 uniform float u_raycast_dithering;
 
 #include ./dithering.glsl;
@@ -24,21 +24,20 @@ bool raycast_block(in sampler3D data, in vec3 start, in vec3 ray_step, in float 
  * @param value: Output float where the value at the intersection will be stored
  */
 
-bool raycast_volume_fast(sampler3D volume_data, vec3 ray_start, vec3 ray_step, vec2 range, out vec3 position, out float value) 
+bool raycast_volume_fast(sampler3D volume_data, vec3 ray_start, vec3 ray_step, vec2 steps_range, out vec3 position, out float value) 
 {
     // apply dithering 
-    range.x += dithering(u_noisemap_data, ray_step, range) * u_raycast_dithering; 
+    steps_range.x += dithering(u_noisemap_data, ray_step, steps_range) * u_raycast_dithering; 
 
     // raycast loop
-    float steps = range.x;
+    float steps = steps_range.x;
     float count = 0.0;
+    float count_max = u_occupancy_size.x + u_occupancy_size.y + u_occupancy_size.z;
     
     // initialize position and depth
     position = ray_start + ray_step * steps; 
 
-    while ((steps < range.y) && (count < 1000.0)) {
-
-    // for (float steps = range.x; steps < range.y; steps++) {
+    while (steps < steps_range.y && count < count_max) {
 
         // check block occupacy
         float exit_steps = 0.0;
@@ -50,9 +49,7 @@ bool raycast_volume_fast(sampler3D volume_data, vec3 ray_start, vec3 ray_step, v
 
             if (hit) 
             {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-                // refine_hit(volume_data, position, ray_step, u_raycast_threshold, u_raycast_refinements, position, value);             
-
+                // refine_hit(volume_data, position, ray_step, u_raycast_threshold, u_raycast_refinements, value);             
                 return true;
             }
         }
@@ -60,8 +57,8 @@ bool raycast_volume_fast(sampler3D volume_data, vec3 ray_start, vec3 ray_step, v
         {
             // Move to next block
             steps += exit_steps;
-            position =+ exit_steps * ray_step;
-        }       
+            position += exit_steps * ray_step;
+        }
 
         count++;
     }   

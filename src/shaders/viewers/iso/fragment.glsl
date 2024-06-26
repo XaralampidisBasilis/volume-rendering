@@ -17,43 +17,40 @@ varying vec3 v_direction;
 #include ../../includes/gradient_methods.glsl;
 #include ../../includes/lighting_phong.glsl;
 #include ../../includes/color_mapping.glsl;
-#include ../../includes/raycast_volume.glsl;
-// #include ../../includes/raycast_volume_fast.glsl;
+#include ../../includes/raycast_volume_fast.glsl;
 #include ../../includes/ray_step.glsl;
 
-void main() {
-
-    // gl_FragColor = vec4(vec3(1.0), 1.0);
-    // return;
-
-    // Normalize the view direction vector
+void main() 
+{
+    // normalize view direction vector
     vec3 direction = normalize(v_direction);
-    vec3 step = ray_step(direction, u_volume_voxel, u_raycast_resolution);            // Calculate the main ray step size
 
-    // Compute the intersection of the ray with the unit box
+    // calculate ray step vector
+    vec3 step = ray_step(direction, u_volume_voxel, u_raycast_resolution);       
+
+    // intersect volume box with ray and compute the range
     vec2 range = intersect_box_unit(v_camera, step);
     range = max(range, 0.0); // Ensure the range is non-negative
 
-    if (range.x > range.y)     // Discard the fragment if the ray does not intersect the box
-        discard; 
+    // discard fragments if the ray does not intersect the box
+    if (range.x > range.y) discard; 
 
-    // Perform raycasting to determine depth and value
+    // perform fast raycasting to get hit position and value
     float value = 0.0;
     vec3 position = v_camera;
-
-    bool hit = raycast_volume(u_volume_data, v_camera, step, range, position, value);
+    bool hit = raycast_volume_fast(u_volume_data, v_camera, step, range, position, value);
 
     if (hit) 
     {
-        // Compute the gradient at the position
+        // compute the gradient normal vectir at hit position
         float value_near = 0.0;
         vec3 normal_vector = gradient_methods(u_volume_data, position, u_volume_voxel, value_near);
 
-        // Determine the maximum value for color mapping
+        // determine maximum value for color mapping
         float value_max = max(value, value_near);    
         vec3 color = color_mapping(value_max);        
 
-        // Apply Phong lighting model
+        // apply phong illuminaton model
         vec3 view_vector = v_camera - v_position;
         vec3 light_vector = view_vector + vec3(0.0, 0.2, 0.0);
         vec3 color_phong = lighting_phong(color, normal_vector, view_vector, light_vector);
@@ -61,10 +58,10 @@ void main() {
         gl_FragColor = vec4(color_phong, 1.0);
         return;
     }
+    else 
+        discard;  // discard fragment if there is no hit
 
-    discard; // Discard the fragment if no value is found
-
-    // Include tone mapping and color space correction
+    // include tone mapping and color space correction
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
 }

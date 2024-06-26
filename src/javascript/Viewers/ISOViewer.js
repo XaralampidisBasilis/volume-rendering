@@ -293,85 +293,87 @@ export default class ISOViewer
 
     setControlBindings()
     {
+        if(this.debug.active)
+        {          
+            // folders
+            const viewerFolder = this.debug.getFolder(this.debug.ui, 'Viewer')
+            const raycastFolder = this.debug.getFolder(viewerFolder, 'raycast')
+            const colormapFolder = this.debug.getFolder(viewerFolder, 'colormap')
+            const lightingFolder = this.debug.getFolder(viewerFolder, 'lighting')
 
-        // folders
-        const viewerFolder = this.debug.getFolder(this.debug.ui, 'Viewer')
-        const raycastFolder = this.debug.getFolder(viewerFolder, 'raycast')
-        const colormapFolder = this.debug.getFolder(viewerFolder, 'colormap')
-        const lightingFolder = this.debug.getFolder(viewerFolder, 'lighting')
+            // controllers
+            const thresholdController = this.debug.getController(raycastFolder, 'threshold')
+            const lowController = this.debug.getController(colormapFolder, 'low')
+            const highController = this.debug.getController(colormapFolder, 'high')
+            const powerController = this.debug.getController(lightingFolder, 'power')
+            const attenuationController = this.debug.getController(lightingFolder, 'attenuation')
 
-        // controllers
-        const thresholdController = this.debug.getController(raycastFolder, 'threshold')
-        const lowController = this.debug.getController(colormapFolder, 'low')
-        const highController = this.debug.getController(colormapFolder, 'high')
-        const powerController = this.debug.getController(lightingFolder, 'power')
-        const attenuationController = this.debug.getController(lightingFolder, 'attenuation')
+            const updateOccupancy = (threshold) => {
 
-        const updateOccupancy = (threshold) => {
+                this.occupancy.setThreshold(threshold)
+                this.occupancy.update()
+                this.material.uniforms.u_occupancy_data.value = this.occupancy.getTexture()
 
-            this.occupancy.setThreshold(threshold)
-            this.occupancy.update()
-            this.material.uniforms.u_occupancy_data.value = this.occupancy.getTexture()
+            }
 
-        }
+            const throttledUpdateOccupancy = throttleByCalls(updateOccupancy, 5);
 
-        const throttledUpdateOccupancy = throttleByCalls(updateOccupancy, 3);
+            thresholdController
+                .onChange((threshold) => 
+                {
+                    // low <= threshold
+                    lowController
+                        .setValue(Math.min(lowController.getValue(), threshold))
+                        .updateDisplay()
+                    
+                    // threshold <= high
+                    highController
+                        .setValue(Math.max(threshold, highController.getValue()))
+                        .updateDisplay()
 
-        thresholdController
-            .onChange((threshold) => 
-            {
-                // low <= threshold
-                lowController
-                    .setValue(Math.min(lowController.getValue(), threshold))
-                    .updateDisplay()
+                    throttledUpdateOccupancy(threshold)       
+                })
+                .onFinishChange((threshold) => updateOccupancy(threshold))
+
+            // low <= threshold <= high
+            lowController
+                .onChange((low) => 
+                {                   
+                    lowController 
+                        .setValue(Math.min(low, thresholdController.getValue(), highController.getValue()))
+                        .updateDisplay()
+                })
+
+
+            // low <= threshold <= high
+            highController
+                .onChange((high) => 
+                {             
+                    highController 
+                        .setValue(Math.max(lowController.getValue(), thresholdController.getValue(), high))
+                        .updateDisplay()
+                })
+
+
+            // change power range based on attenuation
+            attenuationController
+                .onChange((attenuation) => 
+                {
+                    if (attenuation)
+                        powerController
+                            .min(0)
+                            .max(20)
+                            .setValue(7)
+                            .updateDisplay()
+                    else
+                        powerController
+                            .min(0)
+                            .max(2)
+                            .setValue(1)
+                            .updateDisplay()
+                })     
                 
-                // threshold <= high
-                highController
-                    .setValue(Math.max(threshold, highController.getValue()))
-                    .updateDisplay()
-
-                throttledUpdateOccupancy(threshold)       
-            })
-            .onFinishChange((threshold) => updateOccupancy(threshold))
-
-        // low <= threshold <= high
-        lowController
-            .onChange((low) => 
-            {                   
-                lowController 
-                    .setValue(Math.min(low, thresholdController.getValue(), highController.getValue()))
-                    .updateDisplay()
-            })
-
-
-        // low <= threshold <= high
-        highController
-            .onChange((high) => 
-            {             
-                highController 
-                    .setValue(Math.max(lowController.getValue(), thresholdController.getValue(), high))
-                    .updateDisplay()
-            })
-
-
-        // change power range based on attenuation
-        attenuationController
-            .onChange((attenuation) => 
-            {
-                if (attenuation)
-                    powerController
-                        .min(0)
-                        .max(20)
-                        .setValue(7)
-                        .updateDisplay()
-                else
-                    powerController
-                        .min(0)
-                        .max(2)
-                        .setValue(1)
-                        .updateDisplay()
-            })             
-
+        }
     }
    
     update()
