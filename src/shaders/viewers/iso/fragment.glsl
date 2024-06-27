@@ -19,7 +19,7 @@ varying vec3 v_direction;
 #include ../../includes/gradient_methods.glsl;
 #include ../../includes/lighting_phong.glsl;
 #include ../../includes/color_mapping.glsl;
-#include ../../includes/raycast_volume_fast.glsl;
+#include ../../includes/raycast_volume.glsl;
 #include ../../includes/ray_step.glsl;
 
 void main() 
@@ -40,10 +40,10 @@ void main()
     // perform fast raycasting to get hit position and value
     float value = 0.0;
     vec3 position = v_camera;
-    bool hit = raycast_volume_fast(u_volume_data, v_camera, step, range, position, value);
+    bool hit = raycast_volume(u_volume_data, v_camera, step, range, position, value);
 
-    if (hit) 
-    {
+    if (hit) {
+
         // compute the gradient normal vectir at hit position
         float value_near = 0.0;
         vec3 normal_vector = gradient_methods(u_volume_data, position, u_volume_voxel, value_near);
@@ -59,6 +59,7 @@ void main()
 
         gl_FragColor = vec4(color_phong, 1.0);
         return;
+        
     }
     else 
         discard;  // discard fragment if there is no hit

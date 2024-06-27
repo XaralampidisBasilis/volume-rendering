@@ -1,11 +1,5 @@
-uniform sampler2D u_noisemap_data;
-uniform sampler2D u_occupancy_data;
-uniform vec3 u_occupancy_size;
-uniform vec3 u_occupancy_block;
-uniform float u_raycast_threshold;  
-uniform float u_raycast_refinements;  
-uniform float u_raycast_dithering;
 
+#include ../uniforms/raycast_volume_fast.glsl;
 #include ./dithering.glsl;
 #include ./check_block_occupancy.glsl;
 #include ./refine_hit.glsl;

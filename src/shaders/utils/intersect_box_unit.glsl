@@ -1,3 +1,6 @@
+#ifndef UTILS_INTERSECT_BOX_UNIT
+#define UTILS_INTERSECT_BOX_UNIT
+
 vec2 intersect_box_unit(vec3 orig, vec3 dir) 
 {
     // Ray-AABB (Axis Aligned Bounding Box) intersection.
@@ -16,3 +19,5 @@ vec2 intersect_box_unit(vec3 orig, vec3 dir)
 
     return vec2(t_0, t_1);
 }
+
+#endif

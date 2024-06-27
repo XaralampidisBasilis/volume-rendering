@@ -1,3 +1,6 @@
+#ifndef UTILS_RESHAPE_COORDINATES
+#define UTILS_RESHAPE_COORDINATES
+
 float reshape_3d_to_1d(in vec3 pos3, in vec3 size)
 {
     // pos in [0, size]
@@ -113,3 +116,5 @@ ivec3 reshape_2d_to_3d(in ivec2 pos2, in ivec3 size)
 
     return pos3;
 }
+
+#endif

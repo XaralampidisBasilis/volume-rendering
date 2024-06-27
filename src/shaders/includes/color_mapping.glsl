@@ -1,9 +1,5 @@
-uniform sampler2D u_colormap_data;      // 2D texture containing the colormap data
-uniform vec2 u_colormap_u_range;        // Range for the u-coordinate in the colormap texture
-uniform vec2 u_colormap_u_lim;          // Limits to scale the input value 'u'
-uniform float u_colormap_v;             // Fixed v-coordinate in the colormap texture that defines the colormap
-
-#include "../utils/ramp.glsl";
+#include ../uniforms/color_mapping.glsl;
+#include ../utils/ramp.glsl;
 
 /**
  * Maps a float value to a color using a 2D colormap texture.

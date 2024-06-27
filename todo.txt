@@ -6,3 +6,10 @@
 3. Improve dithering function 
 
 4. For some reason when i use raycast_volume_fast function and i degub with dithering goind out instead of in there is some weird behavior
+I found out that the ray_step function needs to change. If i have a constant step length to all directions the effect goes away
+
+5. Modularize XRGestures function
+
+6. Do better breaking to shader chunks and use #ifndef
+
+7. Compute in occupancy shader the min and max voxels in block

@@ -160,8 +160,8 @@ export default class ISOViewer
                     .add(this.material.uniforms.u_raycast_threshold, 'value')
                     .name('threshold')
                     .min(0)
-                    .max(1)
-                    .step(0.001) 
+                    .max(0.5)
+                    .step(0.0001) 
     
                 folder
                     .add(this.material.uniforms.u_raycast_resolution, 'value')
@@ -287,12 +287,23 @@ export default class ISOViewer
 
             const setControlsOccupancy = (folder) =>
             {
+                const object = { visible: true}
+
                 folder
                     .add(this.material.uniforms.u_occupancy_resolution, 'value')
                     .name('blocks')
                     .min(2)
                     .max(64)
                     .step(1) 
+
+                folder
+                    .add(object, 'visible')
+                    .name('visible')
+                    .onChange((visible) => 
+                    {  
+                        if(this.debug.active)
+                            this.occupancy.gpgpu.debug.material.visible = visible
+                    })
             }
 
             setControlsRaycast(raycastFolder)

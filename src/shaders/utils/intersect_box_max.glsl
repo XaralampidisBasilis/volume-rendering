@@ -1,3 +1,6 @@
+#ifndef UTILS_INTERSECT_BOX_MAX
+#define UTILS_INTERSECT_BOX_MAX
+
 float intersect_box_max(vec3 box_min, vec3 box_max, vec3 start, vec3 direction) 
 {
     // Ray-AABB (Axis Aligned Bounding Box) intersection.
@@ -14,3 +17,5 @@ float intersect_box_max(vec3 box_min, vec3 box_max, vec3 start, vec3 direction)
 
     return t_1;
 }
+
+#endif

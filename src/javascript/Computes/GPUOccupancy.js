@@ -68,7 +68,7 @@ export default class GPUOccupancy
         // debug
         this.gpgpu.debug = new THREE.Mesh(
             new THREE.PlaneGeometry(this.gpgpu.size.width, this.gpgpu.size.height),
-            new THREE.MeshBasicMaterial({ side: THREE.FrontSide, transparent: true, opacity: 0.5 })
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5 })
         )
         this.gpgpu.debug.material.map = this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.variable).texture
         this.gpgpu.debug.scale.divideScalar(this.gpgpu.size.height)
@@ -108,49 +108,22 @@ export default class GPUOccupancy
 
         const blockMin = new THREE.Vector3()
         const blockMax = new THREE.Vector3()
-        const occupancy = this.textures.occupancy.image.data;
-        const blocks = this.sizes.occupancy.x * this.sizes.occupancy.x * this.sizes.occupancy.x
-        const area = this.sizes.occupancy.x * this.sizes.occupancy.y
+        const occupancy = this.textures.occupancy.image.data
+        const numBlocks = this.sizes.occupancy
 
-        for (let n = 0; n < blocks; n++) {
+        for (let z = 0; z < numBlocks.z; z++) {
+            const Z = numBlocks.x * numBlocks.y * z
 
-            // convert 1d to 3d coordinates
-            const z = Math.floor(n / area)
-            const y = Math.floor((n % area) / this.sizes.occupancy.x)
-            const x = n % this.sizes.occupancy.x
-        
-            // multiply by 4 because each voxel has 4 values (R, G, B, A)
-            if (occupancy[n * 4] > 0) { 
+            for (let y = 0; y < numBlocks.y; y++) {
+                const Y = numBlocks.x * y
 
-                blockMin.set(x + 0, y + 0, z + 0).multiply(this.sizes.block)
-                blockMax.set(x + 1, y + 1, z + 1).multiply(this.sizes.block)
+                for (let x = 0; x < numBlocks.x; x++) {
+                    let n = (x + Y + Z) * 4                              // multiply by 4 because each voxel has 4 values (R, G, B, A)
 
-                this.box.expandByPoint(blockMin)
-                this.box.expandByPoint(blockMax)
-            }
-        }
+                    if (occupancy[n]) { 
 
-        // normalize box volume coordinates
-        this.box.min.divide(this.sizes.volume).clampScalar(0, 1)
-        this.box.max.divide(this.sizes.volume).clampScalar(0, 1)
-
-        console.log(this.box)
-        /* nested for loops
-        for (let z = 0; z < this.sizes.occupancy.z; z++) {
-            const Z = this.sizes.occupancy.x * this.sizes.occupancy.y * z
-
-            for (let y = 0; y < this.sizes.occupancy.y; y++) {
-                const Y = this.sizes.occupancy.x * y
-
-                for (let x = 0; x < this.sizes.occupancy.x; x++) {
-
-                    // multiply by 4 because each voxel has 4 values (R, G, B, A)
-                    let n = (x + Y + Z) * 4 
-
-                    if (occupancy[n]) 
-                    { 
-                        blockMin.set(x, y, z).multiply(this.sizes.block)
-                        blockMax.copy(blockMin).add(this.sizes.block)
+                        blockMin.set(x + 0, y + 0, z + 0).multiply(this.sizes.block)
+                        blockMax.set(x + 1, y + 1, z + 1).multiply(this.sizes.block)
 
                         this.box.expandByPoint(blockMin)
                         this.box.expandByPoint(blockMax)
@@ -158,7 +131,11 @@ export default class GPUOccupancy
                 }
             }
         }
-        */
+
+        // normalize box volume coordinates
+        this.box.min.divide(this.sizes.volume).clampScalar(0, 1)
+        this.box.max.divide(this.sizes.volume).clampScalar(0, 1)   
+        
     }
 
     getTexture()

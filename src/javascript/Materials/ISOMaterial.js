@@ -16,7 +16,7 @@ export default function()
         u_volume_voxel:             new THREE.Uniform(new THREE.Vector3()),
         u_volume_data:              new THREE.Uniform(),
         
-        u_raycast_threshold:        new THREE.Uniform(0.2),   
+        u_raycast_threshold:        new THREE.Uniform(0),   
         u_raycast_refinements:      new THREE.Uniform(1),   
         u_raycast_resolution:       new THREE.Uniform(1),   
         u_raycast_dithering:        new THREE.Uniform(true),   
