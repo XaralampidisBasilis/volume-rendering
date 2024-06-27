@@ -1,5 +1,5 @@
-#include ../colormap/uniforms.glsl;
 #include ../utils/ramp.glsl;
+#include ../utils/sample_colormap.glsl;
 
 /**
  * Maps a float value to a color using a 2D colormap texture.
@@ -8,14 +8,16 @@
  *
  * @return vec3 The RGB color corresponding to the input value
  */
-vec3 colormap(float u) 
+vec3 colormap(colormap_uniforms u_colormap, float intensity) 
 {
     // Scale the input value 'u' using the provided limits
-    u = ramp(u_colormap_u_lim[0], u_colormap_u_lim[1], u);
+    intensity = ramp(u_colormap.u_lim.x, u_colormap.u_lim.y, intensity);
     
     // Interpolate the u-coordinate within the colormap texture range
-    u = mix(u_colormap_u_range[0], u_colormap_u_range[1], u);
+    intensity = mix(u_colormap.u_range.x, u_colormap.u_range.y, intensity);
 
     // Return the sample from the colormap texture at the calculated coordinates
-    return texture(u_colormap_data, vec2(u, u_colormap_v)).rgb;
+    vec2 uv = vec2(intensity, u_colormap.v);
+    
+    return sample_colormap(u_colormap.data, uv);
 }

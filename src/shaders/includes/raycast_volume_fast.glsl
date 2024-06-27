@@ -20,7 +20,7 @@ bool raycast_block(in sampler3D data, in vec3 start, in vec3 ray_step, in float 
 bool raycast_volume_fast(sampler3D volume_data, vec3 ray_start, vec3 ray_step, vec2 steps_range, out vec3 position, out float value) 
 {
     // apply dithering 
-    steps_range.x += dithering(u_noisemap_data, ray_step, steps_range) * u_raycast_dithering; 
+    steps_range.x += dithering(u_noisemap_data, ray_step, steps_range) * u_raycast_dither; 
 
     // raycast loop
     float steps = steps_range.x;

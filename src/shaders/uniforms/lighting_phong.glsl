@@ -9,7 +9,7 @@ uniform float u_lighting_ka;
 uniform float u_lighting_kd; 
 uniform float u_lighting_ks; 
 
-uniform bool u_lighting_attenuation;
+uniform bool u_lighting_attenuate;
 uniform float u_lighting_shininess;
 uniform float u_lighting_power;
 uniform int u_lighting_mode;

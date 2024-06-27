@@ -7,6 +7,6 @@ uniform vec3 u_occupancy_size;
 uniform vec3 u_occupancy_block;
 uniform float u_raycast_threshold;  
 uniform float u_raycast_refinements;  
-uniform float u_raycast_dithering;
+uniform float u_raycast_dither;
 
 #endif

@@ -13,7 +13,7 @@ vec3 lighting_phong(vec3 color, vec3 normal_vector, vec3 view_vector, vec3 light
 {
     // Calculate distance and its squared value, considering attenuation
     float distance_inv = 1.0 / length(light_vector);
-    float attenuation = mix(1.0, distance_inv * distance_inv, u_lighting_attenuation) * u_lighting_power;  
+    float attenuation = mix(1.0, distance_inv * distance_inv, u_lighting_attenuate) * u_lighting_power;  
     
     // Compute ambient, diffuse, and specular color components
     vec3 a_color = u_lighting_a_color * u_lighting_ka;

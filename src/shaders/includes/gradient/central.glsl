@@ -1,3 +1,5 @@
+#include ../utils/sample_intensity.glsl;
+
 /**
  * Calculates the gradient and maximum value at a given position in a 3D texture using the central differences approximation.
  *
@@ -8,21 +10,21 @@
  * @param grad: Output vector where the gradient will be stored
  * @param value_max: Output float where the maximum value of the sampled points will be stored
  */
-vec3 central(sampler3D data, vec3 pos, vec3 step, out float value_max)
+vec3 central(sampler3D volume_data, vec3 position, vec3 voxel_step, out float value_max)
 {
     vec3 offset[6] = vec3[6](
-        vec3(+step.x, 0.0, 0.0), // Right
-        vec3(-step.x, 0.0, 0.0), // Left
-        vec3(0.0, +step.y, 0.0), // Top
-        vec3(0.0, -step.y, 0.0), // Bottom
-        vec3(0.0, 0.0, +step.z), // Near
-        vec3(0.0, 0.0, -step.z)  // Far
+        vec3(+voxel_step.x, 0.0, 0.0), // Right
+        vec3(-voxel_step.x, 0.0, 0.0), // Left
+        vec3(0.0, +voxel_step.y, 0.0), // Top
+        vec3(0.0, -voxel_step.y, 0.0), // Bottom
+        vec3(0.0, 0.0, +voxel_step.z), // Near
+        vec3(0.0, 0.0, -voxel_step.z)  // Far
     );
 
     float values[6];
     for (int i = 0; i < 6; i++)
     {
-        values[i] = texture(data, pos + offset[i]).r;
+        values[i] = sample_intensity(volume_data, position + offset[i]);
     }
 
     vec3 grad = vec3(

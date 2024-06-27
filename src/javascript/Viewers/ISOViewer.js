@@ -111,11 +111,12 @@ export default class ISOViewer
         this.material = new ISOMaterial()
         
         this.material.uniforms.u_volume_voxel.value.fromArray(this.resource.volume.dimensions.map((x) => 1/x))
+        this.material.uniforms.u_volume_dimensions.value.fromArray(this.resource.volume.dimensions)
         this.material.uniforms.u_volume_size.value.fromArray(this.resource.volume.size)
         this.material.uniforms.u_volume_data.value = this.textures.volume
-        this.material.uniforms.u_mask_data.value = this.textures.mask
+        this.material.uniforms.u_volume_mask.value = this.textures.mask
         this.material.uniforms.u_colormap_data.value = this.colormaps    
-        this.material.uniforms.u_noisemap_data.value = this.noisemaps.white256
+        this.material.uniforms.u_raycast_noise.value = this.noisemaps.white256
     }
 
     setMesh()
@@ -153,6 +154,27 @@ export default class ISOViewer
             const lightingFolder = viewerFolder.addFolder('lighting').close()   
             const occupancyFolder = viewerFolder.addFolder('occupancy').close()   
 
+            // close other folders when opening one
+            const folders = [raycastFolder, gradientFolder, colormapFolder, lightingFolder, occupancyFolder];
+
+            const closeOtherFolders = (openFolder) => {
+
+                folders.forEach(folder => 
+                {
+                    if (folder !== openFolder)
+                        folder.close()
+                })
+            }
+    
+            folders.forEach((folder) => 
+            {
+                folder.onOpenClose((openFolder) => 
+                {
+                    if (!openFolder._closed)
+                        closeOtherFolders(openFolder)
+                })
+            })
+
             // controls
             const setControlsRaycast = (folder) => 
             {                
@@ -178,8 +200,8 @@ export default class ISOViewer
                     .step(1)
                                         
                 folder
-                    .add(this.material.uniforms.u_raycast_dithering, 'value')
-                    .name('dithering')      
+                    .add(this.material.uniforms.u_raycast_dither, 'value')
+                    .name('dither')      
             }
 
             const setControlsGradient = (folder) =>
@@ -280,8 +302,8 @@ export default class ISOViewer
                     .options({ phong: 1, blinn: 2})
     
                 folder
-                    .add(this.material.uniforms.u_lighting_attenuation, 'value')
-                    .name('attenuation')                    
+                    .add(this.material.uniforms.u_lighting_attenuate, 'value')
+                    .name('attenuate')                    
           
             }
 
@@ -330,7 +352,7 @@ export default class ISOViewer
             const lowController = this.debug.getController(colormapFolder, 'low')
             const highController = this.debug.getController(colormapFolder, 'high')
             const powerController = this.debug.getController(lightingFolder, 'power')
-            const attenuationController = this.debug.getController(lightingFolder, 'attenuation')
+            const attenuateController = this.debug.getController(lightingFolder, 'attenuate')
             const blocksController = this.debug.getController(occupancyFolder, 'blocks')
             
             // updates
@@ -396,10 +418,10 @@ export default class ISOViewer
 
             // Lighting attenuation
 
-            attenuationController
-                .onChange((attenuation) => 
+            attenuateController
+                .onChange((attenuate) => 
                 {
-                    if (attenuation)
+                    if (attenuate)
                         powerController
                             .min(0)
                             .max(20)

@@ -8,19 +8,19 @@ import fragmentShader from '../../shaders/viewers/iso/fragment.glsl'
 export default function()
 {
     const uniforms = {
-        
-        u_mask_data:                new THREE.Uniform(),   
-        u_noisemap_data:            new THREE.Uniform(),   
-        
+                
+        u_volume_dimensions:        new THREE.Uniform(new THREE.Vector3()),
         u_volume_size:              new THREE.Uniform(new THREE.Vector3()),
         u_volume_voxel:             new THREE.Uniform(new THREE.Vector3()),
         u_volume_data:              new THREE.Uniform(),
-        
+        u_volume_mask:              new THREE.Uniform(),   
+
+        u_raycast_noise:            new THREE.Uniform(),   
         u_raycast_threshold:        new THREE.Uniform(0),   
         u_raycast_refinements:      new THREE.Uniform(1),   
         u_raycast_resolution:       new THREE.Uniform(1),   
-        u_raycast_dithering:        new THREE.Uniform(true),   
-        
+        u_raycast_dither:           new THREE.Uniform(true),   
+
         u_gradient_method:          new THREE.Uniform(1),      
         u_gradient_resolution:      new THREE.Uniform(0.7),      
             
@@ -30,7 +30,7 @@ export default function()
         u_colormap_u_range:         new THREE.Uniform(new THREE.Vector2(colormaps['cet_d9'].u_start, colormaps['cet_d9'].u_end)),
         u_colormap_u_lim:           new THREE.Uniform(new THREE.Vector2(0, 1)),
         
-        u_lighting_attenuation:     new THREE.Uniform(false),
+        u_lighting_attenuate:       new THREE.Uniform(false),
         u_lighting_shininess:       new THREE.Uniform(40),    
         u_lighting_power:           new THREE.Uniform(0.7),    
         u_lighting_mode:            new THREE.Uniform(2),    

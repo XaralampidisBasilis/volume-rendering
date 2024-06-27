@@ -1,7 +1,6 @@
-#include ../uniforms/raycast_volume.glsl;
-#include ./dithering.glsl;
-#include ./refine_hit.glsl;
-#include ../utils/rand.glsl;
+#include ../raycast/dithering.glsl;
+#include ../raycast/refine.glsl;
+#include ../utils/sample_intensity.glsl;
 
 /**
  * Performs raycasting in a 3D texture to find the depth and value of an intersection.
@@ -14,30 +13,33 @@
  * @param depth: Output float where the depth of the intersection will be stored
  * @param value: Output float where the value at the intersection will be stored
  */
-bool raycast_volume(in sampler3D data, in vec3 start, in vec3 step, in vec2 range, out vec3 position, out float value) 
+bool raycast(in raycast_uniforms u_raycast, in volume_uniforms u_volume, in vec3 ray_start, in vec3 ray_normal, in vec2 ray_bounds, out vec3 hit_position, out float hit_value) 
 {    
+    // compute ray step
+    step()
+
     // Apply dithering to the initial distance
-    range.x -= dithering(u_noisemap_data, step, range) * u_raycast_dithering;  /* need to fix dithering uv vector from direction.xy or v_position.xy becouse there are artifacts */
+    step_bounds.x -= dither(u_raycast, ray_step, step_bounds);  /* need to fix dithering uv vector from direction.xy or v_position.xy becouse there are artifacts */
 
     // Starting position along the ray
-    position = start + step * range.x; 
+    hit_position = ray_start + ray_step * step_bounds.x;
     
     // Raycasting loop
-    for (float steps = range.x; steps < range.y; steps++) {
+    for (float step = step_bounds.x; step < step_bounds.y; step++) {
 
-        value = texture(data, position).r;          // Sample value from the 3D texture at the current position
+        hit_value = sample_intensity(u_volume.data, hit_position);          // Sample value from the 3D texture at the current position
         
-        if (value > u_raycast_threshold) {
+        if (hit_value > uniforms.threshold) {
 
-            refine_hit(data, position, step, u_raycast_threshold, u_raycast_refinements, position, value);
+            refine(u_raycast, volume_data, ray_step, hit_position, hit_value);
             return true;
         }
 
-        position += step;                             // Move position forward by main step
+        hit_position += ray_step;                             // Move position forward by main step
     }   
 
     // if no hit found
-    value = 0.0;                                          
+    hit_value = 0.0;                                          
     return false;
 }
 

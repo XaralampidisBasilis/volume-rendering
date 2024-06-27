@@ -1,4 +1,3 @@
-#include ../gradient/uniforms.glsl;
 #include ../gradient/sobel.glsl;
 #include ../gradient/central.glsl;
 #include ../gradient/tetrahedron.glsl;
@@ -14,23 +13,16 @@
  * @param grad: Output vector where the gradient will be stored
  * @param value_max: Output float where the maximum value of the sampled points will be stored
  */
-vec3 gradient(sampler3D data, vec3 pos, vec3 step, out float value_max)
+vec3 gradient(gradient_uniforms u_gradient, volume_uniforms u_volume, vec3 position, out float value_max)
 {
-    step /= u_gradient_resolution;
+    value_max = 0.0;
+    vec3 voxel_substep = u_volume.voxel / u_gradient.resolution;
 
-    switch (u_gradient_method)
+    switch (u_gradient.method)
     {
-        case 1:
-            return sobel(data, pos, step, value_max);
-
-        case 2:
-            return central(data, pos, step, value_max);
-
-        case 3:
-            return tetrahedron(data, pos, step, value_max); 
-            
-        default:
-            value_max = 0.0;
-            return vec3(0.0);
+        case 1: return sobel(u_volume.data, position, voxel_substep, value_max);
+        case 2: return central(u_volume.data, position, voxel_substep, value_max);
+        case 3: return tetrahedron(u_volume.data, position, voxel_substep, value_max); 
+        default: return vec3(1.0, 0.0, 0.0); // error gradient
     }
 }

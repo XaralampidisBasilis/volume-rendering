@@ -1,3 +1,5 @@
+#include ../utils/sample_intensity.glsl;
+
 /**
  * Calculates the gradient and maximum value at a given position in a 3D texture using the Sobel operator.
  *
@@ -8,25 +10,25 @@
  * @param grad: Output vector where the gradient will be stored
  * @param value_max: Output float where the maximum value of the sampled points will be stored
  */
-vec3 sobel(sampler3D data, vec3 pos, vec3 step, out float value_max)
+vec3 sobel(sampler3D volume_data, vec3 position, vec3 voxel_step, out float value_max)
 {
     // Define offsets for the 8 neighboring points
     vec3 offset[8] = vec3[8](
-        vec3(+step.x, +step.y, +step.z), // Right Top Near
-        vec3(+step.x, +step.y, -step.z), // Right Top Far
-        vec3(+step.x, -step.y, +step.z), // Right Bottom Near
-        vec3(+step.x, -step.y, -step.z), // Right Bottom Far
-        vec3(-step.x, +step.y, +step.z), // Left Top Near
-        vec3(-step.x, +step.y, -step.z), // Left Top Far
-        vec3(-step.x, -step.y, +step.z), // Left Bottom Near
-        vec3(-step.x, -step.y, -step.z)  // Left Bottom Far
+        vec3(+voxel_step.x, +voxel_step.y, +voxel_step.z), // Right Top Near
+        vec3(+voxel_step.x, +voxel_step.y, -voxel_step.z), // Right Top Far
+        vec3(+voxel_step.x, -voxel_step.y, +voxel_step.z), // Right Bottom Near
+        vec3(+voxel_step.x, -voxel_step.y, -voxel_step.z), // Right Bottom Far
+        vec3(-voxel_step.x, +voxel_step.y, +voxel_step.z), // Left Top Near
+        vec3(-voxel_step.x, +voxel_step.y, -voxel_step.z), // Left Top Far
+        vec3(-voxel_step.x, -voxel_step.y, +voxel_step.z), // Left Bottom Near
+        vec3(-voxel_step.x, -voxel_step.y, -voxel_step.z)  // Left Bottom Far
     );
 
     // Sample the values at the neighboring points
     float values[8];
     for (int i = 0; i < 8; i++)
     {
-        values[i] = texture(data, pos + offset[i]).r;
+        values[i] = sample_intensity(volume_data, position + offset[i]);
     }
 
     // Calculate the gradient using the Sobel operator

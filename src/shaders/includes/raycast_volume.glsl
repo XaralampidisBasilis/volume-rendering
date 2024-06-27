@@ -17,7 +17,7 @@
 bool raycast_volume(in sampler3D data, in vec3 start, in vec3 step, in vec2 range, out vec3 position, out float value) 
 {    
     // Apply dithering to the initial distance
-    range.x -= dithering(u_noisemap_data, step, range) * u_raycast_dithering;  /* need to fix dithering uv vector from direction.xy or v_position.xy becouse there are artifacts */
+    range.x -= dithering(u_raycast_noise, step, range) * u_raycast_dither;  /* need to fix dithering uv vector from direction.xy or v_position.xy becouse there are artifacts */
 
     // Starting position along the ray
     position = start + step * range.x; 

@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import Experience from '../Experience.js'
 import HitTest from './HitTest.js'
-import Gestures from './Gestures/Gestures.js'
+import XRGestures from './XRGestures/XRGestures.js'
 import { XRButton } from 'three/examples/jsm/webxr/XRButton.js'
 
 export default class XRManager
@@ -52,7 +52,7 @@ export default class XRManager
 
     setGestures()
     {
-        this.gestures = new Gestures(this.renderer.instance)
+        this.gestures = new XRGestures(this.renderer.instance)
 
         this.gestures.addEventListener('polytap', this.onPolytap.bind(this))
         this.gestures.addEventListener('hold', this.onHold.bind(this))

@@ -1,3 +1,5 @@
+#include ../utils/sample_intensity.glsl;
+
 /**
  * Calculates the gradient and maximum value at a given position in a 3D texture using the tetrahedron method.
  *
@@ -8,19 +10,19 @@
  * @param grad: Output vector where the gradient will be stored
  * @param value_max: Output float where the maximum value of the sampled points will be stored
  */
-vec3 tetrahedron(sampler3D data, vec3 pos, vec3 step, out float value_max)
+vec3 tetrahedron(sampler3D volume_data, vec3 position, vec3 voxel_step, out float value_max)
 {
     vec3 offset[4] = vec3[4](
-        vec3(+step.x, +step.y, +step.z), // Right Top Near
-        vec3(+step.x, -step.y, -step.z), // Right Bottom Far
-        vec3(-step.x, +step.y, -step.z), // Left Top Far
-        vec3(-step.x, -step.y, +step.z)  // Left Bottom Near
+        vec3(+voxel_step.x, +voxel_step.y, +voxel_step.z), // Right Top Near
+        vec3(+voxel_step.x, -voxel_step.y, -voxel_step.z), // Right Bottom Far
+        vec3(-voxel_step.x, +voxel_step.y, -voxel_step.z), // Left Top Far
+        vec3(-voxel_step.x, -voxel_step.y, +voxel_step.z)  // Left Bottom Near
     );
 
     float value[4];
     for (int i = 0; i < 4; i++)
     {
-        value[i] = texture(data, pos + offset[i]).r;
+        value[i] = sample_intensity(volume_data, position + offset[i]);
     }
 
     vec3 grad = vec3(
