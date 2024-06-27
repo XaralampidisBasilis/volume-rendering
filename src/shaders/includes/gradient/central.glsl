@@ -1,4 +1,4 @@
-#include ../utils/sample_intensity.glsl;
+#include ../../utils/sample_intensity.glsl;
 
 /**
  * Calculates the gradient and maximum value at a given position in a 3D texture using the central differences approximation.

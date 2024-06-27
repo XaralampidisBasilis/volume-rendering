@@ -1,5 +1,5 @@
-#include ../utils/ramp.glsl;
-#include ../utils/sample_colormap.glsl;
+#include ../../utils/ramp.glsl;
+#include ../../utils/sample_colormap.glsl;
 
 /**
  * Maps a float value to a color using a 2D colormap texture.
