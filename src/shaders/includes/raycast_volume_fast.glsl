@@ -1,4 +1,3 @@
-
 #include ../uniforms/raycast_volume_fast.glsl;
 #include ./dithering.glsl;
 #include ./check_block_occupancy.glsl;

@@ -25,7 +25,6 @@ vec4 encode_data_color(in int var_bits, in int[MAX_VARIABLES] variables)
             
         }
 
-
         color[3 - c] = float(bitstring & color_mask) * color_normalize; // Normalize to [0, 1] range
         bitstring >>= color_bits; // Shift right to get the next component
     }
