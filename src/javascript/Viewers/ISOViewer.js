@@ -198,6 +198,11 @@ export default class ISOViewer
                     .min(1)
                     .max(5)
                     .step(1)
+
+                folder
+                    .add(this.material.uniforms.u_raycast_stride, 'value')
+                    .name('stride')
+                    .options({ isotropic: 1, directional: 2, traversal: 3 })
                                         
                 folder
                     .add(this.material.uniforms.u_raycast_dither, 'value')

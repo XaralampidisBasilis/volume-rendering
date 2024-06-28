@@ -1,5 +1,5 @@
+#include ../raycast/stride/stride.glsl;
 #include ../raycast/bounds.glsl;
-#include ../raycast/stride.glsl;
 #include ../raycast/dither.glsl;
 #include ../raycast/refine.glsl;
 
@@ -32,7 +32,6 @@ bool raycast
 
     // compute the ray step vector based on the raycast and volume parameters
     vec3 ray_step = stride(u_raycast, u_volume, ray_normal, ray_bounds); 
-    // vec3 ray_step = stride_2(u_raycast, u_volume, ray_normal); 
 
     // compute the ray step delta and step bounds
     float ray_delta = length(ray_step); 

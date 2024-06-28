@@ -1,0 +1,17 @@
+
+/**
+ * Calculates the isotropic stride (step vector) for raycasting through a volume 
+ *
+ * @param u_raycast: Struct containing raycast-related uniforms.
+ * @param u_volume: Struct containing volume-related uniforms.
+ * @param ray_normal: Normalized direction vector of the ray.
+ * @return vec3 The stride vector for stepping through the volume along the ray.
+ */
+vec3 isotropic(in raycast_uniforms u_raycast, in volume_uniforms u_volume, in vec3 ray_normal) 
+{
+    float voxel_delta = length(u_volume.voxel);
+    float ray_delta = voxel_delta / u_raycast.resolution;
+
+    // Return the stride vector by scaling the ray's direction vector by the step distance
+    return ray_delta * ray_normal;
+}

@@ -16,7 +16,8 @@ raycast_uniforms u_raycast = raycast_uniforms(
     u_raycast_threshold,
     u_raycast_refinements,
     u_raycast_dither,
-    u_raycast_resolution
+    u_raycast_resolution,
+    u_raycast_stride
 );
 
 gradient_uniforms u_gradient = gradient_uniforms( 
