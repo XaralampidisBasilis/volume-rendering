@@ -27,6 +27,7 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../utils/sample_color.glsl;
 #include ../../utils/sample_intensity.glsl;
 #include ../../utils/intersect_box.glsl;
+#include ../../utils/intersect_box_max.glsl;
 #include ../../utils/reshape_coordinates.glsl;
 #include ../../utils/ramp.glsl;
 
@@ -48,22 +49,22 @@ void main()
 
     // normalize view direction vector
     vec3 ray_normal = normalize(v_direction);
+    bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler_volume, v_camera, ray_normal, hit_position, hit_intensity);
 
     // perform fast raycasting to get hit position and value
-    if (raycast(u_raycast, u_volume, u_occupancy, u_sampler_volume, v_camera, ray_normal, hit_position, hit_intensity)) 
-    {
+    if (ray_hit) {
+
         // compute the gradient normal vector at hit position
-        vec3 normal_vector = gradient(u_gradient, u_volume, u_sampler_volume, hit_position, intensity_max);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
+        vec3 normal_vector = gradient(u_gradient, u_volume, u_sampler_volume, hit_position, hit_intensity);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
 
         // compute the max intensity color mapping
-        intensity_max = max(hit_intensity, intensity_max);    
-        vec3 intensity_color = colormap(u_colormap, u_sampler_colormap, intensity_max); // debug gl_FragColor = vec4(intensity_color, 1.0);       
+        vec3 intensity_color = colormap(u_colormap, u_sampler_colormap, hit_intensity); // debug gl_FragColor = vec4(intensity_color, 1.0);       
 
         // compute the lighting color
-        vec3 lighting_color = lighting(u_lighting, intensity_color, normal_vector, v_position, v_camera, v_camera);
+        vec3 hit_color = lighting(u_lighting, intensity_color, normal_vector, v_position, v_camera, v_camera);
 
         // final color
-        gl_FragColor = vec4(lighting_color, 1.0);
+        gl_FragColor = vec4(hit_color, 1.0);
         return;
         
     } else {

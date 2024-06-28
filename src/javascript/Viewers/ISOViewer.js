@@ -216,7 +216,11 @@ export default class ISOViewer
                 folder
                     .add(this.material.uniforms.u_gradient_method, 'value')
                     .name('method')
-                    .options({ sobel: 1, central: 2, tetrahedron: 3})                            
+                    .options({ sobel: 1, central: 2, tetrahedron: 3})    
+                    
+                folder
+                    .add(this.material.uniforms.u_gradient_neighbor, 'value')
+                    .name('neighbor')
             }
 
             const setControlsColormap = (folder) => 

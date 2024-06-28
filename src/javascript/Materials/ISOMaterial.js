@@ -24,6 +24,7 @@ export default function()
         u_raycast_resolution:       new THREE.Uniform(1),   
         u_raycast_dither:           new THREE.Uniform(true),   
 
+        u_gradient_neighbor:        new THREE.Uniform(true),
         u_gradient_method:          new THREE.Uniform(1),      
         u_gradient_resolution:      new THREE.Uniform(0.7),      
             

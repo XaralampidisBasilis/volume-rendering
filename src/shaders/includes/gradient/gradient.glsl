@@ -13,25 +13,28 @@
  * @param normal: Output vector where the gradient will be stored
  * @param value_max: Output float where the maximum value of the sampled points will be stored
  */
-vec3 gradient(in gradient_uniforms u_gradient, in volume_uniforms u_volume, in sampler3D sampler_volume, in vec3 hit_position, inout float intensity_max)
+vec3 gradient(in gradient_uniforms u_gradient, in volume_uniforms u_volume, in sampler3D sampler_volume, in vec3 hit_position, inout float hit_intensity)
 {
-    
-    intensity_max = 0.0;
 
     vec3 grad_step = u_volume.voxel / u_gradient.resolution;
+    vec3 normal = vec3(0.0, 0.0, 0.0);
+    float neighbor_intensity = hit_intensity;
 
     switch (u_gradient.method)
     {
         case 1: 
-            return sobel(sampler_volume, grad_step, hit_position, intensity_max);
+            normal = sobel(sampler_volume, grad_step, hit_position, neighbor_intensity);
+            break;
         case 2: 
-            return central(sampler_volume, grad_step, hit_position, intensity_max);
+            normal = central(sampler_volume, grad_step, hit_position, neighbor_intensity);
+            break;
         case 3:  
-            return tetrahedron(sampler_volume, grad_step, hit_position, intensity_max); 
-        default:
-            return vec3(0.0, 0.0, 0.0);
+            normal =  tetrahedron(sampler_volume, grad_step, hit_position, neighbor_intensity); 
+            break;
     }
 
+    hit_intensity = mix(hit_intensity, neighbor_intensity, u_gradient.neighbor);
+    return normal;
 }
 
 // For visual debug

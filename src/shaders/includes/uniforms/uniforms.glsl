@@ -21,7 +21,8 @@ raycast_uniforms u_raycast = raycast_uniforms(
 
 gradient_uniforms u_gradient = gradient_uniforms( 
     u_gradient_method,
-    u_gradient_resolution
+    u_gradient_resolution,
+    u_gradient_neighbor
 );
 
 

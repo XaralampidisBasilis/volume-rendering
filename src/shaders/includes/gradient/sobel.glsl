@@ -8,12 +8,12 @@
  *
  * @return vec3: Gradient vector at the given position
  */
-vec3 sobel(in sampler3D sampler_volume, in vec3 grad_step, in vec3 hit_position, out float intensity_max)
+vec3 sobel(in sampler3D sampler_volume, in vec3 grad_step, in vec3 hit_position, inout float hit_intensity)
 {
     vec2 k = vec2(1.0, -1.0);
 
     // Define offsets for the 8 neighboring points using swizzling
-    vec3 delta_step[8] = vec3[8](
+    vec3 delta[8] = vec3[8](
         grad_step * k.xxx,  // Right Top Near
         grad_step * k.xxy,  // Right Top Far
         grad_step * k.xyx,  // Right Bottom Near
@@ -28,7 +28,7 @@ vec3 sobel(in sampler3D sampler_volume, in vec3 grad_step, in vec3 hit_position,
     float samples[8];
     for (int i = 0; i < 8; i++)
     {
-        samples[i] = sample_intensity_3d(sampler_volume, hit_position + delta_step[i]);
+        samples[i] = sample_intensity_3d(sampler_volume, hit_position + delta[i]);
     }
 
     // Calculate the gradient using the Sobel operator
@@ -40,10 +40,10 @@ vec3 sobel(in sampler3D sampler_volume, in vec3 grad_step, in vec3 hit_position,
     normal = normalize(normal);
 
     // Find the maximum value among the sampled points
-    intensity_max = max(
-        max(max(samples[0], samples[1]), max(samples[2], samples[3])), 
-        max(max(samples[4], samples[5]), max(samples[6], samples[7]))
-    );
+    for (int i = 0; i < 8; i++) 
+    {
+        hit_intensity = max(hit_intensity, samples[i]);
+    }
 
     return normal;
 }
