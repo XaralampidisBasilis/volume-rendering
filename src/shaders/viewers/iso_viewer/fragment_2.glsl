@@ -24,14 +24,14 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../includes/uniforms/u_lighting.glsl;
 
 // utils
-#include ../../utils/sample_color.glsl;
-#include ../../utils/sample_intensity.glsl;
-#include ../../utils/intersect_box.glsl;
-#include ../../utils/intersect_box_max.glsl;
-#include ../../utils/reshape_coordinates.glsl;
-#include ../../utils/ramp.glsl;
+#include ../../includes/utils/sample_color.glsl;
+#include ../../includes/utils/sample_intensity.glsl;
+#include ../../includes/utils/intersect_box.glsl;
+#include ../../includes/utils/intersect_box_max.glsl;
+#include ../../includes/utils/reshape_coordinates.glsl;
+#include ../../includes/utils/ramp.glsl;
 
-// includes
+// functionality
 #include ../../includes/raycast/raycast.glsl;
 #include ../../includes/colormap/colormap.glsl;
 #include ../../includes/gradient/gradient.glsl;

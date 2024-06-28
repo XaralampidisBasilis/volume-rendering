@@ -1,9 +1,7 @@
 import * as THREE from 'three'
 import { colormaps } from '../../../static/textures/colormaps/colormaps'
-
-import vertexShader from '../../shaders/viewers/iso/vertex.glsl'
-import fragmentShader from '../../shaders/viewers/iso/fragment_2.glsl'
-
+import vertexShader from '../../shaders/viewers/iso_viewer/vertex.glsl'
+import fragmentShader from '../../shaders/viewers/iso_viewer/fragment_2.glsl'
 
 export default function()
 {

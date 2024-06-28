@@ -10,7 +10,7 @@ uniform float u_threshold;
 
 // variable sampler2D u_occupancy_data;
 
-#include ../utils/reshape_coordinates.glsl;
+#include ../../includes/utils/reshape_coordinates.glsl;
 
 void main()
 {

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js'
-import computeShader from '../../shaders/gpgpu/occupancy.glsl'
+import computeShader from '../../shaders/gpgpu/occupancy/occupancy.glsl'
 
 // assumes intensity data 3D, and data3DTexture
 export default class GPUOccupancy
