@@ -6,7 +6,11 @@
 
 2. Modularize XRGestures function
 
-3. Understand the different stride methods
+3. Clear the check_block_occupancy, and raycast_fast functions 
 
 4. Improve occupancy map shader code
+    a. Access bblock_min and bblock_max to improve speed in raycasting when occupancy is detected
+    b. Use the extra channel in occupancy map to store occupancy density vector inside the block 
+       in order to have an adaptive ray_step algorithm for every occupancy block
+    c. Implement the multiresolution occupancy map algorithm
 
