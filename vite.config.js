@@ -17,6 +17,9 @@ export default {
     },
     plugins:
     [
-        glsl()
+        glsl({
+            include: '**/*.glsl',  // Include all .glsl files
+            root: '**/src/shaders' // Directory for root imports
+        })
     ]
 }

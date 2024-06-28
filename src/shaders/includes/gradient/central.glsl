@@ -1,56 +1,50 @@
-#include ../../utils/sample_intensity.glsl;
-
 /**
- * Calculates the gradient and maximum value at a given position in a 3D texture using the central differences approximation.
+ * Calculates the gradient and maximum intensity at a given position in a 3D texture using the central differences approximation.
  *
- * @param data: 3D texture sampler containing intensity data
- * @param pos: Position in the 3D texture to calculate the gradient
- * @param step: Step vector for sampling the 3D texture
- 
- * @param grad: Output vector where the gradient will be stored
- * @param value_max: Output float where the maximum value of the sampled points will be stored
+ * @param sampler_volume: 3D texture sampler containing intensity data
+ * @param grad_step: Step vector for sampling the 3D texture
+ * @param volume_uvw: Position in the 3D texture to calculate the gradient
+ * @param intensity_max: Output float where the maximum intensity of the sampled points will be stored
+ *
+ * @return vec3: Gradient vector at the given position
  */
-vec3 central(sampler3D volume_data, vec3 position, vec3 voxel_step, out float value_max)
+vec3 central(in sampler3D sampler_volume, in vec3 grad_step, in vec3 volume_uvw, out float intensity_max)
 {
-    vec3 offset[6] = vec3[6](
-        vec3(+voxel_step.x, 0.0, 0.0), // Right
-        vec3(-voxel_step.x, 0.0, 0.0), // Left
-        vec3(0.0, +voxel_step.y, 0.0), // Top
-        vec3(0.0, -voxel_step.y, 0.0), // Bottom
-        vec3(0.0, 0.0, +voxel_step.z), // Near
-        vec3(0.0, 0.0, -voxel_step.z)  // Far
+    vec3 k = vec3(1.0, -1.0, 0.0);
+
+    // Define offsets for the 6 neighboring points using swizzling
+    vec3 delta_uvw[6] = vec3[6](
+        grad_step * k.xzz,  // Right
+        grad_step * k.yzz,  // Left
+        grad_step * k.zxz,  // Top
+        grad_step * k.zyz,  // Bottom
+        grad_step * k.zzx,  // Near
+        grad_step * k.zzy   // Far
     );
 
-    float values[6];
+    float samples[6];
     for (int i = 0; i < 6; i++)
     {
-        values[i] = sample_intensity(volume_data, position + offset[i]);
+        samples[i] = texture(sampler_volume, volume_uvw + delta_uvw[i]).r;
     }
 
-    vec3 grad = vec3(
-        values[1] - values[0],
-        values[3] - values[2],
-        values[5] - values[4]
+    vec3 normal = vec3(
+        samples[0] - samples[1],
+        samples[2] - samples[3],
+        samples[4] - samples[5]
     );
-    grad = normalize(grad);
+    normal = normalize(normal);
 
-    value_max = max(
-        max(values[0], values[1]), 
-        max(
-            max(values[2], values[3]), 
-            max(values[4], values[5])
-        )
+      intensity_max = max(
+        max(max(samples[0], samples[1]), max(samples[2], samples[3])),
+        max(samples[4], samples[5])
     );
-
-    return grad;
-
-    // For visual debug
-    // gradient.rgb = (gradient.rgb * 0.5) + 0.5; // transforms the normalized RGB components from the range [-1, 1] to the range [0, 1]
-    // gradient.a = (abs(gradient.r) + abs(gradient.g) + abs(gradient.b)) * 0.29;
+    
+    return normal;
 }
 
 /* SOURCE
-    Based on interpolated sobel operator, offset needs to be off-grid to work properly
+    Based on interpolated Sobel operator, offset needs to be off-grid to work properly
     typical value offset = 0.7 / volume_dimensions, for texel coordinates
     https://github.com/neurolabusc/blog/blob/main/GL-gradients/README.md
 */

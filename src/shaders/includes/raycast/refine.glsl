@@ -1,5 +1,3 @@
-#include ../../utils/sample_intensity.glsl
-
 /**
  * refines the hit point by performing additional sampling steps.
  *
@@ -9,11 +7,11 @@
  * @param hit_position: inout vec3 where the refined position of the intersection will be stored.
  * @param hit_value: output float where the refined value at the intersection will be stored.
  */
-void refine(in raycast_uniforms uniforms, in volume_uniforms u_volume, in vec3 ray_step, inout vec3 hit_position, out float hit_value)
+void refine(in raycast_uniforms uniforms, in sampler3D sampler_volume, in vec3 ray_step, inout vec3 hit_position, out float hit_value)
 {
     // calculate the refined substep based on the number of refinements
     vec3 ray_substep = ray_step / uniforms.refinements;  
-    
+
     // step back to refine the hit point
     hit_position -= ray_step;    
     hit_value = 0.0;
@@ -25,7 +23,7 @@ void refine(in raycast_uniforms uniforms, in volume_uniforms u_volume, in vec3 r
         hit_position += ray_substep;  
         
         // sample value again with refined position
-        hit_value = sample_intensity(u_volume.data, hit_position);  
+        hit_value = sample_intensity_3d(sampler_volume, hit_position);  
 
         // if the sampled value exceeds the threshold, return early
         if (hit_value > uniforms.threshold) 

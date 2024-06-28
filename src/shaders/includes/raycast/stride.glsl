@@ -13,14 +13,17 @@ vec3 stride(in raycast_uniforms u_raycast, in volume_uniforms u_volume, in vec3 
     float dimension_max = max(u_volume.dimensions.x, max(u_volume.dimensions.y, u_volume.dimensions.z));
     
     // Calculate the total distance the ray will travel within the volume
-    float distance = ray_bounds.y - ray_bounds.x;
+    float ray_span = ray_bounds.y - ray_bounds.x;
     
     // Determine the number of steps the ray should take, based on the resolution and maximum dimension
-    float ray_steps = ceil(distance * dimension_max * u_raycast.resolution);
+    float ray_steps = ceil(ray_span * dimension_max * u_raycast.resolution);
     
     // Calculate the distance covered in each step
-    float ray_delta = distance / ray_steps;
-    
+    float ray_delta = ray_span / ray_steps;
+
+    // Clamp ray delta to a min value
+    ray_delta = max(ray_delta, 0.01 / dimension_max);
+
     // Return the stride vector by scaling the ray's direction vector by the step distance
     return ray_delta * ray_normal;
 }

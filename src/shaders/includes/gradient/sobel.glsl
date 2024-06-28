@@ -1,58 +1,49 @@
-#include ../../utils/sample_intensity.glsl;
-
 /**
  * Calculates the gradient and maximum value at a given position in a 3D texture using the Sobel operator.
  *
- * @param data: 3D texture sampler containing intensity data
- * @param pos: Position in the 3D texture to calculate the gradient
- * @param step: Step vector for sampling the 3D texture
- 
- * @param grad: Output vector where the gradient will be stored
- * @param value_max: Output float where the maximum value of the sampled points will be stored
+ * @param sampler_volume: 3D texture sampler containing intensity data
+ * @param grad_step: Step vector for sampling the 3D texture
+ * @param hit_position: Position in the 3D texture to calculate the gradient
+ * @param intensity_max: Output float where the maximum value of the sampled points will be stored
+ *
+ * @return vec3: Gradient vector at the given position
  */
-vec3 sobel(sampler3D volume_data, vec3 position, vec3 voxel_step, out float value_max)
+vec3 sobel(in sampler3D sampler_volume, in vec3 grad_step, in vec3 hit_position, out float intensity_max)
 {
-    // Define offsets for the 8 neighboring points
-    vec3 offset[8] = vec3[8](
-        vec3(+voxel_step.x, +voxel_step.y, +voxel_step.z), // Right Top Near
-        vec3(+voxel_step.x, +voxel_step.y, -voxel_step.z), // Right Top Far
-        vec3(+voxel_step.x, -voxel_step.y, +voxel_step.z), // Right Bottom Near
-        vec3(+voxel_step.x, -voxel_step.y, -voxel_step.z), // Right Bottom Far
-        vec3(-voxel_step.x, +voxel_step.y, +voxel_step.z), // Left Top Near
-        vec3(-voxel_step.x, +voxel_step.y, -voxel_step.z), // Left Top Far
-        vec3(-voxel_step.x, -voxel_step.y, +voxel_step.z), // Left Bottom Near
-        vec3(-voxel_step.x, -voxel_step.y, -voxel_step.z)  // Left Bottom Far
+    vec2 k = vec2(1.0, -1.0);
+
+    // Define offsets for the 8 neighboring points using swizzling
+    vec3 delta_step[8] = vec3[8](
+        grad_step * k.xxx,  // Right Top Near
+        grad_step * k.xxy,  // Right Top Far
+        grad_step * k.xyx,  // Right Bottom Near
+        grad_step * k.xyy,  // Right Bottom Far
+        grad_step * k.yxx,  // Left Top Near
+        grad_step * k.yxy,  // Left Top Far
+        grad_step * k.yyx,  // Left Bottom Near
+        grad_step * k.yyy   // Left Bottom Far
     );
 
     // Sample the values at the neighboring points
-    float values[8];
+    float samples[8];
     for (int i = 0; i < 8; i++)
     {
-        values[i] = sample_intensity(volume_data, position + offset[i]);
+        samples[i] = sample_intensity_3d(sampler_volume, hit_position + delta_step[i]);
     }
 
     // Calculate the gradient using the Sobel operator
-    vec3 grad = vec3(
-    values[4] + values[5] + values[6] + values[7] - values[0] - values[1] - values[2] - values[3],
-    values[2] + values[3] + values[6] + values[7] - values[0] - values[1] - values[4] - values[5],
-    values[1] + values[3] + values[5] + values[7] - values[0] - values[2] - values[4] - values[6]
+    vec3 normal = vec3(
+        samples[4] + samples[5] + samples[6] + samples[7] - samples[0] - samples[1] - samples[2] - samples[3],
+        samples[2] + samples[3] + samples[6] + samples[7] - samples[0] - samples[1] - samples[4] - samples[5],
+        samples[1] + samples[3] + samples[5] + samples[7] - samples[0] - samples[2] - samples[4] - samples[6]
     );
-    grad = normalize(grad);
+    normal = normalize(normal);
 
     // Find the maximum value among the sampled points
-    value_max = max(
-        max(
-            max(values[0], values[1]), 
-            max(values[2], values[3])), 
-        max(
-            max(values[4], values[5]), 
-            max(values[6], values[7])
-        )
+    intensity_max = max(
+        max(max(samples[0], samples[1]), max(samples[2], samples[3])), 
+        max(max(samples[4], samples[5]), max(samples[6], samples[7]))
     );
 
-    return grad;
-
-    // For visual debug (uncomment if needed)
-    // gradient.rgb = (gradient.rgb * 0.5) + 0.5; // transforms the normalized RGB components from the range [-1, 1] to the range [0, 1]
-    // gradient.a = (abs(gradient.r) + abs(gradient.g) + abs(gradient.b)) * 0.29;
+    return normal;
 }

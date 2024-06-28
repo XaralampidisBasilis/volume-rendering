@@ -1,28 +1,18 @@
 #ifndef OCCUPANCY_UNIFORMS
 #define OCCUPANCY_UNIFORMS
 
-uniform highp sampler2D u_occupancy_data;
-uniform mediump vec3 u_occupancy_size;
-uniform mediump vec3 u_occupancy_block;
+uniform vec3 u_occupancy_dimensions;
+uniform vec3 u_occupancy_block;
+uniform vec3 u_occupancy_box_min;
+uniform vec3 u_occupancy_box_max;
 
 // struct to hold occupancy uniforms
 struct occupancy_uniforms 
 {
-    highp sampler2D data;
-    highp float size;  
-    lowp float block;  
+    vec3 dimensions; 
+    vec3 block;  
+    vec3 box_min;
+    vec3 box_max;
 };
-
-// function to set light uniforms struct
-occupancy_uniforms set_occupancy_uniforms() 
-{
-    occupancy_uniforms u_occupancy;
-
-    u_occupancy.data  = u_occupancy_data;
-    u_occupancy.size  = u_occupancy_size;
-    u_occupancy.block = u_occupancy_block;
- 
-    return u_occupancy;
-}
 
 #endif

@@ -4,12 +4,12 @@ export default [
     {
         name: 'volumeNifti',
         type: 'niftiFile',
-        path: 'nifti/heart/volume2.nii.gz'
+        path: 'nifti/colon/volume.nii.gz'
     },
     {
         name: 'maskNifti',
         type: 'niftiFile',
-        path: 'nifti/heart/mask.nii.gz'
+        path: 'nifti/colon/mask.nii.gz'
     },    
 
     // Colormaps

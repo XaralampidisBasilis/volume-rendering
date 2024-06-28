@@ -1,7 +1,3 @@
-#include ../../utils/sample_intensity.glsl
-
-varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMatrix * modelMatrix * viewMatrix
-
 /**
  * applies dithering to the initial distance to avoid artifacts. 
  *
@@ -19,5 +15,5 @@ float dither(in raycast_uniforms u_raycast, in vec3 ray_normal, in vec2 ray_boun
     vec4 hash = v_projection_model_view_matrix * vec4(ray_end, 0.0);
 
     // sample intensity from the noisemap texture and apply the dithering factor
-    return sample_intensity(u_raycast.noisemap, 1000.0 * hash.xy) * u_raycast.dither;    
+    return sample_intensity_2d(u_sampler_noise, 1000.0 * hash.xy) * u_raycast.dither;    
 }

@@ -1,47 +1,48 @@
-#include ../../utils/sample_intensity.glsl;
-
 /**
  * Calculates the gradient and maximum value at a given position in a 3D texture using the tetrahedron method.
  *
- * @param data: 3D texture sampler containing intensity data
- * @param pos: Position in the 3D texture to calculate the gradient
- * @param step: Step vector for sampling the 3D texture
- 
- * @param grad: Output vector where the gradient will be stored
- * @param value_max: Output float where the maximum value of the sampled points will be stored
+ * @param sampler_volume: 3D texture sampler containing intensity data
+ * @param grad_step: Step vector for sampling the 3D texture
+ * @param volume_uvw: Position in the 3D texture to calculate the gradient
+ * @param intensity_max: Output float where the maximum value of the sampled points will be stored
+ *
+ * @return vec3: Gradient vector at the given position
  */
-vec3 tetrahedron(sampler3D volume_data, vec3 position, vec3 voxel_step, out float value_max)
+vec3 tetrahedron(in sampler3D sampler_volume, in vec3 grad_step, in vec3 volume_uvw, out float intensity_max)
 {
-    vec3 offset[4] = vec3[4](
-        vec3(+voxel_step.x, +voxel_step.y, +voxel_step.z), // Right Top Near
-        vec3(+voxel_step.x, -voxel_step.y, -voxel_step.z), // Right Bottom Far
-        vec3(-voxel_step.x, +voxel_step.y, -voxel_step.z), // Left Top Far
-        vec3(-voxel_step.x, -voxel_step.y, +voxel_step.z)  // Left Bottom Near
+    vec2 k = vec2(1.0, -1.0);
+
+    // Define offsets for the 4 neighboring points using swizzling
+    vec3 delta_uvw[4] = vec3[4](
+        grad_step * k.xxx,  // Right Top Near
+        grad_step * k.xyy,  // Right Bottom Far
+        grad_step * k.yxy,  // Left Top Far
+        grad_step * k.yyx   // Left Bottom Near
     );
 
-    float value[4];
+    float samples[4];
     for (int i = 0; i < 4; i++)
     {
-        value[i] = sample_intensity(volume_data, position + offset[i]);
+        samples[i] = texture(sampler_volume, volume_uvw + delta_uvw[i]).r;
     }
 
-    vec3 grad = vec3(
-        value[0] + value[1] - value[2] - value[3],
-        value[0] + value[2] - value[1] - value[3],
-        value[0] + value[3] - value[1] - value[2]
+    vec3 normal = vec3(
+        samples[2] + samples[3] - samples[0] - samples[1],
+        samples[1] + samples[3] - samples[0] - samples[2],
+        samples[1] + samples[2] - samples[0] - samples[3]
     );
-    grad = normalize(grad);
+    normal = normalize(normal);
 
-    value_max = max(
-        max(value[0], value[1]), 
-        max(value[2], value[3])
+    intensity_max = max(
+        max(samples[0], samples[1]), 
+        max(samples[2], samples[3])
     );
 
-    return grad;
+    return normal;
     
     // For visual debug
     // gradient.rgb = (gradient.rgb * 0.5) + 0.5; // transforms the normalized RGB components from the range [-1, 1] to the range [0, 1]
-    // gradient.a = (abs(gradient.r) + abs(gradient.g) + abs(gradient.b)) * 0.29;}
+    // gradient.a = (abs(gradient.r) + abs(gradient.g) + abs(gradient.b)) * 0.29;
 }
 
 /* SOURCE

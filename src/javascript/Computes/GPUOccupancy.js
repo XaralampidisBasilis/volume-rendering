@@ -68,7 +68,7 @@ export default class GPUOccupancy
         // debug
         this.gpgpu.debug = new THREE.Mesh(
             new THREE.PlaneGeometry(this.gpgpu.size.width, this.gpgpu.size.height),
-            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5 })
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, visible: false })
         )
         this.gpgpu.debug.material.map = this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.variable).texture
         this.gpgpu.debug.scale.divideScalar(this.gpgpu.size.height)

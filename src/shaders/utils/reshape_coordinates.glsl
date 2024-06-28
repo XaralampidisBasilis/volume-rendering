@@ -117,4 +117,4 @@ ivec3 reshape_2d_to_3d(in ivec2 pos2, in ivec3 size)
     return pos3;
 }
 
-#endif
+#endif // UTILS_RESHAPE_COORDINATES

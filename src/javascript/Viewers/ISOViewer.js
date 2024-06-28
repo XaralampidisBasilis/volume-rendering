@@ -113,10 +113,10 @@ export default class ISOViewer
         this.material.uniforms.u_volume_voxel.value.fromArray(this.resource.volume.dimensions.map((x) => 1/x))
         this.material.uniforms.u_volume_dimensions.value.fromArray(this.resource.volume.dimensions)
         this.material.uniforms.u_volume_size.value.fromArray(this.resource.volume.size)
-        this.material.uniforms.u_volume_data.value = this.textures.volume
-        this.material.uniforms.u_volume_mask.value = this.textures.mask
-        this.material.uniforms.u_colormap_data.value = this.colormaps    
-        this.material.uniforms.u_raycast_noise.value = this.noisemaps.white256
+        this.material.uniforms.u_sampler_volume.value = this.textures.volume
+        this.material.uniforms.u_sampler_mask.value = this.textures.mask
+        this.material.uniforms.u_sampler_colormap.value = this.colormaps    
+        this.material.uniforms.u_sampler_noise.value = this.noisemaps.white256
     }
 
     setMesh()
@@ -136,7 +136,7 @@ export default class ISOViewer
 
         this.material.uniforms.u_occupancy_size.value = this.occupancy.sizes.occupancy
         this.material.uniforms.u_occupancy_block.value = this.occupancy.sizes.block.clone().divide(this.occupancy.sizes.volume)
-        this.material.uniforms.u_occupancy_data.value = this.occupancy.getTexture()       
+        this.material.uniforms.u_sampler_occupancy.value = this.occupancy.getTexture()       
 
         if(this.debug.active)
             this.scene.add(this.occupancy.gpgpu.debug)
@@ -182,20 +182,20 @@ export default class ISOViewer
                     .add(this.material.uniforms.u_raycast_threshold, 'value')
                     .name('threshold')
                     .min(0)
-                    .max(0.5)
+                    .max(1)
                     .step(0.0001) 
     
                 folder
                     .add(this.material.uniforms.u_raycast_resolution, 'value')
                     .name('resolution')
-                    .min(0.25)
+                    .min(0)
                     .max(2)
                     .step(0.001)
                     
                 folder
                     .add(this.material.uniforms.u_raycast_refinements, 'value')
                     .name('refinements')
-                    .min(0)
+                    .min(1)
                     .max(5)
                     .step(1)
                                         
@@ -297,8 +297,8 @@ export default class ISOViewer
                     .step(0.1)
     
                 folder
-                    .add(this.material.uniforms.u_lighting_mode, 'value')
-                    .name('mode')
+                    .add(this.material.uniforms.u_lighting_model, 'value')
+                    .name('model')
                     .options({ phong: 1, blinn: 2})
     
                 folder
@@ -319,13 +319,8 @@ export default class ISOViewer
                     .step(1) 
 
                 folder
-                    .add(object, 'visible')
+                    .add(this.occupancy.gpgpu.debug.material, 'visible')
                     .name('visible')
-                    .onChange((visible) => 
-                    {  
-                        if(this.debug.active)
-                            this.occupancy.gpgpu.debug.material.visible = visible
-                    })
             }
 
             setControlsRaycast(raycastFolder)
@@ -360,7 +355,7 @@ export default class ISOViewer
 
                 this.occupancy.setThreshold(threshold)
                 this.occupancy.update()
-                this.material.uniforms.u_occupancy_data.value = this.occupancy.getTexture()
+                this.material.uniforms.u_sampler_occupancy.value = this.occupancy.getTexture()
 
             }
 
