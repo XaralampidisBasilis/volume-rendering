@@ -5,6 +5,7 @@ vec2 intersect_box(vec3 box_min, vec3 box_max, vec3 start, vec3 direction)
 {
     // Ray-AABB (Axis Aligned Bounding Box) intersection.
     // Mathematics: https://tavianator.com/2022/ray_box_boundary.html
+    // Produces some cyrcle patterns
 
     vec3 inv_dir = 1.0 / direction;
     

@@ -1,80 +1,77 @@
-#include ../uniforms/raycast_volume_fast.glsl;
-#include ./dithering.glsl;
-#include ./check_block_occupancy.glsl;
-#include ./refine_hit.glsl;
-
-bool raycast_block(in sampler3D data, in vec3 start, in vec3 ray_step, in float exit_steps, in float threshold, out vec3 position, out float value);
+#include ../raycast/stride/stride.glsl;
+#include ../raycast/bounds.glsl;
+#include ../raycast/dither.glsl;
+#include ../raycast/refine.glsl;
+#include ../raycast/occupancy/raycast_block.glsl;
+#include ../raycast/occupancy/occupied_block.glsl;
 
 /**
- * Performs raycasting in a 3D texture to find the depth and value of an intersection.
+ * performs raycasting in a 3d texture using occlussion blocks ray skipping
  *
- * @param data: 3D texture sampler containing intensity data
- * @param start: Starting point of the ray in normalized texture coordinates
- * @param direction: Direction vector of the ray in normalized texture coordinates
- * @param range: vec2 containing the start and end distances for raycasting
- * @param size: the size of the volume texture
- * @param position: Output vec3 where the position of the intersection will be stored
- * @param value: Output float where the value at the intersection will be stored
+ * @param u_raycast: struct containing raycast-related uniforms.
+ * @param u_volume: struct containing volume-related uniforms.
+ * @param u_occupancy: struct containing occupancy-related uniforms.
+ * @param ray_start: starting point of the ray.
+ * @param ray_normal: direction vector of the ray (should be normalized).
+ * @param ray_bounds: vec2 containing the start and end distances for raycasting.
+ * @param hit_position: output vec3 where the position of the intersection will be stored.
+ * @param hit_intensity: output float where the intensity at the intersection will be stored.
+ * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
+bool raycast_fast
+(
+    in raycast_uniforms u_raycast, 
+    in volume_uniforms u_volume, 
+    in occupancy_uniforms u_occupancy, 
+    in sampler3D sampler_volume,
+    in sampler2D sampler_occupancy,
+    in vec3 ray_start, 
+    in vec3 ray_normal, 
+    out vec3 hit_position, 
+    out float hit_intensity
+) {    
+    // compute the intersection bounds of a ray with occupancy axis-aligned bounding box.
+    vec2 ray_bounds = bounds(u_occupancy, ray_start, ray_normal); // gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0); 
 
-bool raycast_volume_fast(sampler3D volume_data, vec3 ray_start, vec3 ray_step, vec2 steps_range, out vec3 position, out float value) 
-{
-    // apply dithering 
-    steps_range.x += dithering(u_noisemap_data, ray_step, steps_range) * u_raycast_dithering; 
-
-    // raycast loop
-    float steps = steps_range.x;
-    float count = 0.0;
-    float count_max = u_occupancy_size.x + u_occupancy_size.y + u_occupancy_size.z;
+    // compute the ray step vector based on the raycast and volume parameters
+    vec3 ray_step = stride(u_raycast, u_volume, ray_normal, ray_bounds); // gl_FragColor = vec4((ray_normal * 0.5) + 0.5, 1.0); 
     
-    // initialize position and depth
-    position = ray_start + ray_step * steps; 
+    // compute the ray step delta and step bounds
+    float ray_delta = length(ray_step); 
+    vec2 step_bounds = ray_bounds / ray_delta; // gl_FragColor = vec4(vec3(float(step_bounds.y-step_bounds.x) / (1.732/ray_delta)), 1.0); 
 
-    while (steps < steps_range.y && count < count_max) {
+    // apply dithering to the initial distance to avoid artifacts
+    vec3 dither_step = dither(u_raycast, ray_step, step_bounds); // gl_FragColor = vec4(-normalize(dither_step), 1.0); 
 
-        // check block occupacy
-        float exit_steps = 0.0;
-        bool occupied = check_block_occupancy(u_occupancy_data, u_occupancy_size, u_occupancy_block, position, ray_step, exit_steps);
+    // initialize the starting position along the ray
+    hit_position = ray_start + ray_step * step_bounds.x - dither_step; // gl_FragColor = vec4(hit_position, 1.0); 
+    
+    // raycasting loop to traverse through the volume
+    float skip_steps = 0.0;
 
+    for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++) {
+
+        // check if the current block is occupied
+        bool occupied = occupied_block(u_occupancy, u_volume, sampler_occupancy, hit_position, ray_step, skip_steps);
         if (occupied) {
-
-            bool hit = raycast_block(volume_data, position, ray_step, exit_steps, u_raycast_threshold, position, value);
-
-            if (hit) 
-            {
-                // refine_hit(volume_data, position, ray_step, u_raycast_threshold, u_raycast_refinements, position, value);             
+            
+            // perform raycasting in the occupied block 
+            bool hit = raycast_block(u_raycast, sampler_volume, ray_step, skip_steps, hit_position, hit_intensity);
+            if (hit) {
+                
                 return true;
             }
-        }
-        else
-        {
-            // Move to next block
-            steps += exit_steps;
-            position += exit_steps * ray_step;
+
+        } else {
+
+            // skip the specified number of steps if the block is not occupied
+            n_step += skip_steps;
+            hit_position += ray_step * skip_steps;
         }
 
-        count++;
     }   
 
-    // Set value to 0 if no intersection is found
-    value = 0.0;                               
-    return false;
-}
-
-bool raycast_block(in sampler3D data, in vec3 start, in vec3 ray_step, in float exit_steps, in float threshold, out vec3 position, out float value)
-{
-    position = start;
-    value = 0.0;
-
-    for (float i = 0.0; i < exit_steps; i++) {
-
-        value = texture(data, position).r;      // Sample value from the 3D texture at the current position
-
-        if (value > threshold) 
-            return true;
-
-        position += ray_step; // Sample value from the 3D texture at the current position
-    }
-
-    return false;
+    // if no intersection is found, set hit_intensity to 0
+    hit_intensity = 0.0;
+    return false; // no intersection
 }

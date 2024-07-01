@@ -135,10 +135,10 @@ export default class ISOViewer
         this.occupancy.update() 
 
         this.material.uniforms.u_occupancy_size.value = this.occupancy.sizes.occupancy
-        this.material.uniforms.u_occupancy_block.value = this.occupancy.sizes.block.clone().divide(this.occupancy.sizes.volume)
+        this.material.uniforms.u_occupancy_block.value = this.occupancy.sizes.block
         this.material.uniforms.u_sampler_occupancy.value = this.occupancy.getTexture()       
 
-        if(this.debug.active)
+        if(this.debug.active) 
             this.scene.add(this.occupancy.gpgpu.debug)
     }
 
@@ -358,7 +358,7 @@ export default class ISOViewer
             const powerController = this.debug.getController(lightingFolder, 'power')
             const attenuateController = this.debug.getController(lightingFolder, 'attenuate')
             const blocksController = this.debug.getController(occupancyFolder, 'blocks')
-            
+
             // updates
             const updateOccupancy = (threshold) => {
 
@@ -442,13 +442,21 @@ export default class ISOViewer
             // Occupancy blocks
                 
             blocksController
-                .onFinishChange((blocks) =>
+                .onFinishChange(() =>
                 {
                     if (this.debug.active)
                         this.scene.remove(this.occupancy.gpgpu.debug)
 
                     this.occupancy.dispose()
                     this.setOccupancy()
+
+                    const visibleController = this.debug.getController(occupancyFolder, 'visible')
+
+                    visibleController.destroy()
+                    
+                    occupancyFolder
+                        .add(this.occupancy.gpgpu.debug.material, 'visible')
+                        .name('visible')
                 })
                 
         }

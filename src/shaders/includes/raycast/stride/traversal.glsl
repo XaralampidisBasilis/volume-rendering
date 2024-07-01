@@ -13,7 +13,7 @@ vec3 traversal(in raycast_uniforms u_raycast, in volume_uniforms u_volume, in ve
     float dimension_max = max(u_volume.dimensions.x, max(u_volume.dimensions.y, u_volume.dimensions.z));
     
     // Calculate the total distance the ray will travel within the volume
-    float ray_span = ray_bounds.y - ray_bounds.x;
+    float ray_span = abs(ray_bounds.y - ray_bounds.x);
     
     // Determine the number of steps the ray should take, based on the resolution and maximum dimension
     float ray_steps = ceil(ray_span * dimension_max * u_raycast.resolution);
