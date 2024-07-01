@@ -29,9 +29,9 @@ vec3 central(in sampler3D sampler_volume, in vec3 grad_step, in vec3 hit_positio
     }
 
     vec3 normal = vec3(
-        samples[0] - samples[1],
-        samples[2] - samples[3],
-        samples[4] - samples[5]
+        samples[1] - samples[0],
+        samples[3] - samples[2],
+        samples[5] - samples[4]
     );
     normal = normalize(normal);
 

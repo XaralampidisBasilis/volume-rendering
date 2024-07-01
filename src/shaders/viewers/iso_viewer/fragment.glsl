@@ -1,68 +1,73 @@
 /* SOURCES
     1. MRIcroGL https://github.com/rordenlab/MRIcroWeb?tab=readme-ov-file
-    2. Volume Rendering Example https:///github.com/mrdoob/three.js/blob/master/examples/webgl_texture3d.html
+    2. Volume Rendering Example https://github.com/mrdoob/three.js/blob/master/examples/webgl_texture3d.html
 */
+
+// precision
+precision highp sampler3D;
+precision highp sampler2D;
 precision highp float;
-precision highp sampler3D; // highp, mediump, lowp
 
-uniform sampler3D u_volume_data;
-uniform vec3 u_volume_voxel;
-uniform float u_raycast_resolution;
-uniform vec3 u_occupancy_box_min;
-uniform vec3 u_occupancy_box_max;
-
-varying vec3 v_position;
+// varying
 varying vec3 v_camera;
 varying vec3 v_direction;
+varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMatrix * modelMatrix * viewMatrix
 
-#include ../../utils/intersect_box.glsl;
-#include ../../includes/gradient_methods.glsl;
-#include ../../includes/lighting_phong.glsl;
-#include ../../includes/color_mapping.glsl;
-#include ../../includes/raycast_volume.glsl;
-#include ../../includes/ray_step.glsl;
+// uniforms
+#include ../../includes/uniforms/u_sampler.glsl;
+#include ../../includes/uniforms/u_volume.glsl;
+#include ../../includes/uniforms/u_occupancy.glsl;
+#include ../../includes/uniforms/u_raycast.glsl;
+#include ../../includes/uniforms/u_gradient.glsl;
+#include ../../includes/uniforms/u_colormap.glsl;
+#include ../../includes/uniforms/u_lighting.glsl;
+
+// utils
+#include ../../includes/utils/sample_color.glsl;
+#include ../../includes/utils/sample_intensity.glsl;
+#include ../../includes/utils/intersect_box.glsl;
+#include ../../includes/utils/intersect_box_max.glsl;
+#include ../../includes/utils/reshape_coordinates.glsl;
+#include ../../includes/utils/ramp.glsl;
+
+// functionality
+#include ../../includes/raycast/raycast.glsl;
+#include ../../includes/colormap/colormap.glsl;
+#include ../../includes/gradient/gradient.glsl;
+#include ../../includes/lighting/lighting.glsl;
 
 void main() 
 {
+    // set uniform variables
+    #include ../../includes/uniforms/uniforms.glsl;    
+
+    // set out variables
+    vec3 hit_position = vec3(0.0);
+    float hit_intensity = 0.0;
+
     // normalize view direction vector
-    vec3 direction = normalize(v_direction);
-
-    // calculate ray step vector
-    vec3 step = ray_step(direction, u_volume_voxel, u_raycast_resolution);       
-
-    // intersect volume box with ray and compute the range
-    vec2 range = intersect_box(u_occupancy_box_min, u_occupancy_box_max, v_camera, step);
-    range = max(range, 0.0); // Ensure the range is non-negative
-
-    // discard fragments if the ray does not intersect the box
-    if (range.x > range.y) discard; 
+    vec3 ray_normal = normalize(v_direction);
+    bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler_volume, v_camera, ray_normal, hit_position, hit_intensity);
 
     // perform fast raycasting to get hit position and value
-    float value = 0.0;
-    vec3 position = v_camera;
-    bool hit = raycast_volume(u_volume_data, v_camera, step, range, position, value);
+    if (ray_hit) {
 
-    if (hit) {
+        // compute the gradient normal vector at hit position
+        vec3 normal_vector = gradient(u_gradient, u_volume, u_sampler_volume, hit_position, hit_intensity);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
+    
+        // compute the max intensity color mapping
+        vec3 intensity_color = colormap(u_colormap, u_sampler_colormap, hit_intensity); // debug gl_FragColor = vec4(intensity_color, 1.0);       
 
-        // compute the gradient normal vectir at hit position
-        float value_near = 0.0;
-        vec3 normal_vector = gradient_methods(u_volume_data, position, u_volume_voxel, value_near);
+        // compute the lighting color
+        vec3 hit_color = lighting(u_lighting, intensity_color, normal_vector, hit_position, v_camera, v_camera);
 
-        // determine maximum value for color mapping
-        float value_max = max(value, value_near);    
-        vec3 color = color_mapping(value_max);        
-
-        // apply phong illuminaton model
-        vec3 view_vector = v_camera - v_position;
-        vec3 light_vector = view_vector + vec3(0.0, 0.2, 0.0);
-        vec3 color_phong = lighting_phong(color, normal_vector, view_vector, light_vector);
-
-        gl_FragColor = vec4(color_phong, 1.0);
+        // final color
+        gl_FragColor = vec4(hit_color, 1.0);
         return;
         
-    }
-    else 
+    } else {
         discard;  // discard fragment if there is no hit
+    }
 
     // include tone mapping and color space correction
     #include <tonemapping_fragment>

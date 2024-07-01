@@ -15,7 +15,7 @@ vec3 phong_blin(in lighting_uniforms u_lighting, in vec3 color, in vec3 normal_v
     vec3 source_vector = surface_position - source_position;
 
     // Calculate distance and its squared value, considering attenuation
-    float distance_inv = 1.0 / length(source_vector);
+    float distance_inv = 1.0 / (length(source_vector) + length(view_vector));
     float attenuation = mix(1.0, distance_inv * distance_inv, u_lighting.attenuate) * u_lighting.power;  
     
     // Normalize lighting vectors
