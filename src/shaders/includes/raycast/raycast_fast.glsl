@@ -27,8 +27,8 @@ bool raycast_fast
     in sampler2D sampler_occupancy,
     in vec3 ray_start, 
     in vec3 ray_normal, 
-    out vec3 hit_position, 
-    out float hit_intensity
+    out vec3 ray_position, 
+    out float ray_intensity
 ) {    
     // compute the intersection bounds of a ray with occupancy axis-aligned bounding box.
     vec2 ray_bounds = bounds(u_occupancy, ray_start, ray_normal); // gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0); 
@@ -44,29 +44,30 @@ bool raycast_fast
     vec3 dither_step = dither(u_raycast, ray_step, step_bounds); // gl_FragColor = vec4(-normalize(dither_step), 1.0); 
 
     // initialize the starting position along the ray
-    hit_position = ray_start + ray_step * step_bounds.x - dither_step; // gl_FragColor = vec4(hit_position, 1.0); 
+    ray_position = ray_start + ray_step * step_bounds.x - dither_step; // gl_FragColor = vec4(hit_position, 1.0); 
     
     // raycasting loop to traverse through the volume
-    float skip_steps = 0.0;
+    float num_steps = 0.0;
 
-    for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, hit_position += ray_step) {
+    for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, ray_position += ray_step) {
 
         // check if the current block is occupied
-        bool occupied = occupied_block(u_occupancy, u_volume, sampler_occupancy, hit_position, ray_step, skip_steps);
+        bool occupied = occupied_block(u_occupancy, u_volume, sampler_occupancy, ray_position, ray_step, num_steps);
+        
         if (occupied) {
                     
             // perform raycasting in the occupied block 
-            bool hit = raycast_block(u_raycast, sampler_volume, ray_step, skip_steps, hit_position, hit_intensity);
+            bool hit = traverse(u_raycast, sampler_volume, ray_step, num_steps, ray_position, ray_intensity);
             if (hit) 
                 return true;
         } 
 
         // skip the specified number of steps and go to the end of the block
-        hit_position += ray_step * skip_steps;
-        n_step += skip_steps;
+        ray_position += ray_step * num_steps;
+        n_step += num_steps;
     }   
 
     // if no intersection is found, set hit_intensity to 0
-    hit_intensity = 0.0;
+    ray_intensity = 0.0;
     return false; // no intersection
 }
