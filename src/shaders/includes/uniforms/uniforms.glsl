@@ -9,7 +9,8 @@ occupancy_uniforms u_occupancy = occupancy_uniforms(
    u_occupancy_size,
    u_occupancy_block,
    u_occupancy_box_min,
-   u_occupancy_box_max
+   u_occupancy_box_max,
+   u_occupancu_method
 );
 
 raycast_uniforms u_raycast = raycast_uniforms(

@@ -15,5 +15,5 @@ vec3 colormap(in colormap_uniforms u_colormap, in sampler2D sampler_colormap, in
     // Return the sample from the colormap texture at the calculated coordinates
     vec2 uv = vec2(intensity, u_colormap.v);
     
-    return sample_color_2d(sampler_colormap, uv);
+    return sample_color_2d(sampler_colormap, uv).rgb;
 }

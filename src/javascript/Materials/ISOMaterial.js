@@ -48,7 +48,8 @@ export default function()
         u_occupancy_box_min:        new THREE.Uniform(new THREE.Vector3(0, 0, 0)),
         u_occupancy_box_max:        new THREE.Uniform(new THREE.Vector3(1, 1, 1)),
         u_occupancy_resolution:     new THREE.Uniform(24),
-  
+        u_occupancy_method:         new THREE.Uniform(1),
+
     }
 
     const defines = {

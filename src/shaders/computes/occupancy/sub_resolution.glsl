@@ -18,13 +18,13 @@ void main()
     ivec3 block_coord = reshape_2d_to_3d(pixel_coord, u_occupancy_size);
 
     // Get min and max block voxel positions in the volume
-    ivec3 voxel_min = u_block_size * block_coord;
+    ivec3 voxel_min = max(u_block_size * block_coord, 0);
     ivec3 voxel_max = min(voxel_min + u_block_size, u_volume_size);
 
     // Scan the volume block to find voxels with value above threshold
     int occupied = 0; 
-    ivec3 bbvoxel_min = voxel_max;
-    ivec3 bbvoxel_max = voxel_min;
+    ivec3 bb_min = voxel_max;
+    ivec3 bb_max = voxel_min;
 
     for (int z = voxel_min.z; z < voxel_max.z; z++) {
         for (int y = voxel_min.y; y < voxel_max.y; y++) {
@@ -34,24 +34,19 @@ void main()
                 float voxel_value = texelFetch(u_volume_data, voxel_coord, 0).r;
 
                 if (voxel_value > u_threshold) {
-
+                    bb_min = min(bb_min, voxel_coord);
+                    bb_max = max(bb_max, voxel_coord);
                     occupied = 1;
-                    bbvoxel_min = max(bbvoxel_min, voxel_coord);
-                    bbvoxel_max = min(bbvoxel_max, voxel_coord);
                 }
             }
         }
     }
 
     // encode block bounding box as float
-    float bbindex_min = intBitsToFloat(reshape_3d_to_1d(bbvoxel_min, u_volume_size)); 
-    float bbindex_max = intBitsToFloat(reshape_3d_to_1d(bbvoxel_max, u_volume_size));
-
-    // normalize linear indexes
     float num_voxels = float(u_volume_size.x * u_volume_size.y * u_volume_size.z);
-    bbindex_min /= num_voxels;
-    bbindex_max /= num_voxels;
+    float bbi_min = float(reshape_3d_to_1d(bb_min, u_volume_size)) / num_voxels; 
+    float bbi_max = float(reshape_3d_to_1d(bb_max, u_volume_size)) / num_voxels;
 
     // needs to be THREE.FloatType
-    gl_FragColor = vec4(bbindex_min, bbindex_max, 0.0, occupied);
+    gl_FragColor = vec4(bbi_min, bbi_max, 0.0, occupied);
 }

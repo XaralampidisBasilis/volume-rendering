@@ -48,8 +48,8 @@ vec3 reshape_2d_to_3d(in vec2 pos2, in vec3 size)
 float reshape_3d_to_1d_texel(in vec3 pos3, in vec3 size)
 {
     // pos3 in [0, 1]
-    float size_xy = size.x * size.y * size.z;
-    return reshape_3d_to_1d(pos3 * size, size) / size_xy;
+    float size_xyz = size.x * size.y * size.z;
+    return reshape_3d_to_1d(pos3 * size, size) / size_xyz;
 }
 
 vec3 reshape_1d_to_3d_texel(in float pos1, in vec3 size)

@@ -57,7 +57,7 @@ bool raycast_fast
         if (occupied) {
                     
             // perform raycasting in the occupied block 
-            bool hit = traverse(u_raycast, sampler_volume, ray_step, num_steps, ray_position, ray_intensity);
+            bool hit = raycast_block(u_raycast, sampler_volume, ray_step, num_steps, ray_position, ray_intensity);
             if (hit) 
                 return true;
         } 

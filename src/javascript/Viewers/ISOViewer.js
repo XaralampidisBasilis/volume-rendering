@@ -318,8 +318,6 @@ export default class ISOViewer
 
             const setControlsOccupancy = (folder) =>
             {
-                const object = { visible: true}
-
                 folder
                     .add(this.material.uniforms.u_occupancy_resolution, 'value')
                     .name('blocks')
@@ -330,6 +328,11 @@ export default class ISOViewer
                 folder
                     .add(this.occupancy.gpgpu.debug.material, 'visible')
                     .name('visible')
+
+                folder
+                    .add(this.material.uniforms.u_occupancy_method, 'value')
+                    .name('method')
+                    .options({ mono_resolution: 1, sub_resolution: 2, multi_resolution: 3})
             }
 
             setControlsRaycast(raycastFolder)
@@ -338,6 +341,193 @@ export default class ISOViewer
             setControlsLighting(lightingFolder)    
             setControlsOccupancy(occupancyFolder)
         }
+    }
+
+    debugRaycast() 
+    {
+        const folder = this.debug
+            .getFolder(this.debug.ui, 'Viewer')
+            .addFolder('raycast')
+            .close()
+
+        folder
+            .add(this.material.uniforms.u_raycast_threshold, 'value')
+            .name('threshold')
+            .min(0)
+            .max(1)
+            .step(0.0001) 
+
+        folder
+            .add(this.material.uniforms.u_raycast_resolution, 'value')
+            .name('resolution')
+            .min(0)
+            .max(2)
+            .step(0.001)
+            
+        folder
+            .add(this.material.uniforms.u_raycast_refinements, 'value')
+            .name('refinements')
+            .min(1)
+            .max(5)
+            .step(1)
+
+        folder
+            .add(this.material.uniforms.u_raycast_stride, 'value')
+            .name('stride')
+            .options({ isotropic: 1, directional: 2, traversal: 3 })
+                                
+        folder
+            .add(this.material.uniforms.u_raycast_dither, 'value')
+            .name('dither')   
+    }
+
+    debugGradient() 
+    {
+        const folder = this.debug
+            .getFolder(this.debug.ui, 'Viewer')
+            .addFolder('gradient')
+            .close()
+
+        folder
+            .add(this.material.uniforms.u_gradient_resolution, 'value')
+            .name('resolution')
+            .min(0.25)
+            .max(2)
+            .step(0.001)
+
+        folder
+            .add(this.material.uniforms.u_gradient_method, 'value')
+            .name('method')
+            .options({ sobel: 1, central: 2, tetrahedron: 3})    
+            
+        folder
+            .add(this.material.uniforms.u_gradient_neighbor, 'value')
+            .name('neighbor')
+    }
+
+    debugColormap()
+    {
+        const object = { flip: false}
+
+        const folder = this.debug
+            .getFolder(this.debug.ui, 'Viewer')
+            .addFolder('colormap')
+            .close()
+               
+        folder
+            .add(this.material.uniforms.u_colormap_u_lim.value, 'x')
+            .name('low')
+            .min(0)
+            .max(1)
+            .step(0.001)       
+
+        folder
+            .add(this.material.uniforms.u_colormap_u_lim.value, 'y')
+            .name('high')
+            .min(0)
+            .max(1)
+            .step(0.001)               
+
+        folder        
+            .add(this.material.uniforms.u_colormap_name, 'value')
+            .name('name')
+            .options(Object.keys(colormaps))  
+            .onChange((name) => 
+            {
+                let { v, u_start, u_end } = colormaps[name]
+                this.material.uniforms.u_colormap_v.value = v
+                this.material.uniforms.u_colormap_u_range.value.set(u_start, u_end)                
+            })
+                                
+        folder
+            .add(object, 'flip')
+            .name('flip')
+            .onChange(() => 
+            {    
+                [this.material.uniforms.u_colormap_u_range.value.y, this.material.uniforms.u_colormap_u_range.value.x] = 
+                [this.material.uniforms.u_colormap_u_range.value.x, this.material.uniforms.u_colormap_u_range.value.y]                    
+            })
+    }
+
+    debugLighting()
+    {
+        const folder = this.debug
+            .getFolder(this.debug.ui, 'Viewer')
+            .addFolder('lighting')
+            .close()
+        
+        folder
+            .add(this.material.uniforms.u_lighting_ka, 'value')
+            .name('Ka')
+            .min(0)
+            .max(1)
+            .step(0.001) 
+
+        folder
+            .add(this.material.uniforms.u_lighting_kd, 'value')
+            .name('Kd')
+            .min(0)
+            .max(1)
+            .step(0.001)
+                        
+        folder
+            .add(this.material.uniforms.u_lighting_ks, 'value')
+            .name('Ks')
+            .min(0)
+            .max(1)
+            .step(0.001)
+
+        folder
+            .add(this.material.uniforms.u_lighting_shininess, 'value')
+            .name('shininess')
+            .min(0)
+            .max(40.0)
+            .step(0.2) 
+
+        folder
+            .add(this.material.uniforms.u_lighting_power, 'value')
+            .name('power')
+            .min(0)
+            .max(2.0)
+            .step(0.1)
+
+        folder
+            .add(this.material.uniforms.u_lighting_model, 'value')
+            .name('model')
+            .options({ phong: 1, blinn: 2})
+
+        folder
+            .add(this.material.uniforms.u_lighting_attenuate, 'value')
+            .name('attenuate')                    
+    }
+
+    debugOccupancy()
+    {
+        const folder = this.debug
+            .getFolder(this.debug.ui, 'Viewer')
+            .addFolder('occupancy')
+            .close()
+
+        folder
+            .add(this.material.uniforms.u_occupancy_resolution, 'value')
+            .name('blocks')
+            .min(2)
+            .max(64)
+            .step(1) 
+
+        folder
+            .add(this.occupancy.gpgpu.debug.material, 'visible')
+            .name('visible')
+            
+        folder
+            .add(this.material.uniforms.u_occupancy_method, 'value')
+            .name('method')
+            .options({ mono_resolution: 1, sub_resolution: 2, multi_resolution: 3})
+    }
+
+    debugBindings()
+    {
+        
     }
 
     setControlBindings()
