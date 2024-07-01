@@ -14,3 +14,4 @@
        in order to have an adaptive ray_step algorithm for every occupancy block
     c. Implement the multiresolution occupancy map algorithm
 
+5. I don't understand raycast_fast, raycast_block to the fullest

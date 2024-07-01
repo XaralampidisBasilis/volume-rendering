@@ -26,9 +26,9 @@ bool occupied_block(in occupancy_uniforms u_occupancy, in volume_uniforms u_volu
     voxel_min = max(voxel_min, 0.0);
     voxel_max = min(voxel_max, 1.0);
 
-    // intersect the ray with the block and compute the distance to exit
+    // intersect ray with block and compute skip steps
     float distance = intersect_box_max(voxel_min, voxel_max, ray_position, ray_step); // gl_FragColor = vec4(vec3(distance/length(u_occupancy.block) * length(ray_step)), 1.0);
-    skip_steps = max(ceil(distance), 1.0); //  gl_FragColor = vec4(vec3(skip_steps)/(length(u_occupancy.block / u_volume.dimensions) / length(ray_step)), 1.0);
+    skip_steps = max(floor(distance), 0.0); //  gl_FragColor = vec4(vec3(skip_steps)/(length(u_occupancy.block / u_volume.dimensions) / length(ray_step)), 1.0);
 
     // compute the block position in the occupancy map's normalized coordinates
     vec3 block_uvw = (block_index + 0.5) / u_occupancy.size;

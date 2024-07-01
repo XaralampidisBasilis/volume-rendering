@@ -41,10 +41,10 @@ bool raycast
     vec3 dither_step = dither(u_raycast, ray_step, step_bounds); // debug gl_FragColor = vec4(vec3(legth(dither_step)), 1.0);  
 
     // initialize the starting position along the ray
-    hit_position = ray_start + ray_step * step_bounds.x + dither_step;
+    hit_position = ray_start + ray_step * step_bounds.x - dither_step;
     
     // raycasting loop to traverse through the volume
-    for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++) {
+    for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, hit_position += ray_step) {
 
         // sample the intensity from the 3d texture at the current position
         hit_intensity = sample_intensity_3d(sampler_volume, hit_position);          
@@ -56,9 +56,6 @@ bool raycast
             refine(u_raycast, sampler_volume, ray_step, hit_position, hit_intensity);
             return true; // intersection found
         }
-
-        // move the position forward by the step vector
-        hit_position += ray_step;
     }   
 
     // if no intersection is found, set hit_intensity to 0
