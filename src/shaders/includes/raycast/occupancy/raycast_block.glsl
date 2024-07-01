@@ -23,15 +23,18 @@ bool raycast_block(
         // sample the intensity of the volume at the current 'hit_position'.
         hit_intensity = sample_intensity_3d(sampler_volume, hit_position);
 
-       // move the ray forward by one step.
-        hit_position += ray_step;
-
         // if the sampled intensity exceeds the threshold, a hit is detected.
-        if (hit_intensity > u_raycast.threshold) {
+        if (hit_intensity > u_raycast.threshold) 
+        {
+            refine(u_raycast, sampler_volume, ray_step, hit_position, hit_intensity);
             return true;
         }
+
+        // move the ray forward by one step.
+        hit_position += ray_step;
     }
 
     // no hit was detected within the given number of steps.
+    hit_position += ray_step;
     return false;
 }

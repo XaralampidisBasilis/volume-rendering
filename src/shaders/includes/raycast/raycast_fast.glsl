@@ -44,23 +44,20 @@ bool raycast_fast
     vec3 dither_step = dither(u_raycast, ray_step, step_bounds); // gl_FragColor = vec4(-normalize(dither_step), 1.0); 
 
     // initialize the starting position along the ray
-    hit_position = ray_start + ray_step * step_bounds.x - dither_step; // gl_FragColor = vec4(hit_position, 1.0); 
+    hit_position = ray_start + ray_step * step_bounds.x + dither_step; // gl_FragColor = vec4(hit_position, 1.0); 
     
     // raycasting loop to traverse through the volume
     float skip_steps = 0.0;
 
-    for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++) {
+    for (float n_step = step_bounds.x; n_step < step_bounds.y;) {
 
         // check if the current block is occupied
         bool occupied = occupied_block(u_occupancy, u_volume, sampler_occupancy, hit_position, ray_step, skip_steps);
         if (occupied) {
-            
+                    
             // perform raycasting in the occupied block 
             bool hit = raycast_block(u_raycast, sampler_volume, ray_step, skip_steps, hit_position, hit_intensity);
-            if (hit) {
-                
-                return true;
-            }
+            if (hit) return true;
 
         } else {
 

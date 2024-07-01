@@ -19,7 +19,7 @@ void main()
     ivec3 block_coord = reshape_2d_to_3d(pixel_coord, u_occupancy_size);
 
     // Get min and max block voxel positions in the volume
-    ivec3 voxel_min = u_block_size * block_coord;
+    ivec3 voxel_min = max(u_block_size * block_coord, 0);
     ivec3 voxle_max = min(voxel_min + u_block_size, u_volume_size);
    
     // Scan the volume block to find voxels with value above threshold
