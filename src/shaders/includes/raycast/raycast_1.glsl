@@ -53,9 +53,8 @@ bool raycast_1
 
         // check if the current block is occupied
         bool occupied = mono_resolution(u_occupancy, u_volume, sampler_occupancy, ray_position, ray_step, num_steps);
-        
         if (occupied) {
-                    
+            
             // perform raycasting in the occupied block 
             bool hit = traverse(u_raycast, sampler_volume, ray_step, num_steps, ray_position, ray_intensity);
             if (hit) 

@@ -346,6 +346,7 @@ export default class ISOGui
         this.viewer.occupancy.update()
         this.viewer.material.uniforms.u_sampler_occupancy.value = this.viewer.occupancy.getTexture()
 
+        // update bounding box based on new threshold
         this.viewer.occupancy.computeBoundingBox()
         this.viewer.material.uniforms.u_occupancy_box_min.value = this.viewer.occupancy.box.min
         this.viewer.material.uniforms.u_occupancy_box_max.value = this.viewer.occupancy.box.max
@@ -359,12 +360,18 @@ export default class ISOGui
         this.viewer.setOccupancy()
         this.viewer.occupancy.debug(this.viewer.scene)
 
+        // destroy and create occupancy visible controller
         this.controllers.occupancy.visible.destroy()
         this.controllers.occupancy.visible = this.subfolders.occupancy
             .add(this.viewer.occupancy.gpgpu.debug.material, 'visible')
             .name('visible')
             .setValue(visible)
             .updateDisplay()
+
+        // update bounding box based on new resolution
+        this.viewer.occupancy.computeBoundingBox()
+        this.viewer.material.uniforms.u_occupancy_box_min.value = this.viewer.occupancy.box.min
+        this.viewer.material.uniforms.u_occupancy_box_max.value = this.viewer.occupancy.box.max
     }
 
     dispose()

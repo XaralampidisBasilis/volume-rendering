@@ -48,9 +48,6 @@ void main()
     // normalize view direction vector
     vec3 ray_normal = normalize(v_direction);
     bool ray_hit = raycast_1(u_raycast, u_volume, u_occupancy, u_sampler_volume, u_sampler_occupancy, v_camera, ray_normal, hit_position, hit_intensity);
-    
-    // if (ray_hit) return;
-    // discard;
 
     // perform fast raycasting to get hit position and value
     if (ray_hit) {

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js'
-import computeShader from '../../shaders/computes/occupancy/mono_resolution.glsl'
+import computeShader from '../../shaders/computes/gpu_occupancy/mono_resolution.glsl'
 
 // assumes intensity data 3D, and data3DTexture
 export default class GPUOccupancy
@@ -165,7 +165,7 @@ export default class GPUOccupancy
         // debug
         this.gpgpu.debug = new THREE.Mesh(
             new THREE.PlaneGeometry(this.gpgpu.size.width, this.gpgpu.size.height),
-            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, visible: false })
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, visible: false })
         )
         this.gpgpu.debug.material.map = this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.variable).texture
 
