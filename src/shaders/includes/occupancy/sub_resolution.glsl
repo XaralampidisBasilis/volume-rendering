@@ -10,8 +10,15 @@
  * @param num_steps - The output parameter that will store the number of steps to exit the block.
  * @return - Returns true if the block is occupied and the ray should not skip it, false otherwise.
  */
-bool sub_resolution(in occupancy_uniforms u_occupancy, in volume_uniforms u_volume, in sampler2D sampler_occupancy, in vec3 ray_position, in vec3 ray_step, out float skip_steps)
-{
+bool sub_resolution(
+    in occupancy_uniforms u_occupancy, 
+    in volume_uniforms u_volume, 
+    in sampler2D sampler_occupancy, 
+    in vec3 ray_position, 
+    in vec3 ray_step, 
+    out vec2 traverse_steps,
+    out float exit_steps
+){
     // find the current block index in the volume
     vec3 block_size = u_occupancy.block / u_volume.dimensions;
     vec3 block_index = floor(ray_position / block_size);
@@ -25,15 +32,24 @@ bool sub_resolution(in occupancy_uniforms u_occupancy, in volume_uniforms u_volu
     vec4 color_data = sample_color_2d(sampler_occupancy, block_uv);
     bool occupied = color_data.a > 0.0;
 
+    // compute block voxel min and max coordinates in the volume
+    vec3 voxel_min = max(block_index * block_size, 0.0);
+    vec3 voxel_max = min(voxel_min + block_size, 1.0);
+
     // decode sub block bounding box
-    vec3 bb_min = reshape_1d_to_3d_texel(color_data.r, u_volume_size);
-    vec3 bb_max = reshape_1d_to_3d_texel(color_data.g, u_volume_size);
-    bb_min = max(bb_min, 0.0);
-    bb_max = max(bb_min, 1.0);
+    vec3 bb_min = reshape_1d_to_3d_texel(color_data.r, u_volume.dimensions);
+    vec3 bb_max = reshape_1d_to_3d_texel(color_data.g, u_volume.dimensions);
+    bb_min = max(bb_min, voxel_min);
+    bb_max = min(bb_max, voxel_max);
 
     // intersect ray with block and compute skip steps
-    float distance = intersect_box_max(bb_min, bb_max, ray_position, ray_step); // gl_FragColor = vec4(vec3(distance/length(u_occupancy.block) * length(ray_step)), 1.0);
-    skip_steps = max(floor(distance), 0.0); //  gl_FragColor = vec4(vec3(skip_steps)/(length(u_occupancy.block / u_volume.dimensions) / length(ray_step)), 1.0);
+    exit_steps = intersect_box_max(voxel_min, voxel_max, ray_position, ray_step); // gl_FragColor = vec4(vec3(distance/length(u_occupancy.block) * length(ray_step)), 1.0);
+    exit_steps = max(floor(exit_steps), 0.0);
+
+    // intersect ray with bounding subblock and compute traverse steps    
+    traverse_steps = intersect_box(bb_min, bb_max, ray_position, ray_step); // gl_FragColor = vec4(vec3(distance/length(u_occupancy.block) * length(ray_step)), 1.0);
+    traverse_steps = vec2(ceil(traverse_steps.x), floor(traverse_steps.y));
+    traverse_steps = max(traverse_steps, 0.0);
 
     return occupied;    
 }

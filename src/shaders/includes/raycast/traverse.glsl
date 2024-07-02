@@ -1,5 +1,3 @@
-#define epsilon 0.01
-
 /**
  * performs a raycasting operation in a 3d volume texture to determine if a block of voxels is hit by the ray.
  *
@@ -15,7 +13,7 @@ bool traverse(
     in raycast_uniforms u_raycast, 
     in sampler3D sampler_volume, 
     in vec3 ray_step, 
-    in float num_steps, 
+    in vec2 traverse_steps, 
     inout vec3 ray_position, 
     out float ray_intensity
 ) {
@@ -23,7 +21,9 @@ bool traverse(
     vec3 ray_start = ray_position;
 
     // iterate through the volume, stepping by 'ray_step', up to 'skip_steps' times.
-    for (float n_step = 0.0; n_step < num_steps + epsilon; n_step++, ray_position += ray_step) {
+    ray_position = ray_start + traverse_steps.x * ray_step;
+
+    for (float n_step = traverse_steps.x; n_step <= traverse_steps.y + 0.5; n_step++, ray_position += ray_step) {
 
         // sample the intensity of the volume at the current 'hit_position'.
         ray_intensity = sample_intensity_3d(sampler_volume, ray_position);

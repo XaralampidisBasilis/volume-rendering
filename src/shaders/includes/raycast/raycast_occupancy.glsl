@@ -47,23 +47,24 @@ bool raycast_occupancy
     ray_position = ray_start + ray_step * step_bounds.x - dither_step; // gl_FragColor = vec4(hit_position, 1.0); 
     
     // raycasting loop to traverse through the volume
-    float num_steps = 0.0;
+    vec2 traverse_steps = vec2(0.0);
+    float exit_steps = 0.0;
 
     for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, ray_position += ray_step) {
 
         // check if the current block is occupied
-        bool occupied = sub_resolution(u_occupancy, u_volume, sampler_occupancy, ray_position, ray_step, num_steps);
+        bool occupied = sub_resolution (u_occupancy, u_volume, sampler_occupancy, ray_position, ray_step, traverse_steps, exit_steps);
         if (occupied) {
-            
+                        
             // perform raycasting in the occupied block 
-            bool hit = traverse(u_raycast, sampler_volume, ray_step, num_steps, ray_position, ray_intensity);
+            bool hit = traverse(u_raycast, sampler_volume, ray_step, traverse_steps, ray_position, ray_intensity);
             if (hit) 
                 return true;
         } 
 
         // skip the specified number of steps and go to the end of the block
-        ray_position += ray_step * num_steps;
-        n_step += num_steps;
+        ray_position += ray_step * exit_steps;
+        n_step += exit_steps;
     }   
 
     // if no intersection is found, set hit_intensity to 0

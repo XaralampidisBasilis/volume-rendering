@@ -29,10 +29,10 @@ export default class GPUOccupancy
         this.textures = {}
         this.textures.volume = texture // assumes intensity data 3D, and data3DTexture
 
-        const data = new Uint8Array(this.sizes.occupancy.x * this.sizes.occupancy.y * this.sizes.occupancy.z * 4).fill(0)
+        const data = new Float32Array(this.sizes.occupancy.x * this.sizes.occupancy.y * this.sizes.occupancy.z * 4).fill(0)
         this.textures.occupancy = new THREE.Data3DTexture(data, this.sizes.occupancy.x, this.sizes.occupancy.y, this.sizes.occupancy.z)
         this.textures.occupancy.format = THREE.RGBAFormat
-        this.textures.occupancy.type = THREE.UnsignedByteType // options: UnsignedByteType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedInt5999Type
+        this.textures.occupancy.type = THREE.FloatType // options: UnsignedByteType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedInt5999Type
         this.textures.occupancy.wrapS = THREE.ClampToEdgeWrapping
         this.textures.occupancy.wrapT = THREE.ClampToEdgeWrapping
         this.textures.occupancy.wrapR = THREE.ClampToEdgeWrapping

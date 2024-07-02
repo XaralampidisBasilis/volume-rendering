@@ -28,6 +28,8 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../includes/utils/intersect_box.glsl;
 #include ../../includes/utils/intersect_box_max.glsl;
 #include ../../includes/utils/reshape_coordinates.glsl;
+#include ../../includes/utils/product.glsl;
+#include ../../includes/utils/sum.glsl;
 #include ../../includes/utils/ramp.glsl;
 
 // functionality

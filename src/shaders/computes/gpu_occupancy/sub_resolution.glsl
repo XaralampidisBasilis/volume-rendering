@@ -23,13 +23,13 @@ void main()
     ivec3 voxel_max = min(voxel_min + u_block_size, u_volume_size); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
 
     // Scan the volume block to find voxels with value above threshold
-    int occupied = 0; 
+    float occupied = 0.0; 
     ivec3 bb_min = voxel_max;
     ivec3 bb_max = voxel_min;
 
-    for (int z = voxel_min.z; z <= voxel_max.z; z++) {
-        for (int y = voxel_min.y; y <= voxel_max.y; y++) {
-            for (int x = voxel_min.x; x <= voxel_max.x; x++) {
+    for (int z = voxel_min.z; z < voxel_max.z; z++) {
+        for (int y = voxel_min.y; y < voxel_max.y; y++) {
+            for (int x = voxel_min.x; x < voxel_max.x; x++) {
 
                 ivec3 voxel_coord = ivec3(x, y, z);
                 float voxel_value = texelFetch(u_volume_data, voxel_coord, 0).r;
@@ -37,7 +37,7 @@ void main()
                 if (voxel_value > u_threshold) {
                     bb_min = min(bb_min, voxel_coord);
                     bb_max = max(bb_max, voxel_coord);
-                    occupied = 1;
+                    occupied = 1.0;
                 }
             }
         }
