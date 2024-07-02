@@ -34,7 +34,7 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../includes/colormap/colormap.glsl;
 #include ../../includes/gradient/gradient.glsl;
 #include ../../includes/lighting/lighting.glsl;
-#include ../../includes/raycast/raycast_1.glsl;
+#include ../../includes/raycast/raycast_occupancy.glsl;
 
 void main() 
 {
@@ -47,7 +47,7 @@ void main()
 
     // normalize view direction vector
     vec3 ray_normal = normalize(v_direction);
-    bool ray_hit = raycast_1(u_raycast, u_volume, u_occupancy, u_sampler_volume, u_sampler_occupancy, v_camera, ray_normal, hit_position, hit_intensity);
+    bool ray_hit = raycast_occupancy(u_raycast, u_volume, u_occupancy, u_sampler_volume, u_sampler_occupancy, v_camera, ray_normal, hit_position, hit_intensity);
 
     // perform fast raycasting to get hit position and value
     if (ray_hit) {

@@ -3,7 +3,7 @@
 #include ../raycast/dither.glsl;
 #include ../raycast/refine.glsl;
 #include ../raycast/traverse.glsl;
-#include ../raycast/occupancy/sub_resolution.glsl;
+#include ../occupancy/sub_resolution.glsl;
 
 /**
  * performs raycasting in a 3d texture using occlussion blocks ray skipping
@@ -18,7 +18,7 @@
  * @param hit_intensity: output float where the intensity at the intersection will be stored.
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
-bool raycast_fast
+bool raycast_occupancy
 (
     in raycast_uniforms u_raycast, 
     in volume_uniforms u_volume, 
@@ -53,9 +53,8 @@ bool raycast_fast
 
         // check if the current block is occupied
         bool occupied = sub_resolution(u_occupancy, u_volume, sampler_occupancy, ray_position, ray_step, num_steps);
-        
         if (occupied) {
-                    
+            
             // perform raycasting in the occupied block 
             bool hit = traverse(u_raycast, sampler_volume, ray_step, num_steps, ray_position, ray_intensity);
             if (hit) 

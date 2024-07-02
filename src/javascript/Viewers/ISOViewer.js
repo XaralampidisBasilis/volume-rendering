@@ -2,8 +2,8 @@ import * as THREE from 'three'
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
 import Experience from '../Experience.js'
 import ISOMaterial from '../Materials/ISOMaterial.js'
-import GPUOccupancy from '../Computes/GPUOccupancy.js'
 import ISOGui from '../Gui/ISOGui.js'
+import GPUOccupancy from '../Computes/GPUOccupancy.js'
 
 export default class ISOViewer
 {

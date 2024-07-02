@@ -1,17 +1,14 @@
 
 1. fix function src\shaders\utils\encode_data_color.glsl
    fix function src\shaders\utils\decode_data_color.glsl
-   Compute in occupancy shader the min and max voxels in block
 
 
 2. Modularize XRGestures function
 
-3. Clear the check_block_occupancy, and raycast_fast functions 
-
-4. Improve occupancy map shader code
+3. Improve occupancy map shader code
     a. Access bblock_min and bblock_max to improve speed in raycasting when occupancy is detected
     b. Use the extra channel in occupancy map to store occupancy density vector inside the block 
        in order to have an adaptive ray_step algorithm for every occupancy block
     c. Implement the multiresolution occupancy map algorithm
 
-5. I don't understand raycast_fast, raycast_block to the fullest
+4. Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2ikVUXKBw&ab_channel=Rafadante
