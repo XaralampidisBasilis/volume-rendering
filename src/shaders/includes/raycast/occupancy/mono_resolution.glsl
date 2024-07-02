@@ -10,7 +10,7 @@
  * @param num_steps - The output parameter that will store the number of steps to exit the block.
  * @return - Returns true if the block is occupied and the ray should not skip it, false otherwise.
  */
-bool occupied_block(in occupancy_uniforms u_occupancy, in volume_uniforms u_volume, in sampler2D sampler_occupancy, in vec3 ray_position, in vec3 ray_step, out float skip_steps)
+bool mono_resolution(in occupancy_uniforms u_occupancy, in volume_uniforms u_volume, in sampler2D sampler_occupancy, in vec3 ray_position, in vec3 ray_step, out float skip_steps)
 {
     // calculate normalized block size
     vec3 block_size = u_occupancy.block / u_volume.dimensions;

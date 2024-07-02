@@ -56,22 +56,13 @@ export default class GPUOccupancy
 
         // uniforms
         this.gpgpu.variable.material.uniforms.u_occupancy_size = new THREE.Uniform(this.sizes.occupancy)
+        this.gpgpu.variable.material.uniforms.u_volume_data = new THREE.Uniform(this.textures.volume)
         this.gpgpu.variable.material.uniforms.u_volume_size = new THREE.Uniform(this.sizes.volume)
         this.gpgpu.variable.material.uniforms.u_block_size = new THREE.Uniform(this.sizes.block)
-        this.gpgpu.variable.material.uniforms.u_volume_data = new THREE.Uniform(this.textures.volume)
         this.gpgpu.variable.material.uniforms.u_threshold = new THREE.Uniform(0)
-        this.gpgpu.variable.material.uniforms.u_target = new THREE.Uniform(0)
 
         // start
-        this.gpgpu.computation.init()
-
-        // debug
-        this.gpgpu.debug = new THREE.Mesh(
-            new THREE.PlaneGeometry(this.gpgpu.size.width, this.gpgpu.size.height),
-            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, visible: false })
-        )
-        this.gpgpu.debug.material.map = this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.variable).texture
-        this.gpgpu.debug.scale.divideScalar(this.gpgpu.size.height)
+        this.gpgpu.computation.init()  
     }
 
     setBoundingBox()
@@ -86,7 +77,7 @@ export default class GPUOccupancy
         this.gpgpu.variable.material.uniforms.u_threshold.value = threshold
     }
 
-    readTexture()
+    computeTextureData()
     {
         /* CAN CAUSE PERFORMANCE ISSUES */
         this.renderer.readRenderTargetPixels(
@@ -100,9 +91,9 @@ export default class GPUOccupancy
         this.textures.occupancy.needsUpdate = true;
     }
 
-    readBoundingBox()
+    computeBoundingBox()
     {
-        this.readTexture()
+        this.computeTextureData()
         this.box.min = new THREE.Vector3()
         this.box.max = new THREE.Vector3()
 
@@ -146,7 +137,9 @@ export default class GPUOccupancy
     update()
     {
         this.gpgpu.computation.compute()
-        this.gpgpu.debug.material.map = this.getTexture()
+
+        if (this.gpgpu.debug)
+            this.gpgpu.debug.material.map = this.getTexture()
     }
 
     dispose()
@@ -161,6 +154,26 @@ export default class GPUOccupancy
         // Dispose debug mesh and its materials and geometries
         this.gpgpu.debug.geometry.dispose();
         this.gpgpu.debug.material.dispose();
+
+        // remove debug plane
+        if (this.gpgpu.debug)
+            this.scene.remove(this.gpgpu.debug)
+    }
+
+    debug(scene)
+    {
+        // debug
+        this.gpgpu.debug = new THREE.Mesh(
+            new THREE.PlaneGeometry(this.gpgpu.size.width, this.gpgpu.size.height),
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, visible: false })
+        )
+        this.gpgpu.debug.material.map = this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.variable).texture
+
+        // scene
+        this.scene = scene
+        this.scene.add(this.gpgpu.debug)
+        this.gpgpu.debug.scale.divideScalar(this.gpgpu.size.height)
+
     }
 
 }

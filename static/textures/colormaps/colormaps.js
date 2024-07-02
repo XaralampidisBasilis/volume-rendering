@@ -1,4 +1,4 @@
-const colormaps = {
+const colormapLocations = {
     "binary":              {u_start:   0.5/256, u_end: 255.5/256, v:   0.5/256},
     "hsv":                 {u_start:   0.5/256, u_end: 255.5/256, v:   1.5/256},
     "cividis":             {u_start:   0.5/256, u_end: 255.5/256, v:   2.5/256},
@@ -148,4 +148,4 @@ const colormaps = {
     "colorblind8":         {u_start:   0.5/256, u_end:   7.5/256, v: 242.5/256}  // 0 + (8 - 1)
 }
 
-export { colormaps }
+export { colormapLocations }

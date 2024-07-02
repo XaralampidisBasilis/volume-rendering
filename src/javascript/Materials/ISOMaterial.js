@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { colormaps } from '../../../static/textures/colormaps/colormaps'
+import { colormapLocations } from '../../../static/textures/colormaps/colormaps.js'
 import vertexShader from '../../shaders/viewers/iso_viewer/vertex.glsl'
-import fragmentShader from '../../shaders/viewers/iso_viewer/fragment_2.glsl'
+import fragmentShader from '../../shaders/viewers/iso_viewer/fragment.glsl'
 
 export default function()
 {
@@ -28,8 +28,8 @@ export default function()
         u_gradient_resolution:      new THREE.Uniform(0.7),      
             
         u_colormap_name:            new THREE.Uniform('cet_d9'),
-        u_colormap_v:               new THREE.Uniform(colormaps['cet_d9'].v),
-        u_colormap_u_range:         new THREE.Uniform(new THREE.Vector2(colormaps['cet_d9'].u_start, colormaps['cet_d9'].u_end)),
+        u_colormap_v:               new THREE.Uniform(colormapLocations['cet_d9'].v),
+        u_colormap_u_range:         new THREE.Uniform(new THREE.Vector2(colormapLocations['cet_d9'].u_start, colormapLocations['cet_d9'].u_end)),
         u_colormap_u_lim:           new THREE.Uniform(new THREE.Vector2(0, 1)),
         
         u_lighting_attenuate:       new THREE.Uniform(false),

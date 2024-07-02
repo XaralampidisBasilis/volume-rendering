@@ -2,8 +2,8 @@
 #include ../raycast/bounds.glsl;
 #include ../raycast/dither.glsl;
 #include ../raycast/refine.glsl;
-#include ../raycast/occupancy/raycast_block.glsl;
-#include ../raycast/occupancy/occupied_block.glsl;
+#include ../raycast/traverse.glsl;
+#include ../raycast/occupancy/sub_resolution.glsl;
 
 /**
  * performs raycasting in a 3d texture using occlussion blocks ray skipping
@@ -52,12 +52,12 @@ bool raycast_fast
     for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, ray_position += ray_step) {
 
         // check if the current block is occupied
-        bool occupied = occupied_block(u_occupancy, u_volume, sampler_occupancy, ray_position, ray_step, num_steps);
+        bool occupied = sub_resolution(u_occupancy, u_volume, sampler_occupancy, ray_position, ray_step, num_steps);
         
         if (occupied) {
                     
             // perform raycasting in the occupied block 
-            bool hit = raycast_block(u_raycast, sampler_volume, ray_step, num_steps, ray_position, ray_intensity);
+            bool hit = traverse(u_raycast, sampler_volume, ray_step, num_steps, ray_position, ray_intensity);
             if (hit) 
                 return true;
         } 
