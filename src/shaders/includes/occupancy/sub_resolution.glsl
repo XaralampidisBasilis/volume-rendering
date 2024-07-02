@@ -42,13 +42,16 @@ bool sub_resolution(
     bb_min = max(bb_min, voxel_min);
     bb_max = min(bb_max, voxel_max);
 
+    bb_min = voxel_min;
+    bb_max = voxel_max;
+
     // intersect ray with block and compute skip steps
     exit_steps = intersect_box_max(voxel_min, voxel_max, ray_position, ray_step); // gl_FragColor = vec4(vec3(distance/length(u_occupancy.block) * length(ray_step)), 1.0);
     exit_steps = max(floor(exit_steps), 0.0);
 
     // intersect ray with bounding subblock and compute traverse steps    
     traverse_steps = intersect_box(bb_min, bb_max, ray_position, ray_step); // gl_FragColor = vec4(vec3(distance/length(u_occupancy.block) * length(ray_step)), 1.0);
-    traverse_steps = vec2(ceil(traverse_steps.x), floor(traverse_steps.y));
+    traverse_steps = vec2(ceil(traverse_steps.x), ceil(traverse_steps.y));
     traverse_steps = max(traverse_steps, 0.0);
 
     return occupied;    

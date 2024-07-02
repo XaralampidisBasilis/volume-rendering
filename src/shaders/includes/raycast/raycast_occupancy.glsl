@@ -3,7 +3,7 @@
 #include ../raycast/dither.glsl;
 #include ../raycast/refine.glsl;
 #include ../raycast/traverse.glsl;
-#include ../occupancy/sub_resolution.glsl;
+#include ../occupancy/mono_resolution.glsl;
 
 /**
  * performs raycasting in a 3d texture using occlussion blocks ray skipping
@@ -53,7 +53,7 @@ bool raycast_occupancy
     for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, ray_position += ray_step) {
 
         // check if the current block is occupied
-        bool occupied = sub_resolution (u_occupancy, u_volume, sampler_occupancy, ray_position, ray_step, traverse_steps, exit_steps);
+        bool occupied = mono_resolution (u_occupancy, u_volume, sampler_occupancy, ray_position, ray_step, traverse_steps, exit_steps);
         if (occupied) {
                         
             // perform raycasting in the occupied block 
