@@ -26,7 +26,7 @@ export default class ISOViewer
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
-        // this.setOccupancy()
+        this.setOccupancy()
 
         // Debug gui
         if (this.debug.active) 
@@ -137,10 +137,12 @@ export default class ISOViewer
 
         this.material.uniforms.u_occupancy.value.size = this.occupancy.sizes.occupancy
         this.material.uniforms.u_occupancy.value.block = this.occupancy.sizes.block[0]
+        this.material.uniforms.u_occupancy.value.box_min = this.occupancy.box_min
+        this.material.uniforms.u_occupancy.value.box_max = this.occupancy.box_max
         this.material.uniforms.u_sampler.value.occupancy = this.occupancy.computation.texture
 
         if (this.debug.active)
-            this.occupancy.debug(this.viewer.scene)
+            this.occupancy.debug(this.scene)
     }
 
 }

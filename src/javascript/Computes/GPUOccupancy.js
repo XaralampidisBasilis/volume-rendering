@@ -36,7 +36,7 @@ export default class GPUOccupancy
 
         // multi resolution occupancy map sizes
         this.sizes.map = []
-        this.sizes.map[0] = new THREE.Vector3().copy(this.sizes.volume).divide(this.sizes.block).ceil()
+        this.sizes.map[0] = new THREE.Vector3().copy(this.sizes.volume).divide(this.sizes.block[0]).ceil()
         this.sizes.map[1] = new THREE.Vector3().copy(this.sizes.map[0]).multiplyScalar(2 ** 3)
         this.sizes.map[2] = new THREE.Vector3().copy(this.sizes.map[1]).multiplyScalar(2 ** 6)
 
@@ -190,7 +190,7 @@ export default class GPUOccupancy
             new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, visible: false })
         )
 
-        this.computation.debug.material.map = this.getTexture()
+        this.computation.debug.material.map = this.computation.texture
 
         // scene
         this.scene = scene

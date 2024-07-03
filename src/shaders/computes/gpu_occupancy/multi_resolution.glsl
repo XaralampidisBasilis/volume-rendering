@@ -13,7 +13,7 @@ uniform float u_threshold;
 #include ../../includes/utils/reshape_coordinates.glsl;
 
 int find_block_64(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos);
-ivec3 step(int edge, ivec3 position);
+ivec3 sign_nonzero(ivec3 position);
 
 void main()
 {
@@ -64,8 +64,8 @@ void main()
     for (int i = 63; i >= 32; i--) color_data.g = (color_data.g << 1) | occupancy[i];
     
     // encode block bounding box
-    int color_data.b = reshape_3d_to_1d(bb_min, u_volume_size);
-    int color_data.a = reshape_3d_to_1d(bb_max, u_volume_size);
+    color_data.b = reshape_3d_to_1d(bb_min, u_volume_size);
+    color_data.a = reshape_3d_to_1d(bb_max, u_volume_size);
 
     // write color data
     gl_FragColor = intBitsToFloat(color_data);
@@ -75,8 +75,8 @@ int find_block_64(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos)
 {   
     // compute occupancy index
     ivec3 block_8_pos = 2 * voxel_pos - block_min - block_max;
-    ivec3 block_8_sign = 2 * step(0, block_8_pos) - 1;
-    ivec3 block_8_8_sign = 2 * step(0,2 * block_8_pos - u_block_size * block_8_sign) - 1;
+    ivec3 block_8_sign = sign_nonzero(block_8_pos);
+    ivec3 block_8_8_sign = sign_nonzero(2 * block_8_pos - u_block_size * block_8_sign);
 
     ivec3 block_64_pos = (3 + 2 * block_8_sign + block_8_8_sign) / 2; // in range [0, 3][0, 3][0, 3]
     int block_64 = block_64_pos.x + 4 * block_64_pos.y + 16 * block_64_pos.z; // in range [0, 63]   
@@ -84,7 +84,7 @@ int find_block_64(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos)
     return block_64;
 }
 
-ivec3 step(int edge, ivec3 position)
+ivec3 sign_nonzero(ivec3 position)
 {
-    return ivec3(lessThan(ivec3(edge), position));
+    return 2 * ivec3(lessThan(ivec3(0), position)) - 1;
 }

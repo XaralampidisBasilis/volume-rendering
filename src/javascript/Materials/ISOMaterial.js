@@ -62,7 +62,7 @@ export default function()
             block:           new THREE.Vector3(),
             box_min:         new THREE.Vector3(0, 0, 0),
             box_max:         new THREE.Vector3(1, 1, 1),
-            resolution:      24,
+            resolution:      2,
             method:          1,
         })
 

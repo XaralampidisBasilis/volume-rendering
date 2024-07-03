@@ -61,15 +61,15 @@ export default class ISOGui
     addControllers()
     {
         this.controllers = {}
-        this.addRaycastControllers() 
-        this.addGradientControllers() 
-        this.addColormapControllers() 
-        this.addLightingControllers() 
-        // this.addOccupancyControllers() 
-        this.setControllerBindings()  
+        this.addControllersRaycast() 
+        this.addControllersGradient() 
+        this.addControllersColormap() 
+        this.addControllersLighting() 
+        // this.addControllersOccupancy() 
+        this.setControllersBindings()  
     }
 
-    addRaycastControllers() {
+    addControllersRaycast() {
 
         const { raycast } = this.subfolders
         const u_raycast = this.viewer.material.uniforms.u_raycast.value
@@ -99,7 +99,7 @@ export default class ISOGui
 
     }
 
-    addGradientControllers() {
+    addControllersGradient() {
 
         const { gradient } = this.subfolders
         const u_gradient = this.viewer.material.uniforms.u_gradient.value
@@ -119,7 +119,7 @@ export default class ISOGui
 
     }
     
-    addColormapControllers() {
+    addControllersColormap() {
 
         const { colormap } = this.subfolders
         const u_colormap = this.viewer.material.uniforms.u_colormap.value
@@ -149,7 +149,7 @@ export default class ISOGui
 
     }
     
-    addLightingControllers() {
+    addControllersLighting() {
 
         const { lighting } = this.subfolders
         const u_lighting = this.viewer.material.uniforms.u_lighting.value
@@ -188,7 +188,7 @@ export default class ISOGui
         }
     }
     
-    addOccupancyControllers() {
+    addControllersOccupancy() {
 
         const { occupancy } = this.subfolders
         const u_occupancy = this.viewer.material.uniforms.u_occupancy.value
@@ -197,7 +197,7 @@ export default class ISOGui
 
             resolution: occupancy.add(u_occupancy, 'resolution')
                 .min(2)
-                .max(64)
+                .max(20)
                 .step(1),
 
             method: occupancy.add(u_occupancy, 'method')
@@ -210,7 +210,7 @@ export default class ISOGui
     }
     // controllers bindings
 
-    setControllerBindings()
+    setControllersBindings()
     {
         // throttled compute occupancy map and bounding box based on raycast threshold
         const computeThresholdOccupancyThrottled =  throttleByCalls(() => this.computeThresholdOccupancy(), 5)
