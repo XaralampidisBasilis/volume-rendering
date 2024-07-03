@@ -15,22 +15,22 @@ uniform float u_threshold;
 void main()
 {
     // get 2D pixel position of occlusion man and convert it to 3D position
-    ivec2 pixel_coord = ivec2(gl_FragCoord.xy);
-    ivec3 block_coord = reshape_2d_to_3d(pixel_coord, u_occupancy_size);
+    ivec2 pixel_pos = ivec2(gl_FragCoord.xy);
+    ivec3 block_pos = reshape_2d_to_3d(pixel_pos, u_occupancy_size);
 
     // Get min and max block voxel positions in the volume
-    ivec3 voxel_min = max(u_block_size * block_coord, 0);
-    ivec3 voxel_max = min(voxel_min + u_block_size, u_volume_size);
+    ivec3 block_min = max(u_block_size * block_pos, 0);
+    ivec3 block_max = min(block_min + u_block_size, u_volume_size);
    
     // Scan the volume block to find voxels with value above threshold
     bool occupied = false; 
 
-    for (int z = voxel_min.z; z < voxel_max.z; z++) {
-        for (int y = voxel_min.y; y < voxel_max.y; y++) {
-            for (int x = voxel_min.x; x < voxel_max.x; x++) {
+    for (int z = block_min.z; z < block_max.z; z++) {
+        for (int y = block_min.y; y < block_max.y; y++) {
+            for (int x = block_min.x; x < block_max.x; x++) {
 
-                ivec3 voxel_coord = ivec3(x, y, z);
-                float voxel_value = texelFetch(u_volume_data, voxel_coord, 0).r;
+                ivec3 voxel_pos = ivec3(x, y, z);
+                float voxel_value = texelFetch(u_volume_data, voxel_pos, 0).r;
 
                 if (voxel_value > u_threshold) {
                     occupied = true;

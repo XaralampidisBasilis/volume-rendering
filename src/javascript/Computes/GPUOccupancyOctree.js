@@ -1,16 +1,23 @@
 import * as THREE from 'three'
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js'
-import computeShader from '../../shaders/computes/gpu_occupancy/multi_resolution.glsl'
+import computeShader from '../../shaders/computes/gpu_occupancy/octree.glsl'
+import { floatBitsToInt, readIntBits, readIntBytes } from '../Utils/BitwiseUtils.js'
+import { reshape1DTo3D } from '../Utils/Reshape.js'
+
+// module-scoped variables
+const _vector4 = new THREE.Vector4()
+const _vector3 = new THREE.Vector3()
+const _vector2 = new THREE.Vector2()
 
 // assumes intensity data 3D, and data3DTexture
-export default class GPUOccupancy
+export default class GPUOccupancyOctree
 {
     constructor(resolution, volumeTexture, renderer)
     {
         this.renderer = renderer
 
         this.setSizes(volumeTexture, resolution)
-        this.setOccupancyMaps()
+        this.setOctree()
         this.setComputation(volumeTexture, renderer)
     }
 
@@ -24,26 +31,30 @@ export default class GPUOccupancy
         this.sizes.computation = new THREE.Vector2(this.sizes.occupancy.x, this.sizes.occupancy.y * this.sizes.occupancy.z)
     }
 
-    setOccupancyMaps()
+    setOctree()
     {
-        this.maps = []
-    
+        this.octree = {}
+        this.octree.box = THREE.Box3()
+
+        // octree has 3 level of detail (lod)
+        this.octree.maps = []
+
         for(let i = 0; i < 3; i++)
-        {
+        {   
             const size = this.sizes.occupancy.clone().multiplyScalar(2 ** (3 * i))
             const data = new Uint8Array(size.x * size.y * size.z).fill(0)
 
-            this.maps[i] = new THREE.Data3DTexture(data, size.x, size.y, size.z)
-            this.maps[i].format = THREE.RedFormat
-            this.maps[i].type = THREE.UnsignedByteType 
-            this.maps[i].wrapS = THREE.ClampToEdgeWrapping
-            this.maps[i].wrapT = THREE.ClampToEdgeWrapping
-            this.maps[i].wrapR = THREE.ClampToEdgeWrapping
-            this.maps[i].minFilter = THREE.NearestFilter
-            this.maps[i].magFilter = THREE.NearestFilter
-            this.maps[i].unpackAlignment = 1
-            this.maps[i].needsUpdate = true            
-        }
+            this.octree.maps[i] = new THREE.Data3DTexture(data, size.x, size.y, size.z)
+            this.octree.maps[i].format = THREE.RedFormat
+            this.octree.maps[i].type = THREE.UnsignedByteType 
+            this.octree.maps[i].wrapS = THREE.ClampToEdgeWrapping
+            this.octree.maps[i].wrapT = THREE.ClampToEdgeWrapping
+            this.octree.maps[i].wrapR = THREE.ClampToEdgeWrapping
+            this.octree.maps[i].minFilter = THREE.NearestFilter
+            this.octree.maps[i].magFilter = THREE.NearestFilter
+            this.octree.maps[i].unpackAlignment = 1
+            this.octree.maps[i].needsUpdate = true            
+    o   }
     }
 
     setComputation(volumeTexture, renderer)
@@ -118,66 +129,68 @@ export default class GPUOccupancy
         this.computation.dataTexture.needsUpdate = true;
     }
 
-    computeOccupancyMaps()
+    decodeDataTexture(block, red, green, blue, alpha)
     {
+        _vector4.x = floatBitsToInt(red)
+        _vector4.y = floatBitsToInt(green)
+        _vector4.z = floatBitsToInt(blue)
+        _vector4.w = floatBitsToInt(alpha)
 
-        const occupancy = this.textures.occupancy.image.data
-        const numBlocks = this.sizes.occupancy;
+        // process the unit occupancy block (1 block, 64 bits)
+        this.octree.maps[0].image.data[block] |= !!_vector4.x
+        this.octree.maps[0].image.data[block] |= !!_vector4.y
 
-        for (let z = 0; z < numBlocks; z++) {
-            const offsetZ = numBlocks.x * numBlocks.y * z
-
-            for (let y = 0; y < numBlocks.y; y++) {
-                const offsetY = numBlocks.x * y
-
-                for (let x = 0; x < numBlocks.x; x++) {
-                    let n = x + offsetY + offsetZ  
-
-                }
-            }
+        // process the octant occupancy blocks (8 blocks, 8 bits each)
+        const block8 = block * 8
+        for (let byte = 0; byte < 4; byte++) {
+            this.octree.maps[1].image.data[block8 + byte + 0] = readIntBytes(_vector4.x, byte);
+            this.octree.maps[1].image.data[block8 + byte + 4] = readIntBytes(_vector4.y, byte);
         }
+
+        // process the hexacontratentant occupancy blocks (64 blocks, 1 bits each)
+        const block64 = block * 64
+        for (let bit = 0; bit < 32; bit++) {
+            this.octree.maps[2].image.data[block64 + bit +  0] = readIntBits(_vector4.x, bit);
+            this.octree.maps[2].image.data[block64 + bit + 32] = readIntBits(_vector4.y, bit);
+        }
+
+        // expand octree bounding box with block min
+        reshape1DTo3D(this.sizes.volume, _vector4.z, _vector3)
+        this.octree.box.expandByPoint(_vector3)
+
+        // expand octree bounding box with block max
+        reshape1DTo3D(this.sizes.volume, _vector4.w, _vector3)
+        this.octree.box.expandByPoint(_vector3)
     }
 
-    computeBoundingBox()
+    computeOctree()
     {
+        this.octree.box.makeEmpty ()
 
-        this.box = new THREE.Box3()
-        this.box.min = new THREE.Vector3(0, 0, 0)
-        this.box.max = new THREE.Vector3(1, 1, 1)    
+        for (let z = 0; z < this.sizes.occupancy; z++) {
+            const offsetZ = this.sizes.occupancy.x * this.sizes.occupancy.y * z
 
-        this.box.min = new THREE.Vector3()
-        this.box.max = new THREE.Vector3()
+            for (let y = 0; y < this.sizes.occupancy.y; y++) {
+                const offsetY = this.sizes.occupancy.x * y
 
-        const blockMin = new THREE.Vector3()
-        const blockMax = new THREE.Vector3()
-        const occupancy = this.textures.occupancy.image.data
-        const numBlocks = this.sizes.occupancy
+                for (let x = 0; x < this.sizes.occupancy.x; x++) {
 
-        for (let z = 0; z < numBlocks.z; z++) {
-            const Z = numBlocks.x * numBlocks.y * z
+                    let block = x + offsetY + offsetZ
+                    let block4 = block * 4  // multiply by 4 because each block has 4 values (R, G, B, A)
 
-            for (let y = 0; y < numBlocks.y; y++) {
-                const Y = numBlocks.x * y
-
-                for (let x = 0; x < numBlocks.x; x++) {
-                    let n = (x + Y + Z) * 4                              // multiply by 4 because each voxel has 4 values (R, G, B, A)
-
-                    if (occupancy[n]) { 
-
-                        blockMin.set(x + 0, y + 0, z + 0).multiply(this.sizes.block)
-                        blockMax.set(x + 1, y + 1, z + 1).multiply(this.sizes.block)
-
-                        this.box.expandByPoint(blockMin)
-                        this.box.expandByPoint(blockMax)
-                    }
+                    this.decodeDataTexture( block,
+                        this.computation.dataTexture.image.data[block4 + 0],
+                        this.computation.dataTexture.image.data[block4 + 1],
+                        this.computation.dataTexture.image.data[block4 + 2],
+                        this.computation.dataTexture.image.data[block4 + 3],
+                    )
                 }
             }
         }
 
         // normalize box volume coordinates
-        this.box.min.divide(this.sizes.volume).clampScalar(0, 1)
-        this.box.max.divide(this.sizes.volume).clampScalar(0, 1)   
-        
+        this.octree.box.min.divide(this.sizes.volume).clampScalar(0, 1)
+        this.octree.box.max.divide(this.sizes.volume).clampScalar(0, 1)   
     }
 
     update()
