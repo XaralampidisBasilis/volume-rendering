@@ -3,7 +3,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import Experience from '../Experience.js'
 import ISOMaterial from '../Materials/ISOMaterial.js'
 import ISOGui from '../Gui/ISOGui.js'
-import GPUOccupancy from '../Computes/GPUOccupancyOctree.js'
+import GPUOccupancy from '../Computes/GPUOccupancy.js'
 
 export default class ISOViewer
 {
@@ -26,12 +26,12 @@ export default class ISOViewer
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
-        this.setOccupancy()
+        // this.setOccupancy()
 
         // Debug gui
         if (this.debug.active) 
         {
-            this.gui = new ISOGui(this.debug, this)
+            // this.gui = new ISOGui(this.debug, this)
         }
     }
 
@@ -112,14 +112,20 @@ export default class ISOViewer
     setMaterial()
     {
         this.material = new ISOMaterial()
-        
-        this.material.uniforms.u_volume_voxel.value.fromArray(this.resource.volume.dimensions.map((x) => 1/x))
-        this.material.uniforms.u_volume_dimensions.value.fromArray(this.resource.volume.dimensions)
-        this.material.uniforms.u_volume_size.value.fromArray(this.resource.volume.size)
+
+        this.material.uniforms.u_volume.value.voxel.fromArray(this.resource.volume.dimensions.map((x) => 1/x))
+        this.material.uniforms.u_volume.value.dimensions.fromArray(this.resource.volume.dimensions)
+        this.material.uniforms.u_volume.value.size.fromArray(this.resource.volume.size)
+
         this.material.uniforms.u_sampler_volume.value = this.textures.volume
         this.material.uniforms.u_sampler_mask.value = this.textures.mask
         this.material.uniforms.u_sampler_colormap.value = this.colormaps    
         this.material.uniforms.u_sampler_noise.value = this.noisemaps.white256
+
+        this.material.uniforms.u_sampler.value.volume = this.textures.volume
+        this.material.uniforms.u_sampler.value.mask = this.textures.mask
+        this.material.uniforms.u_sampler.value.colormap = this.colormaps    
+        this.material.uniforms.u_sampler.value.noise = this.noisemaps.white256
     }
 
     setMesh()
@@ -133,12 +139,12 @@ export default class ISOViewer
 
     setOccupancy()
     {        
-        this.occupancy = new GPUOccupancy(this.material.uniforms.u_occupancy_resolution.value, this.textures.volume, this.renderer.instance, this.scene)
-        this.occupancy.compute(this.material.uniforms.u_raycast_threshold.value) 
+        this.occupancy = new GPUOccupancy(this.material.uniforms.u_occupancy.value.resolution, this.textures.volume, this.renderer.instance, this.scene)
+        this.occupancy.compute(this.material.uniforms.u_raycast.value.threshold) 
 
-        this.material.uniforms.u_occupancy_size.value = this.occupancy.sizes.occupancy
-        this.material.uniforms.u_occupancy_block.value = this.occupancy.sizes.block
-        this.material.uniforms.u_sampler_occupancy.value = this.computation.texture      
+        this.material.uniforms.u_occupancy.value.size = this.occupancy.sizes.occupancy
+        this.material.uniforms.u_occupancy.value.block = this.occupancy.sizes.block
+        this.material.uniforms.u_sampler_occupancy.value = this.occupancy.map     
 
         if (this.debug.active)
             this.occupancy.debug(this.viewer.scene)

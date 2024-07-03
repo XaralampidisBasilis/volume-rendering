@@ -4,7 +4,7 @@
  * @param u Input value to be mapped to a color
  * @return vec3 The RGB color corresponding to the input value
  */
-vec3 colormap(in colormap_uniforms u_colormap, in sampler2D sampler_colormap, in float intensity) 
+vec3 colormap(in colormap_uniforms u_colormap, in sampler_uniforms u_sampler, in float intensity) 
 {
     // Scale the input value 'u' using the provided limits
     intensity = ramp(u_colormap.u_lim.x, u_colormap.u_lim.y, intensity);
@@ -15,5 +15,5 @@ vec3 colormap(in colormap_uniforms u_colormap, in sampler2D sampler_colormap, in
     // Return the sample from the colormap texture at the calculated coordinates
     vec2 uv = vec2(intensity, u_colormap.v);
     
-    return sample_color_2d(sampler_colormap, uv).rgb;
+    return sample_color_2d(u_sampler.colormap, uv).rgb;
 }

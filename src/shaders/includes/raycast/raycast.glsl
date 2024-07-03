@@ -21,7 +21,7 @@ bool raycast
     in raycast_uniforms u_raycast, 
     in volume_uniforms u_volume, 
     in occupancy_uniforms u_occupancy, 
-    in sampler3D sampler_volume,
+    in sampler_uniforms u_sampler,
     in vec3 ray_start, 
     in vec3 ray_normal, 
     out vec3 hit_position, 
@@ -38,7 +38,7 @@ bool raycast
     vec2 step_bounds = ray_bounds / ray_delta; // debug gl_FragColor = vec4((step_bounds.y-step_bounds.x)*ray_delta/1.732, 1.0);  
 
     // apply dithering to the initial distance to avoid artifacts
-    vec3 dither_step = dither(u_raycast, ray_step, step_bounds); // debug gl_FragColor = vec4(vec3(legth(dither_step)), 1.0);  
+    vec3 dither_step = dither(u_raycast, u_sampler, ray_step, step_bounds); // debug gl_FragColor = vec4(vec3(legth(dither_step)), 1.0);  
 
     // initialize the starting position along the ray
     hit_position = ray_start + ray_step * step_bounds.x - dither_step;
@@ -47,13 +47,13 @@ bool raycast
     for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, hit_position += ray_step) {
 
         // sample the intensity from the 3d texture at the current position
-        hit_intensity = sample_intensity_3d(sampler_volume, hit_position);          
+        hit_intensity = sample_intensity_3d(u_sampler.volume, hit_position);          
         
         // check if the sampled intensity exceeds the threshold
         if (hit_intensity > u_raycast.threshold) {
 
             // refine the hit position and intensity
-            refine(u_raycast, sampler_volume, ray_step, hit_position, hit_intensity);
+            refine(u_raycast, u_sampler, ray_step, hit_position, hit_intensity);
             return true; // intersection found
         }
     }   

@@ -40,9 +40,6 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 
 void main() 
 {
-    // set uniform variables
-    #include ../../includes/uniforms/uniforms.glsl;    
-
     // set out variables
     vec3 hit_position = vec3(0.0);
     float hit_intensity = 0.0;

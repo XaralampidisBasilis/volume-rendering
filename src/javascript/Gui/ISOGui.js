@@ -12,8 +12,6 @@ export default class ISOGui
         // setup
         if (this.debug.active)
         {
-            this.viewer.occupancy.debug(this.viewer.scene)
-
             this.addFolders()
             this.addSubfolders()
             this.addControllers()
@@ -67,8 +65,8 @@ export default class ISOGui
         this.addGradientControllers() 
         this.addColormapControllers() 
         this.addLightingControllers() 
-        this.addOccupancyControllers() 
-        this.setControllerBindings()  
+        // this.addOccupancyControllers() 
+        // this.setControllerBindings()  
     }
 
     addRaycastControllers() {

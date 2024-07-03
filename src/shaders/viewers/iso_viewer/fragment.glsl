@@ -14,13 +14,13 @@ varying vec3 v_direction;
 varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMatrix * modelMatrix * viewMatrix
 
 // uniforms
-#include ../../includes/uniforms/u_sampler.glsl;
-#include ../../includes/uniforms/u_volume.glsl;
-#include ../../includes/uniforms/u_occupancy.glsl;
-#include ../../includes/uniforms/u_raycast.glsl;
-#include ../../includes/uniforms/u_gradient.glsl;
-#include ../../includes/uniforms/u_colormap.glsl;
-#include ../../includes/uniforms/u_lighting.glsl;
+#include ./uniforms/u_sampler.glsl;
+#include ./uniforms/u_volume.glsl;
+#include ./uniforms/u_occupancy.glsl;
+#include ./uniforms/u_raycast.glsl;
+#include ./uniforms/u_gradient.glsl;
+#include ./uniforms/u_colormap.glsl;
+#include ./uniforms/u_lighting.glsl;
 
 // utils
 #include ../../includes/utils/sample_color.glsl;
@@ -28,6 +28,8 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../includes/utils/intersect_box.glsl;
 #include ../../includes/utils/intersect_box_max.glsl;
 #include ../../includes/utils/reshape_coordinates.glsl;
+#include ../../includes/utils/product.glsl;
+#include ../../includes/utils/sum.glsl;
 #include ../../includes/utils/ramp.glsl;
 
 // functionality
@@ -38,25 +40,22 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 
 void main() 
 {
-    // set uniform variables
-    #include ../../includes/uniforms/uniforms.glsl;    
-
     // set out variables
     vec3 hit_position = vec3(0.0);
     float hit_intensity = 0.0;
 
     // normalize view direction vector
     vec3 ray_normal = normalize(v_direction);
-    bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler_volume, v_camera, ray_normal, hit_position, hit_intensity);
+    bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, hit_position, hit_intensity);
 
     // perform fast raycasting to get hit position and value
     if (ray_hit) {
 
         // compute the gradient normal vector at hit position
-        vec3 normal_vector = gradient(u_gradient, u_volume, u_sampler_volume, hit_position, hit_intensity);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
+        vec3 normal_vector = gradient(u_gradient, u_volume, u_sampler, hit_position, hit_intensity);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
     
         // compute the max intensity color mapping
-        vec3 intensity_color = colormap(u_colormap, u_sampler_colormap, hit_intensity); // debug gl_FragColor = vec4(intensity_color, 1.0);       
+        vec3 intensity_color = colormap(u_colormap, u_sampler, hit_intensity); // debug gl_FragColor = vec4(intensity_color, 1.0);       
 
         // compute the lighting color
         vec3 hit_color = lighting(u_lighting, intensity_color, normal_vector, hit_position, v_camera, v_camera);

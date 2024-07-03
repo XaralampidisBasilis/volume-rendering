@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { colormapLocations } from '../../../static/textures/colormaps/colormaps.js'
 import vertexShader from '../../shaders/viewers/iso_viewer/vertex.glsl'
-import fragmentShader from '../../shaders/viewers/iso_viewer/fragment_occupancy.glsl'
+import fragmentShader from '../../shaders/viewers/iso_viewer/fragment.glsl'
 
 export default function()
 {
@@ -13,42 +13,64 @@ export default function()
         u_sampler_noise:            new THREE.Uniform(),
         u_sampler_occupancy:        new THREE.Uniform(),
 
-        u_volume_dimensions:        new THREE.Uniform(new THREE.Vector3()),
-        u_volume_size:              new THREE.Uniform(new THREE.Vector3()),
-        u_volume_voxel:             new THREE.Uniform(new THREE.Vector3()),
+        u_sampler: new THREE.Uniform({
+            volume:          null,
+            mask:            null,
+            colormap:        null,
+            noise:           null,
+            occupancy:       null,
+        }),
 
-        u_raycast_threshold:        new THREE.Uniform(0),   
-        u_raycast_refinements:      new THREE.Uniform(1),   
-        u_raycast_resolution:       new THREE.Uniform(1),
-        u_raycast_stride:           new THREE.Uniform(3),   
-        u_raycast_dither:           new THREE.Uniform(true),   
+        u_volume : new THREE.Uniform({
 
-        u_gradient_neighbor:        new THREE.Uniform(true),
-        u_gradient_method:          new THREE.Uniform(1),      
-        u_gradient_resolution:      new THREE.Uniform(0.7),      
+            dimensions:      new THREE.Vector3(),
+            size:            new THREE.Vector3(),
+            voxel:           new THREE.Vector3(),
+
+        }),
+
+        u_raycast: new THREE.Uniform({
+            threshold:       0,   
+            refinements:     1,   
+            resolution:      1,
+            stride:          3,   
+            dither:          true, 
+        }),
+
+        u_gradient: new THREE.Uniform({
+            resolution:      0.7,  
+            method:          1,        
+            neighbor:        true,
+        }),
             
-        u_colormap_name:            new THREE.Uniform('cet_d9'),
-        u_colormap_v:               new THREE.Uniform(colormapLocations['cet_d9'].v),
-        u_colormap_u_range:         new THREE.Uniform(new THREE.Vector2(colormapLocations['cet_d9'].u_start, colormapLocations['cet_d9'].u_end)),
-        u_colormap_u_lim:           new THREE.Uniform(new THREE.Vector2(0, 1)),
-        
-        u_lighting_attenuate:       new THREE.Uniform(false),
-        u_lighting_shininess:       new THREE.Uniform(40),    
-        u_lighting_power:           new THREE.Uniform(0.7),    
-        u_lighting_model:           new THREE.Uniform(2),    
-        u_lighting_a_color:         new THREE.Uniform(new THREE.Color(0xffffff).multiplyScalar(0.15)),    
-        u_lighting_d_color:         new THREE.Uniform(new THREE.Color(0xffffff)),    
-        u_lighting_s_color:         new THREE.Uniform(new THREE.Color(0xffffff)),      
-        u_lighting_ka:              new THREE.Uniform(1),     
-        u_lighting_kd:              new THREE.Uniform(1),     
-        u_lighting_ks:              new THREE.Uniform(1),     
-        
-        u_occupancy_size:           new THREE.Uniform(new THREE.Vector3()),
-        u_occupancy_block:          new THREE.Uniform(new THREE.Vector3()),
-        u_occupancy_box_min:        new THREE.Uniform(new THREE.Vector3(0, 0, 0)),
-        u_occupancy_box_max:        new THREE.Uniform(new THREE.Vector3(1, 1, 1)),
-        u_occupancy_resolution:     new THREE.Uniform(24),
-        u_occupancy_method:         new THREE.Uniform(1),
+        u_colormap: new THREE.Uniform({
+            name:            'cet_d9',
+            v:               colormapLocations['cet_d9'].v,
+            u_range:         new THREE.Vector2(colormapLocations['cet_d9'].u_start, colormapLocations['cet_d9'].u_end),
+            u_lim:           new THREE.Vector2(0, 1),
+        }),
+
+        u_lighting: new THREE.Uniform({
+            a_color:         new THREE.Color(0xffffff).multiplyScalar(0.15),    
+            d_color:         new THREE.Color(0xffffff),    
+            s_color:         new THREE.Color(0xffffff),      
+            ka:              1,     
+            kd:              1,     
+            ks:              1,   
+            shininess:       40,    
+            power:           0.7,    
+            model:           2,    
+            attenuate:       false,
+        }),
+
+        u_occupancy: new THREE.Uniform({
+            size:            new THREE.Vector3(),
+            block:           new THREE.Vector3(),
+            box_min:         new THREE.Vector3(0, 0, 0),
+            box_max:         new THREE.Vector3(1, 1, 1),
+            resolution:      24,
+            method:          1,
+        })
 
     }
 

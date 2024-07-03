@@ -13,6 +13,7 @@ uniform float u_threshold;
 #include ../../includes/utils/reshape_coordinates.glsl;
 
 int find_block_64(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos);
+ivec3 step(int edge, ivec3 position);
 
 void main()
 {
@@ -22,7 +23,7 @@ void main()
 
     // Get min and max block voxel positions in the volume
     ivec3 block_min = max(u_block_size * block_pos, 0); // gl_FragColor = vec4((vec3(voxel_min)/vec3(u_volume_size-1)), 1.0);
-    ivec3 block_max = min(block_min + u_block_size, u_volume_size); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
+    ivec3 block_max = min(block_min + u_block_size, u_volume_size) - 1; // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
 
     // initialize bounding box
     ivec3 bb_min = block_max;
@@ -34,9 +35,9 @@ void main()
     }
     
     // Scan the volume block to find voxels with value above threshold
-    for (int z = block_min.z; z < block_max.z; z++) {
-        for (int y = block_min.y; y < block_max.y; y++) {
-            for (int x = block_min.x; x < block_max.x; x++) {
+    for (int z = block_min.z; z <= block_max.z; z++) {
+        for (int y = block_min.y; y <= block_max.y; y++) {
+            for (int x = block_min.x; x <= block_max.x; x++) {
 
                 ivec3 voxel_pos = ivec3(x, y, z);
                 float voxel_value = texelFetch(u_volume_data, voxel_pos, 0).r;
@@ -74,11 +75,16 @@ int find_block_64(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos)
 {   
     // compute occupancy index
     ivec3 block_8_pos = 2 * voxel_pos - block_min - block_max;
-    ivec3 block_8_sign = sign(block_8_pos);
-    ivec3 block_8_8_sign = sign(2 * block_8_pos - u_block_size * block_8_sign);
+    ivec3 block_8_sign = 2 * step(0, block_8_pos) - 1;
+    ivec3 block_8_8_sign = 2 * step(0,2 * block_8_pos - u_block_size * block_8_sign) - 1;
 
     ivec3 block_64_pos = (3 + 2 * block_8_sign + block_8_8_sign) / 2; // in range [0, 3][0, 3][0, 3]
     int block_64 = block_64_pos.x + 4 * block_64_pos.y + 16 * block_64_pos.z; // in range [0, 63]   
 
     return block_64;
+}
+
+ivec3 step(int edge, ivec3 position)
+{
+    return ivec3(lessThan(ivec3(edge), position));
 }

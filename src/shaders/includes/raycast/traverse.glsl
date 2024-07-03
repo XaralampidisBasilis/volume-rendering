@@ -11,7 +11,7 @@
  */
 bool traverse( 
     in raycast_uniforms u_raycast, 
-    in sampler3D sampler_volume, 
+    in sampler_uniforms u_sampler, 
     in vec3 ray_step, 
     in vec2 traverse_steps, 
     inout vec3 ray_position, 
@@ -26,7 +26,7 @@ bool traverse(
     for (float n_step = traverse_steps.x; n_step <= traverse_steps.y + 0.5; n_step++, ray_position += ray_step) {
 
         // sample the intensity of the volume at the current 'hit_position'.
-        ray_intensity = sample_intensity_3d(sampler_volume, ray_position);
+        ray_intensity = sample_intensity_3d(u_sampler.volume, ray_position);
 
         // if the sampled intensity exceeds the threshold, a hit is detected.
         if (ray_intensity > u_raycast.threshold) 

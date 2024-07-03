@@ -1,10 +1,15 @@
 #ifndef SAMPLER_UNIFORMS
 #define SAMPLER_UNIFORMS
+struct sampler_uniforms 
+{
+    sampler3D volume;
+    sampler3D mask;
+    sampler2D colormap;      
+    sampler2D noise;
+    sampler2D occupancy;
+};
 
-uniform sampler3D u_sampler_volume;
-uniform sampler3D u_sampler_mask;
-uniform sampler2D u_sampler_colormap;       
-uniform sampler2D u_sampler_noise;
-uniform sampler2D u_sampler_occupancy;
+uniform sampler_uniforms u_sampler;
+
 
 #endif
