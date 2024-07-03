@@ -13,7 +13,7 @@
 bool multi_resolution(
     in uniforms_occupancy u_occupancy, 
     in uniforms_volume u_volume, 
-    in sampler2D sampler_occupancy, 
+    in uniforms_sampler u_sampler, 
     in vec3 ray_position, 
     in vec3 ray_step, 
     out vec2 traverse_steps,
@@ -30,7 +30,7 @@ bool multi_resolution(
     vec2 block_uv = reshape_3d_to_2d_texel(block_uvw, u_occupancy.size);
 
     // sample the occupancy map color data at the block position
-    vec4 color_data = sample_color_2d(sampler_occupancy, block_uv);
+    vec4 color_data = sample_color_2d(u_sampler.u_occupancy, block_uv);
 
     // decode color data
     uint red_bitstring = floatBitsToUint(color_data.r);

@@ -46,16 +46,16 @@ void main()
 
     // normalize view direction vector
     vec3 ray_normal = normalize(v_direction);
-    bool ray_hit = raycast_occupancy(u_raycast, u_volume, u_occupancy, u_sampler_volume, u_sampler_occupancy, v_camera, ray_normal, hit_position, hit_intensity);
+    bool ray_hit = raycast_occupancy(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, hit_position, hit_intensity);
 
     // perform fast raycasting to get hit position and value
     if (ray_hit) {
 
         // compute the gradient normal vector at hit position
-        vec3 normal_vector = gradient(u_gradient, u_volume, u_sampler_volume, hit_position, hit_intensity);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
+        vec3 normal_vector = gradient(u_gradient, u_volume, u_sampler, hit_position, hit_intensity);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
     
         // compute the max intensity color mapping
-        vec3 intensity_color = colormap(u_colormap, u_sampler_colormap, hit_intensity); // debug gl_FragColor = vec4(intensity_color, 1.0);       
+        vec3 intensity_color = colormap(u_colormap, u_sampler, hit_intensity); // debug gl_FragColor = vec4(intensity_color, 1.0);       
 
         // compute the lighting color
         vec3 hit_color = lighting(u_lighting, intensity_color, normal_vector, hit_position, v_camera, v_camera);

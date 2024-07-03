@@ -30,9 +30,7 @@ export default class ISOViewer
 
         // Debug gui
         if (this.debug.active) 
-        {
-            // this.gui = new ISOGui(this.debug, this)
-        }
+            this.gui = new ISOGui(this.debug, this)
     }
 
     setNoisemaps()
@@ -138,8 +136,8 @@ export default class ISOViewer
         this.occupancy.compute(this.material.uniforms.u_raycast.value.threshold) 
 
         this.material.uniforms.u_occupancy.value.size = this.occupancy.sizes.occupancy
-        this.material.uniforms.u_occupancy.value.block = this.occupancy.sizes.block
-        this.material.uniforms.u_sampler.value.occupancy = this.occupancy.map     
+        this.material.uniforms.u_occupancy.value.block = this.occupancy.sizes.block[0]
+        this.material.uniforms.u_sampler.value.occupancy = this.occupancy.computation.texture
 
         if (this.debug.active)
             this.occupancy.debug(this.viewer.scene)

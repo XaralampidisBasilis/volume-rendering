@@ -13,7 +13,7 @@
 bool mono_resolution(
     in uniforms_occupancy u_occupancy, 
     in uniforms_volume u_volume, 
-    in sampler2D sampler_occupancy, 
+    in uniforms_sampler u_sampler, 
     in vec3 ray_position, 
     in vec3 ray_step, 
     out vec2 traverse_steps,
@@ -31,7 +31,7 @@ bool mono_resolution(
 
     // sample the occupancy map at the block position
     // if the sampled value is greater than 0, the block is occupied
-    float occupied_intensity = sample_intensity_2d(sampler_occupancy, block_uv);
+    float occupied_intensity = sample_intensity_2d(u_sampler.occupancy, block_uv);
     bool occupied = occupied_intensity > 0.0;
 
     // compute block voxel min and max coordinates in the volume

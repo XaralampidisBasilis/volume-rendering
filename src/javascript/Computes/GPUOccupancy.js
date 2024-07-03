@@ -13,7 +13,7 @@ export default class GPUOccupancy
 {
     constructor(resolution, volumeTexture, renderer)
     {
-        this.renderer = resolution
+        this.resolution = resolution
         this.volumeTexture = volumeTexture
         this.renderer = renderer
 
@@ -29,6 +29,7 @@ export default class GPUOccupancy
         this.sizes.volume = new THREE.Vector3(this.volumeTexture.image.width, this.volumeTexture.image.height, this.volumeTexture.image.depth)
         
         // multi resolution occupancy map block sizes
+        this.sizes.block = []
         this.sizes.block[0] = new THREE.Vector3().copy(this.sizes.volume).divideScalar(this.resolution).ceil()
         this.sizes.block[1] = new THREE.Vector3().copy(this.sizes.block[0]).divideScalar(8).ceil()
         this.sizes.block[2] = new THREE.Vector3().copy(this.sizes.block[1]).divideScalar(64).ceil()
@@ -44,7 +45,7 @@ export default class GPUOccupancy
 
     setOccupancy()
     {
-        this.box = THREE.Box3()
+        this.box = new THREE.Box3()
 
         // multi resolution occupancy map with 3 levels of detail
         this.map = []
@@ -61,7 +62,7 @@ export default class GPUOccupancy
             this.map[i].magFilter = THREE.NearestFilter
             this.map[i].unpackAlignment = 1
             this.map[i].needsUpdate = true            
-    o   }
+        }
     }
 
     setComputation()
