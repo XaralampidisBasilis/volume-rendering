@@ -14,13 +14,13 @@ varying vec3 v_direction;
 varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMatrix * modelMatrix * viewMatrix
 
 // uniforms
-#include ../../includes/uniforms/u_sampler.glsl;
-#include ../../includes/uniforms/u_volume.glsl;
-#include ../../includes/uniforms/u_occupancy.glsl;
-#include ../../includes/uniforms/u_raycast.glsl;
-#include ../../includes/uniforms/u_gradient.glsl;
-#include ../../includes/uniforms/u_colormap.glsl;
-#include ../../includes/uniforms/u_lighting.glsl;
+#include ./uniforms/u_sampler.glsl;
+#include ./uniforms/u_volume.glsl;
+#include ./uniforms/u_occupancy.glsl;
+#include ./uniforms/u_raycast.glsl;
+#include ./uniforms/u_gradient.glsl;
+#include ./uniforms/u_colormap.glsl;
+#include ./uniforms/u_lighting.glsl;
 
 // utils
 #include ../../includes/utils/sample_color.glsl;

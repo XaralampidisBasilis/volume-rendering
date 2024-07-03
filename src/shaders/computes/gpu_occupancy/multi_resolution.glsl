@@ -8,68 +8,77 @@ uniform ivec3 u_block_size;
 uniform ivec3 u_occupancy_size;
 uniform float u_threshold;
 
-// variable sampler2D u_occupancy_data;
+// variable sampler2D v_compute_data;
 
 #include ../../includes/utils/reshape_coordinates.glsl;
+
+int find_block_64(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos);
 
 void main()
 {
     // get 2D pixel position of occlusion man and convert it to 3D position
-    ivec2 pixel_coord = ivec2(floor(gl_FragCoord.xy)); // gl_FragColor = vec4(vec2(pixel_coord) / vec2(u_occupancy_size.x-1, u_occupancy_size.y * u_occupancy_size.z-1), 1.0, 1.0);
-    ivec3 block_coord = reshape_2d_to_3d(pixel_coord, u_occupancy_size); // gl_FragColor = vec4(vec3(block_coord)/vec3(u_occupancy_size-1), 1.0);
+    ivec2 pixel_pos = ivec2(gl_FragCoord.xy); // gl_FragColor = vec4(vec2(pixel_coord) / vec2(u_occupancy_size.x-1, u_occupancy_size.y * u_occupancy_size.z-1), 1.0, 1.0);
+    ivec3 block_pos = reshape_2d_to_3d(pixel_pos, u_occupancy_size); // gl_FragColor = vec4(vec3(block_coord)/vec3(u_occupancy_size-1), 1.0);
 
     // Get min and max block voxel positions in the volume
-    ivec3 voxel_min = max(u_block_size * block_coord, 0); // gl_FragColor = vec4((vec3(voxel_min)/vec3(u_volume_size-1)), 1.0);
-    ivec3 voxel_max = min(voxel_min + u_block_size, u_volume_size); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
+    ivec3 block_min = max(u_block_size * block_pos, 0); // gl_FragColor = vec4((vec3(voxel_min)/vec3(u_volume_size-1)), 1.0);
+    ivec3 block_max = min(block_min + u_block_size, u_volume_size); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
 
-    // Scan the volume block to find voxels with value above threshold
-    uint[64] occupancy;
+    // initialize bounding box
+    ivec3 bb_min = block_max;
+    ivec3 bb_max = block_min;
+    int[64] occupancy;
+
     for (int i = 0; i < 64; ++i) {
-        occupancy[i] = uint(0);
+        occupancy[i] = 0;
     }
-
-    for (int z = voxel_min.z; z < voxel_max.z; z++) {
-        for (int y = voxel_min.y; y < voxel_max.y; y++) {
-            for (int x = voxel_min.x; x < voxel_max.x; x++) {
+    
+    // Scan the volume block to find voxels with value above threshold
+    for (int z = block_min.z; z < block_max.z; z++) {
+        for (int y = block_min.y; y < block_max.y; y++) {
+            for (int x = block_min.x; x < block_max.x; x++) {
 
                 ivec3 voxel_pos = ivec3(x, y, z);
                 float voxel_value = texelFetch(u_volume_data, voxel_pos, 0).r;
 
-                // compute sub block occupancy
-                voxel_pos = 2 * voxel_pos - voxel_min - voxel_max;
-
-                ivec3 octant_sign = sign(voxel_pos);
-                ivec3 hexacontatetrant_sign = sign(2 * voxel_pos - u_block_size * octant_sign);
-
-                ivec3 hexacontatetrant_pos = (3 + 2 * octant_sign + hexacontatetrant_sign) / 2; // in range [0, 3][0, 3][0, 3]
-                int hexacontatetrant_index = hexacontatetrant_pos.x + 4 * hexacontatetrant_pos.y + 16 * hexacontatetrant_pos.z; // in range [0, 63]
-
                 if (voxel_value > u_threshold) 
                 {
-                    occupancy[hexacontatetrant_index] = uint(1);
+                    // update bounding box
+                    bb_min = min(bb_min, voxel_pos);
+                    bb_max = max(bb_max, voxel_pos);
+
+                    // compute occupancy index
+                    int n = find_block_64(block_min, block_max, voxel_pos);
+                    occupancy[n] = 1;
                 }
             }
         }
     }
-    
+
+    // encode data with color
+    ivec4 color_data = ivec4(0);
+
     // convert occupancy array to colors
-    uint red_bitstring = uint(0);
-    uint green_bitstring = uint(0);
-    uint blue_bitstring = uint(0);
-    uint alpha_bitstring = uint(0);
-
-    for (int i = 0; i < 32; i++)
-    {
-        red_bitstring <<= 1; // Shift left to make space for the new variable
-        red_bitstring |= occupancy[i];
-    }
-
-    for (int i = 32; i < 64; i++)
-    {
-        green_bitstring <<= 1; // Shift left to make space for the new variable
-        green_bitstring |= occupancy[i];
-    }
+    for (int i = 31; i >=  0; i--) color_data.r = (color_data.r << 1) | occupancy[i];
+    for (int i = 63; i >= 32; i--) color_data.g = (color_data.g << 1) | occupancy[i];
+    
+    // encode block bounding box
+    int color_data.b = reshape_3d_to_1d(bb_min, u_volume_size);
+    int color_data.a = reshape_3d_to_1d(bb_max, u_volume_size);
 
     // write color data
-    gl_FragColor = vec4(uintBitsToFloat(red_bitstring), uintBitsToFloat(green_bitstring), 0.0, 1.0);
+    gl_FragColor = intBitsToFloat(color_data);
+}
+
+int find_block_64(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos)
+{   
+    // compute occupancy index
+    ivec3 block_8_pos = 2 * voxel_pos - block_min - block_max;
+    ivec3 block_8_sign = sign(block_8_pos);
+    ivec3 block_8_8_sign = sign(2 * block_8_pos - u_block_size * block_8_sign);
+
+    ivec3 block_64_pos = (3 + 2 * block_8_sign + block_8_8_sign) / 2; // in range [0, 3][0, 3][0, 3]
+    int block_64 = block_64_pos.x + 4 * block_64_pos.y + 16 * block_64_pos.z; // in range [0, 63]   
+
+    return block_64;
 }

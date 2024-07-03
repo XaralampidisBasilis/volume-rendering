@@ -7,7 +7,7 @@ uniform ivec3 u_occupancy_size;
 uniform ivec3 u_block_size;
 uniform float u_threshold;
 
-// variable sampler2D u_occupancy_data;
+// variable sampler2D v_compute_data;
 
 #include ../../includes/utils/reshape_coordinates.glsl;
 #include ../../includes/utils/product.glsl;
