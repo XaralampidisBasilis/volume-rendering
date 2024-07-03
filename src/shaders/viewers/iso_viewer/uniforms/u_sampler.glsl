@@ -1,6 +1,6 @@
 #ifndef SAMPLER_UNIFORMS
 #define SAMPLER_UNIFORMS
-struct sampler_uniforms 
+struct uniforms_sampler 
 {
     sampler3D volume;
     sampler3D mask;
@@ -9,7 +9,7 @@ struct sampler_uniforms
     sampler2D occupancy;
 };
 
-uniform sampler_uniforms u_sampler;
+uniform uniforms_sampler u_sampler;
 
 
 #endif

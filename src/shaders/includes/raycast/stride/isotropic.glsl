@@ -7,7 +7,7 @@
  * @param ray_normal: Normalized direction vector of the ray.
  * @return vec3 The stride vector for stepping through the volume along the ray.
  */
-vec3 isotropic(in raycast_uniforms u_raycast, in volume_uniforms u_volume, in vec3 ray_normal) 
+vec3 isotropic(in uniforms_raycast u_raycast, in uniforms_volume u_volume, in vec3 ray_normal) 
 {
     float voxel_delta = 0.1 * length(u_volume.voxel);
     float ray_delta = voxel_delta / u_raycast.resolution;

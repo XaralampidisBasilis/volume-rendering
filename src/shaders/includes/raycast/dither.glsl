@@ -6,7 +6,7 @@
  * @param ray_bounds: vec2 containing the start and end distances for raycasting.
  * @return vec3: returns the dithered intensity value in [0, 1] range.
  */
-vec3 dither(in raycast_uniforms u_raycast, in sampler_uniforms u_sampler, in vec3 ray_step, in vec2 step_bounds)
+vec3 dither(in uniforms_raycast u_raycast, in uniforms_sampler u_sampler, in vec3 ray_step, in vec2 step_bounds)
 {
     // calculate the end position of the ray
     vec3 ray_end = ray_step * step_bounds.y;

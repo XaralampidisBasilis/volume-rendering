@@ -12,7 +12,7 @@
  * @param ray_bounds: Vector containing the start and end distances of the ray within the volume (in normalized coordinates)
  * @return vec3 The stride vector for stepping through the volume along the ray.
  */
-vec3 stride(in raycast_uniforms u_raycast, in volume_uniforms u_volume, in vec3 ray_normal, in vec2 ray_bounds) 
+vec3 stride(in uniforms_raycast u_raycast, in uniforms_volume u_volume, in vec3 ray_normal, in vec2 ray_bounds) 
 {
     switch(u_raycast.stride)
     {

@@ -6,13 +6,13 @@
 // uniform vec3 u_volume_voxel;
 
 // struct to hold volume uniforms
-struct volume_uniforms 
+struct uniforms_volume 
 {
     vec3 dimensions;
     vec3 size;
     vec3 voxel;
 };
 
-uniform volume_uniforms u_volume;
+uniform uniforms_volume u_volume;
 
 #endif

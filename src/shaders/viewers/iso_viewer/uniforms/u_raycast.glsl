@@ -2,7 +2,7 @@
 #define RAYCAST_UNIFORMS
 
 // struct to hold raycast uniforms
-struct raycast_uniforms 
+struct uniforms_raycast 
 {
     float threshold;  
     float refinements;  
@@ -11,6 +11,6 @@ struct raycast_uniforms
     float dither; 
 };
 
-uniform raycast_uniforms u_raycast;
+uniform uniforms_raycast u_raycast;
 
 #endif

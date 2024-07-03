@@ -13,9 +13,8 @@
  * @param normal: Output vector where the gradient will be stored
  * @param value_max: Output float where the maximum value of the sampled points will be stored
  */
-vec3 gradient(in gradient_uniforms u_gradient, in volume_uniforms u_volume, in sampler_uniforms u_sampler, in vec3 hit_position, inout float hit_intensity)
+vec3 gradient(in uniforms_gradient u_gradient, in uniforms_volume u_volume, in uniforms_sampler u_sampler, in vec3 hit_position, inout float hit_intensity)
 {
-
     vec3 grad_step = u_volume.voxel / u_gradient.resolution;
     vec3 normal = vec3(0.0, 0.0, 0.0);
     float neighbor_intensity = hit_intensity;

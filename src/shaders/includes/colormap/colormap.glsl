@@ -4,7 +4,7 @@
  * @param u Input value to be mapped to a color
  * @return vec3 The RGB color corresponding to the input value
  */
-vec3 colormap(in colormap_uniforms u_colormap, in sampler_uniforms u_sampler, in float intensity) 
+vec3 colormap(in uniforms_colormap u_colormap, in uniforms_sampler u_sampler, in float intensity) 
 {
     // Scale the input value 'u' using the provided limits
     intensity = ramp(u_colormap.u_lim.x, u_colormap.u_lim.y, intensity);

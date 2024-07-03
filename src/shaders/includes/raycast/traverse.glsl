@@ -10,8 +10,8 @@
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
 bool traverse( 
-    in raycast_uniforms u_raycast, 
-    in sampler_uniforms u_sampler, 
+    in uniforms_raycast u_raycast, 
+    in uniforms_sampler u_sampler, 
     in vec3 ray_step, 
     in vec2 traverse_steps, 
     inout vec3 ray_position, 

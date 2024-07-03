@@ -18,10 +18,10 @@
  */
 bool raycast
 (
-    in raycast_uniforms u_raycast, 
-    in volume_uniforms u_volume, 
-    in occupancy_uniforms u_occupancy, 
-    in sampler_uniforms u_sampler,
+    in uniforms_raycast u_raycast, 
+    in uniforms_volume u_volume, 
+    in uniforms_occupancy u_occupancy, 
+    in uniforms_sampler u_sampler,
     in vec3 ray_start, 
     in vec3 ray_normal, 
     out vec3 hit_position, 

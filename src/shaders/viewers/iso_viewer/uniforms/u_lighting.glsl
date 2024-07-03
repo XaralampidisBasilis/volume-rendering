@@ -2,7 +2,7 @@
 #define LIGHTING_UNIFORMS
 
 // struct to hold lighting uniforms
-struct lighting_uniforms 
+struct uniforms_lighting 
 {
     vec3 a_color;
     vec3 d_color;
@@ -17,6 +17,6 @@ struct lighting_uniforms
 
 };
 
-uniform lighting_uniforms u_lighting;
+uniform uniforms_lighting u_lighting;
 
 #endif

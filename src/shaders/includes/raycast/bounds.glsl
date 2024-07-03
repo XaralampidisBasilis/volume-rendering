@@ -8,7 +8,7 @@
  * @param ray_normal: Direction vector of the ray (should be normalized).
  * @return vec2: Returns the start and end distances for raycasting, ensuring non-negative bounds.
  */
-vec2 bounds(in occupancy_uniforms u_occupancy, in vec3 ray_start, in vec3 ray_normal)
+vec2 bounds(in uniforms_occupancy u_occupancy, in vec3 ray_start, in vec3 ray_normal)
 {
     // intersect box with ray and compute the bounds
     vec2 ray_bounds = intersect_box(u_occupancy.box_min, u_occupancy.box_max, ray_start, ray_normal);

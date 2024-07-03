@@ -11,8 +11,8 @@
  * @return - Returns true if the block is occupied and the ray should not skip it, false otherwise.
  */
 bool multi_resolution(
-    in occupancy_uniforms u_occupancy, 
-    in volume_uniforms u_volume, 
+    in uniforms_occupancy u_occupancy, 
+    in uniforms_volume u_volume, 
     in sampler2D sampler_occupancy, 
     in vec3 ray_position, 
     in vec3 ray_step, 

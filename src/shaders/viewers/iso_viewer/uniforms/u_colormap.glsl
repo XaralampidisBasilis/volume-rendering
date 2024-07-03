@@ -2,7 +2,7 @@
 #define COLORMAP_UNIFORMS
 
 // struct to hold colormap uniforms
-struct colormap_uniforms 
+struct uniforms_colormap 
 {
     int name;
     float v;     
@@ -11,6 +11,6 @@ struct colormap_uniforms
 
 };
 
-uniform colormap_uniforms u_colormap;
+uniform uniforms_colormap u_colormap;
 
 #endif

@@ -20,11 +20,10 @@
  */
 bool raycast_occupancy
 (
-    in raycast_uniforms u_raycast, 
-    in volume_uniforms u_volume, 
-    in occupancy_uniforms u_occupancy, 
-    in sampler3D sampler_volume,
-    in sampler2D sampler_occupancy,
+    in uniforms_raycast u_raycast, 
+    in uniforms_volume u_volume, 
+    in uniforms_occupancy u_occupancy, 
+    in uniforms_sampler u_sampler,
     in vec3 ray_start, 
     in vec3 ray_normal, 
     out vec3 ray_position, 
@@ -41,7 +40,7 @@ bool raycast_occupancy
     vec2 step_bounds = ray_bounds / ray_delta; // gl_FragColor = vec4(vec3(float(step_bounds.y-step_bounds.x) / (1.732/ray_delta)), 1.0); 
 
     // apply dithering to the initial distance to avoid artifacts
-    vec3 dither_step = dither(u_raycast, ray_step, step_bounds); // gl_FragColor = vec4(-normalize(dither_step), 1.0); 
+    vec3 dither_step = dither(u_raycast, u_sampler, ray_step, step_bounds); // gl_FragColor = vec4(-normalize(dither_step), 1.0); 
 
     // initialize the starting position along the ray
     ray_position = ray_start + ray_step * step_bounds.x - dither_step; // gl_FragColor = vec4(hit_position, 1.0); 
@@ -53,11 +52,11 @@ bool raycast_occupancy
     for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, ray_position += ray_step) {
 
         // check if the current block is occupied
-        bool occupied = mono_resolution (u_occupancy, u_volume, sampler_occupancy, ray_position, ray_step, traverse_steps, exit_steps);
+        bool occupied = mono_resolution (u_occupancy, u_volume, u_sampler, ray_position, ray_step, traverse_steps, exit_steps);
         if (occupied) {
                         
             // perform raycasting in the occupied block 
-            bool hit = traverse(u_raycast, sampler_volume, ray_step, traverse_steps, ray_position, ray_intensity);
+            bool hit = traverse(u_raycast, u_sampler, ray_step, traverse_steps, ray_position, ray_intensity);
             if (hit) 
                 return true;
         } 

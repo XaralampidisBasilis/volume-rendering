@@ -117,11 +117,6 @@ export default class ISOViewer
         this.material.uniforms.u_volume.value.dimensions.fromArray(this.resource.volume.dimensions)
         this.material.uniforms.u_volume.value.size.fromArray(this.resource.volume.size)
 
-        this.material.uniforms.u_sampler_volume.value = this.textures.volume
-        this.material.uniforms.u_sampler_mask.value = this.textures.mask
-        this.material.uniforms.u_sampler_colormap.value = this.colormaps    
-        this.material.uniforms.u_sampler_noise.value = this.noisemaps.white256
-
         this.material.uniforms.u_sampler.value.volume = this.textures.volume
         this.material.uniforms.u_sampler.value.mask = this.textures.mask
         this.material.uniforms.u_sampler.value.colormap = this.colormaps    
@@ -144,7 +139,7 @@ export default class ISOViewer
 
         this.material.uniforms.u_occupancy.value.size = this.occupancy.sizes.occupancy
         this.material.uniforms.u_occupancy.value.block = this.occupancy.sizes.block
-        this.material.uniforms.u_sampler_occupancy.value = this.occupancy.map     
+        this.material.uniforms.u_sampler.value.occupancy = this.occupancy.map     
 
         if (this.debug.active)
             this.occupancy.debug(this.viewer.scene)

@@ -8,7 +8,7 @@
  * @param source_vector: Vector from the surface point to the light source
  * @return vec3 The final color after applying lighting
  */
-vec3 phong(in lighting_uniforms u_lighting, in vec3 color, in vec3 normal_vector, in vec3 surface_position, in vec3 view_position, in vec3 source_position)
+vec3 phong(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_vector, in vec3 surface_position, in vec3 view_position, in vec3 source_position)
 {
     // calculate lighting vectors
     vec3 view_vector = surface_position - view_position;

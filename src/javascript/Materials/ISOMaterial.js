@@ -7,12 +7,6 @@ export default function()
 {
     const uniforms = {
                 
-        u_sampler_volume:           new THREE.Uniform(),
-        u_sampler_mask:             new THREE.Uniform(),
-        u_sampler_colormap:         new THREE.Uniform(),
-        u_sampler_noise:            new THREE.Uniform(),
-        u_sampler_occupancy:        new THREE.Uniform(),
-
         u_sampler: new THREE.Uniform({
             volume:          null,
             mask:            null,

@@ -2,7 +2,7 @@
 #define OCCUPANCY_UNIFORMS
 
 // struct to hold occupancy uniforms
-struct occupancy_uniforms 
+struct uniforms_occupancy 
 {
     vec3 size; 
     vec3 block;  
@@ -12,6 +12,6 @@ struct occupancy_uniforms
     int method;
 };
 
-uniform occupancy_uniforms u_occupancy;
+uniform uniforms_occupancy u_occupancy;
 
 #endif
