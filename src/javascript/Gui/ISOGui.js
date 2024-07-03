@@ -220,9 +220,9 @@ export default class ISOGui
 
             method: occupancy.add(uniforms.u_occupancy_method, 'value')
                 .name('method')
-                .options({ mono_resolution: 1, sub_resolution: 2, multi_resolution: 3}),
+                .options({ monotree: 1, octree: 2}),
 
-            visible: occupancy.add(this.viewer.occupancy.gpgpu.debug.material, 'visible')
+            visible: occupancy.add(this.viewer.occupancy.compute.debug.material, 'visible')
                 .name('visible')
         }
 
@@ -342,12 +342,8 @@ export default class ISOGui
 
     computeThresholdOccupancy()
     {
-        this.viewer.occupancy.setThreshold(this.controllers.raycast.threshold.getValue())
-        this.viewer.occupancy.update()
-        this.viewer.material.uniforms.u_sampler_occupancy.value = this.viewer.occupancy.getTexture()
-
-        // update bounding box based on new threshold
-        this.viewer.occupancy.computeBoundingBox()
+        this.viewer.occupancy.compute(this.controllers.raycast.threshold.getValue())
+        this.viewer.material.uniforms.u_sampler_occupancy.value = this.viewer.occupancy.computation.texture
         this.viewer.material.uniforms.u_occupancy_box_min.value = this.viewer.occupancy.box.min
         this.viewer.material.uniforms.u_occupancy_box_max.value = this.viewer.occupancy.box.max
     }
@@ -358,7 +354,6 @@ export default class ISOGui
 
         this.viewer.occupancy.dispose()
         this.viewer.setOccupancy()
-        this.viewer.occupancy.debug(this.viewer.scene)
 
         // destroy and create occupancy visible controller
         this.controllers.occupancy.visible.destroy()
@@ -368,10 +363,7 @@ export default class ISOGui
             .setValue(visible)
             .updateDisplay()
 
-        // update bounding box based on new resolution
-        this.viewer.occupancy.computeBoundingBox()
-        this.viewer.material.uniforms.u_occupancy_box_min.value = this.viewer.occupancy.box.min
-        this.viewer.material.uniforms.u_occupancy_box_max.value = this.viewer.occupancy.box.max
+        this.computeThresholdOccupancy()
     }
 
     dispose() {

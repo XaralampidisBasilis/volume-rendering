@@ -3,7 +3,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import Experience from '../Experience.js'
 import ISOMaterial from '../Materials/ISOMaterial.js'
 import ISOGui from '../Gui/ISOGui.js'
-import GPUOccupancy from '../Computes/GPUOccupancy.js'
+import GPUOccupancy from '../Computes/GPUOccupancyOctree.js'
 
 export default class ISOViewer
 {
@@ -134,12 +134,14 @@ export default class ISOViewer
     setOccupancy()
     {        
         this.occupancy = new GPUOccupancy(this.material.uniforms.u_occupancy_resolution.value, this.textures.volume, this.renderer.instance, this.scene)
-        this.occupancy.setThreshold(this.material.uniforms.u_raycast_threshold.value)
-        this.occupancy.update() 
+        this.occupancy.compute(this.material.uniforms.u_raycast_threshold.value) 
 
         this.material.uniforms.u_occupancy_size.value = this.occupancy.sizes.occupancy
         this.material.uniforms.u_occupancy_block.value = this.occupancy.sizes.block
-        this.material.uniforms.u_sampler_occupancy.value = this.occupancy.getTexture()       
+        this.material.uniforms.u_sampler_occupancy.value = this.computation.texture      
+
+        if (this.debug.active)
+            this.occupancy.debug(this.viewer.scene)
     }
 
 }
