@@ -14,7 +14,7 @@ struct uniforms_lighting
     float power;
     int model;
     bool attenuate;
-
+    float levels;
 };
 
 uniform uniforms_lighting u_lighting;

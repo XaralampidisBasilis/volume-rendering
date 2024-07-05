@@ -8,7 +8,7 @@
  * @param source_vector: Vector from the surface point to the light source
  * @return vec3 The final color after applying lighting
  */
-vec3 phong(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_vector, in vec3 surface_position, in vec3 view_position, in vec3 source_position)
+vec3 phong_blin_edge(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_vector, in vec3 surface_position, in vec3 view_position, in vec3 source_position)
 {
     // calculate lighting vectors
     vec3 view_vector = surface_position - view_position;
@@ -32,20 +32,31 @@ vec3 phong(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_vector
 
     // Calculate lambertian (diffuse) component
     float lambertian = max(dot(normal_vector, source_vector), 0.0);
-
+    
     // Calculate specular component if lambertian contribution is positive
     float specular = 0.0;
     float specular_angle;
 
     if (lambertian > 0.0) 
     {
-        vec3 reflect_dir = reflect(-source_vector, normal_vector);
-        specular_angle = max(dot(reflect_dir, view_vector), 0.0);
-        specular = pow(specular_angle, u_lighting.shininess * 0.25);
+        vec3 halfway_vector = normalize(source_vector + view_vector); 
+        specular_angle = max(dot(halfway_vector, normal_vector), 0.0);
+        specular = pow(specular_angle, u_lighting.shininess);
     }    
 
     // Calculate the final color by combining ambient, diffuse, and specular components
-    vec3 phong_color = a_color + color * (lambertian * d_color + specular * s_color);
+    vec3 phong_blin_color = a_color + color * (lambertian * d_color + specular * s_color);
 
-    return phong_color;
+    // Enhance edges when the gradient is almost perpendicular to the viewing direction
+    float edge_angle = dot(view_vector, normal_vector);
+    float edge = pow(1.0 - abs(edge_angle), 0.3);
+    float edge_threshold = 0.1;
+
+    if (edge >= edge_threshold) 
+    {
+        float edge_fade = pow(ramp(edge_threshold, 1.0, edge), 6);
+        phong_blin_color = mix(phong_blin_color, vec3(0.0), edge_fade);
+    }
+
+    return phong_blin_color;
 }

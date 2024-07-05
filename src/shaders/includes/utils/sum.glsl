@@ -22,17 +22,17 @@ float sum(in vec4 vector)
 
 int sum(in ivec2 vector)
 {
-    return vector.x + vector.y;
+    return int(sum(vec2(vector)));
 }
 
 int sum(in ivec3 vector)
 {
-    return vector.x + vector.y + vector.z;
+    return int(sum(vec3(vector)));
 }
 
 int sum(in ivec4 vector)
 {
-    return vector.x + vector.y + vector.z + vector.w;
+    return int(sum(vec4(vector)));
 }
 
 #endif // UTILS_SUM

@@ -31,6 +31,7 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../includes/utils/product.glsl;
 #include ../../includes/utils/sum.glsl;
 #include ../../includes/utils/ramp.glsl;
+#include ../../includes/utils/posterize.glsl;
 
 // functionality
 #include ../../includes/raycast/raycast.glsl;

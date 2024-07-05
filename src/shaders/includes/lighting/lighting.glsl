@@ -20,6 +20,10 @@ vec3 lighting(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_vec
             return phong(u_lighting, color, normal_vector, surface_position, view_position, source_position);
         case 2: 
             return phong_blin(u_lighting, color, normal_vector, surface_position, view_position, source_position);
+        case 3: 
+            return phong_blin_toon(u_lighting, color, normal_vector, surface_position, view_position, source_position);
+        case 4: 
+            return phong_blin_edge(u_lighting, color, normal_vector, surface_position, view_position, source_position);    
         default: 
             return vec3(1.0, 0.0, 0.0); // error color
     }

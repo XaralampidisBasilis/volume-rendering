@@ -22,17 +22,18 @@ float product(in vec4 vector)
 
 int product(in ivec2 vector)
 {
-    return vector.x * vector.y;
+    return int(product(vec2(vector)));
 }
 
 int product(in ivec3 vector)
 {
-    return vector.x * vector.y * vector.z;
+    return int(product(vec3(vector)));
 }
 
 int product(in ivec4 vector)
 {
-    return vector.x * vector.y * vector.z * vector.w;
+    return int(product(vec4(vector)));
 }
+
 
 #endif // UTILS_PRODUCT

@@ -32,10 +32,11 @@ vec3 phong_blin(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_v
 
     // Calculate lambertian (diffuse) component
     float lambertian = max(dot(normal_vector, source_vector), 0.0);
-    float specular = 0.0;
-    float specular_angle;
 
     // Calculate specular component if lambertian contribution is positive
+    float specular = 0.0;
+    float specular_angle;
+    
     if (lambertian > 0.0) 
     {
         vec3 halfway_vector = normalize(source_vector + view_vector); 

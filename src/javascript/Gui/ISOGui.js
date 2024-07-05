@@ -76,24 +76,10 @@ export default class ISOGui
 
         this.controllers.raycast = {
 
-            threshold: raycast.add(u_raycast, 'threshold')
-                .min(0)
-                .max(1)
-                .step(0.0001),
-
-            resolution: raycast.add(u_raycast, 'resolution')
-                .min(0)
-                .max(2)
-                .step(0.001),
-
-            refinements: raycast.add(u_raycast, 'refinements')
-                .min(1)
-                .max(5)
-                .step(1),
-
-            stride: raycast.add(u_raycast, 'stride')
-                .options({ isotropic: 1, directional: 2, traversal: 3 }),
-
+            threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
+            resolution: raycast.add(u_raycast, 'resolution').min(0).max(2).step(0.001),
+            refinements: raycast.add(u_raycast, 'refinements').min(1).max(5).step(1),
+            stride: raycast.add(u_raycast, 'stride').options({ isotropic: 1, directional: 2, traversal: 3 }),
             dither: raycast.add(u_raycast, 'dither')
         }
 
@@ -106,14 +92,8 @@ export default class ISOGui
     
         this.controllers.gradient = {
 
-            resolution: gradient.add(u_gradient, 'resolution')
-                .min(0.25)
-                .max(2)
-                .step(0.001),
-                
-            method: gradient.add(u_gradient, 'method')
-                .options({ sobel: 1, central: 2, tetrahedron: 3}),
-
+            resolution: gradient.add(u_gradient, 'resolution').min(0.25).max(2).step(0.001),
+            method: gradient.add(u_gradient, 'method').options({ sobel: 1, central: 2, tetrahedron: 3}),
             neighbor: gradient.add(u_gradient, 'neighbor')
         }
 
@@ -127,24 +107,10 @@ export default class ISOGui
     
         this.controllers.colormap = {
 
-            low: colormap.add(u_colormap.u_lim, 'x')
-                .name('low')
-                .min(0)
-                .max(1)
-                .step(0.001),
-
-            high: colormap.add(u_colormap.u_lim, 'y')
-                .name('high')
-                .min(0)
-                .max(1)
-                .step(0.001),
-
-            name: colormap.add(u_colormap, 'name')
-                .name('name')
-                .options(Object.keys(colormapLocations)),
-
+            low: colormap.add(u_colormap.u_lim, 'x').name('low').min(0).max(1).step(0.001),
+            high: colormap.add(u_colormap.u_lim, 'y').name('high').min(0).max(1).step(0.001),
+            name: colormap.add(u_colormap, 'name').options(Object.keys(colormapLocations)),
             flip: colormap.add(object, 'flip')
-                .name('flip')
         }
 
     }
@@ -156,35 +122,15 @@ export default class ISOGui
     
         this.controllers.lighting = {
 
-            ka: lighting.add(u_lighting, 'ka')
-                .min(0)
-                .max(1)
-                .step(0.001),
-
-            kd: lighting.add(u_lighting, 'kd')
-                .min(0)
-                .max(1)
-                .step(0.001),
-
-            ks: lighting.add(u_lighting, 'ks')
-                .min(0)
-                .max(1)
-                .step(0.001),
-
-            shininess: lighting.add(u_lighting, 'shininess')
-                .min(0)
-                .max(40.0)
-                .step(0.2),
-
-            power: lighting.add(u_lighting, 'power')
-                .min(0)
-                .max(2.0)
-                .step(0.1),
-
-            model: lighting.add(u_lighting, 'model')
-                .options({ phong: 1, blinn: 2}),
-
-            attenuate: lighting.add(u_lighting, 'attenuate')
+            ka: lighting.add(u_lighting, 'ka').min(0).max(1).step(0.001),
+            kd: lighting.add(u_lighting, 'kd').min(0).max(1).step(0.001),
+            ks: lighting.add(u_lighting, 'ks').min(0).max(1).step(0.001),
+            shininess: lighting.add(u_lighting, 'shininess').min(0).max(40.0).step(0.2),
+            power: lighting.add(u_lighting, 'power').min(0).max(2.0).step(0.1),
+            model: lighting.add(u_lighting, 'model').options({ phong: 1, blinn: 2, toon: 3, edge: 4}),
+            attenuate: lighting.add(u_lighting, 'attenuate'),
+            levels: lighting.add(u_lighting, 'levels')
+            
         }
     }
     
@@ -195,16 +141,9 @@ export default class ISOGui
     
         this.controllers.occupancy = {
 
-            resolution: occupancy.add(u_occupancy, 'resolution')
-                .min(2)
-                .max(20)
-                .step(1),
-
-            method: occupancy.add(u_occupancy, 'method')
-                .options({ monotree: 1, octree: 2}),
-
+            resolution: occupancy.add(u_occupancy, 'resolution').min(2).max(20).step(1),
+            method: occupancy.add(u_occupancy, 'method').options({ monotree: 1, octree: 2}),
             visible: occupancy.add(this.viewer.occupancy.compute.debug.material, 'visible')
-                .name('visible')
         }
 
     }
