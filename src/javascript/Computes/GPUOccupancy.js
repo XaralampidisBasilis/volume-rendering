@@ -2,8 +2,8 @@ import * as THREE from 'three'
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js'
 import computeShader from '../../shaders/computes/gpu_occupancy/multi_resolution.glsl'
 import { floatBitsToInt, readIntBits, readIntBytes } from '../Utils/BitwiseUtils.js'
-import ind2sub from '@stdlib/ndarray-ind2sub';
-import sub2ind from '@stdlib/ndarray-sub2ind';
+import ind2sub from 'https://cdn.jsdelivr.net/gh/stdlib-js/ndarray-ind2sub@esm/index.mjs';
+import sub2ind from 'https://cdn.jsdelivr.net/gh/stdlib-js/ndarray-sub2ind@esm/index.mjs';
 
 // module scope variables
 const _colorData = new THREE.Vector4()

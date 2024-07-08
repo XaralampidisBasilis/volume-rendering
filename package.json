@@ -11,8 +11,6 @@
     "vite": "^4.5.0"
   },
   "dependencies": {
-    "@stdlib/ndarray-ind2sub": "^0.2.1",
-    "@stdlib/ndarray-sub2ind": "^0.2.1",
     "lil-gui": "^0.19.0",
     "nifti-reader-js": "^0.6.8",
     "stats.js": "^0.17.0",
