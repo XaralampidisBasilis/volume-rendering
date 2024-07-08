@@ -12,7 +12,7 @@ uniform float u_threshold;
 
 #include ../../includes/utils/reshape_coordinates.glsl;
 
-int find_block_64(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos);
+int find_octree_block(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos);
 ivec3 sign_nonzero(ivec3 position);
 
 void main()
@@ -49,7 +49,7 @@ void main()
                     bb_max = max(bb_max, voxel_pos);
 
                     // compute occupancy index
-                    int n = find_block_64(block_min, block_max, voxel_pos);
+                    int n = find_octree_block(block_min, block_max, voxel_pos);
                     occupancy[n] = 1;
                 }
             }
@@ -71,17 +71,27 @@ void main()
     gl_FragColor = intBitsToFloat(color_data);
 }
 
-int find_block_64(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos)
+int find_octree_block(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos)
 {   
-    // compute occupancy index
-    ivec3 block_8_pos = 2 * voxel_pos - block_min - block_max;
-    ivec3 block_8_sign = sign_nonzero(block_8_pos);
-    ivec3 block_8_8_sign = sign_nonzero(2 * block_8_pos - u_block_size * block_8_sign);
+    // compute position relative to the block center
+    ivec3 relative_pos = 2 * voxel_pos - block_min - block_max;
 
-    ivec3 block_64_pos = (3 + 2 * block_8_sign + block_8_8_sign) / 2; // in range [0, 3][0, 3][0, 3]
-    int block_64 = block_64_pos.x + 4 * block_64_pos.y + 16 * block_64_pos.z; // in range [0, 63]   
+    // compute the sign of the octant that relative_pos is inside
+    ivec3 octant_sign = sign_nonzero(relative_pos);
 
-    return block_64;
+    // compute position relative to the current octant block center
+    ivec3 suboctant_pos = 2 * relative_pos - u_block_size * octant_sign;
+
+    // compute the sign of the suboctant of the octant block that voxel_pos is inside
+    ivec3 suboctant_sign = sign_nonzero(suboctant_pos);
+
+    // compute position in a 4x4x4 block grid
+    ivec3 hexacontatetrant_pos = (3 + 2 * octant_sign + suboctant_sign) / 2; // in range [0, 3][0, 3][0, 3]
+
+    // compute the linear position in the 4x4x4 block grid
+    int hexacontatetra_index = hexacontatetrant_pos.x + 4 * hexacontatetrant_pos.y + 16 * hexacontatetrant_pos.z; // in range [0, 63]   
+
+    return hexacontatetra_index;
 }
 
 ivec3 sign_nonzero(ivec3 position)

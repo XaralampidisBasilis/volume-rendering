@@ -1,5 +1,7 @@
 #include ../lighting/phong.glsl;
 #include ../lighting/phong_blin.glsl;
+#include ../lighting/phong_blin_toon.glsl;
+#include ../lighting/phong_blin_edge.glsl;
 
 /**
  * Calculates the final color using the Phong or Phong-Blin reflection model.

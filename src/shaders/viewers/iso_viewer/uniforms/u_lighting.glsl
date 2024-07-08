@@ -15,6 +15,7 @@ struct uniforms_lighting
     int model;
     bool attenuate;
     float levels;
+    float edge;
 };
 
 uniform uniforms_lighting u_lighting;

@@ -31,7 +31,7 @@ bool traverse(
         // if the sampled intensity exceeds the threshold, a hit is detected.
         if (ray_intensity > u_raycast.threshold) 
         {
-            refine(u_raycast, sampler_volume, ray_step, ray_position, ray_intensity);
+            refine(u_raycast, u_sampler, ray_step, ray_position, ray_intensity);
             return true;
         }
 

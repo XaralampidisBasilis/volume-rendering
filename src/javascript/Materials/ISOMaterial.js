@@ -56,6 +56,7 @@ export default function()
             model:           2,    
             attenuate:       false,
             levels:          10,
+            edge:            0.1,
         }),
 
         u_occupancy: new THREE.Uniform({

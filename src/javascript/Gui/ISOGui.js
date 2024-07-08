@@ -129,8 +129,8 @@ export default class ISOGui
             power: lighting.add(u_lighting, 'power').min(0).max(2.0).step(0.1),
             model: lighting.add(u_lighting, 'model').options({ phong: 1, blinn: 2, toon: 3, edge: 4}),
             attenuate: lighting.add(u_lighting, 'attenuate'),
-            levels: lighting.add(u_lighting, 'levels')
-            
+            levels: lighting.add(u_lighting, 'levels').min(2).max(255).step(1),
+            edge: lighting.add(u_lighting, 'edge').min(0).max(1).step(0.001),
         }
     }
     

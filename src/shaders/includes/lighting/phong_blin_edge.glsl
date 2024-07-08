@@ -50,11 +50,10 @@ vec3 phong_blin_edge(in uniforms_lighting u_lighting, in vec3 color, in vec3 nor
     // Enhance edges when the gradient is almost perpendicular to the viewing direction
     float edge_angle = dot(view_vector, normal_vector);
     float edge = pow(1.0 - abs(edge_angle), 0.3);
-    float edge_threshold = 0.1;
 
-    if (edge >= edge_threshold) 
+    if (edge >= u_lighting.edge) 
     {
-        float edge_fade = pow(ramp(edge_threshold, 1.0, edge), 6);
+        float edge_fade = pow(ramp(u_lighting.edge, 1.0, edge), 6.0);
         phong_blin_color = mix(phong_blin_color, vec3(0.0), edge_fade);
     }
 
