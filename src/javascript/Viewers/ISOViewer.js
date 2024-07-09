@@ -133,13 +133,13 @@ export default class ISOViewer
     setOccumaps()
     {        
         this.occumaps = new GPUOccumaps(this.material.uniforms.u_occupancy.value.resolution, this.textures.volume, this.renderer.instance)
-        this.occumaps.compute(0.9) 
+        this.occumaps.compute(this.material.uniforms.u_raycast.value.threshold) 
 
-        // this.material.uniforms.u_occupancy.value.size = this.occupancy.sizes.occumap[0]
-        // this.material.uniforms.u_occupancy.value.block = this.occupancy.sizes.block[0]
-        // // this.material.uniforms.u_occupancy.value.box_min = this.occupancy.box.min
-        // // this.material.uniforms.u_occupancy.value.box_max = this.occupancy.box.max
-        // this.material.uniforms.u_sampler.value.occupancy = this.occupancy.computation.texture
+        this.material.uniforms.u_sampler.value.occupancy = this.occumaps.resolution0.texture
+        this.material.uniforms.u_occupancy.value.size = this.occumaps.resolution0.size
+        this.material.uniforms.u_occupancy.value.block = this.occumaps.resolution0.step
+        this.material.uniforms.u_occupancy.value.box_min = this.occumaps.boundingBox.min
+        this.material.uniforms.u_occupancy.value.box_max = this.occumaps.boundingBox.max
 
         if (this.debug.active)
             this.occumaps.debug(this.scene)

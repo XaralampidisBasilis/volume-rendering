@@ -84,7 +84,7 @@ function decodeData(volumeSize, r, g, b, a)
     }
 
     ind2sub(volumeSize, b, box_min)
-    ind2sub(volumeSize, a, box_min)   
+    ind2sub(volumeSize, a, box_max)   
 }
 
 function ind2sub(size, index, subscript) 
