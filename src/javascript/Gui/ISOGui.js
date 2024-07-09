@@ -184,7 +184,7 @@ export default class ISOGui
         this.controllers.lighting.attenuate.onChange(() => this.adjustLightingPower())
 
         // recompute new occupancy based on new resolution
-        // this.controllers.occupancy.resolution.onFinishChange(() => this.recomputeResolutionOccupancy())
+        this.controllers.occupancy.resolution.onFinishChange(() => this.recomputeResolutionOccupancy())
 
     }
 
@@ -263,9 +263,6 @@ export default class ISOGui
     computeThresholdOccupancy()
     {
         this.viewer.occupancy.compute(this.controllers.raycast.threshold.getValue())
-        this.viewer.material.uniforms.u_sampler.value.occupancy = this.viewer.occupancy.computation.texture
-        this.viewer.material.uniforms.u_occupancy.value.box_min = this.viewer.occupancy.box.min
-        this.viewer.material.uniforms.u_occupancy.value.box_max = this.viewer.occupancy.box.max
     }
 
     recomputeResolutionOccupancy()
@@ -279,7 +276,6 @@ export default class ISOGui
         this.controllers.occupancy.visible.destroy()
         this.controllers.occupancy.visible = this.subfolders.occupancy
             .add(this.viewer.occupancy.computation.debug.material, 'visible')
-            .name('visible')
             .setValue(visible)
             .updateDisplay()
 

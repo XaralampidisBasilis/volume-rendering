@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import EventEmitter from '../Utils/EventEmitter.js'
-import { GPUComputationRenderer } from './GPUComputationRenderer.js'
+import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
 import computeShader from '../../shaders/computes/gpu_occupancy/multi_resolution.glsl'
 
 // assumes intensity data 3D, and data3DTexture
@@ -17,6 +17,11 @@ export default class GPUOccumaps extends EventEmitter
 
         this.setOccumaps(resolution)
         this.setComputation(renderer)
+
+        this.on('ready', () => {
+            if (this.computation.debug)
+                this.computation.debug.material.map = this.getRenderTargetTexture()
+        })
     }
 
     // setup
@@ -78,32 +83,10 @@ export default class GPUOccumaps extends EventEmitter
         this.computation.worker.onmessage = this.handleWorkerMessage.bind(this)
     }
 
-    handleWorkerMessage(event) 
-    {
-        const result = event.data
-
-        this.resolution0.texture.image.data.set(result.resolution0TextureData)
-        this.resolution1.texture.image.data.set(result.resolution1TextureData)
-        this.resolution2.texture.image.data.set(result.resolution2TextureData)
-        this.boundingBox.min.fromArray(result.boundingBoxMin)
-        this.boundingBox.max.fromArray(result.boundingBoxMax)
-
-        // debug
-        console.log('worker: handle message')
-        console.log(this.resolution0.texture.image.data)
-        console.log(this.resolution1.texture.image.data)
-        console.log(this.resolution2.texture.image.data)
-        console.log(this.boundingBox.min)
-        console.log(this.boundingBox.max)
-
-        this.trigger('ready')
-    }
-
     postWorkerMessage() 
     {    
         this.readComputationData()
 
-        console.log('worker: post message')
         this.computation.worker.postMessage(
         {
             computationData:        this.computation.data,
@@ -117,17 +100,41 @@ export default class GPUOccumaps extends EventEmitter
         })
     }
 
+    handleWorkerMessage(event) 
+    {
+        const result = event.data
+
+        this.resolution0.texture.image.data.set(result.resolution0TextureData)
+        this.resolution1.texture.image.data.set(result.resolution1TextureData)
+        this.resolution2.texture.image.data.set(result.resolution2TextureData)
+        this.boundingBox.min.fromArray(result.boundingBoxMin)
+        this.boundingBox.max.fromArray(result.boundingBoxMax)
+
+        // debug
+        console.log(
+        {
+            res0: this.resolution0.texture.image.data,
+            res1: this.resolution1.texture.image.data,
+            res2: this.resolution2.texture.image.data,
+            bbmin: this.boundingBox.min,
+            bbmax: this.boundingBox.max
+        })
+
+        console.timeEnd('compute')
+        this.trigger('ready')
+    }
+
     compute(threshold)
     {
         // update the computation based on threshold
         this.computation.threshold = threshold
         this.computation.variable.material.uniforms.u_threshold.value = threshold
-        this.computation.instance.compute()
-        this.postWorkerMessage()
 
-        // update the debug plane
-        if (this.computation.debug)
-            this.computation.debug.material.map = this.getRenderTargetTexture()
+        console.log('')
+        console.time('compute')
+        this.computation.instance.compute()
+
+        this.postWorkerMessage()
     }
 
     // helpers
@@ -168,7 +175,7 @@ export default class GPUOccumaps extends EventEmitter
 
     readComputationData()
     {
-        this.computation.renderer.readRenderTargetPixels(
+            this.computation.renderer.readRenderTargetPixels(
             this.computation.instance.getCurrentRenderTarget(this.computation.variable),
             0, 
             0, 
@@ -176,6 +183,8 @@ export default class GPUOccumaps extends EventEmitter
             this.computation.size.height,
             this.computation.texture.image.data
         )     
+
+        this.computation.texture.needsUpdate = true;
     }
 
     getRenderTargetTexture()
@@ -247,7 +256,7 @@ export default class GPUOccumaps extends EventEmitter
         // debug
         this.computation.debug = new THREE.Mesh(
             new THREE.PlaneGeometry(this.computation.size.width, this.computation.size.height),
-            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, visible: false })
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: false, visible: false })
         )
 
         // apply the texture map

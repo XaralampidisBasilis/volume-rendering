@@ -26,7 +26,7 @@ export default class ISOViewer
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
-        this.setOccumaps()
+        this.setOccupancy()
 
         // Debug gui
         if (this.debug.active) 
@@ -130,19 +130,22 @@ export default class ISOViewer
         this.scene.add(this.mesh)
     }
 
-    setOccumaps()
+    setOccupancy()
     {        
-        this.occumaps = new GPUOccumaps(this.material.uniforms.u_occupancy.value.resolution, this.textures.volume, this.renderer.instance)
-        this.occumaps.compute(this.material.uniforms.u_raycast.value.threshold) 
-
-        this.material.uniforms.u_sampler.value.occupancy = this.occumaps.resolution0.texture
-        this.material.uniforms.u_occupancy.value.size = this.occumaps.resolution0.size
-        this.material.uniforms.u_occupancy.value.block = this.occumaps.resolution0.step
-        this.material.uniforms.u_occupancy.value.box_min = this.occumaps.boundingBox.min
-        this.material.uniforms.u_occupancy.value.box_max = this.occumaps.boundingBox.max
-
+        this.occupancy = new GPUOccumaps(this.material.uniforms.u_occupancy.value.resolution, this.textures.volume, this.renderer.instance)
+        this.occupancy.compute(this.material.uniforms.u_raycast.value.threshold) 
+        
+        this.occupancy.on('ready', () => 
+        {
+            this.material.uniforms.u_sampler.value.occupancy = this.occupancy.getRenderTargetTexture()
+            this.material.uniforms.u_occupancy.value.size = this.occupancy.resolution0.size
+            this.material.uniforms.u_occupancy.value.block = this.occupancy.resolution0.step
+            this.material.uniforms.u_occupancy.value.box_min = this.occupancy.boundingBox.min
+            this.material.uniforms.u_occupancy.value.box_max = this.occupancy.boundingBox.max
+        })
+       
         if (this.debug.active)
-            this.occumaps.debug(this.scene)
+            this.occupancy.debug(this.scene)
     }
 
 }

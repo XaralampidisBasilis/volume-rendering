@@ -67,9 +67,10 @@ void main()
     // encode block bounding box
     color_data.b = uint(reshape_3d_to_1d(bb_min, u_volume_size));
     color_data.a = uint(reshape_3d_to_1d(bb_max, u_volume_size));
-    
+
     // write color data
     gl_FragColor = uintBitsToFloat(color_data);
+
 }
 
 int find_octree_block(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos)
