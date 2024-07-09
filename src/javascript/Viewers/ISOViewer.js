@@ -3,7 +3,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import Experience from '../Experience.js'
 import ISOMaterial from '../Materials/ISOMaterial.js'
 import ISOGui from '../Gui/ISOGui.js'
-import GPUOccupancy from '../Computes/GPUOccupancy.js'
+import GPUOccumaps from '../Computes/GPUOccumaps.js'
 
 export default class ISOViewer
 {
@@ -26,7 +26,7 @@ export default class ISOViewer
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
-        this.setOccupancy()
+        this.setOccumaps()
 
         // Debug gui
         if (this.debug.active) 
@@ -130,19 +130,19 @@ export default class ISOViewer
         this.scene.add(this.mesh)
     }
 
-    setOccupancy()
+    setOccumaps()
     {        
-        this.occupancy = new GPUOccupancy(this.material.uniforms.u_occupancy.value.resolution, this.textures.volume, this.renderer.instance, this.scene)
-        this.occupancy.compute(this.material.uniforms.u_raycast.value.threshold) 
+        this.occumaps = new GPUOccumaps(this.material.uniforms.u_occupancy.value.resolution, this.textures.volume, this.renderer.instance)
+        this.occumaps.compute(0.9) 
 
-        this.material.uniforms.u_occupancy.value.size = this.occupancy.sizes.occumap[0]
-        this.material.uniforms.u_occupancy.value.block = this.occupancy.sizes.block[0]
-        // this.material.uniforms.u_occupancy.value.box_min = this.occupancy.box.min
-        // this.material.uniforms.u_occupancy.value.box_max = this.occupancy.box.max
-        this.material.uniforms.u_sampler.value.occupancy = this.occupancy.computation.texture
+        // this.material.uniforms.u_occupancy.value.size = this.occupancy.sizes.occumap[0]
+        // this.material.uniforms.u_occupancy.value.block = this.occupancy.sizes.block[0]
+        // // this.material.uniforms.u_occupancy.value.box_min = this.occupancy.box.min
+        // // this.material.uniforms.u_occupancy.value.box_max = this.occupancy.box.max
+        // this.material.uniforms.u_sampler.value.occupancy = this.occupancy.computation.texture
 
         if (this.debug.active)
-            this.occupancy.debug(this.scene)
+            this.occumaps.debug(this.scene)
     }
 
 }

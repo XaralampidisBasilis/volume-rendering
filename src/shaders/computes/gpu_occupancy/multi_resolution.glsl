@@ -1,4 +1,5 @@
 
+precision highp int;
 precision highp float;
 precision highp sampler3D; // highp, mediump, lowp
 
@@ -23,7 +24,7 @@ void main()
 
     // Get min and max block voxel positions in the volume
     ivec3 block_min = max(u_block_size * block_pos, 0); // gl_FragColor = vec4((vec3(voxel_min)/vec3(u_volume_size-1)), 1.0);
-    ivec3 block_max = min(block_min + u_block_size, u_volume_size) - 1; // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
+    ivec3 block_max = min(block_min + u_block_size, u_volume_size - 1); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
 
     // initialize bounding box
     ivec3 bb_min = block_max;
@@ -57,18 +58,18 @@ void main()
     }
 
     // encode data with color
-    ivec4 color_data = ivec4(0);
+    uvec4 color_data = uvec4(0);
 
     // convert occupancy array to colors
-    for (int i = 31; i >=  0; i--) color_data.r = (color_data.r << 1) | occupancy[i];
-    for (int i = 63; i >= 32; i--) color_data.g = (color_data.g << 1) | occupancy[i];
+    for (int i = 31; i >=  0; i--) color_data.r = (color_data.r << 1) | uint(occupancy[i]);
+    for (int i = 63; i >= 32; i--) color_data.g = (color_data.g << 1) | uint(occupancy[i]);
     
     // encode block bounding box
-    color_data.b = reshape_3d_to_1d(bb_min, u_volume_size);
-    color_data.a = reshape_3d_to_1d(bb_max, u_volume_size);
-
+    color_data.b = uint(reshape_3d_to_1d(bb_min, u_volume_size));
+    color_data.a = uint(reshape_3d_to_1d(bb_max, u_volume_size));
+    
     // write color data
-    gl_FragColor = intBitsToFloat(color_data);
+    gl_FragColor = uintBitsToFloat(color_data);
 }
 
 int find_octree_block(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos)

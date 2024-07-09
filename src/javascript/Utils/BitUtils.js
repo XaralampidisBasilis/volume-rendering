@@ -7,6 +7,7 @@ const _float32 = new Float32Array(_buffer);
 
 // Create an Int32Array view on the buffer
 const _int32 = new Int32Array(_buffer);
+const _uint32 = new Uint32Array(_buffer);
 
 // Function to convert float bits to int
 export function floatBitsToInt(value) {
@@ -14,6 +15,30 @@ export function floatBitsToInt(value) {
     _float32[0] = value;
     // Return the int representation from the Int32Array
     return _int32[0];
+}
+
+// Function to convert float bits to int
+export function intBitsToFloat(value) {
+    // Store the float value in the Float32Array
+    _int32[0] = value;
+    // Return the int representation from the Int32Array
+    return _float32[0];
+}
+
+// Function to convert float bits to int
+export function floatBitsToUint(value) {
+    // Store the float value in the Float32Array
+    _float32[0] = value;
+    // Return the int representation from the Int32Array
+    return _uint32[0];
+}
+
+// Function to convert float bits to int
+export function uintBitsToFloat(value) {
+    // Store the float value in the Float32Array
+    _uint32[0] = value;
+    // Return the int representation from the Int32Array
+    return _float32[0];
 }
 
 // Function to read a single bit from a number

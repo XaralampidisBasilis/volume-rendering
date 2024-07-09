@@ -38,16 +38,16 @@ export function reshape2DTo3D(dimensions, position2, position3) {
     return position3;
 }
 
-export function getBlockIndices(size, blockMin = new THREE.Vector3(), blockMax) {
+export function computeIndices(size, min, max) {
     const indices = [];
 
-    for (let z = blockMin.z; z < blockMax.z; z++) {
+    for (let z = min.z; z < max.z; z++) {
         const offsetZ = size.x * size.y * z;
 
-        for (let y = blockMin.y; y < blockMax.y; y++) {
+        for (let y = min.y; y < max.y; y++) {
             const offsetY = size.x * y;
 
-            for (let x = blockMin.x; x < blockMax.x; x++) {
+            for (let x = min.x; x < max.x; x++) {
                 indices.push(x + offsetY + offsetZ);
             }
         }

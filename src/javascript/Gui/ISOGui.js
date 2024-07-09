@@ -65,7 +65,7 @@ export default class ISOGui
         this.addControllersGradient() 
         this.addControllersColormap() 
         this.addControllersLighting() 
-        // this.addControllersOccupancy() 
+        this.addControllersOccupancy() 
         this.setControllersBindings()  
     }
 
@@ -143,7 +143,7 @@ export default class ISOGui
 
             resolution: occupancy.add(u_occupancy, 'resolution').min(2).max(20).step(1),
             method: occupancy.add(u_occupancy, 'method').options({ monotree: 1, octree: 2}),
-            visible: occupancy.add(this.viewer.occupancy.compute.debug.material, 'visible')
+            visible: occupancy.add(this.viewer.occupancy.computation.debug.material, 'visible')
         }
 
     }
@@ -164,9 +164,9 @@ export default class ISOGui
             this.displaceColormapHigh()
             
             // throttled compute occupancy map and bounding box based on raycast threshold
-            // computeThresholdOccupancyThrottled()
+            computeThresholdOccupancyThrottled()
         })
-        // .onFinishChange(() => this.computeThresholdOccupancy())
+        .onFinishChange(() => this.computeThresholdOccupancy())
 
         // flip colormap colors
         this.controllers.colormap.flip.onChange(() => this.flipColormapRange())
@@ -278,7 +278,7 @@ export default class ISOGui
         // destroy and create occupancy visible controller
         this.controllers.occupancy.visible.destroy()
         this.controllers.occupancy.visible = this.subfolders.occupancy
-            .add(this.viewer.occupancy.compute.debug.material, 'visible')
+            .add(this.viewer.occupancy.computation.debug.material, 'visible')
             .name('visible')
             .setValue(visible)
             .updateDisplay()

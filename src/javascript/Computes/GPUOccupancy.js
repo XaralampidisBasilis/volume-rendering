@@ -1,17 +1,16 @@
 import * as THREE from 'three'
-import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js'
-import computeShader from '../../shaders/computes/gpu_occupancy/multi_resolution.glsl'
-import { floatBitsToInt, readIntBits, readIntBytes } from '../Utils/BitwiseUtils.js'
+import { GPUComputationRenderer } from './GPUComputationRenderer.js'
+import computeShader from '../../shaders/computes/gpu_occupancy/mono_resolution.glsl'
+import  * as BitUtils from '../Utils/BitUtils.js'
 import ind2sub from 'https://cdn.jsdelivr.net/gh/stdlib-js/ndarray-ind2sub@esm/index.mjs';
 import sub2ind from 'https://cdn.jsdelivr.net/gh/stdlib-js/ndarray-sub2ind@esm/index.mjs';
 
 // module scope variables
-const _colorData = new THREE.Vector4()
-const _boxMin = new THREE.Vector3()
-const _boxMax = new THREE.Vector3()
-const _occumap0 = new Uint8Array(1)
-const _occumap1 = new Uint8Array(8)
-const _occumap2 = new Uint8Array(64)
+const _box_min = new THREE.Vector3()
+const _box_max = new THREE.Vector3()
+const _occumap_0 = new Uint8Array(1)
+const _occumap_1 = new Uint8Array(8)
+const _occumap_2 = new Uint8Array(64)
 
 // assumes intensity data 3D, and data3DTexture
 export default class GPUOccupancy
@@ -19,56 +18,66 @@ export default class GPUOccupancy
     constructor(resolution, volumeTexture, renderer)
     {
         this.resolution = resolution
-        this.volumeTexture = volumeTexture
         this.renderer = renderer
+        this.volumeTexture = volumeTexture
+        this.volumeSize = new THREE.Vector3(this.volumeTexture.image.width, this.volumeTexture.image.height, this.volumeTexture.image.depth)
 
-        this.setSizes()
-        this.setOccumaps()
+        this.setOccumap()
         this.setComputation()
     }
 
     setSizes()
     {
-        this.sizes = {}
-        this.sizes.resolution = this.resolution
-        this.sizes.volume = new THREE.Vector3(this.volumeTexture.image.width, this.volumeTexture.image.height, this.volumeTexture.image.depth)
         
         // multi resolution occupancy map block sizes
         this.sizes.block = []
-        this.sizes.block[0] = new THREE.Vector3().copy(this.sizes.volume).divideScalar(this.resolution).ceil()
+        this.sizes.block[0] = new THREE.Vector3().copy(this.volumeSize).divideScalar(this.resolution).ceil()
         this.sizes.block[1] = new THREE.Vector3().copy(this.sizes.block[0]).divideScalar(2).ceil()
         this.sizes.block[2] = new THREE.Vector3().copy(this.sizes.block[1]).divideScalar(4).ceil()
 
         // multi resolution occupancy map sizes
         this.sizes.occumap = []
-        this.sizes.occumap[0] = new THREE.Vector3().copy(this.sizes.volume).divide(this.sizes.block[0]).ceil()
+        this.sizes.occumap[0] = new THREE.Vector3().copy(this.volumeSize).divide(this.sizes.block[0]).ceil()
         this.sizes.occumap[1] = new THREE.Vector3().copy(this.sizes.occumap[0]).multiplyScalar(2)
         this.sizes.occumap[2] = new THREE.Vector3().copy(this.sizes.occumap[1]).multiplyScalar(4)
 
-        this.sizes.computation = new THREE.Vector2(this.sizes.occumap[0].x, this.sizes.occumap[0].y * this.sizes.occumap[0].z)
     }
 
-    setOccumaps()
+    setOccumap()
     {
-        // multi resolution occupancy map with 3 levels of detail
-        this.occumaps = []
+        this.occumap = {}
+
+        // occumap source volume
+        this.occumap.volume = {}
+        this.occumap.volume.size = this.volumeSize
+        this.occumap.volume.texture = this.volumeTexture
+        this.occumap.volume.boundingBox = new THREE.Box3(
+            new THREE.Vector3(0, 0, 0), 
+            new THREE.Vector3(1, 1, 1)
+        )
+
+        // multi resolution occumaps
         for(let i = 0; i < 3; i++)
         {   
-            const data = new Uint8Array(this.sizes.occumap[i].x * this.sizes.occumap[i].y * this.sizes.occumap[i].z).fill(0)
-            this.occumaps[i] = new THREE.Data3DTexture(data, ...this.sizes.occumap[i].toArray())
-            this.occumaps[i].format = THREE.RedFormat
-            this.occumaps[i].type = THREE.UnsignedByteType 
-            this.occumaps[i].wrapS = THREE.ClampToEdgeWrapping
-            this.occumaps[i].wrapT = THREE.ClampToEdgeWrapping
-            this.occumaps[i].wrapR = THREE.ClampToEdgeWrapping
-            this.occumaps[i].minFilter = THREE.NearestFilter
-            this.occumaps[i].magFilter = THREE.NearestFilter
-            this.occumaps[i].unpackAlignment = 1
-            this.occumaps[i].needsUpdate = true            
-        }
+            const key = `resolution{i}`
 
-        // set occupancy bounding box box
-        this.box = new THREE.Box3()
+            // sizes
+            this.occumap[key].step = this.volumeSize.clone().divideScalar(this.resolution).ceil().divideScalar(2 * i).ceil()
+            this.occumap[key].size = this.volumeSize.clone().divide(this.occumap[key].step).ceil().multiplyScalar(2 * i)
+
+            // texture
+            const data = new Uint8Array(this.sizes.occumap[i].x * this.sizes.occumap[i].y * this.sizes.occumap[i].z).fill(255)
+            this.occumap[key].texture = new THREE.Data3DTexture(data, ...this.sizes.occumap[i].toArray())
+            this.occumap[key].texture.format = THREE.RedFormat
+            this.occumap[key].texture.type = THREE.UnsignedByteType 
+            this.occumap[key].texture.wrapS = THREE.ClampToEdgeWrapping
+            this.occumap[key].texture.wrapT = THREE.ClampToEdgeWrapping
+            this.occumap[key].texture.wrapR = THREE.ClampToEdgeWrapping
+            this.occumap[key].texture.minFilter = THREE.NearestFilter
+            this.occumap[key].texture.magFilter = THREE.NearestFilter
+            this.occumap[key].texture.unpackAlignment = 1
+            this.occumap[key].texture.needsUpdate = true            
+        }
 
     }
 
@@ -76,8 +85,10 @@ export default class GPUOccupancy
     {
         //set computation
         this.computation = {}
+        this.computation.size = new THREE.Vector2(this.occumap.resolution0.size.x, this.occumap.resolution0.size.y * this.occumap.resolution0.size.z)
+        this.computation.data = new Uint32Array(this.sizes.computation.width * this.sizes.computation.height)
         this.computation.instance = new GPUComputationRenderer(this.sizes.computation.width, this.sizes.computation.height, this.renderer)        
-        this.computation.instance.setDataType(THREE.FloatType) // options: UnsignedByteType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedInt5999Type
+        this.computation.instance.setDataType(THREE.FloatType) 
 
         // setup variable
         this.computation.texture = this.computation.instance.createTexture()
@@ -86,41 +97,52 @@ export default class GPUOccupancy
 
         // variable uniforms
         this.computation.variable.material.uniforms.u_volume_data = new THREE.Uniform(this.volumeTexture)
-        this.computation.variable.material.uniforms.u_volume_size = new THREE.Uniform(this.sizes.volume)
-        this.computation.variable.material.uniforms.u_block_size = new THREE.Uniform(this.sizes.block)
-        this.computation.variable.material.uniforms.u_occupancy_size = new THREE.Uniform(this.sizes.occumap[0])
-        this.computation.variable.material.uniforms.u_threshold = new THREE.Uniform(0)
-
-        // data 3d texture 
-        this.computation.dataTexture = new THREE.Data3DTexture(this.computation.texture.image.data, ...this.sizes.occumap[0].toArray())
-        this.computation.dataTexture.type = THREE.FloatType // options: UnsignedByteType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedInt5999Type
-        this.computation.dataTexture.format = THREE.RGBAFormat
-        this.computation.dataTexture.minFilter = THREE.NearestFilter
-        this.computation.dataTexture.magFilter = THREE.NearestFilter
-        this.computation.dataTexture.wrapS = THREE.ClampToEdgeWrapping
-        this.computation.dataTexture.wrapT = THREE.ClampToEdgeWrapping
-        this.computation.dataTexture.wrapR = THREE.ClampToEdgeWrapping
-        this.computation.dataTexture.unpackAlignment = 1
-        this.computation.dataTexture.needsUpdate = true    
+        this.computation.variable.material.uniforms.u_volume_size = new THREE.Uniform(this.volumeSize)
+        this.computation.variable.material.uniforms.u_block_size = new THREE.Uniform(this.occumap.resolution0.block)
+        this.computation.variable.material.uniforms.u_occupancy_size = new THREE.Uniform(this.occumap.resolution0.size)
+        this.computation.variable.material.uniforms.u_threshold = new THREE.Uniform(0)      
 
         // initialize
         this.computation.instance.init()  
     }
 
-    computeDataTexture()
+    readData()
     {
-        /* CAN CAUSE PERFORMANCE ISSUES */
-        // reads data from GPU to CPU 
+        // read data from GPU to CPU 
         this.renderer.readRenderTargetPixels(
             this.computation.instance.getCurrentRenderTarget(this.computation.variable),
-            0, 0, this.sizes.computation.width, this.sizes.computation.height,
-            this.computation.dataTexture.image.data
-        )
+            0, 
+            0, 
+            this.sizes.computation.width, 
+            this.sizes.computation.height,
+            this.computation.texture.image.data
+        )     
 
-        this.computation.dataTexture.needsUpdate = true;
+        // convert float data to uint 
+        this.computation.data.set(this.computation.texture.image.data)
+        console.log(this.computation.data)
     }
 
-    computeOccumaps()
+    decodeData(red, green, blue, alpha)
+    {
+        _occumap_0[0] += Boolean(red)
+        _occumap_0[0] += Boolean(green)
+
+        for (let byte = 0; byte < 4; byte++) {
+            _occumap_1[byte + 0] = BitUtils.readIntBytes(red, byte)
+            _occumap_1[byte + 4] = BitUtils.readIntBytes(green, byte)
+        }
+
+        for (let bit = 0; bit < 32; bit++) {
+            _occumap_2[bit +  0] = BitUtils.readIntBits(red, bit)
+            _occumap_2[bit + 32] = BitUtils.readIntBits(green, bit)
+        }
+
+        _box_min.fromArray(ind2sub(this.volumeSize.toArray(), blue))
+        _box_max.fromArray(ind2sub(this.volumeSize.toArray(), alpha))    
+    }
+
+    readOccumaps()
     {
         this.box.makeEmpty ()
 
@@ -154,67 +176,41 @@ export default class GPUOccupancy
             for (let y = 0; y < this.computation.dataTexture.image.height; y++) {
                 for (let x = 0; x < this.computation.dataTexture.image.width; x++) {
 
-                    // each compute block has 4 RGBA channels
+                    // each data block has 4 RGBA channels
                     let n = sub2ind(size0, x, y, z)
                     let n4 = n * 4                                          
 
                     // decode color data  
-                    this.decodeColorData(
-                        this.computation.dataTexture.image.data[n4 + 0],
-                        this.computation.dataTexture.image.data[n4 + 1],
-                        this.computation.dataTexture.image.data[n4 + 2],
-                        this.computation.dataTexture.image.data[n4 + 3],
+                    this.decodeData(
+                        this.computation.data[n4 + 0],
+                        this.computation.data[n4 + 1],
+                        this.computation.data[n4 + 2],
+                        this.computation.data[n4 + 3],
                     )  
 
                     // assign to occumap 0
-                    this.occumaps[0].image.data[n] = _occumap0[0]
+                    this.occumap[0].image.data[n] = _occumap_0[0]
 
                     // assign to occumap 1
                     let offset1 = sub2ind(size1, 2 * x, 2 * y, 2 * z)
                     for (const i in indices1)
-                        this.occumaps[1].image.data[indices1[i] + offset1] = _occumap1[i]
+                        this.occumap[1].image.data[indices1[i] + offset1] = _occumap_1[i]
 
                     // assign to occumap 2
                     let offset2 = sub2ind(size2, 4 * x, 4 * y, 4 * z)
                     for (const i in indices2)
-                        this.occumaps[1].image.data[indices2[i] + offset2] = _occumap2[i]
+                        this.occumap[1].image.data[indices2[i] + offset2] = _occumap_2[i]
                   
                     // expand occupancy box
-                    this.box.expandByPoint(_boxMin)
-                    this.box.expandByPoint(_boxMax)
+                    this.box.expandByPoint(_box_min)
+                    this.box.expandByPoint(_box_max)
                 }
             }
         }
 
         // normalize occupancy box
-        this.box.min.divide(this.sizes.volume).clampScalar(0, 1)
-        this.box.max.divide(this.sizes.volume).clampScalar(0, 1)   
-    }
-
-    decodeColorData(red, green, blue, alpha)
-    {
-        _colorData.set(
-            floatBitsToInt(red),
-            floatBitsToInt(green),
-            floatBitsToInt(blue),
-            floatBitsToInt(alpha),
-        )
-
-        _occumap0[0] += Boolean(_colorData.x)
-        _occumap0[0] += Boolean(_colorData.y)
-
-        for (let byte = 0; byte < 4; byte++) {
-            _occumap1[byte + 0] = readIntBytes(_colorData.x, byte)
-            _occumap1[byte + 4] = readIntBytes(_colorData.y, byte)
-        }
-
-        for (let bit = 0; bit < 32; bit++) {
-            _occumap2[bit +  0] = readIntBits(_colorData.x, bit)
-            _occumap2[bit + 32] = readIntBits(_colorData.y, bit)
-        }
-
-        _boxMin.fromArray(ind2sub(this.sizes.volume.toArray(), _colorData.z))
-        _boxMax.fromArray(ind2sub(this.sizes.volume.toArray(), _colorData.w))    
+        this.box.min.divide(this.volumeSize).clampScalar(0, 1)
+        this.box.max.divide(this.volumeSize).clampScalar(0, 1)   
     }
 
     debug(scene)
@@ -225,25 +221,33 @@ export default class GPUOccupancy
             new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, visible: false })
         )
 
-        this.computation.debug.material.map = this.computation.texture
+        // apply the texture map
+        this.computation.debug.material.map = this.getRenderTargetTexture()
+        this.computation.debug.scale.divideScalar(this.sizes.computation.height)
 
-        // scene
+        // add to scene
         this.scene = scene
         this.scene.add(this.computation.debug)
-        this.computation.debug.scale.divideScalar(this.sizes.computation.height)
     }
 
     compute(threshold)
     {
+        // update the computation based on threshold
         this.computation.variable.material.uniforms.u_threshold.value = threshold
         this.computation.instance.compute()
 
-        this.computation.texture = this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
-        this.computeDataTexture()
-        this.computeOccumaps()
+        // read computation data and update occumap
+        this.readData()
+        this.readOccumaps()
 
+        // update the debug plane
         if (this.computation.debug)
-            this.computation.debug.material.map = this.computation.texture
+            this.computation.debug.material.map = this.getRenderTargetTexture()
+    }
+
+    getRenderTargetTexture()
+    {
+        return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
     }
 
     dispose() {
@@ -254,19 +258,15 @@ export default class GPUOccupancy
         
     
         // Dispose of the map
-        if (this.occumaps) 
-            this.occumaps.forEach((occumaps) => {
-                if (occumaps) occumaps.dispose()
+        if (this.occumap) 
+            this.occumap.forEach((occumap) => {
+                if (occumap) occumap.dispose()
             })
     
         // Dispose of the computation textures
         if (this.computation.texture) 
             this.computation.texture.dispose()
     
-    
-        if (this.computation.dataTexture) 
-            this.computation.dataTexture.dispose()
-        
         // Dispose of the GPUComputationRenderer
         if (this.computation.instance) 
             this.computation.instance.dispose()
@@ -284,6 +284,7 @@ export default class GPUOccupancy
         }
     
         // Clean up references
+        this.computation.data = null
         this.computation = null
         this.box = null
         this.map = null
