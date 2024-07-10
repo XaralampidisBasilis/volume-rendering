@@ -13,18 +13,20 @@ export default class GPUOccumaps extends EventEmitter
         this.volume = {}
         this.volume.texture = texture
         this.volume.size = new THREE.Vector3(texture.image.width, texture.image.height, texture.image.depth)
-        this.boundingBox = new THREE.Box3()
 
+        this.setBoundingBox()
         this.setOccumaps(resolution)
         this.setComputation(renderer)
-
-        this.on('ready', () => {
-            if (this.computation.debug)
-                this.computation.debug.material.map = this.getRenderTargetTexture()
-        })
     }
 
     // setup
+
+    setBoundingBox()
+    {
+        this.boundingBox = new THREE.Box3()
+        this.boundingBox.min.setScalar(0)
+        this.boundingBox.max.setScalar(1)
+    }
 
     setOccumaps(resolution)
     {
@@ -110,7 +112,6 @@ export default class GPUOccumaps extends EventEmitter
         this.boundingBox.min.fromArray(result.boundingBoxMin)
         this.boundingBox.max.fromArray(result.boundingBoxMax)
 
-        // debug
         console.log(
         {
             res0: this.resolution0.texture.image.data,
@@ -120,20 +121,14 @@ export default class GPUOccumaps extends EventEmitter
             bbmax: this.boundingBox.max
         })
 
-        console.timeEnd('compute')
         this.trigger('ready')
     }
 
     compute(threshold)
     {
-        // update the computation based on threshold
         this.computation.threshold = threshold
         this.computation.variable.material.uniforms.u_threshold.value = threshold
-
-        console.log('')
-        console.time('compute')
         this.computation.instance.compute()
-
         this.postWorkerMessage()
     }
 
@@ -159,7 +154,7 @@ export default class GPUOccumaps extends EventEmitter
     createTexture(size) 
     {
         const count = size.x * size.y * size.z;
-        const data = new Uint8Array(count).fill(1)
+        const data = new Uint8Array(count).fill(0)
         const texture = new THREE.Data3DTexture(data, ...size.toArray());
         texture.format = THREE.RedFormat;
         texture.type = THREE.UnsignedByteType;
@@ -248,25 +243,4 @@ export default class GPUOccumaps extends EventEmitter
         this.boundingBox = null
         this.scene = null
     }
-
-    // debug
-
-    debug(scene)
-    {
-        // debug
-        this.computation.debug = new THREE.Mesh(
-            new THREE.PlaneGeometry(this.computation.size.width, this.computation.size.height),
-            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: false, visible: false })
-        )
-
-        // apply the texture map
-        this.computation.debug.material.map = this.getRenderTargetTexture()
-        this.computation.debug.scale.divideScalar(this.computation.size.height)
-
-        // add to scene
-        this.scene = scene
-        this.scene.add(this.computation.debug)
-    }
-
-    
 }

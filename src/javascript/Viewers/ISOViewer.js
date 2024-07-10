@@ -3,6 +3,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import Experience from '../Experience.js'
 import ISOMaterial from '../Materials/ISOMaterial.js'
 import ISOGui from '../Gui/ISOGui.js'
+import ISOHelpers from '../Helpers/ISOHelpers.js'
 import GPUOccumaps from '../Computes/GPUOccumaps.js'
 
 export default class ISOViewer
@@ -20,6 +21,7 @@ export default class ISOViewer
         this.resource.volume = this.resources.items.volumeNifti
         this.resource.mask = this.resources.items.maskNifti  
 
+        this.setParameters()
         this.setNoisemaps()
         this.setColormaps()
         this.setTextures()
@@ -28,9 +30,39 @@ export default class ISOViewer
         this.setMesh()
         this.setOccupancy()
 
-        // Debug gui
         if (this.debug.active) 
+        {
+            this.helpers = new ISOHelpers(this.debug, this)
             this.gui = new ISOGui(this.debug, this)
+        }
+
+        this.occupancy.on('ready', () => 
+        {
+            this.update()
+            this.helpers.update()
+        })
+    }
+
+    setParameters()
+    {
+        this.parameters = {}
+        
+        this.parameters.volume = {
+            size: new THREE.Vector3().fromArray(this.resource.volume.size),
+            dimensions: new THREE.Vector3().fromArray(this.resource.volume.dimensions),
+            spacing: new THREE.Vector3().fromArray(this.resource.volume.spacing),
+        }
+
+        this.parameters.mask = {
+            size: new THREE.Vector3().fromArray(this.resource.mask.size),
+            dimensions: new THREE.Vector3().fromArray(this.resource.mask.dimensions),
+            spacing: new THREE.Vector3().fromArray(this.resource.mask.spacing),
+        }
+
+        this.parameters.geometry = {
+            size: new THREE.Vector3().copy(this.parameters.volume.size).add(this.parameters.volume.spacing),
+            translation: new THREE.Vector3().copy(this.parameters.volume.size).sub(this.parameters.volume.spacing).divideScalar(2),
+        }
     }
 
     setNoisemaps()
@@ -93,18 +125,8 @@ export default class ISOViewer
 
     setGeometry()
     {
-        this.geometry = new THREE.BoxGeometry( 
-            this.resource.volume.size[0] + this.resource.volume.spacing[0], 
-            this.resource.volume.size[1] + this.resource.volume.spacing[1],
-            this.resource.volume.size[2] + this.resource.volume.spacing[2]
-        )
-
-        // to align model and texel coordinates
-        this.geometry.translate( 
-            this.resource.volume.size[0] / 2 - this.resource.volume.spacing[0] / 2, 
-            this.resource.volume.size[1] / 2 - this.resource.volume.spacing[1] / 2, 
-            this.resource.volume.size[2] / 2 - this.resource.volume.spacing[2] / 2 
-        )
+        this.geometry = new THREE.BoxGeometry(...this.parameters.geometry.size.toArray())
+        this.geometry.translate(...this.parameters.geometry.translation.toArray()) // to align model and texel coordinates
     }
 
     setMaterial()
@@ -124,28 +146,23 @@ export default class ISOViewer
     setMesh()
     {
         this.mesh = new THREE.Mesh(this.geometry, this.material)
-        this.mesh.position.x = - this.resource.volume.size[0] * 0.5
-        this.mesh.position.y = - this.resource.volume.size[1] * 0.5
-        this.mesh.position.z = - this.resource.volume.size[2] * 0.5
+        this.mesh.position.copy(this.parameters.volume.size).multiplyScalar(- 0.5)
         this.scene.add(this.mesh)
     }
 
     setOccupancy()
     {        
         this.occupancy = new GPUOccumaps(this.material.uniforms.u_occupancy.value.resolution, this.textures.volume, this.renderer.instance)
-        this.occupancy.compute(this.material.uniforms.u_raycast.value.threshold) 
-        
-        this.occupancy.on('ready', () => 
-        {
-            this.material.uniforms.u_sampler.value.occupancy = this.occupancy.getRenderTargetTexture()
-            this.material.uniforms.u_occupancy.value.size = this.occupancy.resolution0.size
-            this.material.uniforms.u_occupancy.value.block = this.occupancy.resolution0.step
-            this.material.uniforms.u_occupancy.value.box_min = this.occupancy.boundingBox.min
-            this.material.uniforms.u_occupancy.value.box_max = this.occupancy.boundingBox.max
-        })
-       
-        if (this.debug.active)
-            this.occupancy.debug(this.scene)
+        this.occupancy.compute(this.material.uniforms.u_raycast.value.threshold)         
+    }
+
+    update()
+    {
+        this.material.uniforms.u_sampler.value.occupancy = this.occupancy.getRenderTargetTexture()
+        this.material.uniforms.u_occupancy.value.size = this.occupancy.resolution0.size
+        this.material.uniforms.u_occupancy.value.block = this.occupancy.resolution0.step
+        this.material.uniforms.u_occupancy.value.box_min = this.occupancy.boundingBox.min
+        this.material.uniforms.u_occupancy.value.box_max = this.occupancy.boundingBox.max
     }
 
 }

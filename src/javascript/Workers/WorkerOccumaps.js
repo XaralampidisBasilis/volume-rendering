@@ -17,9 +17,9 @@ self.onmessage = function(event)
     const indices2 = findInd(resolution0Size, [4, 4, 4])
 
     const result = {
-        resolution0TextureData: new Float32Array(data.resolution0TextureData.length),
-        resolution1TextureData: new Float32Array(data.resolution1TextureData.length),
-        resolution2TextureData: new Float32Array(data.resolution2TextureData.length),
+        resolution0TextureData: new Float32Array(data.resolution0TextureData.length).fill(0),
+        resolution1TextureData: new Float32Array(data.resolution1TextureData.length).fill(0),
+        resolution2TextureData: new Float32Array(data.resolution2TextureData.length).fill(0),
         boundingBoxMin: new Float32Array(3).fill(+Infinity),
         boundingBoxMax: new Float32Array(3).fill(-Infinity)
     }
@@ -39,28 +39,31 @@ self.onmessage = function(event)
 
         result.resolution0TextureData[resolution0Ind] = occumap_0[0]
 
-        const offset1 = sub2ind(
-            resolution1Size, 
-            2 * resolution0Sub[0], 
-            2 * resolution0Sub[1], 
-            2 * resolution0Sub[2]
-        )
+        if (occumap_0[0]) {
 
-        const offset2 = sub2ind(
-            resolution2Size, 
-            4 * resolution0Sub[0], 
-            4 * resolution0Sub[1], 
-            4 * resolution0Sub[2]
-        )
-
-        for (let i = 0; i < indices1.length; i++) 
-            result.resolution1TextureData[indices1[i] + offset1] = occumap_1[i]
-        
-
-        for (let i = 0; i < indices2.length; i++) 
-            result.resolution2TextureData[indices2[i] + offset2] = occumap_2[i]
-
-        expandBoundingBox(result.boundingBoxMin, result.boundingBoxMax, box_min, box_max)
+            const offset1 = sub2ind(
+                resolution1Size, 
+                2 * resolution0Sub[0], 
+                2 * resolution0Sub[1], 
+                2 * resolution0Sub[2]
+            )
+    
+            const offset2 = sub2ind(
+                resolution2Size, 
+                4 * resolution0Sub[0], 
+                4 * resolution0Sub[1], 
+                4 * resolution0Sub[2]
+            )
+    
+            for (let i = 0; i < indices1.length; i++) 
+                result.resolution1TextureData[indices1[i] + offset1] = occumap_1[i]
+            
+    
+            for (let i = 0; i < indices2.length; i++) 
+                result.resolution2TextureData[indices2[i] + offset2] = occumap_2[i]
+    
+            expandBoundingBox(result.boundingBoxMin, result.boundingBoxMax, box_min, box_max)
+        }
     }
 
     normalizeBoundingBox(result.boundingBoxMin, result.boundingBoxMax, data.volumeSize)
@@ -70,8 +73,7 @@ self.onmessage = function(event)
 
 function decodeData(volumeSize, r, g, b, a) 
 {
-    occumap_0[0] |= Boolean(r)
-    occumap_0[0] |= Boolean(g)
+    occumap_0[0] = Boolean(r) || Boolean(g)
 
     for (let byte = 0; byte < 4; byte++) {
         occumap_1[byte + 0] = Boolean(readIntBytes(r, byte))

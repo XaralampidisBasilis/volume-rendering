@@ -27,8 +27,8 @@ void main()
     ivec3 block_max = min(block_min + u_block_size, u_volume_size - 1); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
 
     // initialize bounding box
-    ivec3 bb_min = block_max;
-    ivec3 bb_max = block_min;
+    ivec3 bb_min = u_volume_size - 1;
+    ivec3 bb_max = ivec3(0);
     int[64] occupancy;
 
     for (int i = 0; i < 64; ++i) {

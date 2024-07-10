@@ -1,6 +1,6 @@
 
 import { colormapLocations } from '../../../static/textures/colormaps/colormaps.js'
-import { throttleByCalls } from '../Utils/Throttle.js'
+import { throttleByCalls, throttleByDelay } from '../Utils/Throttle.js'
 
 export default class ISOGui
 {
@@ -143,7 +143,7 @@ export default class ISOGui
 
             resolution: occupancy.add(u_occupancy, 'resolution').min(2).max(20).step(1),
             method: occupancy.add(u_occupancy, 'method').options({ monotree: 1, octree: 2}),
-            visible: occupancy.add(this.viewer.occupancy.computation.debug.material, 'visible')
+            visible: occupancy.add(this.viewer.helpers.plane.material, 'visible')
         }
 
     }
@@ -152,7 +152,7 @@ export default class ISOGui
     setControllersBindings()
     {
         // throttled compute occupancy map and bounding box based on raycast threshold
-        const computeThresholdOccupancyThrottled =  throttleByCalls(() => this.computeThresholdOccupancy(), 5)
+        const computeThresholdOccupancyThrottled =  throttleByCalls(() => this.computeThresholdOccupancy(), 6)
     
         // raycast threshold controller
         this.controllers.raycast.threshold.onChange(() => 
