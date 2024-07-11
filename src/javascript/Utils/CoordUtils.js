@@ -1,13 +1,27 @@
 import * as THREE from 'three'
 
-// vector3 input overloaded function
-   
-export function sub2ind(dim, sub)
+// vector3 and box3 input functions
+
+/*
+ * Converts a 3-vector to a linear index
+ *
+ * @param in dim: 3-vector of dimensions ex THREE.Vector(2, 2, 2)
+ * @param in sub: 3-vector of indices ex THREE.Vector(1, 1, 1)
+ * @param out: a linear index ex 6
+ */
+export function vec2ind(dim, sub)
 {
     return sub.x + sub.y * dim.x + sub.z * dim.x * dim.z
 }
 
-export function ind2sub(dim, ind, sub) 
+/*
+ * Converts a a linear index to a 3-vector
+ *
+ * @param in dim: 3-vector of dimensions ex THREE.Vector(2, 2, 2)
+ * @param in ind: a linear index ex 6
+ * @param out sub: 3-vector of indices ex THREE.Vector(1, 1, 1)
+ */
+export function ind2vec(dim, ind, sub) 
 {
     const XY = dim.x * dim.y;
     const xy = ind % XY;
@@ -19,22 +33,29 @@ export function ind2sub(dim, ind, sub)
     return sub;
 }
 
-export function box2ind(dim, boxmin, boxmax) 
+/*
+ * Converts 3-axis alligned bounding box to linear indices
+ *
+ * @param in dim: 3-vector of dimensions ex THREE.Vector(3, 3, 3)
+ * @param in aabb: 3-alligned bounding box ex THREE.Box3(THREE.Vector(1, 1, 1), THREE.Vector(2, 2, 2))
+ * @param out: linear box indices ex [4 5 7 8]
+ */
+export function aabb2ind(dim, aabb) 
 {
-    const boxdim = boxmax.clone().sub(boxmin).addScalar(1)
-    const indices = new Array(boxdim.x * boxdim.y * boxdim.z);
+    const aabbdim = aabb.getSize(new THREE.Vector3())
+    const indices = new Array(aabbdim.x * aabbdim.y * aabbdim.z);
 
     const strideZ = dim.x * dim.y
     const strideY = dim.x
     let index = 0;
 
-    for (let z = boxmin.z; z < boxmax.z; z++) {
+    for (let z = aabb.min.z; z <= aabb.max.z; z++) {
         const offsetZ = strideZ * z;
 
-        for (let y = boxmin.y; y < boxmax.y; y++) {
+        for (let y = aabb.min.y; y <= aabb.max.y; y++) {
             const offsetY = strideY * y;
 
-            for (let x = boxmin.x; x < boxmax.x; x++) {
+            for (let x = aabb.min.x; x <= aabb.max.x; x++) {
                 indices[index++] = x + offsetY + offsetZ;
             }
         }
@@ -43,13 +64,13 @@ export function box2ind(dim, boxmin, boxmax)
     return indices;
 }
 
-// arrays input overloaded functions
+// arrays input functions
 
 /*
  * Converts a 3-dimensional subscript array to a linear index
  *
  * @param in dim: 3-array of dimensions ex [2 2 2]
- * @param in subn: 3-array of indices ex [0, 1, 1]
+ * @param in sub: 3-array of indices ex [0, 1, 1]
  * @param out: a linear index ex 6
  */
 export function sub2ind(dim, sub)
@@ -70,9 +91,9 @@ export function ind2sub(dim, ind)
     const XY = dim[0] * dim[1];
     const xy = ind % XY;
 
-    sub[0] = Math.floor(ind / XY);
+    sub[2] = Math.floor(ind / XY);
     sub[1] = Math.floor(xy / dim[0]);
-    sub[2] = xy % dim[0];
+    sub[0] = xy % dim[0];
 
     return sub;
 }
