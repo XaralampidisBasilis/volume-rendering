@@ -95,12 +95,12 @@ export default class ISOHelpers
         const division1 = new THREE.Vector3(2, 2, 2)
         const division2 = new THREE.Vector3(4, 4, 4)
 
-        const indices1 = CoordUtils.findIndices(this.viewer.occupancy.resolution0.size, division1)
-        const indices2 = CoordUtils.findIndices(this.viewer.occupancy.resolution0.size, division2)
+        const indices1 = CoordUtils.range2ind(this.viewer.occupancy.resolution0.size, division1)
+        const indices2 = CoordUtils.range2ind(this.viewer.occupancy.resolution0.size, division2)
 
         for (let blockIndex1 = 0; blockIndex1 < this.viewer.occupancy.resolution0.texture.image.data.length; blockIndex1++) {
 
-            CoordUtils.ind2sub(blockVoxelSize, blockIndex1, blockIndex3)
+            CoordUtils.ind2vec(blockVoxelSize, blockIndex1, blockIndex3)
     
             const helper = new THREE.Box3Helper(this.getVoxelBlock(blockIndex3, blockVoxelSize, voxelIndexMax), 0x00E8C9)
             helper.material.depthWrite = false
@@ -110,7 +110,7 @@ export default class ISOHelpers
             this.blocks.resolution0.add(helper)                    
 
 
-            const offset1 = CoordUtils.sub2ind(
+            const offset1 = CoordUtils.vec2ind(
                 this.viewer.occupancy.resolution1.size, 
                 2 * blockIndex3[0], 
                 2 * blockIndex3[1], 
@@ -119,7 +119,7 @@ export default class ISOHelpers
 
             for (let i = 0; i < indices2.length; i++) {
 
-                CoordUtils.ind2sub(division1, i, pos1)
+                CoordUtils.ind2vec(division1, i, pos1)
                 
               
 

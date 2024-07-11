@@ -40,22 +40,84 @@ export function ind2vec(dim, ind, sub)
  * @param in aabb: 3-alligned bounding box ex THREE.Box3(THREE.Vector(1, 1, 1), THREE.Vector(2, 2, 2))
  * @param out: linear box indices ex [4 5 7 8]
  */
-export function aabb2ind(dim, aabb) 
+export function box2ind(dim, box) 
 {
-    const aabbdim = aabb.getSize(new THREE.Vector3())
-    const indices = new Array(aabbdim.x * aabbdim.y * aabbdim.z);
+    const boxdim = box.getSize(new THREE.Vector3())
+    const indices = new Array(boxdim.x * boxdim.y * boxdim.z);
 
     const strideZ = dim.x * dim.y
     const strideY = dim.x
     let index = 0;
 
-    for (let z = aabb.min.z; z <= aabb.max.z; z++) {
+    for (let z = box.min.z; z <= box.max.z; z++) {
         const offsetZ = strideZ * z;
 
-        for (let y = aabb.min.y; y <= aabb.max.y; y++) {
+        for (let y = box.min.y; y <= box.max.y; y++) {
             const offsetY = strideY * y;
 
-            for (let x = aabb.min.x; x <= aabb.max.x; x++) {
+            for (let x = box.min.x; x <= box.max.x; x++) {
+                indices[index++] = x + offsetY + offsetZ;
+            }
+        }
+    }
+
+    return indices;
+}
+
+/*
+ * Converts 3-bounds to linear indices
+ *
+ * @param in dim: 3-vector of dimensions ex THREE.Vector(3, 3, 3)
+ * @param in boundsmax: 3-vector of min bounds ex THREE.Vector(1, 1, 1)
+ * @param in boundsmax: 3-vector of max bounds ex THREE.Vector(2, 2, 2)
+ * @param out: linear indices ex [4 5 7 8]
+ */
+export function bounds2ind(dim, boundsmin, boundsmax) 
+{
+    const boundsdim = boundsmax.clone().sub(boundsmin).addScalar(1)
+    const indices = new Array(boundsdim.x * boundsdim.y * boundsdim.z);
+
+    const strideZ = dim.x * dim.y
+    const strideY = dim.x
+    let index = 0;
+
+    for (let z = boundsmin.z; z <= boundsmax.z; z++) {
+        const offsetZ = strideZ * z;
+
+        for (let y = boundsmin.y; y <= boundsmax.y; y++) {
+            const offsetY = strideY * y;
+
+            for (let x = boundsmin.x; x <= boundsmax.x; x++) {
+                indices[index++] = x + offsetY + offsetZ;
+            }
+        }
+    }
+
+    return indices;
+}
+
+/*
+ * Converts max 3-range to linear indices
+ *
+ * @param in dim: 3-vector of dimensions ex THREE.Vector(3, 3, 3)
+ * @param in range: 3-vector of max range ex THREE.Vector(1, 1, 1)
+ * @param out: linear indices ex [4 5 7 8]
+ */
+export function range2ind(dim, range) 
+{
+    const indices = new Array(range.x * range.y * range.z);
+
+    const strideZ = dim.x * dim.y
+    const strideY = dim.x
+    let index = 0;
+
+    for (let z = 0; z <= range.z; z++) {
+        const offsetZ = strideZ * z;
+
+        for (let y = 0; y <= range.y; y++) {
+            const offsetY = strideY * y;
+
+            for (let x = 0; x <= range.x; x++) {
                 indices[index++] = x + offsetY + offsetZ;
             }
         }
@@ -96,38 +158,6 @@ export function ind2sub(dim, ind)
     sub[0] = xy % dim[0];
 
     return sub;
-}
-
-/*
- * Converts 3-dimensional box subscripts to linear indices
- *
- * @param in dim: array of dimensions ex [3 3 3]
- * @param in boxmin: array of box min indices ex [1 1 1]
- * @param in boxmax: array of box max indices ex [2 2 2]
- * @param out: linear box indices ex [4 5 7 8]
- */
-export function box2ind(dim, boxmin, boxmax) 
-{
-    const boxdim = boxmax.map((max, i) => max - boxmin[i] + 1)
-    const indices = new Array(boxdim[0] * boxdim[1] * boxdim[2])
-    
-    const strideZ = dim[0] * dim[1]
-    const strideY = dim[0]
-    let index = 0;
-
-    for (let z = boxmin[2]; z <= boxmax[2]; z++) {
-        const offsetZ = strideZ * z;
-
-        for (let y = boxmin[1]; y <= boxmax[1]; y++) {
-            const offsetY = strideY * y;
-
-            for (let x = boxmin[0]; x <= boxmax[0]; x++) {
-                indices[index++] = x + offsetY + offsetZ;
-            }
-        }
-    }
-
-    return indices;
 }
 
 /*

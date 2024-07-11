@@ -4,6 +4,8 @@
         "aabbdim",
         "alligned",
         "bbox",
+        "boundsdim",
+        "boundsmax",
         "boxdim",
         "boxi",
         "boxind",

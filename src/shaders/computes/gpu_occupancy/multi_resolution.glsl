@@ -3,13 +3,17 @@ precision highp int;
 precision highp float;
 precision highp sampler3D; // highp, mediump, lowp
 
-uniform sampler3D u_volume_data; // needs to be HalfFloatType
-uniform ivec3 u_volume_size;
-uniform ivec3 u_block_size;
-uniform ivec3 u_occupancy_size;
-uniform float u_threshold;
+struct uniforms_computation {
+    float threshold;
+    sampler3D volume_data;
+    vec3 volume_dimensions;     
+    vec3 block_dimensions;
+    vec3 occupancy_dimensions;
+    vec2 computation_dimensions;  
+};
 
-// variable sampler2D v_compute_data;
+uniform uniforms_colormap u_computation;
+// variable sampler2D v_computation_data;
 
 #include ../../includes/utils/reshape_coordinates.glsl;
 
@@ -20,14 +24,14 @@ void main()
 {
     // get 2D pixel position of occlusion man and convert it to 3D position
     ivec2 pixel_pos = ivec2(gl_FragCoord.xy); // gl_FragColor = vec4(vec2(pixel_coord) / vec2(u_occupancy_size.x-1, u_occupancy_size.y * u_occupancy_size.z-1), 1.0, 1.0);
-    ivec3 block_pos = reshape_2d_to_3d(pixel_pos, u_occupancy_size); // gl_FragColor = vec4(vec3(block_coord)/vec3(u_occupancy_size-1), 1.0);
+    ivec3 block_pos = reshape_2d_to_3d(pixel_pos, u_computation.occupancy_dimensions); // gl_FragColor = vec4(vec3(block_coord)/vec3(u_occupancy_size-1), 1.0);
 
     // Get min and max block voxel positions in the volume
-    ivec3 block_min = max(u_block_size * block_pos, 0); // gl_FragColor = vec4((vec3(voxel_min)/vec3(u_volume_size-1)), 1.0);
-    ivec3 block_max = min(block_min + u_block_size, u_volume_size - 1); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
+    ivec3 block_min = max(u_computation.block_dimensions * block_pos, 0); // gl_FragColor = vec4((vec3(voxel_min)/vec3(u_volume_size-1)), 1.0);
+    ivec3 block_max = min(block_min +u_computation.block_dimensions, u_computation.volume_dimensions - 1); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
 
     // initialize bounding box
-    ivec3 bb_min = u_volume_size - 1;
+    ivec3 bb_min = u_computation.volume_dimensions - 1;
     ivec3 bb_max = ivec3(0);
     int[64] occupancy;
 
@@ -41,9 +45,9 @@ void main()
             for (int x = block_min.x; x <= block_max.x; x++) {
 
                 ivec3 voxel_pos = ivec3(x, y, z);
-                float voxel_value = texelFetch(u_volume_data, voxel_pos, 0).r;
+                float voxel_value = texelFetch(u_computation.volume_data, voxel_pos, 0).r;
 
-                if (voxel_value > u_threshold) 
+                if (voxel_value > u_computation.threshold) 
                 {
                     // update bounding box
                     bb_min = min(bb_min, voxel_pos);
@@ -65,8 +69,8 @@ void main()
     for (int i = 63; i >= 32; i--) color_data.g = (color_data.g << 1) | uint(occupancy[i]);
     
     // encode block bounding box
-    color_data.b = uint(reshape_3d_to_1d(bb_min, u_volume_size));
-    color_data.a = uint(reshape_3d_to_1d(bb_max, u_volume_size));
+    color_data.b = uint(reshape_3d_to_1d(bb_min, u_computation.volume_dimensions));
+    color_data.a = uint(reshape_3d_to_1d(bb_max, u_computation.volume_dimensions));
 
     // write color data
     gl_FragColor = uintBitsToFloat(color_data);
@@ -82,7 +86,7 @@ int find_octree_block(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos)
     ivec3 octant_sign = sign_nonzero(relative_pos);
 
     // compute position relative to the current octant block center
-    ivec3 suboctant_pos = 2 * relative_pos - u_block_size * octant_sign;
+    ivec3 suboctant_pos = 2 * relative_pos - u_computation.block_dimensions * octant_sign;
 
     // compute the sign of the suboctant of the octant block that voxel_pos is inside
     ivec3 suboctant_sign = sign_nonzero(suboctant_pos);
