@@ -152,7 +152,7 @@ export default class ISOGui
     setControllersBindings()
     {
         // throttled compute occupancy map and bounding box based on raycast threshold
-        const computeThresholdOccupancyThrottled =  throttleByCalls(() => this.computeThresholdOccupancy(), 6)
+        const computeThresholdOccupancyThrottled =  throttleByCalls(() => this.computeThresholdOccupancy(), 5)
     
         // raycast threshold controller
         this.controllers.raycast.threshold.onChange(() => 

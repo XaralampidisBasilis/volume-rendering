@@ -1,5 +1,10 @@
 {
     "cSpell.words": [
+        "boxdim",
+        "boxind",
+        "boxmax",
+        "boxmin",
+        "boxn",
         "clim",
         "Colormap",
         "Colormaps",
@@ -9,6 +14,7 @@
         "Noisemap",
         "occubox",
         "raycast",
+        "subm",
         "viridis",
         "voxel"
     ]

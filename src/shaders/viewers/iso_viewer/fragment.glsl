@@ -38,6 +38,7 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../includes/colormap/colormap.glsl;
 #include ../../includes/gradient/gradient.glsl;
 #include ../../includes/lighting/lighting.glsl;
+#include ../../includes/raycast/depth.glsl;
 
 void main() 
 {
@@ -63,6 +64,10 @@ void main()
 
         // final color
         gl_FragColor = vec4(hit_color, 1.0);
+
+        // final depth
+        gl_FragDepth = depth(u_volume, hit_position);
+
         return;
         
     } else {

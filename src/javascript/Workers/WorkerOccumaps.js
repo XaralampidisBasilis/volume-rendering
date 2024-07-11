@@ -13,8 +13,8 @@ self.onmessage = function(event)
 
     const { volumeSize, resolution0Size, resolution1Size, resolution2Size, computationData } = data;
 
-    const indices1 = findInd(resolution0Size, [2, 2, 2])
-    const indices2 = findInd(resolution0Size, [4, 4, 4])
+    const indices1 = findInd(resolution0Size, [2, 2, 2]) // check if correct
+    const indices2 = findInd(resolution0Size, [4, 4, 4]) // check if correct
 
     const result = {
         resolution0TextureData: new Float32Array(data.resolution0TextureData.length).fill(0),

@@ -112,14 +112,14 @@ export default class GPUOccumaps extends EventEmitter
         this.boundingBox.min.fromArray(result.boundingBoxMin)
         this.boundingBox.max.fromArray(result.boundingBoxMax)
 
-        console.log(
-        {
-            res0: this.resolution0.texture.image.data,
-            res1: this.resolution1.texture.image.data,
-            res2: this.resolution2.texture.image.data,
-            bbmin: this.boundingBox.min,
-            bbmax: this.boundingBox.max
-        })
+        // console.log(
+        // {
+        //     res0: this.resolution0.texture.image.data,
+        //     res1: this.resolution1.texture.image.data,
+        //     res2: this.resolution2.texture.image.data,
+        //     bbmin: this.boundingBox.min,
+        //     bbmax: this.boundingBox.max
+        // })
 
         this.trigger('ready')
     }
@@ -149,6 +149,22 @@ export default class GPUOccumaps extends EventEmitter
             .divide(step)
             .ceil()
             .multiplyScalar(2 ** level);
+    }
+
+    calculateGrid(step, level)
+    {
+        const key = `resolution${level}`
+        const dimensions = this[key].size;
+
+        for (let z = 0; z < dimensions.z; z++) {
+            for (let y = 0; y < dimensions.y; y++) {
+                for (let x = 0; x < dimensions.x; x++) {
+
+                    
+                }
+            }
+        }
+
     }
 
     createTexture(size) 

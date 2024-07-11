@@ -64,7 +64,7 @@ export default function()
             block:           new THREE.Vector3(),
             box_min:         new THREE.Vector3(0, 0, 0),
             box_max:         new THREE.Vector3(1, 1, 1),
-            resolution:      8, // resolution close to 2 makes computation shader to lag
+            resolution:      5, // resolution close to 2 makes computation shader to lag
             method:          1,
         })
 
@@ -79,7 +79,7 @@ export default function()
         side: THREE.BackSide,
         transparent: false,
         depthTest: true,
-        depthWrite: false,
+        depthWrite: true,
 
         // glslVersion: THREE.GLSL3,
         uniforms: uniforms,
