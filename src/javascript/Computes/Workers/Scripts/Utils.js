@@ -191,7 +191,6 @@ function checkUint32Bit(uint32, bit)
     return Boolean((uint32 >> bit) & 0x1)
 }
 
-
 function expandBox(min, max, _min, _max) 
 {
     for (let i = 0; i < 3; i++) 
