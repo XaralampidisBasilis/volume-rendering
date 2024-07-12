@@ -37,10 +37,12 @@ function ind2sub(dim, ind, sub = new Array(3))
  * @param in boundsmax: 3-array of max bounds ex [2, 2, 2]
  * @param out: linear indices ex [4 5 7 8]
  */
-function box2ind(dim, boxmin, boxmax) 
+function box2ind(dim, boxmin, boxmax, indices) 
 {
     const boxdim = boxmax.map((max, i) => max - boxmin[i] + 1)
-    const indices = new Array(boxdim[0] * boxdim[1] * boxdim[2])
+    const count = boxdim.reduce((product, currentValue) => product * currentValue, 1)
+
+    if (!indices) indices = new Array(count);
 
     const strideZ = dim[0] * dim[1]
     const strideY = dim[0]
@@ -69,13 +71,14 @@ function box2ind(dim, boxmin, boxmax)
  * @param in boxmax: array of box max indices ex [2 2]
  * @param out: linear box indices ex [4 5 7 8]
  */
-function boxn2ind(dim, boxmin, boxmax)
+function boxn2ind(dim, boxmin, boxmax, indices)
 {
     const boxdim = boxmax.map((max, i) => max - boxmin[i] + 1)
     const count = boxdim.reduce((product, currentValue) => product * currentValue, 1)
-    const indices = new Array(count);
-
-    for (let n = 0; n < count; n++)
+    
+    if (!indices) indices = new Array(count);
+    
+    for (let n = 0; n < indices.length; n++)
     {
         const subm = ind2subm(boxdim, n).map((boxi, i) => boxi + boxmin[i])
         indices[n] = subn2ind(dim, subm)
@@ -91,12 +94,12 @@ function boxn2ind(dim, boxmin, boxmax)
  * @param in range: 3 array of max range ex [1, 1, 1]
  * @param out: linear indices ex [4 5 7 8]
  */
-function range2ind(dim, range) 
+function range2ind(dim, range, indices) 
 {
     const boxmin = new Array(range.length).fill(0)
-    const boxmax = range
+    const boxmax = range.map((x) => x - 1)
 
-    return boxn2ind(dim, boxmin, boxmax)
+    return box2ind(dim, boxmin, boxmax, indices)
 }
 
 /*
@@ -176,19 +179,44 @@ function cumprod(array)
     return result
 }
 
+function readUint32(uint32) 
+{
+    return uint32 && 0xFFFFFFFF
+}
+
+function readUint32Byte(uint32, byte) 
+{
+    return (uint32 >> (byte * 8)) & 0xFF
+}
+
+function readUint32Bit(uint32, bit) 
+{
+    return (uint32 >> bit) & 0x1
+}
+
+function readByteBit(byte, bit) 
+{
+    return (byte >> bit) & 0x1
+}
+
 function checkUint32(uint32) 
 {
-    return Boolean(uint32 && 0xFFFFFF)
+    return Boolean(readUint32(uint32))
 }
 
 function checkUint32Byte(uint32, byte) 
 {
-    return Boolean((uint32 >> (byte * 8)) & 0xFF)
+    return Boolean(readUint32Byte(uint32, byte))
 }
 
 function checkUint32Bit(uint32, bit) 
 {
-    return Boolean((uint32 >> bit) & 0x1)
+    return Boolean(readUint32Bit(uint32, bit) )
+}
+
+function checkByteBit(byte, bit) 
+{
+    return Boolean(readByteBit(byte, bit) )
 }
 
 function expandBox(min, max, _min, _max) 

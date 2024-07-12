@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import * as CoordUtils from '../../Utils/CoordUtils.js'
 import EventEmitter from '../../Utils/EventEmitter.js'
 import Occumap from '../../Utils/Occumap.js'
 import computeShader from '../../../shaders/computes/gpu_occupancy/multi_resolution.glsl'
@@ -14,7 +15,6 @@ export default class ISOOccupancy extends EventEmitter
         this.viewer = viewer
         this.renderer = this.viewer.renderer.instance
         this.scene = this.viewer.scene
-        this.debug = this.viewer.debug
         this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
         this.volumeDivisions = this.viewer.material.uniforms.u_occupancy.value.resolution 
 
@@ -23,10 +23,19 @@ export default class ISOOccupancy extends EventEmitter
         this.setComputation()
         this.compute()
 
-        // event when worker is finished computation
-        this.on('ready', () => 
+        if (this.viewer.debug.active)
+        {
+            this.setOccumapsHelpers()
+        }
+
+        this.on('ready', () => // event when worker finished computation
         {
             this.updateOccupancyUniforms()
+
+            if (this.viewer.debug.active)
+            {
+                this.updateOccumapsHelpers()
+            }
         })
     }
 
@@ -159,9 +168,53 @@ export default class ISOOccupancy extends EventEmitter
 
     }
 
-    debugOccupancyMaps()
+    setOccumapsHelpers()
     {
 
+        const helperColors = [0x00FFFF, 0x00FF88, 0x8888FF]
+
+
+        this.helpers = {}
+        this.helpers.occupancyMaps = new Array(3).fill().map(() => new THREE.Group())
+        this.helpers.occupancyMaps.forEach((group, i) => 
+        {
+            group.scale.divide(this.viewer.parameters.volume.dimensions).multiply(this.viewer.parameters.volume.size)
+            group.position.copy(this.viewer.parameters.volume.size).divideScalar(2).negate()
+            group.visible = false
+            
+            for (let n = 0; n < this.occupancyMaps[i].data.length; n++)
+            {
+                const box = this.occupancyMaps[i].getBlockBox(n)
+                box.expandByScalar(-0.01)
+
+                const helper = new THREE.Box3Helper(box)
+                helper.material.color = new THREE.Color(helperColors[i])
+                helper.material.visible = true
+                helper.material.depthWrite = false
+                helper.material.transparent = true
+                helper.material.opacity = 0.2 * (i + 0.5)
+
+                group.add(helper)     
+            }
+        })
+
+        this.viewer.scene.add(...this.helpers.occupancyMaps)
+    }
+
+    updateOccumapsHelpers()
+    {
+        this.helpers.occupancyMaps.forEach((group, i) => 
+        {
+            group.children.forEach((helper, n) => 
+            {
+                helper.material.visible = Boolean(this.occupancyMaps[i].data[n])
+            })
+        })
+
+        // this.viewer.mesh.visible = false
+        this.helpers.occupancyMaps[0].visible = true
+        this.helpers.occupancyMaps[1].visible = true
+        this.helpers.occupancyMaps[2].visible = true
     }
 
     // dispose

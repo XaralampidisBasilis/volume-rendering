@@ -1,5 +1,11 @@
 import * as THREE from 'three'
 import * as CoordUtils from '../Utils/CoordUtils.js';
+
+const _blockCoords = new THREE.Vector3()
+const _voxelCoords = new THREE.Vector3()
+const _boxSize = new THREE.Vector3()
+const _boxCenter = new THREE.Vector3()
+
 export default class Occumap
 {
     constructor(volumeDimensions, volumeDivisions)
@@ -98,26 +104,56 @@ export default class Occumap
         return this
     }
 
-    getBlockCoords(voxelCoords)
+    getBlockCoordsFromVoxel(voxelCoordOrIndex)
     {
-        return voxelCoords.clone().divide(this.blockDimensions).floor()
+        if (typeof voxelCoordOrIndex === 'number')
+            CoordUtils.ind2vec(this.volumeDimensions, voxelCoordOrIndex, _voxelCoords)
+
+        return _blockCoords.copy(_voxelCoords).divide(this.blockDimensions).floor()
     }
 
-    getBlockIndex(voxelCoords)
+    getBlockIndexFromVoxel(voxelCoordOrIndex)
     {
-        return CoordUtils.vec2ind(this.dimensions, this.getBlockCoords(voxelCoords))
+        return CoordUtils.vec2ind(this.dimensions, this.getBlockCoordsFromVoxel(voxelCoordOrIndex))
     }
 
-    getBlockBox(voxelCoords)
+    getBlockFromVoxel(voxelCoordOrIndex)
     {
+        this.getBlockCoordsFromVoxel(voxelCoordOrIndex)
+
+        return getBlockBox(_blockCoords)
+    }
+
+    getBlockBox(blockCoordsOrIndex)
+    {
+        if (typeof blockCoordsOrIndex === 'number')
+            CoordUtils.ind2vec(this.dimensions, blockCoordsOrIndex, _blockCoords)
+
+        const blockCap = this.volumeDimensions.clone().subScalar(1)
         const blockBox = new THREE.Box3()
-        const blockCoords = this.getBlockCoords(voxelCoords)
-        const blockCap = volumeDimensions.clone().subScalar(1)
-
-        blockBox.min.copy(blockCoords).multiply(this.blockDimensions)
+        blockBox.min.copy(_blockCoords).multiply(this.blockDimensions)
         blockBox.max.copy(blockBox.min).add(this.blockDimensions).min(blockCap)
 
         return blockBox
+    }
+
+    getBlockMesh(blockCoordsOrIndex)
+    {
+        const box = this.getBlockBox(blockCoordsOrIndex)
+        return this.boxToMesh(box)
+    }
+
+    boxToMesh(box)
+    {
+        box.getSize(_boxSize)
+        box.getCenter(_boxCenter)
+
+        const geometry = new THREE.BoxGeometry(_boxSize.x, _boxSize.y, _boxSize.z)
+        const material = new THREE.MeshBasicMaterial()
+        const mesh = new THREE.Mesh(geometry, material)
+        mesh.position.copy(_boxCenter)
+
+        return mesh
     }
 
     dispose()

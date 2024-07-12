@@ -24,7 +24,7 @@ export default function()
         }),
 
         u_raycast: new THREE.Uniform({
-            threshold:       0,   
+            threshold:       0.2,   
             refinements:     1,   
             resolution:      1,
             stride:          3,   

@@ -12,13 +12,19 @@ const spatialData = {
     subindices2 : new Uint32Array(8),
 }
 
+function computeSubindices(inputData)
+{
+    range2ind(inputData.occumap1Dimensions, spatialData.range, spatialData.subindices1)
+    range2ind(inputData.occumap2Dimensions, spatialData.range, spatialData.subindices2)
+}
+
 function updateOccupancy(input, output, ind0) 
 {
     // assign occupancy 0 based on decoded occupied bitstring
     output.occupied0[ind0] = decodedData.occupiedUint64[0]
 
     // if block 0 is occupied, check sub blocks within it
-    if (output.occupied0[ind0]) 
+    if (output.occupied0[ind0] > 0) 
         updateOccupancy1(input, output, ind0)
 }
 
@@ -34,7 +40,7 @@ function updateOccupancy1(input, output, ind0)
         output.occupied1[spatialData.indices1[i]] = decodedData.occupiedBytes[i]
 
         // if block 1 is occupied, check sub blocks within it
-        if (output.occupied1[spatialData.indices1[i]]) 
+        if (output.occupied1[spatialData.indices1[i]] > 0) 
             updateOccupancy2(input, output, spatialData.indices1[i], i * 8)
         
     }
@@ -56,7 +62,7 @@ function computeSubIndices0To1(input, ind0)
     ind2sub(input.occumap0Dimensions, ind0, spatialData.coords0)
 
     for (let i = 0; i < 3; i++) 
-        spatialData.coords1[i] = 2 * spatialData.coords0[i]
+        spatialData.coords1[i] = spatialData.range[i] * spatialData.coords0[i]
 
     const offset1 = sub2ind(input.occumap1Dimensions, spatialData.coords1)
 
@@ -69,9 +75,9 @@ function computeSubIndices1To2(input, ind1)
     ind2sub(input.occumap1Dimensions, ind1, spatialData.coords1)
 
     for (let i = 0; i < 3; i++) 
-        spatialData.coords2[i] = 2 * spatialData.coords1[i]
+        spatialData.coords2[i] = spatialData.range[i] * spatialData.coords1[i]
 
-    const offset2 = sub2ind(input.occumap1Dimensions, spatialData.coords2)
+    const offset2 = sub2ind(input.occumap2Dimensions, spatialData.coords2)
 
     for (let i = 0; i < spatialData.indices1.length; i++)
         spatialData.indices2[i] = offset2 + spatialData.subindices2[i]

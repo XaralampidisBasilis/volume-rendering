@@ -163,22 +163,6 @@ export default class ISOHelpers
         this.viewer.scene.add(this.blocks.resolution1)
     }
 
-    getVoxelBlock(blockIndex, blockVoxelSize, voxelIndexMax)
-    {
-        const block = new THREE.Box3()
-
-        block.min
-            .copy(blockIndex)
-            .multiply(blockVoxelSize)
-
-        block.max
-            .copy(block.min)
-            .add(blockVoxelSize)
-            .min(voxelIndexMax)
-
-        return block
-    }
-
     updateBoundingBox()
     {
           const boxCenter = this.viewer.occupancy.boundingBox

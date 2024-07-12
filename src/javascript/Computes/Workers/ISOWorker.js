@@ -7,7 +7,6 @@ self.onmessage = function(event)
     const inputData = event.data
     const outputData = setOutputData(inputData)
 
-    updateSpatialData(inputData)
     processComputationData(inputData, outputData)
 
     self.postMessage(outputData)
@@ -24,19 +23,17 @@ function setOutputData(inputData)
     }
 }
 
-function updateSpatialData(inputData)
-{
-    range2ind(inputData.occumap1Dimensions, spatialData.range, spatialData.subindices1)
-    range2ind(inputData.occumap2Dimensions, spatialData.range, spatialData.subindices2)
-}
+
 
 function processComputationData(inputData, outputData) 
 {
+    computeSubindices(inputData)
+
     for (let n = 0; n < inputData.computationData.length; n += 4)
     {
         const ind0 = Math.floor(n / 4)
 
-        decodeColorData(inputData.volumeDimensions, inputData.computationData.slice(n, n + 4))
+        decodeColorData(inputData, inputData.computationData.slice(n, n + 4))
         updateOccupancy(inputData, outputData, ind0)
         expandBox(outputData.boxMin, outputData.boxMax, decodedData.blockMin, decodedData.blockMax)
     }

@@ -143,7 +143,7 @@ export default class ISOGui
 
             resolution: occupancy.add(u_occupancy, 'resolution').min(2).max(20).step(1),
             method: occupancy.add(u_occupancy, 'method').options({ monotree: 1, octree: 2}),
-            visible: occupancy.add(this.viewer.helpers.plane.material, 'visible')
+            // visible: occupancy.add(this.viewer.helpers.plane.material, 'visible')
         }
 
     }
@@ -262,7 +262,7 @@ export default class ISOGui
 
     computeThresholdOccupancy()
     {
-        this.viewer.occupancy.compute(this.controllers.raycast.threshold.getValue())
+        this.viewer.occupancy.compute()
     }
 
     recomputeResolutionOccupancy()

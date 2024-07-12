@@ -3,7 +3,7 @@ importScripts('Scripts/Utils.js')
 // reusable script scope variables for speedup
 const decodedData = {
     occupiedUint64 : new Uint8Array(1),  // stores occupancy status for a 64-bit block
-    occupiedUint32 : new Uint8Array(1),  // stores occupancy status for a 32-bit block
+    occupiedUint32 : new Uint8Array(2),  // stores occupancy status for a 32-bit block
     occupiedBytes :  new Uint8Array(8),  // stores occupancy status for each byte
     occupiedBits :   new Uint8Array(64), // stores occupancy status for each bit
     blockMin :       new Uint32Array(3), // stores minimum coordinates of a block
@@ -11,7 +11,7 @@ const decodedData = {
 }
 
 // decodes color data into occupancy information
-function decodeColorData(volumeDimensions, colorData) 
+function decodeColorData(inputData, colorData) 
 {
     // reset decoded data
     decodedData.occupiedUint64.fill(0)
@@ -22,54 +22,55 @@ function decodeColorData(volumeDimensions, colorData)
     
     // decode color channels
     decodeRedGreen(colorData[0], colorData[1])
-    decodeBlueAlpha(colorData[2], colorData[3], volumeDimensions)
+    decodeBlueAlpha(colorData[2], colorData[3], inputData)
 }
 
 // decodes red and green color channels
 function decodeRedGreen(red, green) 
 {
-    decodedData.occupiedUint64[0] = occupiedUint32(red, 0) || occupiedUint32(green, 4)
+    decodedData.occupiedUint64[0] = Boolean(occupiedUint32(red, 0) + occupiedUint32(green, 1))
 }
 
 // decodes blue and alpha color channels
-function decodeBlueAlpha(blue, alpha, volumeDimensions) 
+function decodeBlueAlpha(blue, alpha, inputData) 
 {
     // if occupied uint64 detected decode bounding block data
     if (decodedData.occupiedUint64[0]) 
     {
-        ind2sub(volumeDimensions, blue,  decodedData.blockMin)
-        ind2sub(volumeDimensions, alpha, decodedData.blockMax)
+        ind2sub(inputData.volumeDimensions, blue,  decodedData.blockMin)
+        ind2sub(inputData.volumeDimensions, alpha, decodedData.blockMax)
     }
 }
 
 // check the occupation of a 32-bit unsigned integer 
 function occupiedUint32(uint32, offset) 
 {   
-    decodedData.occupiedUint32[0] = checkUint32(uint32)
+    decodedData.occupiedUint32[offset] = checkUint32(uint32)
 
     // if occupied uint32 detected, check byte occupation
     if (decodedData.occupiedUint32[0])  
-        occupiedUint32Bytes(uint32, offset, offset + 4)
+        occupiedUint32Bytes(uint32, offset * 4)
 
-    return decodedData.occupiedUint32[0]
+    return decodedData.occupiedUint32[offset]
 }
 
 // check the occupation of a 32-bit unsigned integer bytes
-function occupiedUint32Bytes(uint32, start, end)
+function occupiedUint32Bytes(uint32, byteOffset)
 {
-    for (let byte = start; byte < end; byte++) 
+    for (let byteIndex = 0; byteIndex < 4; byteIndex++) 
     {
-        decodedData.occupiedBytes[byte] = checkUint32Byte(uint32, byte)
+        const byte = readUint32Byte(uint32, byteIndex)
+        decodedData.occupiedBytes[byteIndex + byteOffset] = Boolean(byte)
 
         // if occupied byte detected, check bit occupation
-        if (decodedData.occupiedBytes[byte]) 
-            occupiedUint32Bits(uint32, byte * 8, (byte * 8) + 8)
+        if (decodedData.occupiedBytes[byteIndex + byteOffset]) 
+            occupiedByteBits(byte, (byteIndex + byteOffset) * 8)
     }
 }
 
-// check the occupation of a 32-bit unsigned integer bits
-function occupiedUint32Bits(uint32, start, end)
+// check the occupation of a byte bits
+function occupiedByteBits(byte, bitOffset)
 {
-    for (let bit = start; bit < end; bit++) 
-        decodedData.occupiedBits[bit] = checkUint32Bit(uint32, bit)
+    for (let bitIndex = 0; bitIndex < 8; bitIndex++) 
+        decodedData.occupiedBits[bitIndex + bitOffset] = checkByteBit(byte, bitIndex)
 }

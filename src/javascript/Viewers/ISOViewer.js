@@ -32,7 +32,7 @@ export default class ISOViewer
         if (this.debug.active) 
         {
             // this.helpers = new ISOHelpers(this)
-            // this.gui = new ISOGui(this)
+            this.gui = new ISOGui(this)
         }
 
         // setup occupancy
