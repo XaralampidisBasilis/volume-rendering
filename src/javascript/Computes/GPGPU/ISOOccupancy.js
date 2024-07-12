@@ -7,7 +7,7 @@ import computeShader from '../../shaders/computes/gpu_occupancy/multi_resolution
 // assumes intensity data 3D, and data3DTexture
 export default class ISOOccupancy extends EventEmitter
 {
-    constructor(viewer, volumeDivisions)
+    constructor(viewer)
     {
         super()
 
@@ -16,11 +16,18 @@ export default class ISOOccupancy extends EventEmitter
         this.scene = this.viewer.scene
         this.debug = this.viewer.debug
         this.threshold = this.viewer.material.uniforms.u_raycasting.value.threshold
-        this.volumeDivisions = volumeDivisions 
+        this.volumeDivisions = this.viewer.material.uniforms.u_occupancy.value.resolution 
 
         this.setOccupancyBox()
         this.setOccupancyMaps()
         this.setComputation()
+        this.compute()
+
+        // when computation is finished
+        this.on('ready', () => 
+        {
+            this.updateOccupancyUniforms()
+        })
     }
 
     // setup
@@ -87,9 +94,14 @@ export default class ISOOccupancy extends EventEmitter
         this.computation.texture.needsUpdate = true;
     }
 
+    getComputationTexture()
+    {
+        return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
+    }
+
     setComputationWorker()
     {
-        this.computation.worker = new Worker('./javascript/Computes/Workers/ISOOccupancyWorker.js')
+        this.computation.worker = new Worker('./javascript/Computes/Workers/ISOWorker.js')
         this.computation.worker.onmessage = this.handleComputationWorker.bind(this)
     }
 
@@ -98,14 +110,14 @@ export default class ISOOccupancy extends EventEmitter
         this.readComputationData()
 
         this.computation.worker.postMessage({
-            computationData:        this.computation.data,
-            volumeSize:             this.viewer.parameters.volume.dimensions.toArray(),
-            resolution0Size:        this.occupancyMaps[0].dimensions.toArray(),
-            resolution1Size:        this.occupancyMaps[1].dimensions.toArray(),
-            resolution2Size:        this.occupancyMaps[2].dimensions.toArray(),
-            resolution0TextureData: this.occupancyMaps[0].toArray(),
-            resolution1TextureData: this.occupancyMaps[1].toArray(),
-            resolution2TextureData: this.occupancyMaps[2].toArray(),
+            computationData:     this.computation.data,
+            volumeDimensions:    this.viewer.parameters.volume.dimensions.toArray(),
+            occumap0Dimensions:  this.occupancyMaps[0].dimensions.toArray(),
+            occumap1Dimensions:  this.occupancyMaps[1].dimensions.toArray(),
+            occumap2Dimensions:  this.occupancyMaps[2].dimensions.toArray(),
+            occumap0Length:      this.occupancyMaps[0].dimensions.reduce((a, b) => a * b),
+            occumap1Length:      this.occupancyMaps[1].dimensions.reduce((a, b) => a * b),
+            occumap2Length:      this.occupancyMaps[2].dimensions.reduce((a, b) => a * b),
         })
     }
 
@@ -119,16 +131,16 @@ export default class ISOOccupancy extends EventEmitter
         this.occupancyBox.min.fromArray(result.boundingBoxMin)
         this.occupancyBox.max.fromArray(result.boundingBoxMax)
 
-        // console.log(
-        // {
-        //     res0: this.resolution0.texture.image.data,
-        //     res1: this.resolution1.texture.image.data,
-        //     res2: this.resolution2.texture.image.data,
-        //     bbmin: this.boundingBox.min,
-        //     bbmax: this.boundingBox.max
-        // })
-
         this.trigger('ready')
+    }
+
+    updateOccupancyUniforms()
+    {
+        this.viewer.material.uniforms.u_sampler.value.occupancy = this.getComputationTexture()
+        this.viewer.material.uniforms.u_occupancy.value.size = this.occupancyMaps[0].dimensions
+        this.viewer.material.uniforms.u_occupancy.value.block = this.occupancyMaps[0].blockDimensions
+        this.viewer.material.uniforms.u_occupancy.value.box_min = this.occupancyBox.min
+        this.viewer.material.uniforms.u_occupancy.value.box_max = this.occupancyBox.max
     }
 
     compute()
@@ -139,11 +151,16 @@ export default class ISOOccupancy extends EventEmitter
         this.startComputationWorker()
     }
 
-    // helpers
+    // debug
 
-    getRenderTargetTexture()
+    debugComputation()
     {
-        return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
+
+    }
+
+    debugOccupancyMaps()
+    {
+
     }
 
     // dispose

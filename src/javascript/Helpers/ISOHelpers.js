@@ -3,10 +3,10 @@ import * as CoordUtils from '../Utils/CoordUtils'
 
 export default class ISOHelpers
 {
-    constructor(debug, viewer)
+    constructor(viewer)
     {
-        this.debug = debug
         this.viewer = viewer
+        this.debug = this.viewer.debug
 
         if (this.debug.active)
         {

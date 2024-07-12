@@ -4,7 +4,7 @@ import Experience from '../Experience.js'
 import ISOMaterial from '../Materials/ISOMaterial.js'
 import ISOGui from '../Gui/ISOGui.js'
 import ISOHelpers from '../Helpers/ISOHelpers.js'
-import GPUOccumaps from '../Computes/GPUOccumaps.js'
+import ISOOccupancy from '../Computes/GPGPU/ISOOccupancy.js'
 
 export default class ISOViewer
 {
@@ -28,17 +28,17 @@ export default class ISOViewer
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
-        this.setOccupancy()
 
         if (this.debug.active) 
         {
-            this.helpers = new ISOHelpers(this.debug, this)
-            this.gui = new ISOGui(this.debug, this)
+            this.helpers = new ISOHelpers(this)
+            this.gui = new ISOGui(this)
         }
 
+        // setup occupancy
+        this.occupancy = new ISOOccupancy(this)
         this.occupancy.on('ready', () => 
         {
-            this.update()
             this.helpers.update()
         })
     }
@@ -149,20 +149,4 @@ export default class ISOViewer
         this.mesh.position.copy(this.parameters.volume.size).multiplyScalar(- 0.5)
         this.scene.add(this.mesh)
     }
-
-    setOccupancy()
-    {        
-        this.occupancy = new GPUOccumaps(this.material.uniforms.u_occupancy.value.resolution, this.textures.volume, this.renderer.instance)
-        this.occupancy.compute(this.material.uniforms.u_raycast.value.threshold)         
-    }
-
-    update()
-    {
-        this.material.uniforms.u_sampler.value.occupancy = this.occupancy.getRenderTargetTexture()
-        this.material.uniforms.u_occupancy.value.size = this.occupancy.resolution0.size
-        this.material.uniforms.u_occupancy.value.block = this.occupancy.resolution0.step
-        this.material.uniforms.u_occupancy.value.box_min = this.occupancy.boundingBox.min
-        this.material.uniforms.u_occupancy.value.box_max = this.occupancy.boundingBox.max
-    }
-
 }

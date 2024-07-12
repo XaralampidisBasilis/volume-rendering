@@ -4,10 +4,10 @@ import { throttleByCalls, throttleByDelay } from '../Utils/Throttle.js'
 
 export default class ISOGui
 {
-    constructor(debug, viewer)
+    constructor(viewer)
     {
-        this.debug = debug
         this.viewer = viewer
+        this.debug = this.viewer.debug
 
         // setup
         if (this.debug.active)

@@ -23,12 +23,12 @@ ivec3 sign_nonzero(ivec3 position);
 void main()
 {
     // get 2D pixel position of occlusion man and convert it to 3D position
-    ivec2 pixel_pos = ivec2(gl_FragCoord.xy); // gl_FragColor = vec4(vec2(pixel_coord) / vec2(u_occupancy_size.x-1, u_occupancy_size.y * u_occupancy_size.z-1), 1.0, 1.0);
-    ivec3 block_pos = reshape_2d_to_3d(pixel_pos, u_computation.occupancy_dimensions); // gl_FragColor = vec4(vec3(block_coord)/vec3(u_occupancy_size-1), 1.0);
+    ivec2 pixel_coords = ivec2(gl_FragCoord.xy); // gl_FragColor = vec4(vec2(pixel_coord) / vec2(u_occupancy_size.x-1, u_occupancy_size.y * u_occupancy_size.z-1), 1.0, 1.0);
+    ivec3 block_coords = reshape_2d_to_3d(pixel_coords, u_computation.occupancy_dimensions); // gl_FragColor = vec4(vec3(block_coord)/vec3(u_occupancy_size-1), 1.0);
 
     // Get min and max block voxel positions in the volume
-    ivec3 block_min = max(u_computation.block_dimensions * block_pos, 0); // gl_FragColor = vec4((vec3(voxel_min)/vec3(u_volume_size-1)), 1.0);
-    ivec3 block_max = min(block_min +u_computation.block_dimensions, u_computation.volume_dimensions - 1); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
+    ivec3 block_min = max(u_computation.block_dimensions * block_coords, 0); // gl_FragColor = vec4((vec3(voxel_min)/vec3(u_volume_size-1)), 1.0);
+    ivec3 block_max = min(block_min + u_computation.block_dimensions, u_computation.volume_dimensions - 1); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
 
     // initialize bounding box
     ivec3 bb_min = u_computation.volume_dimensions - 1;
@@ -44,18 +44,18 @@ void main()
         for (int y = block_min.y; y <= block_max.y; y++) {
             for (int x = block_min.x; x <= block_max.x; x++) {
 
-                ivec3 voxel_pos = ivec3(x, y, z);
-                float voxel_value = texelFetch(u_computation.volume_data, voxel_pos, 0).r;
+                ivec3 voxel_coords = ivec3(x, y, z);
+                float voxel_intensity = texelFetch(u_computation.volume_data, voxel_coords, 0).r;
 
-                if (voxel_value > u_computation.threshold) 
+                if (voxel_intensity > u_computation.threshold) 
                 {
                     // update bounding box
-                    bb_min = min(bb_min, voxel_pos);
-                    bb_max = max(bb_max, voxel_pos);
+                    bb_min = min(bb_min, voxel_coords);
+                    bb_max = max(bb_max, voxel_coords);
 
                     // compute occupancy index
-                    int n = find_octree_block(block_min, block_max, voxel_pos);
-                    occupancy[n] = 1;
+                    int bit = find_octree_block(block_min, block_max, voxel_coords);
+                    occupancy[bit] = 1;
                 }
             }
         }

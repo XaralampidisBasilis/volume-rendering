@@ -21,9 +21,12 @@
         "isosurface",
         "Noisemap",
         "occubox",
+        "Octabyte",
         "raycast",
+        "subind",
         "subm",
         "viridis",
+        "voldim",
         "voxel"
     ]
 }

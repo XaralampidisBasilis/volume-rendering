@@ -43,9 +43,12 @@ export default class Occumap
 
     initializeOccupancyTexture(occupancyDimensions)
     {
+        if (this.texture) 
+            this.texture.dispose()
+
         const count = occupancyDimensions.x * occupancyDimensions.y * occupancyDimensions.z
         const occupancyData = new Uint8Array(count).fill()
-
+            
         this.texture = new THREE.Data3DTexture(occupancyData, ...occupancyDimensions.toArray())
         this.texture.format = THREE.RedFormat;
         this.texture.type = THREE.UnsignedByteType;
@@ -110,5 +113,17 @@ export default class Occumap
         blockBox.max.copy(blockBox.min).add(this.blockDimensions).min(blockCap)
 
         return blockBox
+    }
+
+    dispose()
+    {
+        this.texture.dispose()
+        this.volumeDimensions = null
+        this.volumeDivisions = null
+        this.blockDimensions = null
+        this.blockDivisions = null
+        this.blockCombines = null
+        this.dimensions = null
+        
     }
 }
