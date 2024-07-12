@@ -14,23 +14,23 @@ export default class Occumap
 
     formatVolumeDivisions(volumeDimensions, volumeDivisions)
     {
-        return THREE.MathUtils.clamp(volumeDivisions, 2, Math.min(...volumeDimensions.toArray()))
+        return Math.floor(THREE.MathUtils.clamp(volumeDivisions, 1, Math.min(...volumeDimensions.toArray())))
     }
 
     formatBlockDivisions(blockDimensions, blockDivisions)
     {
-        return THREE.MathUtils.clamp(blockDivisions, 2, Math.min(...blockDimensions.toArray()))
+        return Math.floor(THREE.MathUtils.clamp(blockDivisions, 1, Math.min(...blockDimensions.toArray())))
     }
 
     formatBlockCombines(blockDimensions, blockCombines)
     {
-        return THREE.MathUtils.clamp(blockCombines, 2, Math.max(...blockDimensions.toArray()))
+        return Math.floor(THREE.MathUtils.clamp(blockCombines, 1, Math.max(...blockDimensions.toArray())))
     }
 
     calculateBlockDimensions(volumeDimensions, volumeDivisions)
     {
         return volumeDimensions.clone()
-            .divide(volumeDivisions)
+            .divideScalar(volumeDivisions)
             .ceil()
     }
 
@@ -43,13 +43,10 @@ export default class Occumap
 
     initializeOccupancyTexture(occupancyDimensions)
     {
-        if (this.texture) 
-            this.texture.dispose()
-
         const count = occupancyDimensions.x * occupancyDimensions.y * occupancyDimensions.z
-        const occupancyData = new Uint8Array(count).fill()
+        this.data = new Uint8Array(count).fill()
             
-        this.texture = new THREE.Data3DTexture(occupancyData, ...occupancyDimensions.toArray())
+        this.texture = new THREE.Data3DTexture(this.data, ...occupancyDimensions.toArray())
         this.texture.format = THREE.RedFormat;
         this.texture.type = THREE.UnsignedByteType;
         this.texture.wrapS = THREE.ClampToEdgeWrapping;
@@ -66,7 +63,7 @@ export default class Occumap
         if (this.texture.image.data.length !== array.length)
             throw new Error('input array is not the same dimensions as occupancy data')
 
-        for (let n = 0; n < this.array.length; n++)
+        for (let n = 0; n < array.length; n++)
             this.texture.image.data[n] = array[n]
 
         this.texture.needsUpdate = true
@@ -80,17 +77,25 @@ export default class Occumap
     divideBlocks(blockDivisions)
     {        
         this.blockDivisions = this.formatBlockDivisions(this.blockDimensions, blockDivisions)
-        this.blockDimensions.divide(this.blockDivisions).ceil()
-        this.dimensions.multiply(this.blockDivisions)
-        this.texture.image.data = this.initializeOccupancyTexture(this.dimensions)
+        this.blockDimensions.divideScalar(this.blockDivisions).ceil()
+        this.dimensions.multiplyScalar(this.blockDivisions)
+
+        if (this.texture) this.texture.dispose()
+        this.initializeOccupancyTexture(this.dimensions)
+
+        return this
     }
 
     combineBlocks(blockCombines)
     {
         this.blockCombines = this.formatBlockCombines(this.blockDimensions, blockCombines)
-        this.blockDimensions.multiply(this.blockCombines)
-        this.dimensions.divide(this.blockCombines).ceil()
-        this.texture.image.data = this.initializeOccupancyTexture(this.dimensions)
+        this.blockDimensions.multiplyScalar(this.blockCombines)
+        this.dimensions.divideScalar(this.blockCombines).ceil()
+
+        if (this.texture) this.texture.dispose()
+        this.initializeOccupancyTexture(this.dimensions)
+
+        return this
     }
 
     getBlockCoords(voxelCoords)

@@ -1,4 +1,4 @@
-includeScript('Utils.js')
+importScripts('Scripts/Utils.js')
 
 // reusable script scope variables for speedup
 const decodedData = {

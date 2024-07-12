@@ -1,6 +1,6 @@
-includeScript('Scripts/Utils.js')
-includeScript('Scripts/Decode.js')
-includeScript('Scripts/Occupied.js')
+importScripts('Scripts/Utils.js')
+importScripts('Scripts/Decode.js')
+importScripts('Scripts/Occupied.js')
 
 self.onmessage = function(event) 
 {
@@ -41,6 +41,6 @@ function processComputationData(inputData, outputData)
         expandBox(outputData.boxMin, outputData.boxMax, decodedData.blockMin, decodedData.blockMax)
     }
     
-    normalizeBox(outputData.boxMin, outputData.boxMax, inputData.volumeSize)
+    normalizeBox(inputData.volumeDimensions, outputData.boxMin, outputData.boxMax)
 }
 

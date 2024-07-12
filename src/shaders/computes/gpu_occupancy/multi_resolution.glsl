@@ -6,13 +6,13 @@ precision highp sampler3D; // highp, mediump, lowp
 struct uniforms_computation {
     float threshold;
     sampler3D volume_data;
-    vec3 volume_dimensions;     
-    vec3 block_dimensions;
-    vec3 occupancy_dimensions;
-    vec2 computation_dimensions;  
+    ivec3 volume_dimensions;     
+    ivec3 block_dimensions;
+    ivec3 occupancy_dimensions;
+    ivec2 computation_dimensions;  
 };
 
-uniform uniforms_colormap u_computation;
+uniform uniforms_computation u_computation;
 // variable sampler2D v_computation_data;
 
 #include ../../includes/utils/reshape_coordinates.glsl;

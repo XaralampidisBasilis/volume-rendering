@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import EventEmitter from '../Utils/EventEmitter.js'
-import Occumap from './Occumap.js'
+import EventEmitter from '../../Utils/EventEmitter.js'
+import Occumap from '../../Utils/Occumap.js'
+import computeShader from '../../../shaders/computes/gpu_occupancy/multi_resolution.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
-import computeShader from '../../shaders/computes/gpu_occupancy/multi_resolution.glsl'
 
 // assumes intensity data 3D, and data3DTexture
 export default class ISOOccupancy extends EventEmitter
@@ -12,10 +12,10 @@ export default class ISOOccupancy extends EventEmitter
         super()
 
         this.viewer = viewer
-        this.renderer = this.viewer.renderer
+        this.renderer = this.viewer.renderer.instance
         this.scene = this.viewer.scene
         this.debug = this.viewer.debug
-        this.threshold = this.viewer.material.uniforms.u_raycasting.value.threshold
+        this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
         this.volumeDivisions = this.viewer.material.uniforms.u_occupancy.value.resolution 
 
         this.setOccupancyBox()
@@ -23,7 +23,7 @@ export default class ISOOccupancy extends EventEmitter
         this.setComputation()
         this.compute()
 
-        // when computation is finished
+        // event when worker is finished computation
         this.on('ready', () => 
         {
             this.updateOccupancyUniforms()
@@ -44,10 +44,9 @@ export default class ISOOccupancy extends EventEmitter
         const volumeDimensions = this.viewer.parameters.volume.dimensions
         const volumeSubdivisions = 4 * this.volumeDivisions // in order to account for 2 more octree divisions
 
-        this.occupancyMaps = []
-
-        for (let n = 2; n >= 0; n++) 
-            this.occupancyMaps.push( new Occumap(volumeDimensions, volumeSubdivisions).combineBlocks(2 ** n) )
+        // we need to make sure that each occumap fits to the parent perfectly
+        this.occupancyMaps = new Array(3).fill().map(() => new Occumap(volumeDimensions, volumeSubdivisions))
+        this.occupancyMaps.forEach((occumap, n) => occumap.combineBlocks(2 ** (2 - n)))
     }
 
     setComputation()
@@ -65,7 +64,7 @@ export default class ISOOccupancy extends EventEmitter
     setComputationVariable()
     {
         this.computation.texture = this.computation.instance.createTexture()
-        this.computation.data = new Uint32Array(this.computation.texture.image.data.buffer)
+        this.computation.data = new Uint32Array(this.computation.texture.image.data.buffer) // shared buffer in order to decode Float32 to Uint32
         this.computation.variable = this.computation.instance.addVariable('v_computation_data', computeShader, this.computation.texture)
         this.computation.instance.setVariableDependencies(this.computation.variable, [this.computation.variable])
         this.computation.variable.material.uniforms.u_computation = new THREE.Uniform({
@@ -86,8 +85,8 @@ export default class ISOOccupancy extends EventEmitter
         this.computation.instance.getCurrentRenderTarget(this.computation.variable),
         0, 
         0, 
-        this.computation.size.width, 
-        this.computation.size.height,
+        this.computation.dimensions.width, 
+        this.computation.dimensions.height,
         this.computation.texture.image.data // due to linked buffers, this.computation.data is updated also
         )     
 
@@ -115,21 +114,23 @@ export default class ISOOccupancy extends EventEmitter
             occumap0Dimensions:  this.occupancyMaps[0].dimensions.toArray(),
             occumap1Dimensions:  this.occupancyMaps[1].dimensions.toArray(),
             occumap2Dimensions:  this.occupancyMaps[2].dimensions.toArray(),
-            occumap0Length:      this.occupancyMaps[0].dimensions.reduce((a, b) => a * b),
-            occumap1Length:      this.occupancyMaps[1].dimensions.reduce((a, b) => a * b),
-            occumap2Length:      this.occupancyMaps[2].dimensions.reduce((a, b) => a * b),
+            occumap0Length:      this.occupancyMaps[0].dimensions.toArray().reduce((a, b) => a * b),
+            occumap1Length:      this.occupancyMaps[1].dimensions.toArray().reduce((a, b) => a * b),
+            occumap2Length:      this.occupancyMaps[2].dimensions.toArray().reduce((a, b) => a * b),
         })
     }
 
     handleComputationWorker(event) 
     {
-        const result = event.data
+        const output = event.data
 
-        this.occupancyMaps[0].fromArray(result.resolution0TextureData)
-        this.occupancyMaps[1].fromArray(result.resolution1TextureData)
-        this.occupancyMaps[2].fromArray(result.resolution2TextureData)
-        this.occupancyBox.min.fromArray(result.boundingBoxMin)
-        this.occupancyBox.max.fromArray(result.boundingBoxMax)
+        this.occupancyMaps[0].fromArray(output.occupied0)
+        this.occupancyMaps[1].fromArray(output.occupied1)
+        this.occupancyMaps[2].fromArray(output.occupied2)
+        this.occupancyBox.min.fromArray(output.boxMin)
+        this.occupancyBox.max.fromArray(output.boxMax)
+
+        console.log([this.occupancyMaps, this.occupancyBox])
 
         this.trigger('ready')
     }
@@ -145,7 +146,7 @@ export default class ISOOccupancy extends EventEmitter
 
     compute()
     {
-        this.threshold = this.viewer.material.uniforms.u_raycasting.value.threshold
+        this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
         this.computation.variable.material.uniforms.u_computation.value.threshold = this.threshold
         this.computation.instance.compute()
         this.startComputationWorker()

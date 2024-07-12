@@ -31,15 +31,15 @@ export default class ISOViewer
 
         if (this.debug.active) 
         {
-            this.helpers = new ISOHelpers(this)
-            this.gui = new ISOGui(this)
+            // this.helpers = new ISOHelpers(this)
+            // this.gui = new ISOGui(this)
         }
 
         // setup occupancy
         this.occupancy = new ISOOccupancy(this)
         this.occupancy.on('ready', () => 
         {
-            this.helpers.update()
+            // this.helpers.update()
         })
     }
 

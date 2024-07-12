@@ -1,4 +1,4 @@
-includeScript('Utils.js')
+importScripts('Scripts/Utils.js')
 
 // reusable script scope variables for speedup
 const spatialData = {
@@ -73,6 +73,6 @@ function computeSubIndices1To2(input, ind1)
 
     const offset2 = sub2ind(input.occumap1Dimensions, spatialData.coords2)
 
-    for (let i = 0; i < indices1.length; i++)
+    for (let i = 0; i < spatialData.indices1.length; i++)
         spatialData.indices2[i] = offset2 + spatialData.subindices2[i]
 }
