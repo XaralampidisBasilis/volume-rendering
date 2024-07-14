@@ -6,7 +6,6 @@ self.onmessage = function(event)
 {
     const inputData = event.data
     const outputData = setOutputData(inputData)
-
     processComputationData(inputData, outputData)
 
     self.postMessage(outputData)
@@ -23,21 +22,35 @@ function setOutputData(inputData)
     }
 }
 
-
-
 function processComputationData(inputData, outputData) 
 {
-    computeSubindices(inputData)
+    computeSubindices12(inputData)
 
-    for (let n = 0; n < inputData.computationData.length; n += 4)
+    for (let n = 0; n < inputData.occumap0Length; n ++)
     {
-        const ind0 = Math.floor(n / 4)
-
-        decodeColorData(inputData, inputData.computationData.slice(n, n + 4))
-        updateOccupancy(inputData, outputData, ind0)
-        expandBox(outputData.boxMin, outputData.boxMax, decodedData.blockMin, decodedData.blockMax)
+        const n4 = n * 4 // each computation block has 4 color values
+        decodeColorData(inputData, inputData.computationData.slice(n4, n4 + 4))
+        updateOccupancy(inputData, outputData, n)
+        updateBox(outputData)
     }
     
-    normalizeBox(inputData.volumeDimensions, outputData.boxMin, outputData.boxMax)
+    normalizeBox(inputData, outputData)
 }
 
+function updateBox(outputData) 
+{
+    for (let i = 0; i < 3; i++) 
+    {
+        outputData.boxMin[i] = Math.min(outputData.boxMin[i], decodedData.blockMin[i])
+        outputData.boxMax[i] = Math.max(outputData.boxMax[i], decodedData.blockMax[i])
+    }
+}
+
+function normalizeBox(inputData, outputData)
+ {
+    for (let i = 0; i < 3; i++) 
+    {
+        outputData.boxMin[i] = Math.max(0, Math.min(1, outputData.boxMin[i] / inputData.volumeDimensions[i]))
+        outputData.boxMax[i] = Math.max(0, Math.min(1, outputData.boxMax[i] / inputData.volumeDimensions[i]))
+    }
+}

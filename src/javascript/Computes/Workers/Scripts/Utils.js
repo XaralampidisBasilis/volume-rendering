@@ -218,21 +218,3 @@ function checkByteBit(byte, bit)
 {
     return Boolean(readByteBit(byte, bit) )
 }
-
-function expandBox(min, max, _min, _max) 
-{
-    for (let i = 0; i < 3; i++) 
-    {
-        min[i] = Math.min(min[i], _min[i])
-        max[i] = Math.max(max[i], _max[i])
-    }
-}
-
-function normalizeBox(dim, min, max)
- {
-    for (let i = 0; i < 3; i++) 
-    {
-        min[i] = Math.max(0, Math.min(1, min[i] / dim[i]))
-        max[i] = Math.max(0, Math.min(1, max[i] / dim[i]))
-    }
-}
