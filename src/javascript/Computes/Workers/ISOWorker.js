@@ -24,8 +24,6 @@ function setOutputData(inputData)
 
 function processComputationData(inputData, outputData) 
 {
-    computeSubindices12(inputData)
-
     for (let n = 0; n < inputData.occumap0Length; n ++)
     {
         const n4 = n * 4 // each computation block has 4 color values

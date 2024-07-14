@@ -107,7 +107,13 @@ export default class Occumap
     getBlockCoordsFromVoxel(voxelCoordOrIndex)
     {
         if (typeof voxelCoordOrIndex === 'number')
+        {
             CoordUtils.ind2vec(this.volumeDimensions, voxelCoordOrIndex, _voxelCoords)
+        }
+        else
+        {
+            _voxelCoords.copy(voxelCoordOrIndex)
+        }
 
         return _blockCoords.copy(_voxelCoords).divide(this.blockDimensions).floor()
     }
@@ -127,33 +133,21 @@ export default class Occumap
     getBlockBox(blockCoordsOrIndex)
     {
         if (typeof blockCoordsOrIndex === 'number')
+        {
             CoordUtils.ind2vec(this.dimensions, blockCoordsOrIndex, _blockCoords)
+        }
+        else
+        {
+            _blockCoords.copy(blockCoordsOrIndex)
+        }
 
         const blockCap = this.volumeDimensions.clone().subScalar(1)
+
         const blockBox = new THREE.Box3()
         blockBox.min.copy(_blockCoords).multiply(this.blockDimensions)
         blockBox.max.copy(blockBox.min).add(this.blockDimensions).min(blockCap)
 
         return blockBox
-    }
-
-    getBlockMesh(blockCoordsOrIndex)
-    {
-        const box = this.getBlockBox(blockCoordsOrIndex)
-        return this.boxToMesh(box)
-    }
-
-    boxToMesh(box)
-    {
-        box.getSize(_boxSize)
-        box.getCenter(_boxCenter)
-
-        const geometry = new THREE.BoxGeometry(_boxSize.x, _boxSize.y, _boxSize.z)
-        const material = new THREE.MeshBasicMaterial()
-        const mesh = new THREE.Mesh(geometry, material)
-        mesh.position.copy(_boxCenter)
-
-        return mesh
     }
 
     dispose()

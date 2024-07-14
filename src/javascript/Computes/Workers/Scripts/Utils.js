@@ -39,23 +39,26 @@ function ind2sub(dim, ind, sub = new Array(3))
  */
 function box2ind(dim, boxmin, boxmax, indices) 
 {
-    const boxdim = boxmax.map((max, i) => max - boxmin[i] + 1)
-    const count = boxdim.reduce((product, currentValue) => product * currentValue, 1)
-
-    if (!indices) indices = new Array(count);
+    if (!indices) 
+    {
+        const boxdim = boxmax.map((max, i) => max - boxmin[i] + 1)
+        const count = boxdim.reduce((product, currentValue) => product * currentValue, 1)
+        indices = new Array(count)
+    }
 
     const strideZ = dim[0] * dim[1]
     const strideY = dim[0]
     let index = 0
 
     for (let z = boxmin[2]; z <= boxmax[2]; z++) {
-        const offsetZ = strideZ * z;
+        const offsetZ = strideZ * z
 
         for (let y = boxmin[1]; y <= boxmax[1]; y++) {
-            const offsetY = strideY * y;
+            const offsetY = strideY * y
 
             for (let x = boxmin[0]; x <= boxmax[0]; x++) {
-                indices[index++] = x + offsetY + offsetZ;
+                indices[index] = x + offsetY + offsetZ
+                index++
             }
         }
     }
@@ -181,7 +184,7 @@ function cumprod(array)
 
 function readUint32(uint32) 
 {
-    return uint32 && 0xFFFFFFFF
+    return uint32 & 0xFFFFFFFF
 }
 
 function readUint32Byte(uint32, byte) 

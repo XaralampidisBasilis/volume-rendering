@@ -64,7 +64,7 @@ export default function()
             block:           new THREE.Vector3(),
             box_min:         new THREE.Vector3(0, 0, 0),
             box_max:         new THREE.Vector3(1, 1, 1),
-            resolution:      2, // resolution close to 2 makes computation shader to lag
+            resolution:      6, // resolution close to 2 makes computation shader to lag
             method:          1,
         })
 

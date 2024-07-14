@@ -4,49 +4,36 @@ importScripts('Scripts/Utils.js')
 const spatialData = {
     divisions1: new Uint8Array([2, 2, 2]),
     divisions2: new Uint8Array([4, 4, 4]),
+    blockMin1 : new Uint32Array(3),
+    blockMin2 : new Uint32Array(3),
+    blockMax1 : new Uint32Array(3),
+    blockMax2 : new Uint32Array(3),
     coords0 : new Uint32Array(3),
-    coords1 : new Uint32Array(3),
-    coords2 : new Uint32Array(3),
     indices1 : new Uint32Array(8),
     indices2 : new Uint32Array(64),
-    subindices1 : new Uint32Array(8),
-    subindices2 : new Uint32Array(64),
 }
 
-function computeSubindices12(inputData)
-{
-    range2ind(inputData.occumap1Dimensions, spatialData.divisions1, spatialData.subindices1)
-    range2ind(inputData.occumap2Dimensions, spatialData.divisions2, spatialData.subindices2)
-}
-
-function computeIndices12(inputData, ind0)
+function computeBlockIndices12(inputData, ind0)
 {
     ind2sub(inputData.occumap0Dimensions, ind0, spatialData.coords0)
 
     for (let i = 0; i < 3; i++) 
     {
-        spatialData.coords1[i] = spatialData.divisions1[i] * spatialData.coords0[i]
-        spatialData.coords2[i] = spatialData.divisions2[i] * spatialData.coords0[i]
+        spatialData.blockMin1[i] = spatialData.divisions1[i] * spatialData.coords0[i]
+        spatialData.blockMin2[i] = spatialData.divisions2[i] * spatialData.coords0[i]
+
+        spatialData.blockMax1[i] = spatialData.blockMin1[i] + spatialData.divisions1[i] - 1
+        spatialData.blockMax2[i] = spatialData.blockMin2[i] + spatialData.divisions2[i] - 1
     }
 
-    const offset1 = sub2ind(inputData.occumap1Dimensions, spatialData.coords1)
-    const offset2 = sub2ind(inputData.occumap2Dimensions, spatialData.coords2)
+    box2ind(inputData.occumap1Dimensions, spatialData.blockMin1, spatialData.blockMax1, spatialData.indices1)
+    box2ind(inputData.occumap2Dimensions, spatialData.blockMin2, spatialData.blockMax2, spatialData.indices2)
 
-    for (let i = 0; i < spatialData.indices1.length; i++)
-    {
-        spatialData.indices1[i] = offset1 + spatialData.subindices1[i]
-    }
-
-    for ( let i = 0; i < spatialData.indices2.length; i++)
-    {
-        spatialData.indices2[i] = offset2 + spatialData.subindices2[i]
-
-    }
 }
 
 function updateOccupancy(inputData, outputData, ind0) 
 {
-    computeIndices12(inputData, ind0)
+    computeBlockIndices12(inputData, ind0)
 
     outputData.occupied0[ind0] = decodedData.occupiedUint64[0]
 

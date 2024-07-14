@@ -2,11 +2,11 @@ importScripts('Scripts/Utils.js')
 
 // reusable script scope variables for speedup
 const decodedData = {
-    occupiedUint64 : new Uint8Array(1),  // stores occupancy status for a 64-bit block
-    occupiedBytes :  new Uint8Array(8),  // stores occupancy status for each byte
-    occupiedBits :   new Uint8Array(64), // stores occupancy status for each bit
-    blockMin :       new Uint32Array(3), // stores minimum coordinates of a block
-    blockMax :       new Uint32Array(3), // stores maximum coordinates of a block
+    occupiedUint64: new Uint8Array(1),  // stores occupancy status for a 64-bit block
+    occupiedBytes:  new Uint8Array(8),  // stores occupancy status for each byte
+    occupiedBits:   new Uint8Array(64), // stores occupancy status for each bit
+    blockMin:       new Uint32Array(3), // stores minimum coordinates of a block
+    blockMax:       new Uint32Array(3), // stores maximum coordinates of a block
 }
 
 function decodeColorData(inputData, colorData) 

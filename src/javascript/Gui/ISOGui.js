@@ -164,7 +164,7 @@ export default class ISOGui
             this.displaceColormapHigh()
             
             // throttled compute occupancy map and bounding box based on raycast threshold
-            computeThresholdOccupancyThrottled()
+            // computeThresholdOccupancyThrottled()
         })
         .onFinishChange(() => this.computeThresholdOccupancy())
 
