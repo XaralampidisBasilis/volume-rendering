@@ -1,41 +1,43 @@
 import * as THREE from 'three'
 import { Uint32BufferAttribute } from 'three/src/core/BufferAttribute.js'
 
-export default class OccumapHelper
+export default class OccumapHelper extends THREE.LineSegments
 {
     constructor(occumap)
     {
+        const material = OccumapHelper.computeMaterial()
+        const geometry = OccumapHelper.computeGeometry(occumap)
+        
+        super(geometry, material)
+
         this.occumap = occumap
-        
-        this.setMaterial()
-        this.setGeometry()
-        
-        this.instance = new THREE.LineSegments(this.geometry, this.material)
     }
 
-    setMaterial()
+    static computeMaterial()
     {
-        this.material = new THREE.LineBasicMaterial()
-        this.material.toneMapped = false
-        this.material.depthWrite = true
-        this.material.transparent = true
-        this.material.color = 0xffff00
+        const material = new THREE.LineBasicMaterial()
+        material.toneMapped = false
+        material.depthWrite = true
+        material.transparent = true
+        material.color = 0xffff00
+
+        return material
     }
 
-    setGeometry()
+    static computeGeometry(occumap)
     {
-        this.geometry = new THREE.BufferGeometry()
+        const geometry = new THREE.BufferGeometry()
 
         const combinedPoints = []
         const combinedIndices = []
 
         let count = 0
 
-        for (let n = 0; n < this.occumap.data.length; n++) 
+        for (let n = 0; n < occumap.data.length; n++) 
         {
-            if (this.occumap.data[n]) 
+            if (occumap.data[n]) 
             {
-                const box = this.occumap.getBlockBox(n)
+                const box = occumap.getBlockBox(n)
 
                 const points = [
                     new THREE.Vector3(box.max.x, box.max.y, box.max.z),
@@ -54,20 +56,20 @@ export default class OccumapHelper
                 combinedPoints.push(...points)
                 combinedIndices.push(...indices)
                 count++
-
             }
         }
         
-        this.geometry.setFromPoints(combinedPoints)
-        this.geometry.setIndex(new THREE.Uint32BufferAttribute(combinedIndices, 1))
+        geometry.setFromPoints(combinedPoints)
+        geometry.setIndex(new THREE.Uint32BufferAttribute(combinedIndices, 1))
+
+        return geometry
     }
 
     updateOccumap(occumap)
     {
         this.occumap = occumap
         this.geometry.dispose()
-        this.setGeometry()
-        this.instance.geometry = this.geometry
+        this.geometry = OccumapHelper.computeGeometry(occumap)
     }
 
 	dispose() 

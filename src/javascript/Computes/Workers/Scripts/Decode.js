@@ -9,6 +9,16 @@ const decodedData = {
     blockMax:       new Uint32Array(3), // stores maximum coordinates of a block
 }
 
+const parameters = {
+    byteDimensions: new Uint8Array([2, 2, 2]),
+    bitDimensions: new Uint8Array([4, 4, 4]),
+    byteCoords: new Uint8Array(3),
+    bitIndices: new Uint8Array(8),
+    byteIndices: new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7]),
+    bitCoordMin: new Uint8Array(3),
+    bitCoordMax: new Uint8Array(3),
+}
+
 function decodeColorData(inputData, colorData) 
 {
     resetDecodedData()
@@ -16,21 +26,37 @@ function decodeColorData(inputData, colorData)
     decodeBlueAlpha(colorData[2], colorData[3], inputData)
 }
 
-function decodeRedGreen(red, green) 
+function computeBitIndicesFromByte(byte)
 {
-    decodedData.occupiedUint64[0] = checkUint32(red) || checkUint32(green)
+    ind2sub(parameters.byteDimensions, byte, parameters.byteCoords)
 
-    for (let byte = 0; byte < 4; byte++)
+    for (let i = 0; i < 3; i++) 
     {
-        decodedData.occupiedBytes[byte + 0] = checkUint32Byte(red,   byte)
-        decodedData.occupiedBytes[byte + 4] = checkUint32Byte(green, byte)
+        parameters.bitCoordMin[i] = parameters.byteCoords[i] * 2
+        parameters.bitCoordMax[i] = parameters.bitCoordMin[i] + 2 - 1
     }
 
+    box2ind(parameters.bitDimensions, parameters.bitCoordMin, parameters.bitCoordMax, parameters.bitIndices)
+}
+
+
+function decodeRedGreen(red, green) 
+{
     for (let bit = 0; bit < 32; bit++)
     {
         decodedData.occupiedBits[bit +  0] = checkUint32Bit(red,   bit)
         decodedData.occupiedBits[bit + 32] = checkUint32Bit(green, bit)
     }
+
+    for (let byte = 0; byte < 8; byte++)
+    {
+        computeBitIndicesFromByte(byte)
+        decodedData.occupiedBytes[byte] = parameters.bitIndices.some((bit) => decodedData.occupiedBits[bit]);
+    }
+
+    decodedData.occupiedUint64[0] = parameters.byteIndices.some((byte) => decodedData.occupiedBytes[byte]);
+
+  
 }
 
 function decodeBlueAlpha(blue, alpha, inputData) 

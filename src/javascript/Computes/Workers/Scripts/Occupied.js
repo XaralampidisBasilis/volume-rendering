@@ -2,8 +2,6 @@ importScripts('Scripts/Utils.js')
 
 // reusable script scope variables for speedup
 const spatialData = {
-    divisions1: new Uint8Array([2, 2, 2]),
-    divisions2: new Uint8Array([4, 4, 4]),
     blockMin1 : new Uint32Array(3),
     blockMin2 : new Uint32Array(3),
     blockMax1 : new Uint32Array(3),
@@ -13,17 +11,17 @@ const spatialData = {
     indices2 : new Uint32Array(64),
 }
 
-function computeBlockIndices12(inputData, ind0)
+function computeBlock12IndicesFromBlock0(inputData, ind0)
 {
     ind2sub(inputData.occumap0Dimensions, ind0, spatialData.coords0)
 
     for (let i = 0; i < 3; i++) 
     {
-        spatialData.blockMin1[i] = spatialData.divisions1[i] * spatialData.coords0[i]
-        spatialData.blockMin2[i] = spatialData.divisions2[i] * spatialData.coords0[i]
+        spatialData.blockMin1[i] = spatialData.coords0[i] * 2
+        spatialData.blockMin2[i] = spatialData.coords0[i] * 4
 
-        spatialData.blockMax1[i] = spatialData.blockMin1[i] + spatialData.divisions1[i] - 1
-        spatialData.blockMax2[i] = spatialData.blockMin2[i] + spatialData.divisions2[i] - 1
+        spatialData.blockMax1[i] = spatialData.blockMin1[i] + 2 - 1
+        spatialData.blockMax2[i] = spatialData.blockMin2[i] + 4 - 1
     }
 
     box2ind(inputData.occumap1Dimensions, spatialData.blockMin1, spatialData.blockMax1, spatialData.indices1)
@@ -33,7 +31,7 @@ function computeBlockIndices12(inputData, ind0)
 
 function updateOccupancy(inputData, outputData, ind0) 
 {
-    computeBlockIndices12(inputData, ind0)
+    computeBlock12IndicesFromBlock0(inputData, ind0)
 
     outputData.occupied0[ind0] = decodedData.occupiedUint64[0]
 

@@ -68,6 +68,7 @@ export default class ISOOccupancy extends EventEmitter
         this.computation.data = new Uint32Array(this.computation.texture.image.data.buffer) // shared buffer in order to decode Float32 to Uint32
         this.computation.variable = this.computation.instance.addVariable('v_computation_data', computeShader, this.computation.texture)
         this.computation.instance.setVariableDependencies(this.computation.variable, [this.computation.variable])
+        
         this.computation.variable.material.uniforms.u_computation = new THREE.Uniform({
             threshold:              this.threshold,
             volume_data:            this.viewer.textures.volume,
@@ -80,29 +81,35 @@ export default class ISOOccupancy extends EventEmitter
         this.computation.instance.init()
     }
 
-    readComputationData()
-    {
-        this.renderer.readRenderTargetPixels(
-        this.computation.instance.getCurrentRenderTarget(this.computation.variable),
-        0, 
-        0, 
-        this.computation.dimensions.width, 
-        this.computation.dimensions.height,
-        this.computation.texture.image.data // due to linked buffers, this.computation.data is updated also
-        )     
-
-        this.computation.texture.needsUpdate = true;
-    }
-
-    getComputationTexture()
-    {
-        return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
-    }
-
+    
     setComputationWorker()
     {
         this.computation.worker = new Worker('./javascript/Computes/Workers/ISOWorker.js')
         this.computation.worker.onmessage = this.handleComputationWorker.bind(this)
+    }
+
+    handleComputationWorker(event) 
+    {
+        const output = event.data
+
+        this.occumaps[0].fromArray(output.occupied0)
+        this.occumaps[1].fromArray(output.occupied1)
+        this.occumaps[2].fromArray(output.occupied2)
+        this.occupancyBox.min.fromArray(output.boxMin)
+        this.occupancyBox.max.fromArray(output.boxMax)
+
+        // debug
+        // console.log([this.occumaps, this.occupancyBox])
+
+        this.trigger('ready')
+    }
+
+    compute()
+    {
+        this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
+        this.computation.variable.material.uniforms.u_computation.value.threshold = this.threshold
+        this.computation.instance.compute()
+        this.startComputationWorker()
     }
 
     startComputationWorker() 
@@ -121,19 +128,29 @@ export default class ISOOccupancy extends EventEmitter
         })
     }
 
-    handleComputationWorker(event) 
+    readComputationData()
     {
-        const output = event.data
+        this.renderer.readRenderTargetPixels(
+        this.computation.instance.getCurrentRenderTarget(this.computation.variable),
+        0, 
+        0, 
+        this.computation.dimensions.width, 
+        this.computation.dimensions.height,
+        this.computation.texture.image.data // due to linked buffers, this.computation.data is updated also
+        )     
 
-        this.occumaps[0].fromArray(output.occupied0)
-        this.occumaps[1].fromArray(output.occupied1)
-        this.occumaps[2].fromArray(output.occupied2)
-        this.occupancyBox.min.fromArray(output.boxMin)
-        this.occupancyBox.max.fromArray(output.boxMax)
+        this.computation.texture.needsUpdate = true;
+    }
 
-        console.log([this.occumaps, this.occupancyBox])
+    update()
+    {
+        this.updateOccupancyUniforms()
 
-        this.trigger('ready')
+        if (this.viewer.debug.active)
+        {
+            for (let i = 0; i < 3; i++)
+                this.helpers.occumaps[i].updateOccumap(this.occumaps[i])        
+        }
     }
 
     updateOccupancyUniforms()
@@ -145,22 +162,9 @@ export default class ISOOccupancy extends EventEmitter
         this.viewer.material.uniforms.u_occupancy.value.box_max = this.occupancyBox.max
     }
 
-    compute()
+    getComputationTexture()
     {
-        this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
-        this.computation.variable.material.uniforms.u_computation.value.threshold = this.threshold
-        this.computation.instance.compute()
-        this.startComputationWorker()
-    }
-
-    update()
-    {
-        this.updateOccupancyUniforms()
-
-        if (this.viewer.debug.active)
-        {
-            this.updateOccumapsHelpers()
-        }
+        return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
     }
 
     // debug
@@ -178,24 +182,12 @@ export default class ISOOccupancy extends EventEmitter
             occumapHelper.material.color = new THREE.Color(colors[i])
             occumapHelper.material.opacity = opacity[i]
 
-            occumapHelper.instance.scale.divide(this.viewer.parameters.volume.dimensions).multiply(this.viewer.parameters.volume.size)
-            occumapHelper.instance.position.copy(this.viewer.parameters.volume.size).divideScalar(-2)
+            occumapHelper.scale.divide(this.viewer.parameters.volume.dimensions).multiply(this.viewer.parameters.volume.size)
+            occumapHelper.position.copy(this.viewer.parameters.volume.size).divideScalar(-2)
 
         })
 
-        this.helpers.occumaps.forEach((occumapHelper) => this.viewer.scene.add(occumapHelper.instance))
-        
-        this.viewer.mesh.visible = true
-        this.helpers.occumaps[0].instance.visible = false
-        this.helpers.occumaps[1].instance.visible = true
-        this.helpers.occumaps[2].instance.visible = true
-
-    }
-
-    updateOccumapsHelpers()
-    {
-        for (let i = 0; i < 3; i++)
-            this.helpers.occumaps[i].updateOccumap(this.occumaps[i])
+        this.helpers.occumaps.forEach((occumapHelper) => this.viewer.scene.add(occumapHelper))
     }
 
     // dispose
