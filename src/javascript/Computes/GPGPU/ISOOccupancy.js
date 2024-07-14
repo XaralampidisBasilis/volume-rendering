@@ -172,7 +172,7 @@ export default class ISOOccupancy extends EventEmitter
     setOccumapsHelpers()
     {
         const colors = [0x00FFFF, 0x00FF88, 0xFF88AA]
-        const opacity = [1, 0.6, 0.3]
+        const opacity = [0.2, 0.3, 0.2]
 
         this.helpers = {}
         this.helpers.occumaps = this.occumaps.map((occumap) => new OccumapHelper(occumap))
