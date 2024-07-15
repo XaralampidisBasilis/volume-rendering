@@ -5,9 +5,9 @@
 struct uniforms_raycast 
 {
     float threshold;  
-    float refinements;  
+    int refinements;  
     float resolution;
-    int stride;
+    int method;
     float dither; 
 };
 

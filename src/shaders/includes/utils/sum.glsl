@@ -35,4 +35,6 @@ int sum(in ivec4 vector)
     return int(sum(vec4(vector)));
 }
 
+// bvec
+
 #endif // UTILS_SUM

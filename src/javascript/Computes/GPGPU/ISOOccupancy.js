@@ -19,7 +19,7 @@ export default class ISOOccupancy extends EventEmitter
         this.volumeDivisions = this.viewer.material.uniforms.u_occupancy.value.resolution 
 
         this.setOccupancyBox()
-        this.setOccupancyMaps()
+        this.setOccumaps()
         this.setComputation()
         this.compute()
 
@@ -28,7 +28,10 @@ export default class ISOOccupancy extends EventEmitter
             this.setOccumapsHelpers()
         }
 
-        this.on('ready', this.update.bind(this))
+        this.on('ready', () =>
+        {
+            this.updateOccumapsHelpers()
+        })
     }
 
     // setup
@@ -40,7 +43,7 @@ export default class ISOOccupancy extends EventEmitter
         this.occupancyBox.max.setScalar(1)
     }
 
-    setOccupancyMaps()
+    setOccumaps()
     {
         const volumeDimensions = this.viewer.parameters.volume.dimensions
         const volumeSubdivisions = 4 * this.volumeDivisions // in order to account for 2 more octree divisions
@@ -81,11 +84,11 @@ export default class ISOOccupancy extends EventEmitter
         this.computation.instance.init()
     }
 
-    
     setComputationWorker()
     {
         this.computation.worker = new Worker('./javascript/Computes/Workers/ISOWorker.js')
         this.computation.worker.onmessage = this.handleComputationWorker.bind(this)
+
     }
 
     handleComputationWorker(event) 
@@ -142,26 +145,6 @@ export default class ISOOccupancy extends EventEmitter
         this.computation.texture.needsUpdate = true;
     }
 
-    update()
-    {
-        this.updateOccupancyUniforms()
-
-        if (this.viewer.debug.active)
-        {
-            for (let i = 0; i < 3; i++)
-                this.helpers.occumaps[i].updateOccumap(this.occumaps[i])        
-        }
-    }
-
-    updateOccupancyUniforms()
-    {
-        this.viewer.material.uniforms.u_sampler.value.occupancy = this.getComputationTexture()
-        this.viewer.material.uniforms.u_occupancy.value.size = this.occumaps[0].dimensions
-        this.viewer.material.uniforms.u_occupancy.value.block = this.occumaps[0].blockDimensions
-        this.viewer.material.uniforms.u_occupancy.value.box_min = this.occupancyBox.min
-        this.viewer.material.uniforms.u_occupancy.value.box_max = this.occupancyBox.max
-    }
-
     getComputationTexture()
     {
         return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
@@ -179,6 +162,7 @@ export default class ISOOccupancy extends EventEmitter
 
         this.helpers.occumaps.forEach((occumapHelper, i) => 
         {
+            occumapHelper.visible = false
             occumapHelper.material.color = new THREE.Color(colors[i])
             occumapHelper.material.opacity = opacity[i]
 
@@ -188,6 +172,18 @@ export default class ISOOccupancy extends EventEmitter
         })
 
         this.helpers.occumaps.forEach((occumapHelper) => this.viewer.scene.add(occumapHelper))
+    }
+
+    updateOccumapsHelpers()
+    {
+        if (this.viewer.debug.active)
+        {
+            for (let i = 0; i < 3; i++)
+            {
+                if (this.helpers.occumaps[i].visible) 
+                    this.helpers.occumaps[i].updateOccumap(this.occumaps[i])        
+            }
+        }
     }
 
     // dispose

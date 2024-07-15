@@ -27,6 +27,7 @@ export default class ISOViewer
         this.setTextures()
         this.setGeometry()
         this.setMaterial()
+        this.setOccupancy()
         this.setMesh()
 
         if (this.debug.active) 
@@ -35,12 +36,7 @@ export default class ISOViewer
             this.gui = new ISOGui(this)
         }
 
-        // setup occupancy
-        this.occupancy = new ISOOccupancy(this)
-        this.occupancy.on('ready', () => 
-        {
-            // this.helpers.update()
-        })
+       
     }
 
     setParameters()
@@ -123,6 +119,27 @@ export default class ISOViewer
         }    
     }
 
+    setOccupancy()
+    {
+        this.occupancy = new ISOOccupancy(this)
+
+        for (let i = 0; i <  this.occupancy.occumaps.length; i++)
+        {
+            this.material.uniforms.u_sampler.value.occumaps[i] = this.occupancy.occumaps[i].texture
+            this.material.uniforms.u_occupancy.value.dimensions[i] = this.occupancy.occumaps[i].dimensions
+            this.material.uniforms.u_occupancy.value.blocks[i] = this.occupancy.occumaps[i].blockDimensions
+        }
+
+        this.occupancy.on('ready', () => 
+        {
+            for (let i = 0; i <  this.occupancy.occumaps.length; i++)
+                this.material.uniforms.u_sampler.value.occumaps[i] = this.occupancy.occumaps[i].texture
+
+            this.material.uniforms.u_occupancy.value.box_min = this.occupancy.occupancyBox.min
+            this.material.uniforms.u_occupancy.value.box_max = this.occupancy.occupancyBox.max        
+        })
+    }
+
     setGeometry()
     {
         this.geometry = new THREE.BoxGeometry(...this.parameters.geometry.size.toArray())
@@ -148,5 +165,10 @@ export default class ISOViewer
         this.mesh = new THREE.Mesh(this.geometry, this.material)
         this.mesh.position.copy(this.parameters.volume.size).multiplyScalar(- 0.5)
         this.scene.add(this.mesh)
+    }
+
+    update()
+    {
+
     }
 }

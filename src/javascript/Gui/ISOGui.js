@@ -79,7 +79,7 @@ export default class ISOGui
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
             resolution: raycast.add(u_raycast, 'resolution').min(0).max(2).step(0.001),
             refinements: raycast.add(u_raycast, 'refinements').min(1).max(5).step(1),
-            stride: raycast.add(u_raycast, 'stride').options({ isotropic: 1, directional: 2, traversal: 3 }),
+            method: raycast.add(u_raycast, 'method').options({ isotropic: 1, directional: 2, traversal: 3 }),
             dither: raycast.add(u_raycast, 'dither')
         }
 
@@ -152,7 +152,7 @@ export default class ISOGui
     setControllersBindings()
     {
         // throttled compute occupancy map and bounding box based on raycast threshold
-        const computeThresholdOccupancyThrottled =  throttleByCalls(() => this.computeThresholdOccupancy(), 3)
+        const computeThresholdOccupancyThrottled = throttleByCalls(() => this.computeThresholdOccupancy(), 3)
     
         // raycast threshold controller
         this.controllers.raycast.threshold.onChange(() => 

@@ -1,3 +1,5 @@
+#include ../raymarch/refine.glsl;
+
 /**
  * performs a raycasting operation in a 3d volume texture to determine if a block of voxels is hit by the ray.
  *
@@ -13,31 +15,24 @@ bool traverse(
     in uniforms_raycast u_raycast, 
     in uniforms_sampler u_sampler, 
     in vec3 ray_step, 
-    in vec2 traverse_steps, 
+    in int traverse_steps, 
     inout vec3 ray_position, 
-    out float ray_intensity
+    out float ray_sample
 ) {
     
-    vec3 ray_start = ray_position;
-
-    // iterate through the volume, stepping by 'ray_step', up to 'skip_steps' times.
-    ray_position = ray_start + traverse_steps.x * ray_step;
-
-    for (float n_step = traverse_steps.x; n_step <= traverse_steps.y + 0.5; n_step++, ray_position += ray_step) {
+    for (int n_step = 0; n_step <= traverse_steps; n_step++, ray_position += ray_step) {
 
         // sample the intensity of the volume at the current 'hit_position'.
-        ray_intensity = sample_intensity_3d(u_sampler.volume, ray_position);
+        ray_sample = sample_intensity_3d(u_sampler.volume, ray_position);
 
         // if the sampled intensity exceeds the threshold, a hit is detected.
-        if (ray_intensity > u_raycast.threshold) 
+        if (ray_sample > u_raycast.threshold - 0.001) 
         {
-            refine(u_raycast, u_sampler, ray_step, ray_position, ray_intensity);
+            refine(u_raycast, u_sampler, ray_step, ray_position, ray_sample);
             return true;
         }
 
     }
 
-    // no hit was detected within the given number of steps.
-    ray_position = ray_start;
     return false;
 }

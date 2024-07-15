@@ -6,7 +6,7 @@ struct uniforms_sampler
     sampler3D mask;
     sampler2D colormap;      
     sampler2D noise;
-    sampler2D occupancy;
+    sampler3D occumaps[3];
 };
 
 uniform uniforms_sampler u_sampler;

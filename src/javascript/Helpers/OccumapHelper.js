@@ -17,7 +17,7 @@ export default class OccumapHelper extends THREE.LineSegments
     {
         const material = new THREE.LineBasicMaterial()
         material.toneMapped = false
-        material.depthWrite = true
+        material.depthWrite = false
         material.transparent = true
         material.color = 0xffff00
 

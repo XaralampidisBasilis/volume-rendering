@@ -12,7 +12,7 @@ export default function()
             mask:            null,
             colormap:        null,
             noise:           null,
-            occupancy:       null,
+            occumaps:        new Array(3),
         }),
 
         u_volume : new THREE.Uniform({
@@ -27,7 +27,7 @@ export default function()
             threshold:       0.2,   
             refinements:     1,   
             resolution:      1,
-            stride:          3,   
+            method:          3,   
             dither:          true, 
         }),
 
@@ -60,8 +60,8 @@ export default function()
         }),
 
         u_occupancy: new THREE.Uniform({
-            size:            new THREE.Vector3(),
-            block:           new THREE.Vector3(),
+            dimensions:      new Array(3).fill().map(() => new THREE.Vector3()),
+            blocks:          new Array(3).fill().map(() => new THREE.Vector3()),
             box_min:         new THREE.Vector3(0, 0, 0),
             box_max:         new THREE.Vector3(1, 1, 1),
             resolution:      6, // resolution close to 2 makes computation shader to lag
