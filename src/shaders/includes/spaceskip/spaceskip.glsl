@@ -20,7 +20,7 @@ bool spaceskip(
     in uniforms_sampler u_sampler, 
     in vec3 ray_position, 
     in vec3 ray_step, 
-    inout float skip_steps[3],
+    inout int skip_steps[3],
     inout int current_level,
     out int next_level
 ) {
@@ -28,32 +28,36 @@ bool spaceskip(
     bool occupied = false;
     
     // Precompute next levels
-    float next_levels[3] = float[3](
-        0.0,
-        step(skip_steps[2], skip_steps[1]),
-        step(skip_steps[0], skip_steps[2]) + step(skip_steps[1], skip_steps[2])
+    int next_levels[3] = int[3](
+        0,
+        int(skip_steps[1] < skip_steps[0]),
+        int(skip_steps[2] < skip_steps[0]) + int(skip_steps[2] < skip_steps[1])
     );
 
     // Iterate through levels without dynamic sampler indexing
-    for (int i = current_level; i < 3; i++) {
+    for (int i = current_level; i < 3; i++) 
+    {
+        // we need switch because array samplers need constant indxing
         switch (i) {
             case 0:
-                occupied = blockskip(u_sampler.occumaps[0], u_occupancy.blocks[0], u_volume.dimensions, ray_position, ray_step, skip_steps[0]);
+                occupied = blockskip(u_sampler.occumaps[0],u_occupancy.dimensions[0], u_occupancy.blocks[0], u_volume.dimensions, ray_position, ray_step, skip_steps[0]);
                 break;
             case 1:
-                occupied = blockskip(u_sampler.occumaps[1], u_occupancy.blocks[1], u_volume.dimensions, ray_position, ray_step, skip_steps[1]);
+                occupied = blockskip(u_sampler.occumaps[1],u_occupancy.dimensions[1], u_occupancy.blocks[1], u_volume.dimensions, ray_position, ray_step, skip_steps[1]);
                 break;
             case 2:
-                occupied = blockskip(u_sampler.occumaps[2], u_occupancy.blocks[2], u_volume.dimensions, ray_position, ray_step, skip_steps[2]);
+                occupied = blockskip(u_sampler.occumaps[2],u_occupancy.dimensions[2], u_occupancy.blocks[2], u_volume.dimensions, ray_position, ray_step, skip_steps[2]);
                 break;
         }
 
+        current_level = i;
+
         if (!occupied) 
         {
-            next_level = int(next_levels[i]);
-            current_level = i;
+            next_level = next_levels[i];
             return false;
         }
+
     }
 
     return true;

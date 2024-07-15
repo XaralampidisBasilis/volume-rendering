@@ -19,36 +19,40 @@ bool raymarch
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
     in uniforms_sampler u_sampler,
-    in vec2 step_bounds,
+    in ivec2 step_bounds,
     in vec3 ray_step,
     inout vec3 ray_position,
     out float ray_sample
 ) { 
 
     // initialize state vaiables
-    float skip_steps[3] = float[3](0.0, 0.0, 0.0);
+    int skip_steps[3] = int[3](0, 0, 0);
     int current_level = 0;
     int next_level = 0;
 
     // raymarch loop to traverse through the volume
-    for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, ray_position += ray_step) 
+    float count = 0.0;
+
+    for (int n_step = step_bounds.x; n_step < step_bounds.y && count < 3000.0; n_step++, ray_position += ray_step) 
     {
         bool occupied = spaceskip(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
-        int traverse_steps = int(skip_steps[current_level]) - 1;
-
-        gl_FragColor = vec4(vec3(float(traverse_steps)/1000.0), 1.0);
-        return true;
+        int traverse_steps = skip_steps[current_level] - 1;
 
         // traverse space if block is occupied
         if (occupied) {
-            
+
+            // gl_FragColor = vec4(vec3(count / 10.0), 1.0);
+            // return occupied;
+
             bool hit = traverse(u_raycast, u_sampler, ray_step, traverse_steps, ray_position, ray_sample);
             if (hit) return true;
         } 
 
         // skips traverse steps
         ray_position += ray_step * float(traverse_steps);
-        n_step += float(traverse_steps);
+        n_step += traverse_steps;
+
+        count++;
     }   
 
     ray_sample = 0.0;

@@ -27,6 +27,7 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../includes/utils/sample_intensity.glsl;
 #include ../../includes/utils/intersect_box.glsl;
 #include ../../includes/utils/intersect_box_max.glsl;
+#include ../../includes/utils/intersect_box_min.glsl;
 #include ../../includes/utils/reshape_coordinates.glsl;
 #include ../../includes/utils/product.glsl;
 #include ../../includes/utils/sum.glsl;
@@ -50,7 +51,10 @@ void main()
     vec3 ray_normal = normalize(v_direction);
     bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, hit_position, hit_intensity);
     
-    return;
+    // // debug
+    // gl_FragDepth = depth(u_volume, hit_position);
+    // if(ray_hit) return;
+    // else discard;
 
     // perform fast raycasting to get hit position and value
     if (ray_hit) {

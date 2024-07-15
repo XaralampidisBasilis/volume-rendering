@@ -44,7 +44,7 @@ bool raycast
     hit_position = ray_start + ray_step * step_bounds.x - dither_step;
     
     // raycasting loop to traverse through the volume
-    return raymarch(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, hit_position, hit_intensity);
+    return raymarch(u_raycast, u_volume, u_occupancy, u_sampler, ivec2(step_bounds), ray_step, hit_position, hit_intensity);
 
     // for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, hit_position += ray_step) {
 
