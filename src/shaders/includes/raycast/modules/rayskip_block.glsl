@@ -1,5 +1,6 @@
     
-bool blockskip(
+bool rayskip_block
+(
     in sampler3D occumap,
     in vec3 occumap_dimensions,
     in vec3 block_dimensions, 
