@@ -1,4 +1,4 @@
-#include ../../spaceskip/spaceskip.glsl;
+#include ../rayskip/rayskip.glsl;
 #include ../raymarch/traverse.glsl;
 
 
@@ -35,7 +35,7 @@ bool raymarch
 
     for (int n_step = step_bounds.x; n_step < step_bounds.y && count < 3000.0; n_step++, ray_position += ray_step) 
     {
-        bool occupied = spaceskip(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
+        bool occupied = rayskip(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
         int traverse_steps = skip_steps[current_level] - 1;
 
         // traverse space if block is occupied

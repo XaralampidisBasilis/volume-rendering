@@ -1,4 +1,4 @@
-#include ../spaceskip/blockskip.glsl;
+#include ../rayskip/blockskip.glsl;
 
 /**
  * Determines if a block in the volume can be skipped based on an occupancy map
@@ -14,7 +14,7 @@
  * @param skip_steps - Array to store the number of steps to exit the block for each level.
  * @return - Returns true if the block is occupied and the ray should not skip it, false otherwise.
  */
-bool spaceskip(
+bool rayskip(
     in uniforms_occupancy u_occupancy, 
     in uniforms_volume u_volume, 
     in uniforms_sampler u_sampler, 
