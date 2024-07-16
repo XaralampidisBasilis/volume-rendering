@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import EventEmitter from '../../Utils/EventEmitter.js'
 import Occumap from './Occumap.js'
 import OccumapHelper from '../Helpers/OccumapHelper.js'
-import computeShader from '../../../shaders/computes/iso_occupancy/fragment.glsl'
+import computeShader from '../../../shaders/viewers/iso_viewer/computes/iso_occupancy.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
 
 // assumes intensity data 3D, and data3DTexture

@@ -15,7 +15,7 @@ struct uniforms_computation {
 uniform uniforms_computation u_computation;
 // variable sampler2D v_computation_data;
 
-#include ../../includes/utils/reshape_coordinates.glsl;
+#include ../../../includes/utils/reshape_coordinates.glsl;
 
 int find_octree_block(ivec3 block_min, ivec3 block_max, ivec3 voxel_pos);
 ivec3 sign_nonzero(ivec3 position);
