@@ -35,7 +35,7 @@ bool raymarch_no_skip
         if (ray_sample > u_raycast.threshold) 
         {
             // refine(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
-            ray_depth = depth(u_volume, ray_position);
+            ray_depth = frag_depth(u_volume, ray_position);
             return true;
         }
 

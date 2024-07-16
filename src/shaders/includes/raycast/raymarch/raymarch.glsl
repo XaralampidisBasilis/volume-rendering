@@ -1,6 +1,6 @@
-#include ../modules/traverse.glsl;
-#include ../modules/rayskip.glsl;
-#include ../modules/depth.glsl;
+#include ../modules/traverse_space.glsl;
+#include ../modules/skip_space.glsl;
+#include ../modules/frag_depth.glsl;
 #include ../raymarch/raymarch_no_skip.glsl;
 #include ../raymarch/raymarch_skip.glsl;
 

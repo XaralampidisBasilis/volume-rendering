@@ -1,4 +1,4 @@
-#include ../modules/rayskip_block.glsl;
+#include ../modules/skip_block.glsl;
 
 /**
  * Determines if a block in the volume can be skipped based on an occupancy map
@@ -41,13 +41,13 @@ bool rayskip
         // we need switch because array samplers need constant indxing
         switch (i) {
             case 0:
-                occupied = blockskip(u_sampler.occumaps[0],u_occupancy.dimensions[0], u_occupancy.blocks[0], u_volume.dimensions, ray_position, ray_step, skip_steps[0]);
+                occupied = skip_block(u_sampler.occumaps[0],u_occupancy.dimensions[0], u_occupancy.blocks[0], u_volume.dimensions, ray_position, ray_step, skip_steps[0]);
                 break;
             case 1:
-                occupied = blockskip(u_sampler.occumaps[1],u_occupancy.dimensions[1], u_occupancy.blocks[1], u_volume.dimensions, ray_position, ray_step, skip_steps[1]);
+                occupied = skip_block(u_sampler.occumaps[1],u_occupancy.dimensions[1], u_occupancy.blocks[1], u_volume.dimensions, ray_position, ray_step, skip_steps[1]);
                 break;
             case 2:
-                occupied = blockskip(u_sampler.occumaps[2],u_occupancy.dimensions[2], u_occupancy.blocks[2], u_volume.dimensions, ray_position, ray_step, skip_steps[2]);
+                occupied = skip_block(u_sampler.occumaps[2],u_occupancy.dimensions[2], u_occupancy.blocks[2], u_volume.dimensions, ray_position, ray_step, skip_steps[2]);
                 break;
         }
 

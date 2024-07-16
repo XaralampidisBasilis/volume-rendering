@@ -1,5 +1,5 @@
-#include ../raycast/modules/bounds.glsl;
-#include ../raycast/modules/dither.glsl;
+#include ../raycast/modules/compute_bounds.glsl;
+#include ../raycast/modules/compute_dither.glsl;
 #include ../raycast/raystep/raystep.glsl;
 #include ../raycast/raymarch/raymarch.glsl;
 
@@ -29,13 +29,13 @@ bool raycast
     out float ray_depth
 ) {    
     // compute the intersection bounds of a ray with occypancy axis-aligned bounding box.
-    vec2 ray_bounds = bounds(u_occupancy, ray_origin, ray_normal); // debug gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0);  
+    vec2 ray_bounds = compute_bounds(u_occupancy, ray_origin, ray_normal); // debug gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0);  
 
     // compute the ray step vector based on the raycast and volume parameters
     vec3 ray_step = raystep(u_raycast, u_volume, ray_normal, ray_bounds); 
 
     // apply dithering to the initial distance to avoid artifacts
-    float ray_dither = dither(u_raycast, u_sampler, ray_normal, ray_bounds); // debug gl_FragColor = vec4(vec3(ray_dither), 1.0);  
+    float ray_dither = compute_dither(u_raycast, u_sampler, ray_normal, ray_bounds); // debug gl_FragColor = vec4(vec3(ray_dither), 1.0);  
 
     // initialize the starting position along the ray
     ray_position = ray_origin + ray_bounds.x * ray_normal - ray_dither * ray_step;

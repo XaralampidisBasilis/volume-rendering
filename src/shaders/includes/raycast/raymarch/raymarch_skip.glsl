@@ -33,15 +33,15 @@ bool raymarch_skip
 
     for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; ) 
     {
-        bool occupied = rayskip(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
+        bool occupied = skip_space(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
 
         // traverse space if block is occupied
         if (occupied) 
         {            
-            bool ray_hit = traverse(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, ray_sample);
+            bool ray_hit = traverse_space(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, ray_sample);
             if (ray_hit) 
             {
-                ray_depth = depth(u_volume, ray_position);
+                ray_depth = frag_depth(u_volume, ray_position);
                 return true;
             }
         }
