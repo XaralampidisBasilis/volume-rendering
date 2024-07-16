@@ -1,10 +1,9 @@
 import * as THREE from 'three'
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
 import Experience from '../Experience.js'
-import ISOMaterial from '../Materials/ISOMaterial.js'
-import ISOGui from '../Gui/ISOGui.js'
-import ISOHelpers from '../Helpers/ISOHelpers.js'
-import ISOOccupancy from '../Computes/GPGPU/ISOOccupancy.js'
+import ISOMaterial from './Materials/ISOMaterial.js'
+import ISOGui from './Gui/ISOGui.js'
+import ISOHelpers from './Helpers/ISOHelpers.js'
+import ISOOccupancy from './Computes/ISOOccupancy.js'
 
 export default class ISOViewer
 {
@@ -55,9 +54,10 @@ export default class ISOViewer
             spacing: new THREE.Vector3().fromArray(this.resource.mask.spacing),
         }
 
+        // in order to center model geometry vertices at the centers of voxels and normalize their positions in [0, 1]
         this.parameters.geometry = {
             size: new THREE.Vector3().copy(this.parameters.volume.size).add(this.parameters.volume.spacing),
-            translation: new THREE.Vector3().copy(this.parameters.volume.size).sub(this.parameters.volume.spacing).divideScalar(2),
+            translation: new THREE.Vector3().copy(this.parameters.volume.size).divideScalar(2),
         }
     }
 

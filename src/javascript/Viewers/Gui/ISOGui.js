@@ -1,6 +1,6 @@
 
-import { colormapLocations } from '../../../static/textures/colormaps/colormaps.js'
-import { throttleByCalls, throttleByDelay } from '../Utils/Throttle.js'
+import { colormapLocations } from '../../../../static/textures/colormaps/colormaps.js'
+import { throttleByCalls, throttleByDelay } from '../../Utils/Throttle.js'
 
 export default class ISOGui
 {

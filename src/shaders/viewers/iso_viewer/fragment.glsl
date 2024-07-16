@@ -50,11 +50,6 @@ void main()
     // normalize view direction vector
     vec3 ray_normal = normalize(v_direction);
     bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, hit_position, hit_intensity);
-    
-    // // debug
-    // gl_FragDepth = depth(u_volume, hit_position);
-    // if(ray_hit) return;
-    // else discard;
 
     // perform fast raycasting to get hit position and value
     if (ray_hit) {

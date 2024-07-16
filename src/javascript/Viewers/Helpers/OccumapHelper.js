@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { Uint32BufferAttribute } from 'three/src/core/BufferAttribute.js'
 
 export default class OccumapHelper extends THREE.LineSegments
 {

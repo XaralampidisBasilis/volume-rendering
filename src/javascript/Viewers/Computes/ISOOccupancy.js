@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import EventEmitter from '../../Utils/EventEmitter.js'
-import Occumap from '../../Utils/Occumap.js'
-import OccumapHelper from '../../Helpers/OccumapHelper.js'
+import Occumap from './Occumap.js'
+import OccumapHelper from '../Helpers/OccumapHelper.js'
 import computeShader from '../../../shaders/computes/gpu_occupancy/multi_resolution.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
 
@@ -86,7 +86,7 @@ export default class ISOOccupancy extends EventEmitter
 
     setComputationWorker()
     {
-        this.computation.worker = new Worker('./javascript/Computes/Workers/ISOWorker.js')
+        this.computation.worker = new Worker('./javascript/Viewers/Computes/Workers/ISOWorker.js')
         this.computation.worker.onmessage = this.handleComputationWorker.bind(this)
 
     }
