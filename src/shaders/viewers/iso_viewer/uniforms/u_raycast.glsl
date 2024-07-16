@@ -8,7 +8,8 @@ struct uniforms_raycast
     int refinements;  
     float resolution;
     int method;
-    float dither; 
+    float dithering; 
+    int skipping; 
 };
 
 uniform uniforms_raycast u_raycast;

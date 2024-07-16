@@ -3,6 +3,7 @@
 #include ../raycast/bounds.glsl;
 #include ../raycast/dither.glsl;
 
+
 /**
  * performs raycasting in a 3d texture to find the depth and intensity of an intersection.
  *
@@ -25,7 +26,8 @@ bool raycast
     in vec3 ray_origin, 
     in vec3 ray_normal, 
     out vec3 ray_position, 
-    out float ray_sample
+    out float ray_sample,
+    out float ray_depth
 ) {    
     // compute the intersection bounds of a ray with occypancy axis-aligned bounding box.
     vec2 ray_bounds = bounds(u_occupancy, ray_origin, ray_normal); // debug gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0);  
@@ -43,23 +45,5 @@ bool raycast
     ivec2 step_bounds = ivec2(ray_bounds / length(ray_step)); // debug gl_FragColor = vec4((step_bounds.y-step_bounds.x)*ray_delta/1.732, 1.0);  
 
     // raycasting loop to traverse through the volume
-    return raymarch(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample);
-
-    // for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, hit_position += ray_step) {
-
-    //     // sample the intensity from the 3d texture at the current position
-    //     hit_intensity = sample_intensity_3d(u_sampler.volume, hit_position);          
-        
-    //     // check if the sampled intensity exceeds the threshold
-    //     if (hit_intensity > u_raycast.threshold) {
-
-    //         // refine the hit position and intensity
-    //         refine(u_raycast, u_sampler, ray_step, hit_position, hit_intensity);
-    //         return true; // intersection found
-    //     }
-    // }   
-
-    // // if no intersection is found, set hit_intensity to 0
-    // hit_intensity = 0.0;
-    // return false; // no intersection
+    return raymarch(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
 }

@@ -1,19 +1,24 @@
+#include ../raymarch/raymarch_no_skip.glsl;
+#include ../raymarch/raymarch_skip.glsl;
 #include ../rayskip/rayskip.glsl;
+#include ../raymarch/depth.glsl;
 #include ../raymarch/traverse.glsl;
 
 /**
+ * Determines if a ray intersects with the volume and optionally skips empty space.
+ *
  * @param u_raycast: struct containing raycast-related uniforms.
  * @param u_volume: struct containing volume-related uniforms.
  * @param u_occupancy: struct containing occupancy-related uniforms.
- * @param ray_start: starting point of the ray.
- * @param ray_normal: direction vector of the ray (should be normalized).
- * @param ray_bounds: vec2 containing the start and end distances for raycasting.
- * @param hit_position: output vec3 where the position of the intersection will be stored.
- * @param hit_intensity: output float where the intensity at the intersection will be stored.
- * @return bool: returns true if an intersection is found above the threshold, false otherwise.
+ * @param u_sampler: struct containing sampler-related uniforms.
+ * @param step_bounds: ivec2 containing the start and end steps for raycasting.
+ * @param ray_step: vec3 containing the step vector for the ray.
+ * @param ray_position: inout vec3 where the current position of the ray will be updated.
+ * @param ray_sample: output float where the sample value at the intersection will be stored.
+ * @param ray_depth: output float where the depth at the intersection will be stored.
+ * @return bool: returns true if an intersection is found, false otherwise.
  */
-bool raymarch
-(
+bool raymarch (
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
@@ -21,36 +26,15 @@ bool raymarch
     in ivec2 step_bounds,
     in vec3 ray_step,
     inout vec3 ray_position,
-    out float ray_sample
+    out float ray_sample,
+    out float ray_depth
 ) { 
-
-    // initialize state vaiables
-    int skip_steps[3] = int[3](0, 0, 0);
-    int current_level = 0;
-    int next_level = 0;
-
-    // raymarch loop to traverse through the volume
-    float count = 0.0;
-    float MAX_COUNT = 1.73205080757 / length(ray_step); // sqrt(3) / length(ray_step)
-
-    for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; ) 
+    switch (u_raycast.skipping) 
     {
-        bool occupied = rayskip(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
-
-        // traverse space if block is occupied
-        if (occupied) 
-        {
-            bool hit = traverse(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, ray_sample);
-            if (hit) return true;
-        }
-
-        // skips traverse steps
-        ray_position += ray_step * float(skip_steps[current_level]);
-        n_step += skip_steps[current_level];
-
-        count++;
-    }   
-
-    ray_sample = 0.0;
-    return false;
+        case 0: 
+            return raymarch_no_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
+        case 1: 
+            return raymarch_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
+        default:
+    }
 }

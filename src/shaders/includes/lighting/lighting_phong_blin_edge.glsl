@@ -8,7 +8,7 @@
  * @param source_vector: Vector from the surface point to the light source
  * @return vec3 The final color after applying lighting
  */
-vec3 phong_blin(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_vector, in vec3 surface_position, in vec3 view_position, in vec3 source_position)
+vec3 lighting_phong_blin_edge(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_vector, in vec3 surface_position, in vec3 view_position, in vec3 source_position)
 {
     // calculate lighting vectors
     vec3 view_vector = surface_position - view_position;
@@ -32,11 +32,11 @@ vec3 phong_blin(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_v
 
     // Calculate lambertian (diffuse) component
     float lambertian = max(dot(normal_vector, source_vector), 0.0);
-
+    
     // Calculate specular component if lambertian contribution is positive
     float specular = 0.0;
     float specular_angle;
-    
+
     if (lambertian > 0.0) 
     {
         vec3 halfway_vector = normalize(source_vector + view_vector); 
@@ -46,6 +46,16 @@ vec3 phong_blin(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_v
 
     // Calculate the final color by combining ambient, diffuse, and specular components
     vec3 phong_blin_color = a_color + color * (lambertian * d_color + specular * s_color);
+
+    // Enhance edges when the gradient is almost perpendicular to the viewing direction
+    float edge_angle = dot(view_vector, normal_vector);
+    float edge = pow(1.0 - abs(edge_angle), 0.3);
+
+    if (edge >= u_lighting.edge) 
+    {
+        float edge_fade = pow(ramp(u_lighting.edge, 1.0, edge), 6.0);
+        phong_blin_color = mix(phong_blin_color, vec3(0.0), edge_fade);
+    }
 
     return phong_blin_color;
 }

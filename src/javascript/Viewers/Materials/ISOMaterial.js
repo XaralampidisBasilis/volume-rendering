@@ -16,11 +16,9 @@ export default function()
         }),
 
         u_volume : new THREE.Uniform({
-
             dimensions:      new THREE.Vector3(),
             size:            new THREE.Vector3(),
             voxel:           new THREE.Vector3(),
-
         }),
 
         u_raycast: new THREE.Uniform({
@@ -28,7 +26,8 @@ export default function()
             refinements:     0,   
             resolution:      1,
             method:          3,   
-            dither:          true, 
+            dithering:       true, 
+            skipping:        false,
         }),
 
         u_gradient: new THREE.Uniform({

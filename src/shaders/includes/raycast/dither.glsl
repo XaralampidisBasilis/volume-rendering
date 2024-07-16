@@ -16,7 +16,7 @@ float dither(in uniforms_raycast u_raycast, in uniforms_sampler u_sampler, in ve
 
     // sample intensity from the noisemap texture and apply the dithering factor
     float dither_intensity = sample_intensity_2d(u_sampler.noise, 1000.0 * hash.xy);    
-    dither_intensity *= u_raycast.dither;
+    dither_intensity *= u_raycast.dithering;
 
     // return dithering step
     return dither_intensity; // in [0, 1]

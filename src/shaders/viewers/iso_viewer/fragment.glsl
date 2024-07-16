@@ -39,22 +39,22 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../includes/colormap/colormap.glsl;
 #include ../../includes/gradient/gradient.glsl;
 #include ../../includes/lighting/lighting.glsl;
-#include ../../includes/raycast/depth.glsl;
 
 void main() 
 {
     // set out variables
     vec3 ray_position = vec3(0.0);
     float ray_sample = 0.0;
+    float ray_depth = 0.0;
     float gradient_magnitude = 1.0;
 
     // normalize view direction vector
     vec3 ray_normal = normalize(v_direction);
-    bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, ray_position, ray_sample);
+    bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, ray_position, ray_sample, ray_depth);
 
     // perform fast raycasting to get hit position and value
-    if (ray_hit) {
-
+    if (ray_hit) 
+    {
         // compute the gradient normal vector at hit position
         vec3 gradient_vector = gradient(u_gradient, u_volume, u_sampler, ray_position, ray_sample, gradient_magnitude);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
     
@@ -67,15 +67,12 @@ void main()
         // final color
         float alpha = float(gradient_magnitude > u_gradient.threshold); // if occupancy gets zero then there is nothing behind to plot
         gl_FragColor = vec4(hit_color, alpha);
-
-        // final depth
-        gl_FragDepth = depth(u_volume, ray_position);
+        gl_FragDepth = ray_depth;
 
         return;
         
-    } else {
-        discard;  // discard fragment if there is no hit
-    }
+    } 
+    else discard;  // discard fragment if there is no hit
 
     // include tone mapping and color space correction
     #include <tonemapping_fragment>
