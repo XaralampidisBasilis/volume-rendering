@@ -1,4 +1,4 @@
-#include ../raymarch/refine.glsl;
+#include ../helpers/refine.glsl;
 
 /**
  * performs a raycasting operation in a 3d volume texture to determine if a block of voxels is hit by the ray.

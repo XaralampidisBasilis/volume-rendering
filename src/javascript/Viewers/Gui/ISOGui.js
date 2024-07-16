@@ -92,7 +92,8 @@ export default class ISOGui
             resolution: raycast.add(u_raycast, 'resolution').min(0).max(2).step(0.001),
             refinements: raycast.add(u_raycast, 'refinements').min(0).max(5).step(1),
             method: raycast.add(u_raycast, 'method').options({ isotropic: 1, directional: 2, traversal: 3 }),
-            dither: raycast.add(u_raycast, 'dither')
+            dithering: raycast.add(u_raycast, 'dithering'),
+            skipping: raycast.add(u_raycast, 'skipping')
         }
 
     }

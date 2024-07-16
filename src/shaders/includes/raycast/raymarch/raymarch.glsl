@@ -1,8 +1,8 @@
+#include ../helpers/traverse.glsl;
+#include ../helpers/rayskip.glsl;
+#include ../helpers/depth.glsl;
 #include ../raymarch/raymarch_no_skip.glsl;
 #include ../raymarch/raymarch_skip.glsl;
-#include ../rayskip/rayskip.glsl;
-#include ../raymarch/depth.glsl;
-#include ../raymarch/traverse.glsl;
 
 /**
  * Determines if a ray intersects with the volume and optionally skips empty space.
@@ -28,13 +28,15 @@ bool raymarch (
     inout vec3 ray_position,
     out float ray_sample,
     out float ray_depth
-) { 
-    switch (u_raycast.skipping) 
+) 
+{
+    switch(u_raycast.skipping)  
     {
-        case 0: 
+        case 0:
             return raymarch_no_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
-        case 1: 
+        case 1:
             return raymarch_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
         default:
-    }
+            return false;
+    }  
 }

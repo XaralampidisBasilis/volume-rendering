@@ -1,4 +1,4 @@
-#include ../rayskip/blockskip.glsl;
+#include ../helpers/blockskip.glsl;
 
 /**
  * Determines if a block in the volume can be skipped based on an occupancy map

@@ -1,8 +1,7 @@
 #include ../raycast/raystep/raystep.glsl;
 #include ../raycast/raymarch/raymarch.glsl;
-#include ../raycast/bounds.glsl;
-#include ../raycast/dither.glsl;
-
+#include ../raycast/helpers/bounds.glsl;
+#include ../raycast/helpers/dither.glsl;
 
 /**
  * performs raycasting in a 3d texture to find the depth and intensity of an intersection.

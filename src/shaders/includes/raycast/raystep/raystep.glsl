@@ -1,6 +1,6 @@
-#include ../raystep/isotropic.glsl;
-#include ../raystep/directional.glsl;
-#include ../raystep/traversal.glsl;
+#include ../raystep/raystep_isotropic.glsl;
+#include ../raystep/raystep_directional.glsl;
+#include ../raystep/raystep_traversal.glsl;
 
 /**
  * Calculates the march (step vector) for raycasting with 4 different methods
@@ -17,10 +17,10 @@ vec3 raystep(in uniforms_raycast u_raycast, in uniforms_volume u_volume, in vec3
     switch(u_raycast.method)
     {
         case 1: 
-            return isotropic(u_raycast, u_volume, ray_normal);
+            return raystep_isotropic(u_raycast, u_volume, ray_normal);
         case 2: 
-            return directional(u_raycast, u_volume, ray_normal);
+            return raystep_directional(u_raycast, u_volume, ray_normal);
         case 3: 
-            return traversal(u_raycast, u_volume, ray_normal, ray_bounds);
+            return raystep_traversal(u_raycast, u_volume, ray_normal, ray_bounds);
     }
 }

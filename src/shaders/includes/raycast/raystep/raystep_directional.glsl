@@ -7,7 +7,7 @@
  * @param ray_normal: Normalized direction vector of the ray.
  * @return vec3 The stride vector for stepping through the volume along the ray.
  */
-vec3 directional(in uniforms_raycast u_raycast, in uniforms_volume u_volume, in vec3 ray_normal) 
+vec3 raystep_directional(in uniforms_raycast u_raycast, in uniforms_volume u_volume, in vec3 ray_normal) 
 {
     // compute the voxel box 
     vec3 voxel_min = vec3(0.0);

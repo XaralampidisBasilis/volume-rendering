@@ -9,7 +9,7 @@
  * @param hit_intensity: output float where the intensity at the intersection will be stored.
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
-bool raymarch_serial
+bool raymarch_no_skip
 (
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
