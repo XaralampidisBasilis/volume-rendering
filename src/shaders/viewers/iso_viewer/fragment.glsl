@@ -42,19 +42,19 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 
 void main() 
 {
-    // set out variables
+    // set ray variables
+    vec3 ray_normal = normalize(v_direction);   
     vec3 ray_position = vec3(0.0);
     float ray_sample = 0.0;
     float ray_depth = 0.0;
     float ray_alpha = 1.0;
 
-    // normalize view direction vector
-    vec3 ray_normal = normalize(v_direction);
-    bool ray_hit = compute_raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, ray_position, ray_sample, ray_depth);
-
-    // perform fast raycasting to get hit position and value
+    // perform raycasting
+    bool ray_hit = compute_raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, ray_position, ray_sample, ray_depth);  
+    return; // for debug
+     
     if (ray_hit) 
-    {
+    {        
         // compute the gradient normal vector at hit position
         vec3 gradient_vector = compute_gradient(u_gradient, u_volume, u_sampler, ray_position, ray_sample, ray_alpha);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
     

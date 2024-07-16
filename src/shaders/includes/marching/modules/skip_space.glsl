@@ -1,4 +1,4 @@
-#include ../modules/skip_block.glsl;
+#include ./skip_block.glsl;
 
 /**
  * Determines if a block in the volume can be skipped based on an occupancy map

@@ -1,4 +1,4 @@
-#include ../modules/traverse_refine.glsl;
+#include ./traverse_refine.glsl;
 
 /**
  * performs a raycasting operation in a 3d volume texture to determine if a block of voxels is hit by the ray.
@@ -30,7 +30,7 @@ bool traverse_space
         // if the sampled intensity exceeds the threshold, a hit is detected.
         if (ray_sample > u_raycast.threshold) 
         {
-            traverse_refine(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
+            // traverse_refine(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
             return true;
         }
     }

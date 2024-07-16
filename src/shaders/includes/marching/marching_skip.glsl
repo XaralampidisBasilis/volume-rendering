@@ -29,18 +29,19 @@ bool marching_skip
 
     // raymarch loop to traverse through the volume
     float count = 0.0;
-    float MAX_COUNT = 1.73205080757 / length(ray_step); // sqrt(3) / length(ray_step)
+    float MAX_COUNT = 1.73205080757 / length(ray_step); // for some reason some rays do not terminate. Need to find why
 
     for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; ) 
     {
-        bool occupied = skip_space(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
-
         // traverse space if block is occupied
+        bool occupied = skip_space(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
         if (occupied) 
         {            
-            bool ray_hit = traverse_space(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, ray_sample);
-            if (ray_hit) 
+            // terminate marching if ray  hit
+            bool has_hit = traverse_space(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, ray_sample);
+            if (has_hit) 
             {
+                gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
                 ray_depth = compute_frag_depth(u_volume, ray_position);
                 return true;
             }
@@ -52,6 +53,7 @@ bool marching_skip
         count++;
     }   
 
+    gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
     ray_depth = 1.0;
     ray_sample = 0.0;
     return false;

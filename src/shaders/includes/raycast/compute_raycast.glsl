@@ -1,7 +1,7 @@
-#include ../raycast/modules/compute_bounds.glsl;
-#include ../raycast/modules/compute_dithering.glsl;
-#include ../raycast/steps/compute_step.glsl;
-#include ../raycast/marching/compute_marching.glsl;
+#include ./modules/compute_bounds.glsl;
+#include ./modules/compute_dithering.glsl;
+#include ./steps/compute_step.glsl;
+#include ../marching/compute_marching.glsl;
 
 /**
  * performs raycasting in a 3d texture to find the depth and intensity of an intersection.

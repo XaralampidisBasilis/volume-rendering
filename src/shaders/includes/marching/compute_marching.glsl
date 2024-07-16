@@ -1,8 +1,9 @@
-#include ../modules/traverse_space.glsl;
-#include ../modules/skip_space.glsl;
-#include ../modules/compute_frag_depth.glsl;
-#include ../marching/marching_no_skip.glsl;
-#include ../marching/marching_skip.glsl;
+#include ./modules/traverse_space.glsl;
+#include ./modules/skip_space.glsl;
+#include ./modules/compute_frag_depth.glsl;
+
+#include ./marching_no_skip.glsl;
+#include ./marching_skip.glsl;
 
 /**
  * Determines if a ray intersects with the volume and optionally skips empty space.
