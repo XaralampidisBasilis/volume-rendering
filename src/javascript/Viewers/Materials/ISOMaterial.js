@@ -25,13 +25,14 @@ export default function()
 
         u_raycast: new THREE.Uniform({
             threshold:       0.2,   
-            refinements:     1,   
+            refinements:     0,   
             resolution:      1,
             method:          3,   
             dither:          true, 
         }),
 
         u_gradient: new THREE.Uniform({
+            threshold:       0,
             resolution:      0.7,  
             method:          1,        
             neighbor:        true,
@@ -64,7 +65,7 @@ export default function()
             blocks:          new Array(3).fill().map(() => new THREE.Vector3()),
             box_min:         new THREE.Vector3(0, 0, 0),
             box_max:         new THREE.Vector3(1, 1, 1),
-            resolution:      6, // resolution close to 2 makes computation shader to lag
+            divisions:       6, // divisions close to 2 makes computation shader to lag
             method:          1,
         })
 
@@ -77,7 +78,7 @@ export default function()
     const material = new THREE.ShaderMaterial({
         
         side: THREE.BackSide,
-        transparent: false,
+        transparent: true,
         depthTest: true,
         depthWrite: true,
 

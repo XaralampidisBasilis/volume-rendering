@@ -6,10 +6,10 @@
  * @param ray_bounds: vec2 containing the start and end distances for raycasting.
  * @return vec3: returns the dithered intensity value in [0, 1] range.
  */
-vec3 dither(in uniforms_raycast u_raycast, in uniforms_sampler u_sampler, in vec3 ray_step, in vec2 step_bounds)
+float dither(in uniforms_raycast u_raycast, in uniforms_sampler u_sampler, in vec3 ray_normal, in vec2 ray_bounds)
 {
     // calculate the end position of the ray
-    vec3 ray_end = ray_step * step_bounds.y;
+    vec3 ray_end = ray_normal * ray_bounds.y;
 
     // compute a hash value based on the end position transformed by the matrix
     vec4 hash = v_projection_model_view_matrix * vec4(ray_end, 0.0);
@@ -19,5 +19,5 @@ vec3 dither(in uniforms_raycast u_raycast, in uniforms_sampler u_sampler, in vec
     dither_intensity *= u_raycast.dither;
 
     // return dithering step
-    return dither_intensity * ray_step;
+    return dither_intensity; // in [0, 1]
 }

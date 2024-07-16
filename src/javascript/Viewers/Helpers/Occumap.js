@@ -3,8 +3,6 @@ import * as CoordUtils from '../../Utils/CoordUtils.js';
 
 const _blockCoords = new THREE.Vector3()
 const _voxelCoords = new THREE.Vector3()
-const _boxSize = new THREE.Vector3()
-const _boxCenter = new THREE.Vector3()
 
 export default class Occumap
 {
@@ -16,21 +14,6 @@ export default class Occumap
         this.dimensions = this.calculateOccumapDimensions(this.volumeDimensions, this.blockDimensions) 
         
         this.initializeOccupancyTexture(this.dimensions)
-    }
-
-    formatVolumeDivisions(volumeDimensions, volumeDivisions)
-    {
-        return Math.floor(THREE.MathUtils.clamp(volumeDivisions, 1, Math.min(...volumeDimensions.toArray())))
-    }
-
-    formatBlockDivisions(blockDimensions, blockDivisions)
-    {
-        return Math.floor(THREE.MathUtils.clamp(blockDivisions, 1, Math.min(...blockDimensions.toArray())))
-    }
-
-    formatBlockCombines(blockDimensions, blockCombines)
-    {
-        return Math.floor(THREE.MathUtils.clamp(blockCombines, 1, Math.max(...blockDimensions.toArray())))
     }
 
     calculateBlockDimensions(volumeDimensions, volumeDivisions)
@@ -103,6 +86,34 @@ export default class Occumap
 
         return this
     }
+    
+    dispose()
+    {
+        this.texture.dispose()
+        this.volumeDimensions = null
+        this.volumeDivisions = null
+        this.blockDimensions = null
+        this.blockDivisions = null
+        this.blockCombines = null
+        this.dimensions = null
+    }
+
+    // helpers
+
+    formatVolumeDivisions(volumeDimensions, volumeDivisions)
+    {
+        return Math.floor(THREE.MathUtils.clamp(volumeDivisions, 1, Math.min(...volumeDimensions.toArray())))
+    }
+
+    formatBlockDivisions(blockDimensions, blockDivisions)
+    {
+        return Math.floor(THREE.MathUtils.clamp(blockDivisions, 1, Math.min(...blockDimensions.toArray())))
+    }
+
+    formatBlockCombines(blockDimensions, blockCombines)
+    {
+        return Math.floor(THREE.MathUtils.clamp(blockCombines, 1, Math.max(...blockDimensions.toArray())))
+    }
 
     getBlockCoordsFromVoxel(voxelCoordOrIndex)
     {
@@ -150,15 +161,4 @@ export default class Occumap
         return blockBox
     }
 
-    dispose()
-    {
-        this.texture.dispose()
-        this.volumeDimensions = null
-        this.volumeDivisions = null
-        this.blockDimensions = null
-        this.blockDivisions = null
-        this.blockCombines = null
-        this.dimensions = null
-        
-    }
 }

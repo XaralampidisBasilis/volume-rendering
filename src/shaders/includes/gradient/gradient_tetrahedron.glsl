@@ -8,38 +8,36 @@
  *
  * @return vec3: Gradient vector at the given position
  */
-vec3 tetrahedron(in sampler3D sampler_volume, in vec3 grad_step, in vec3 hit_position, inout float hit_intensity)
+vec3 gradient_tetrahedron(in sampler3D sampler_volume, in vec3 gradient_step, in vec3 hit_position, inout float max_sample, out float gradient_magnitude)
 {
     vec2 k = vec2(1.0, -1.0);
 
     // Define offsets for the 4 neighboring points using swizzling
     vec3 delta[4] = vec3[4](
-        grad_step * k.xxx,  // Right Top Near
-        grad_step * k.xyy,  // Right Bottom Far
-        grad_step * k.yxy,  // Left Top Far
-        grad_step * k.yyx   // Left Bottom Near
+        gradient_step * k.xxx,  // Right Top Near
+        gradient_step * k.xyy,  // Right Bottom Far
+        gradient_step * k.yxy,  // Left Top Far
+        gradient_step * k.yyx   // Left Bottom Near
     );
 
     float samples[4];
     for (int i = 0; i < 4; i++)
     {
         samples[i] = texture(sampler_volume, hit_position + delta[i]).r;
+        max_sample = max(max_sample, samples[i]);
     }
 
-    vec3 normal = vec3(
+    vec3 gradient_vector = vec3(
         samples[2] + samples[3] - samples[0] - samples[1],
         samples[1] + samples[3] - samples[0] - samples[2],
         samples[1] + samples[2] - samples[0] - samples[3]
     );
-    normal = normalize(normal);
 
-    // Find the maximum value among the sampled points
-    for (int i = 0; i < 4; i++) 
-    {
-        hit_intensity = max(hit_intensity, samples[i]);
-    }
+    gradient_magnitude = length(gradient_vector) * 0.5;
+    gradient_vector = normalize(gradient_vector);
 
-    return normal;
+
+    return gradient_vector;
     
     // For visual debug
     // gradient.rgb = (gradient.rgb * 0.5) + 0.5; // transforms the normalized RGB components from the range [-1, 1] to the range [0, 1]

@@ -8,20 +8,20 @@
  *
  * @return vec3: Gradient vector at the given position
  */
-vec3 sobel(in sampler3D sampler_volume, in vec3 grad_step, in vec3 hit_position, inout float hit_intensity)
+vec3 gradient_sobel(in sampler3D sampler_volume, in vec3 gradient_step, in vec3 hit_position, inout float max_sample, out float gradient_magnitude)
 {
     vec2 k = vec2(1.0, -1.0);
 
     // Define offsets for the 8 neighboring points using swizzling
     vec3 delta[8] = vec3[8](
-        grad_step * k.xxx,  // Right Top Near
-        grad_step * k.xxy,  // Right Top Far
-        grad_step * k.xyx,  // Right Bottom Near
-        grad_step * k.xyy,  // Right Bottom Far
-        grad_step * k.yxx,  // Left Top Near
-        grad_step * k.yxy,  // Left Top Far
-        grad_step * k.yyx,  // Left Bottom Near
-        grad_step * k.yyy   // Left Bottom Far
+        gradient_step * k.xxx,  // Right Top Near
+        gradient_step * k.xxy,  // Right Top Far
+        gradient_step * k.xyx,  // Right Bottom Near
+        gradient_step * k.xyy,  // Right Bottom Far
+        gradient_step * k.yxx,  // Left Top Near
+        gradient_step * k.yxy,  // Left Top Far
+        gradient_step * k.yyx,  // Left Bottom Near
+        gradient_step * k.yyy   // Left Bottom Far
     );
 
     // Sample the values at the neighboring points
@@ -29,21 +29,18 @@ vec3 sobel(in sampler3D sampler_volume, in vec3 grad_step, in vec3 hit_position,
     for (int i = 0; i < 8; i++)
     {
         samples[i] = sample_intensity_3d(sampler_volume, hit_position + delta[i]);
+        max_sample = max(max_sample, samples[i]);
     }
 
     // Calculate the gradient using the Sobel operator
-    vec3 normal = vec3(
+    vec3 gradient_vector = vec3(
         samples[4] + samples[5] + samples[6] + samples[7] - samples[0] - samples[1] - samples[2] - samples[3],
         samples[2] + samples[3] + samples[6] + samples[7] - samples[0] - samples[1] - samples[4] - samples[5],
         samples[1] + samples[3] + samples[5] + samples[7] - samples[0] - samples[2] - samples[4] - samples[6]
     );
-    normal = normalize(normal);
 
-    // Find the maximum value among the sampled points
-    for (int i = 0; i < 8; i++) 
-    {
-        hit_intensity = max(hit_intensity, samples[i]);
-    }
+    gradient_magnitude = length(gradient_vector) * 0.25;
+    gradient_vector = normalize(gradient_vector);
 
-    return normal;
+    return gradient_vector;
 }

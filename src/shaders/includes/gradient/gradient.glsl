@@ -1,6 +1,6 @@
-#include ../gradient/sobel.glsl;
-#include ../gradient/central.glsl;
-#include ../gradient/tetrahedron.glsl;
+#include ../gradient/gradient_sobel.glsl;
+#include ../gradient/gradient_central.glsl;
+#include ../gradient/gradient_tetrahedron.glsl;
 
 /**
  * Calculates the gradient and maximum value at a given position in a 3D texture using either the 3 following methods.
@@ -13,27 +13,35 @@
  * @param normal: Output vector where the gradient will be stored
  * @param value_max: Output float where the maximum value of the sampled points will be stored
  */
-vec3 gradient(in uniforms_gradient u_gradient, in uniforms_volume u_volume, in uniforms_sampler u_sampler, in vec3 hit_position, inout float hit_intensity)
+vec3 gradient(
+    in uniforms_gradient u_gradient, 
+    in uniforms_volume u_volume, 
+    in uniforms_sampler u_sampler, 
+    in vec3 ray_position, 
+    inout float ray_sample, 
+    out float gradient_magnitude
+)
 {
-    vec3 grad_step = u_volume.voxel / u_gradient.resolution;
-    vec3 normal = vec3(0.0, 0.0, 0.0);
-    float neighbor_intensity = hit_intensity;
+    vec3 gradient_step = u_volume.voxel / u_gradient.resolution;
+    vec3 gradient_vector = vec3(0.0, 0.0, 0.0);
+
+    float max_sample = ray_sample;
 
     switch (u_gradient.method)
     {
         case 1: 
-            normal = sobel(u_sampler.volume, grad_step, hit_position, neighbor_intensity);
+            gradient_vector = gradient_sobel(u_sampler.volume, gradient_step, ray_position, max_sample, gradient_magnitude);
             break;
         case 2: 
-            normal = central(u_sampler.volume, grad_step, hit_position, neighbor_intensity);
+            gradient_vector = gradient_central(u_sampler.volume, gradient_step, ray_position, max_sample, gradient_magnitude);
             break;
         case 3:  
-            normal =  tetrahedron(u_sampler.volume, grad_step, hit_position, neighbor_intensity); 
+            gradient_vector =  gradient_tetrahedron(u_sampler.volume, gradient_step, ray_position, max_sample, gradient_magnitude); 
             break;
     }
 
-    hit_intensity = mix(hit_intensity, neighbor_intensity, u_gradient.neighbor);
-    return normal;
+    ray_sample = mix(ray_sample, max_sample, u_gradient.neighbor);
+    return gradient_vector;
 }
 
 // For visual debug

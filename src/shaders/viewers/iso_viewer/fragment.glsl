@@ -44,30 +44,32 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 void main() 
 {
     // set out variables
-    vec3 hit_position = vec3(0.0);
-    float hit_intensity = 0.0;
+    vec3 ray_position = vec3(0.0);
+    float ray_sample = 0.0;
+    float gradient_magnitude = 1.0;
 
     // normalize view direction vector
     vec3 ray_normal = normalize(v_direction);
-    bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, hit_position, hit_intensity);
+    bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, ray_position, ray_sample);
 
     // perform fast raycasting to get hit position and value
     if (ray_hit) {
 
         // compute the gradient normal vector at hit position
-        vec3 normal_vector = gradient(u_gradient, u_volume, u_sampler, hit_position, hit_intensity);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
+        vec3 gradient_vector = gradient(u_gradient, u_volume, u_sampler, ray_position, ray_sample, gradient_magnitude);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
     
         // compute the max intensity color mapping
-        vec3 intensity_color = colormap(u_colormap, u_sampler, hit_intensity); // debug gl_FragColor = vec4(intensity_color, 1.0);       
+        vec3 sample_color = colormap(u_colormap, u_sampler, ray_sample); // debug gl_FragColor = vec4(intensity_color, 1.0);       
 
         // compute the lighting color
-        vec3 hit_color = lighting(u_lighting, intensity_color, normal_vector, hit_position, v_camera, v_camera);
+        vec3 hit_color = lighting(u_lighting, sample_color, gradient_vector, ray_position, v_camera, v_camera);
 
         // final color
-        gl_FragColor = vec4(hit_color, 1.0);
+        float alpha = float(gradient_magnitude > u_gradient.threshold); // if occupancy gets zero then there is nothing behind to plot
+        gl_FragColor = vec4(hit_color, alpha);
 
         // final depth
-        gl_FragDepth = depth(u_volume, hit_position);
+        gl_FragDepth = depth(u_volume, ray_position);
 
         return;
         

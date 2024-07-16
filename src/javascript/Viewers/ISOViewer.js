@@ -56,8 +56,8 @@ export default class ISOViewer
 
         // in order to center model geometry vertices at the centers of voxels and normalize their positions in [0, 1]
         this.parameters.geometry = {
-            size: new THREE.Vector3().copy(this.parameters.volume.size).add(this.parameters.volume.spacing),
-            translation: new THREE.Vector3().copy(this.parameters.volume.size).divideScalar(2),
+            size: new THREE.Vector3().copy(this.parameters.volume.size),
+            translation: new THREE.Vector3().add(this.parameters.volume.size).divideScalar(2),
         }
     }
 
@@ -119,6 +119,26 @@ export default class ISOViewer
         }    
     }
 
+    setGeometry()
+    {
+        this.geometry = new THREE.BoxGeometry(...this.parameters.geometry.size.toArray())
+        this.geometry.translate(...this.parameters.geometry.translation.toArray()) // to align model and texel coordinates
+    }
+
+    setMaterial()
+    {
+        this.material = new ISOMaterial()
+
+        this.material.uniforms.u_volume.value.voxel.fromArray(this.resource.volume.dimensions.map((x) => 1/x))
+        this.material.uniforms.u_volume.value.dimensions.fromArray(this.resource.volume.dimensions)
+        this.material.uniforms.u_volume.value.size.fromArray(this.resource.volume.size)
+
+        this.material.uniforms.u_sampler.value.volume = this.textures.volume
+        this.material.uniforms.u_sampler.value.mask = this.textures.mask
+        this.material.uniforms.u_sampler.value.colormap = this.colormaps    
+        this.material.uniforms.u_sampler.value.noise = this.noisemaps.white256
+    }
+
     setOccupancy()
     {
         this.occupancy = new ISOOccupancy(this)
@@ -138,26 +158,6 @@ export default class ISOViewer
             this.material.uniforms.u_occupancy.value.box_min = this.occupancy.occupancyBox.min
             this.material.uniforms.u_occupancy.value.box_max = this.occupancy.occupancyBox.max        
         })
-    }
-
-    setGeometry()
-    {
-        this.geometry = new THREE.BoxGeometry(...this.parameters.geometry.size.toArray())
-        this.geometry.translate(...this.parameters.geometry.translation.toArray()) // to align model and texel coordinates
-    }
-
-    setMaterial()
-    {
-        this.material = new ISOMaterial()
-
-        this.material.uniforms.u_volume.value.voxel.fromArray(this.resource.volume.dimensions.map((x) => 1/x))
-        this.material.uniforms.u_volume.value.dimensions.fromArray(this.resource.volume.dimensions)
-        this.material.uniforms.u_volume.value.size.fromArray(this.resource.volume.size)
-
-        this.material.uniforms.u_sampler.value.volume = this.textures.volume
-        this.material.uniforms.u_sampler.value.mask = this.textures.mask
-        this.material.uniforms.u_sampler.value.colormap = this.colormaps    
-        this.material.uniforms.u_sampler.value.noise = this.noisemaps.white256
     }
 
     setMesh()

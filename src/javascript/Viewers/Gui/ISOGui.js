@@ -61,6 +61,7 @@ export default class ISOGui
     addControllers()
     {
         this.controllers = {}
+        this.addControllersViewer()
         this.addControllersRaycast() 
         this.addControllersGradient() 
         this.addControllersColormap() 
@@ -69,8 +70,19 @@ export default class ISOGui
         this.setControllersBindings()  
     }
 
-    addControllersRaycast() {
+    addControllersViewer()
+    {
+        const { viewer } = this.folders
 
+        this.controllers.viewer = {
+
+            visible: viewer.add(this.viewer.mesh, 'visible'),
+            
+        }
+    }
+
+    addControllersRaycast() 
+    {
         const { raycast } = this.subfolders
         const u_raycast = this.viewer.material.uniforms.u_raycast.value
 
@@ -78,20 +90,21 @@ export default class ISOGui
 
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
             resolution: raycast.add(u_raycast, 'resolution').min(0).max(2).step(0.001),
-            refinements: raycast.add(u_raycast, 'refinements').min(1).max(5).step(1),
+            refinements: raycast.add(u_raycast, 'refinements').min(0).max(5).step(1),
             method: raycast.add(u_raycast, 'method').options({ isotropic: 1, directional: 2, traversal: 3 }),
             dither: raycast.add(u_raycast, 'dither')
         }
 
     }
 
-    addControllersGradient() {
-
+    addControllersGradient() 
+    {
         const { gradient } = this.subfolders
         const u_gradient = this.viewer.material.uniforms.u_gradient.value
     
         this.controllers.gradient = {
 
+            threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
             resolution: gradient.add(u_gradient, 'resolution').min(0.25).max(2).step(0.001),
             method: gradient.add(u_gradient, 'method').options({ sobel: 1, central: 2, tetrahedron: 3}),
             neighbor: gradient.add(u_gradient, 'neighbor')
@@ -99,8 +112,8 @@ export default class ISOGui
 
     }
     
-    addControllersColormap() {
-
+    addControllersColormap() 
+    {
         const { colormap } = this.subfolders
         const u_colormap = this.viewer.material.uniforms.u_colormap.value
         const object = { flip: false }
@@ -115,8 +128,8 @@ export default class ISOGui
 
     }
     
-    addControllersLighting() {
-
+    addControllersLighting() 
+    {
         const { lighting } = this.subfolders
         const u_lighting = this.viewer.material.uniforms.u_lighting.value
     
@@ -134,16 +147,16 @@ export default class ISOGui
         }
     }
     
-    addControllersOccupancy() {
-
+    addControllersOccupancy() 
+    {
         const { occupancy } = this.subfolders
         const u_occupancy = this.viewer.material.uniforms.u_occupancy.value
     
         this.controllers.occupancy = {
 
-            resolution: occupancy.add(u_occupancy, 'resolution').min(2).max(20).step(1),
-            method: occupancy.add(u_occupancy, 'method').options({ monotree: 1, octree: 2}),
-            // visible: occupancy.add(this.viewer.helpers.plane.material, 'visible')
+            divisions: occupancy.add(u_occupancy, 'divisions').min(2).max(20).step(1),
+            occumaps: occupancy.add(this.viewer.occupancy.helpers.occumaps, 'visible').name('occumaps'),
+            computation: occupancy.add(this.viewer.occupancy.helpers.computation, 'visible').name('computation'),
         }
 
     }
@@ -151,22 +164,19 @@ export default class ISOGui
 
     setControllersBindings()
     {
-        // throttled compute occupancy map and bounding box based on raycast threshold
-        const computeThresholdOccupancyThrottled = throttleByCalls(() => this.computeThresholdOccupancy(), 3)
     
         // raycast threshold controller
-        this.controllers.raycast.threshold.onChange(() => 
-        {
+        this.controllers.raycast.threshold
+        .onChange(() => {
             // displace colormap low based on raycast threshold
             this.displaceColormapLow()
 
             // displace colormap high based on raycast threshold
             this.displaceColormapHigh()
-            
-            // throttled compute occupancy map and bounding box based on raycast threshold
-            computeThresholdOccupancyThrottled()
         })
-        .onFinishChange(() => this.computeThresholdOccupancy())
+        .onFinishChange(() => {
+            this.viewer.occupancy.compute()
+        })
 
         // flip colormap colors
         this.controllers.colormap.flip.onChange(() => this.flipColormapRange())
@@ -183,8 +193,8 @@ export default class ISOGui
         // adjust lighting power based on lighting attenuations being on or off
         this.controllers.lighting.attenuate.onChange(() => this.adjustLightingPower())
 
-        // recompute new occupancy based on new resolution
-        this.controllers.occupancy.resolution.onFinishChange(() => this.recomputeResolutionOccupancy())
+        // recompute new occupancy based on new divisions
+        this.controllers.occupancy.divisions.onFinishChange(() => this.changeOccupancyDivisions())
 
     }
 
@@ -260,26 +270,22 @@ export default class ISOGui
                 .updateDisplay()
     }
 
-    computeThresholdOccupancy()
+    changeOccupancyDivisions()
     {
-        this.viewer.occupancy.compute()
-    }
-
-    recomputeResolutionOccupancy()
-    {
-        const visible = this.controllers.occupancy.visible.getValue()
+        const occumapsVisible = this.controllers.occupancy.occumaps.getValue()
+        const computationVisible = this.controllers.occupancy.computation.getValue()
 
         this.viewer.occupancy.dispose()
         this.viewer.setOccupancy()
+        this.viewer.occupancy.compute()
 
         // destroy and create occupancy visible controller
-        this.controllers.occupancy.visible.destroy()
-        this.controllers.occupancy.visible = this.subfolders.occupancy
-            .add(this.viewer.occupancy.computation.debug.material, 'visible')
-            .setValue(visible)
-            .updateDisplay()
+        this.controllers.occupancy.occumaps.destroy()
+        this.controllers.occupancy.computation.destroy()
+        
+        this.controllers.occupancy.occumaps = this.subfolders.occupancy.add(this.viewer.occupancy.helpers.occumaps, 'visible').name('occumaps').setValue(occumapsVisible).updateDisplay()
+        this.controllers.occupancy.computation = this.subfolders.occupancy.add(this.viewer.occupancy.helpers.computation, 'visible').name('computation').setValue(computationVisible).updateDisplay()
 
-        this.computeThresholdOccupancy()
     }
 
     dispose() {

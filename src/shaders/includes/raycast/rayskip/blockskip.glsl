@@ -9,27 +9,27 @@ bool blockskip(
     out int skip_steps
 ) {
 
-    vec3 voxel_position = ray_position * volume_dimensions;
+    vec3 voxel_position = floor(ray_position * volume_dimensions);
     vec3 block_position = floor(voxel_position / block_dimensions);
 
     // compute block0 min and max voxel coordinates
-    vec3 block_voxel_min = block_position * block_dimensions;
-    vec3 block_voxel_max = min(block_voxel_min + block_dimensions, volume_dimensions);
-    
-    // normalize block position
-    block_position /= occumap_dimensions;
+    vec3 block_min_voxel_pos = block_position * block_dimensions ;
+    vec3 block_max_voxel_pos = min(block_min_voxel_pos + block_dimensions, volume_dimensions); // if we had coords we would need to subtract one
 
+    // normalize block voxel positions
+    vec3 inv_vol_dim = 1.0 / volume_dimensions;
+    block_min_voxel_pos *= inv_vol_dim;
+    block_max_voxel_pos *= inv_vol_dim;
+
+    // normalize block position
+    block_position = (block_position + 0.5) / occumap_dimensions;
+    
+    // intersect ray with block
+    float distance = intersect_box_max(block_min_voxel_pos, block_max_voxel_pos, ray_position, ray_step); 
+    skip_steps = int(ceil(distance)); // we need ceil to go just outside of the block
+    
     // check if block is occupied
     bool occupied = bool(sample_intensity_3d(occumap, block_position));
-    
-    // normalize block box coordinates
-    block_voxel_min /= volume_dimensions;
-    block_voxel_max /= volume_dimensions;
-
-    // intersect ray with block
-    float distance = intersect_box_max(block_voxel_min, block_voxel_max, ray_position, ray_step); 
-    skip_steps = int(max(ceil(distance), 1.0));
-    
 
     return occupied;
 }

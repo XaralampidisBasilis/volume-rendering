@@ -4,6 +4,7 @@
 // struct to hold gradient uniforms
 struct uniforms_gradient 
 {
+    float threshold;
     float resolution;
     int method;
     float neighbor;

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import EventEmitter from '../../Utils/EventEmitter.js'
-import Occumap from './Occumap.js'
+import Occumap from '../Helpers/Occumap.js'
 import OccumapHelper from '../Helpers/OccumapHelper.js'
 import computeShader from '../../../shaders/viewers/iso_viewer/computes/iso_occupancy.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
@@ -16,7 +16,7 @@ export default class ISOOccupancy extends EventEmitter
         this.renderer = this.viewer.renderer.instance
         this.scene = this.viewer.scene
         this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
-        this.volumeDivisions = this.viewer.material.uniforms.u_occupancy.value.resolution 
+        this.volumeDivisions = this.viewer.material.uniforms.u_occupancy.value.divisions 
 
         this.setOccupancyBox()
         this.setOccumaps()
@@ -25,12 +25,12 @@ export default class ISOOccupancy extends EventEmitter
 
         if (this.viewer.debug.active)
         {
-            this.setOccumapsHelpers()
+            this.setHelpers()
         }
 
         this.on('ready', () =>
         {
-            this.updateOccumapsHelpers()
+            this.updateHelpers()
         })
     }
 
@@ -150,88 +150,101 @@ export default class ISOOccupancy extends EventEmitter
         return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
     }
 
-    // debug
+    // helpers
 
-    setOccumapsHelpers()
+    setHelpers()
     {
-        const colors = [0x00FFFF, 0x00FF88, 0xFF88AA]
-        const opacity = [0.2, 0.3, 0.2]
-
         this.helpers = {}
-        this.helpers.occumaps = this.occumaps.map((occumap) => new OccumapHelper(occumap))
 
-        this.helpers.occumaps.forEach((occumapHelper, i) => 
-        {
-            occumapHelper.visible = false
-            occumapHelper.material.color = new THREE.Color(colors[i])
-            occumapHelper.material.opacity = opacity[i]
+        this.setOccumapsHelper()
+        this.setComputationHelper()
 
-            occumapHelper.scale.divide(this.viewer.parameters.volume.dimensions).multiply(this.viewer.parameters.volume.size)
-            occumapHelper.position.copy(this.viewer.parameters.volume.size).divideScalar(-2)
+        this.helpers.occumaps.visible = false
+        this.helpers.computation.visible = false
 
-        })
-
-        this.helpers.occumaps.forEach((occumapHelper) => this.viewer.scene.add(occumapHelper))
+        this.viewer.scene.add(this.helpers.occumaps)
+        this.viewer.scene.add(this.helpers.computation)
     }
 
-    updateOccumapsHelpers()
+    updateHelpers()
     {
         if (this.viewer.debug.active)
         {
-            for (let i = 0; i < 3; i++)
-            {
-                if (this.helpers.occumaps[i].visible) 
-                    this.helpers.occumaps[i].updateOccumap(this.occumaps[i])        
-            }
+            this.updateComputationHelper()
+            this.updateOccumapsHelper()
         }
+    }
+
+    setOccumapsHelper()
+    {
+        this.helpers.occumaps = new THREE.Group()
+
+        for (let i = 0; i < 3; i++)
+        {
+            const helper = new OccumapHelper(this.occumaps[i])
+
+            helper.material.color = new THREE.Color([0x00FFFF, 0x00FF88, 0xFF88AA][i])
+            helper.scale.divide(this.viewer.parameters.volume.dimensions).multiply(this.viewer.parameters.volume.size)
+            helper.position.copy(this.viewer.parameters.volume.size).divideScalar(-2)
+
+            this.helpers.occumaps.add(helper)
+        }
+    }
+
+    setComputationHelper()
+    {
+        this.helpers.computation = new THREE.Mesh(
+            new THREE.PlaneGeometry(this.computation.dimensions.width, this.computation.dimensions.height),
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthTest: false })
+        )
+        this.helpers.computation.material.map = this.getComputationTexture()
+        this.helpers.computation.scale.divideScalar(this.computation.dimensions.height)
+    }
+
+    updateOccumapsHelper()
+    {
+        for (let i = 0; i < 3; i++)
+        {
+            if (this.helpers.occumaps.children[i].visible) 
+                this.helpers.occumaps.children[i].updateOccumap(this.occumaps[i])        
+        }
+    }
+
+    updateComputationHelper()
+    {
+        this.helpers.computation.material.map = this.getComputationTexture()
     }
 
     // dispose
 
     dispose() 
     {
-        this.disposeOccumaps()
-        this.disposeComputationTextures()
-        this.disposeComputationWorker()
-        this.disposeDebugMesh()
-        this.cleanReferences()
-    }
+        if (this.viewer.debug.active)
+        {
+            this.viewer.scene.remove(this.helpers.occumaps)
+            this.viewer.scene.remove(this.helpers.computation)
 
-    disposeOccumaps() 
-    {
-        ['resolution0', 'resolution1', 'resolution2'].forEach(key => {
-            if (this[key].texture) this[key].texture.dispose();
-        })
-    }
-
-    disposeComputationTextures() 
-    {
-        if (this.computation.texture) this.computation.texture.dispose()
-        if (this.computation.instance) this.computation.instance.dispose()
-    }
-
-    disposeComputationWorker()
-    {
-        if (this.computation.worker) {
-            this.computation.worker.terminate();
-            this.computation.worker = null;
+            this.helpers.computation.geometry.dispose()
+            this.helpers.computation.material.dispose()
+            this.helpers.occumaps.children.forEach((helper) => {
+                helper.geometry.dispose()
+                helper.material.dispose()
+            })
+            
+            this.helpers.occumap = null
+            this.helpers.computation = null
+            this.helpers = null
         }
-    }
 
-    disposeDebugMesh() 
-    {
-        if (this.computation.debug) {
-            if (this.computation.debug.geometry) this.computation.debug.geometry.dispose()
-            if (this.computation.debug.material) this.computation.debug.material.dispose()
-            if (this.scene) this.scene.remove(this.computation.debug)
-        }
-    }
-
-    cleanReferences() 
-    {
+        this.occumaps.forEach((occumap) => occumap.dispose())
+        this.computation.texture.dispose()
+        this.computation.instance.dispose()
+        this.computation.worker.terminate()
+        this.computation.texture = null
+        this.computation.worker = null
         this.computation.data = null
         this.computation = null
-        this.occupancyBox = null
-        this.scene = null
+        this.occumaps = null
+        this.viewer = null
     }
 }

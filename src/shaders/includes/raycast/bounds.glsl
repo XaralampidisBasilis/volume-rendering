@@ -13,7 +13,7 @@ vec2 bounds(in uniforms_occupancy u_occupancy, in vec3 ray_start, in vec3 ray_no
     // intersect box with ray and compute the bounds
     vec2 ray_bounds = intersect_box(u_occupancy.box_min, u_occupancy.box_max, ray_start, ray_normal);
     
-    // Ensure the bounds are non-negative
+    // Ensure the bounds are non-negative, meaning if camera is inside the bounding box, then we start from zero
     ray_bounds = max(ray_bounds, 0.0); 
 
     // discard fragments the ray does not intersect the box

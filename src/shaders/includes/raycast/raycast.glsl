@@ -22,29 +22,28 @@ bool raycast
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
     in uniforms_sampler u_sampler,
-    in vec3 ray_start, 
+    in vec3 ray_origin, 
     in vec3 ray_normal, 
-    out vec3 hit_position, 
-    out float hit_intensity
+    out vec3 ray_position, 
+    out float ray_sample
 ) {    
     // compute the intersection bounds of a ray with occypancy axis-aligned bounding box.
-    vec2 ray_bounds = bounds(u_occupancy, ray_start, ray_normal); // debug gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0);  
+    vec2 ray_bounds = bounds(u_occupancy, ray_origin, ray_normal); // debug gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0);  
 
     // compute the ray step vector based on the raycast and volume parameters
     vec3 ray_step = raystep(u_raycast, u_volume, ray_normal, ray_bounds); 
 
-    // compute the ray step delta and step bounds
-    float ray_delta = length(ray_step); 
-    vec2 step_bounds = ray_bounds / ray_delta; // debug gl_FragColor = vec4((step_bounds.y-step_bounds.x)*ray_delta/1.732, 1.0);  
-
     // apply dithering to the initial distance to avoid artifacts
-    vec3 dither_step = dither(u_raycast, u_sampler, ray_step, step_bounds); // debug gl_FragColor = vec4(vec3(legth(dither_step)), 1.0);  
+    float ray_dither = dither(u_raycast, u_sampler, ray_normal, ray_bounds); // debug gl_FragColor = vec4(vec3(ray_dither), 1.0);  
 
     // initialize the starting position along the ray
-    hit_position = ray_start + ray_step * step_bounds.x - dither_step;
+    ray_position = ray_origin + ray_bounds.x * ray_normal - ray_dither * ray_step;
     
+    // compute the ray step delta and step bounds
+    ivec2 step_bounds = ivec2(ray_bounds / length(ray_step)); // debug gl_FragColor = vec4((step_bounds.y-step_bounds.x)*ray_delta/1.732, 1.0);  
+
     // raycasting loop to traverse through the volume
-    return raymarch(u_raycast, u_volume, u_occupancy, u_sampler, ivec2(step_bounds), ray_step, hit_position, hit_intensity);
+    return raymarch(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample);
 
     // for (float n_step = step_bounds.x; n_step < step_bounds.y; n_step++, hit_position += ray_step) {
 

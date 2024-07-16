@@ -1,7 +1,6 @@
 #include ../rayskip/rayskip.glsl;
 #include ../raymarch/traverse.glsl;
 
-
 /**
  * @param u_raycast: struct containing raycast-related uniforms.
  * @param u_volume: struct containing volume-related uniforms.
@@ -32,25 +31,22 @@ bool raymarch
 
     // raymarch loop to traverse through the volume
     float count = 0.0;
+    float MAX_COUNT = 1.73205080757 / length(ray_step); // sqrt(3) / length(ray_step)
 
-    for (int n_step = step_bounds.x; n_step < step_bounds.y && count < 3000.0; n_step++, ray_position += ray_step) 
+    for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; ) 
     {
         bool occupied = rayskip(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
-        int traverse_steps = skip_steps[current_level] - 1;
 
         // traverse space if block is occupied
-        if (occupied) {
-
-            // gl_FragColor = vec4(vec3(count / 10.0), 1.0);
-            // return occupied;
-
-            bool hit = traverse(u_raycast, u_sampler, ray_step, traverse_steps, ray_position, ray_sample);
+        if (occupied) 
+        {
+            bool hit = traverse(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, ray_sample);
             if (hit) return true;
-        } 
+        }
 
         // skips traverse steps
-        ray_position += ray_step * float(traverse_steps);
-        n_step += traverse_steps;
+        ray_position += ray_step * float(skip_steps[current_level]);
+        n_step += skip_steps[current_level];
 
         count++;
     }   

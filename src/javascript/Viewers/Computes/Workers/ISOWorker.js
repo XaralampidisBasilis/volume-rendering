@@ -45,10 +45,12 @@ function updateBox(outputData)
 }
 
 function normalizeBox(inputData, outputData)
- {
+{
+    // In order to convert voxel coordinates to model positions we need to take into account the voxel size
+    // that is why we need to add to boxMax + 1 to account for the correct physical bounding box
     for (let i = 0; i < 3; i++) 
     {
         outputData.boxMin[i] = Math.max(0, Math.min(1, outputData.boxMin[i] / inputData.volumeDimensions[i]))
-        outputData.boxMax[i] = Math.max(0, Math.min(1, outputData.boxMax[i] / inputData.volumeDimensions[i]))
+        outputData.boxMax[i] = Math.max(0, Math.min(1, (outputData.boxMax[i] + 1) / inputData.volumeDimensions[i]))
     }
 }

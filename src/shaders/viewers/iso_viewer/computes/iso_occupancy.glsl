@@ -27,8 +27,8 @@ void main()
     ivec3 block_coords = reshape_2d_to_3d(pixel_coords, u_computation.occupancy_dimensions); // gl_FragColor = vec4(vec3(block_coord)/vec3(u_occupancy_size-1), 1.0);
 
     // Get min and max block voxel positions in the volume
-    ivec3 block_min = max(u_computation.block_dimensions * block_coords, 0); // gl_FragColor = vec4((vec3(voxel_min)/vec3(u_volume_size-1)), 1.0);
-    ivec3 block_max = min(block_min + u_computation.block_dimensions, u_computation.volume_dimensions - 1); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
+    ivec3 block_voxel_min = max(u_computation.block_dimensions * block_coords, 0); // gl_FragColor = vec4((vec3(voxel_min)/vec3(u_volume_size-1)), 1.0);
+    ivec3 block_voxel_max = min(block_voxel_min + u_computation.block_dimensions, u_computation.volume_dimensions - 1); // gl_FragColor = vec4((vec3(voxel_max)/vec3(u_volume_size-1)), 1.0);
 
     // initialize bounding box
     ivec3 bb_min = u_computation.volume_dimensions - 1;
@@ -40,9 +40,9 @@ void main()
     }
     
     // Scan the volume block to find voxels with value above threshold
-    for (int z = block_min.z; z <= block_max.z; z++) {
-        for (int y = block_min.y; y <= block_max.y; y++) {
-            for (int x = block_min.x; x <= block_max.x; x++) {
+    for (int z = block_voxel_min.z; z <= block_voxel_max.z; z++) {
+        for (int y = block_voxel_min.y; y <= block_voxel_max.y; y++) {
+            for (int x = block_voxel_min.x; x <= block_voxel_max.x; x++) {
 
                 ivec3 voxel_coords = ivec3(x, y, z);
                 float voxel_intensity = texelFetch(u_computation.volume_data, voxel_coords, 0).r;
@@ -54,7 +54,7 @@ void main()
                     bb_max = max(bb_max, voxel_coords);
 
                     // compute occupancy index
-                    int bit = find_octree_block(block_min, block_max, voxel_coords);
+                    int bit = find_octree_block(block_voxel_min, block_voxel_max, voxel_coords);
                     occupancy[bit] = 1;
                 }
             }
