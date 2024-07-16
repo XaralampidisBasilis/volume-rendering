@@ -5,10 +5,10 @@
  * @param frag_position: vec3 where the position of fragment is stored. The fragment is inside model's normalized coordinates
  * @param v_projection_model_view_matrix: a varying from the vertex shader that computes the mapping from model to clip space
  */
-float depth(in uniforms_volume u_volume, in vec3 hit_position)
+float compute_frag_depth(in uniforms_volume u_volume, in vec3 ray_position)
 {
     // Transform the fragment position to clip space
-    vec4 clip_position = v_projection_model_view_matrix * vec4(hit_position * u_volume.size, 1.0); 
+    vec4 clip_position = v_projection_model_view_matrix * vec4(ray_position * u_volume.size, 1.0); 
     
     // Perform perspective division to get NDC space
     vec3 ndc_position = clip_position.xyz / clip_position.w; 

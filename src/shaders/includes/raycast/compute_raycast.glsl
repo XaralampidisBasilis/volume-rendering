@@ -1,7 +1,7 @@
 #include ../raycast/modules/compute_bounds.glsl;
-#include ../raycast/modules/compute_dither.glsl;
-#include ../raycast/raystep/raystep.glsl;
-#include ../raycast/raymarch/raymarch.glsl;
+#include ../raycast/modules/compute_dithering.glsl;
+#include ../raycast/steps/compute_step.glsl;
+#include ../raycast/marching/compute_marching.glsl;
 
 /**
  * performs raycasting in a 3d texture to find the depth and intensity of an intersection.
@@ -16,33 +16,33 @@
  * @param hit_intensity: output float where the intensity at the intersection will be stored.
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
-bool raycast
+bool compute_raycast
 (
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
     in uniforms_sampler u_sampler,
-    in vec3 ray_origin, 
+    in vec3 ray_start, 
     in vec3 ray_normal, 
     out vec3 ray_position, 
     out float ray_sample,
     out float ray_depth
 ) {    
     // compute the intersection bounds of a ray with occypancy axis-aligned bounding box.
-    vec2 ray_bounds = compute_bounds(u_occupancy, ray_origin, ray_normal); // debug gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0);  
+    vec2 ray_bounds = compute_bounds(u_occupancy, ray_start, ray_normal); // debug gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0);  
 
     // compute the ray step vector based on the raycast and volume parameters
-    vec3 ray_step = raystep(u_raycast, u_volume, ray_normal, ray_bounds); 
+    vec3 ray_step = compute_step(u_raycast, u_volume, ray_normal, ray_bounds); 
 
     // apply dithering to the initial distance to avoid artifacts
-    float ray_dither = compute_dither(u_raycast, u_sampler, ray_normal, ray_bounds); // debug gl_FragColor = vec4(vec3(ray_dither), 1.0);  
+    float ray_dithering = compute_dithering(u_raycast, u_sampler, ray_normal, ray_bounds); // debug gl_FragColor = vec4(vec3(ray_dither), 1.0);  
 
     // initialize the starting position along the ray
-    ray_position = ray_origin + ray_bounds.x * ray_normal - ray_dither * ray_step;
+    ray_position = ray_start + ray_normal * ray_bounds.x  - ray_step * ray_dithering;
     
     // compute the ray step delta and step bounds
     ivec2 step_bounds = ivec2(ray_bounds / length(ray_step)); // debug gl_FragColor = vec4((step_bounds.y-step_bounds.x)*ray_delta/1.732, 1.0);  
 
     // raycasting loop to traverse through the volume
-    return raymarch(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
+    return compute_marching(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
 }

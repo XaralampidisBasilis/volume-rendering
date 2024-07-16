@@ -14,7 +14,7 @@
  * @param skip_steps - Array to store the number of steps to exit the block for each level.
  * @return - Returns true if the block is occupied and the ray should not skip it, false otherwise.
  */
-bool rayskip
+bool skip_space
 (
     in uniforms_occupancy u_occupancy, 
     in uniforms_volume u_volume, 

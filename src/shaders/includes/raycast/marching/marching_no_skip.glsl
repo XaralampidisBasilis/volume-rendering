@@ -9,7 +9,7 @@
  * @param hit_intensity: output float where the intensity at the intersection will be stored.
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
-bool raymarch_skip
+bool marching_no_skip
 (
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
@@ -22,32 +22,22 @@ bool raymarch_skip
     out float ray_depth
 ) 
 { 
-    // initialize state vaiables
-    int skip_steps[3] = int[3](0, 0, 0);
-    int current_level = 0;
-    int next_level = 0;
-
     // raymarch loop to traverse through the volume
     float count = 0.0;
     float MAX_COUNT = 1.73205080757 / length(ray_step); // sqrt(3) / length(ray_step)
 
-    for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; ) 
+    for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; n_step++, ray_position += ray_step) 
     {
-        bool occupied = skip_space(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
+        // sample the intensity of the volume at the current 'hit_position'.
+        ray_sample = sample_intensity_3d(u_sampler.volume, ray_position);
 
-        // traverse space if block is occupied
-        if (occupied) 
-        {            
-            bool ray_hit = traverse_space(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, ray_sample);
-            if (ray_hit) 
-            {
-                ray_depth = frag_depth(u_volume, ray_position);
-                return true;
-            }
+        // if the sampled intensity exceeds the threshold, a hit is detected.
+        if (ray_sample > u_raycast.threshold) 
+        {
+            traverse_refine(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
+            ray_depth = compute_frag_depth(u_volume, ray_position);
+            return true;
         }
-
-        ray_position += ray_step * float(skip_steps[current_level]);
-        n_step += skip_steps[current_level];
 
         count++;
     }   

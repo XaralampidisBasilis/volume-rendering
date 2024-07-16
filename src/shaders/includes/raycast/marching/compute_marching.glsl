@@ -1,8 +1,8 @@
 #include ../modules/traverse_space.glsl;
 #include ../modules/skip_space.glsl;
-#include ../modules/frag_depth.glsl;
-#include ../raymarch/raymarch_no_skip.glsl;
-#include ../raymarch/raymarch_skip.glsl;
+#include ../modules/compute_frag_depth.glsl;
+#include ../marching/marching_no_skip.glsl;
+#include ../marching/marching_skip.glsl;
 
 /**
  * Determines if a ray intersects with the volume and optionally skips empty space.
@@ -18,7 +18,7 @@
  * @param ray_depth: output float where the depth at the intersection will be stored.
  * @return bool: returns true if an intersection is found, false otherwise.
  */
-bool raymarch (
+bool compute_marching (
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
@@ -33,9 +33,9 @@ bool raymarch (
     switch(u_raycast.skipping)  
     {
         case 0:
-            return raymarch_no_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
+            return marching_no_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
         case 1:
-            return raymarch_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
+            return marching_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
         default:
             return false;
     }  

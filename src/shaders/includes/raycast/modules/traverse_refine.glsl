@@ -7,7 +7,7 @@
  * @param hit_position: inout vec3 where the refined position of the intersection will be stored.
  * @param hit_value: output float where the refined value at the intersection will be stored.
  */
-void refine(in uniforms_raycast u_raycast, in uniforms_sampler u_sampler, in vec3 ray_step, inout vec3 ray_position, out float ray_sample)
+void traverse_refine(in uniforms_raycast u_raycast, in uniforms_sampler u_sampler, in vec3 ray_step, inout vec3 ray_position, out float ray_sample)
 {
     // calculate the refined substep based on the number of refinements
     vec3 ray_substep = ray_step / float(u_raycast.refinements + 1);  

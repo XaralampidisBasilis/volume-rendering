@@ -35,10 +35,10 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../includes/utils/posterize.glsl;
 
 // functionality
-#include ../../includes/raycast/raycast.glsl;
-#include ../../includes/colormap/colormap.glsl;
-#include ../../includes/gradient/gradient.glsl;
-#include ../../includes/lighting/lighting.glsl;
+#include ../../includes/raycast/compute_raycast.glsl;
+#include ../../includes/colormap/compute_color.glsl;
+#include ../../includes/gradient/compute_gradient.glsl;
+#include ../../includes/lighting/compute_lighting.glsl;
 
 void main() 
 {
@@ -46,27 +46,29 @@ void main()
     vec3 ray_position = vec3(0.0);
     float ray_sample = 0.0;
     float ray_depth = 0.0;
-    float gradient_magnitude = 1.0;
+    float ray_alpha = 1.0;
 
     // normalize view direction vector
     vec3 ray_normal = normalize(v_direction);
-    bool ray_hit = raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, ray_position, ray_sample, ray_depth);
+    bool ray_hit = compute_raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, ray_position, ray_sample, ray_depth);
 
     // perform fast raycasting to get hit position and value
     if (ray_hit) 
     {
         // compute the gradient normal vector at hit position
-        vec3 gradient_vector = gradient(u_gradient, u_volume, u_sampler, ray_position, ray_sample, gradient_magnitude);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
+        vec3 gradient_vector = compute_gradient(u_gradient, u_volume, u_sampler, ray_position, ray_sample, ray_alpha);  // debug gl_FragColor = vec4((normal_vector * 0.5) + 0.5, 1.0);        
     
         // compute the max intensity color mapping
-        vec3 sample_color = colormap(u_colormap, u_sampler, ray_sample); // debug gl_FragColor = vec4(intensity_color, 1.0);       
+        vec3 color_sample = compute_color(u_colormap, u_sampler, ray_sample); // debug gl_FragColor = vec4(intensity_color, 1.0);       
 
         // compute the lighting color
-        vec3 hit_color = lighting(u_lighting, sample_color, gradient_vector, ray_position, v_camera, v_camera);
+        vec3 color_lighting = compute_lighting(u_lighting, color_sample, gradient_vector, ray_position, v_camera, v_camera);
 
         // final color
-        float alpha = float(gradient_magnitude > u_gradient.threshold); // if occupancy gets zero then there is nothing behind to plot
-        gl_FragColor = vec4(hit_color, alpha);
+        ray_alpha = float(ray_alpha > u_gradient.threshold); // if occupancy gets zero then there is nothing behind to plot
+        gl_FragColor = vec4(color_lighting, ray_alpha);
+        
+        // final fragment depth
         gl_FragDepth = ray_depth;
 
         return;

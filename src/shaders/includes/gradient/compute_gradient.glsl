@@ -13,7 +13,7 @@
  * @param normal: Output vector where the gradient will be stored
  * @param value_max: Output float where the maximum value of the sampled points will be stored
  */
-vec3 gradient(
+vec3 compute_gradient(
     in uniforms_gradient u_gradient, 
     in uniforms_volume u_volume, 
     in uniforms_sampler u_sampler, 
