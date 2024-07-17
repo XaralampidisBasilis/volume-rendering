@@ -28,39 +28,67 @@ bool check_occupancy
 {
     bool occupied = false;
     
-    // Precompute next levels
-    int next_levels[3] = int[3](
-        0,
-        int(skip_steps[1] < skip_steps[0]),
-        int(skip_steps[2] < skip_steps[0]) + int(skip_steps[2] < skip_steps[1])
-    );
-
-    // Iterate through levels without dynamic sampler indexing
-    for (int i = current_level; i < 3; i++) 
+    if (current_level == 0)
     {
-        // we need switch because array samplers need constant indxing
-        switch (i) {
-            case 0:
-                occupied = check_occupancy_block(u_sampler.occumaps[0], u_occupancy.dimensions[0], u_occupancy.blocks[0], u_volume.dimensions, ray_position, ray_step, skip_steps[0]);
-                break;
-            case 1:
-                occupied = check_occupancy_block(u_sampler.occumaps[1], u_occupancy.dimensions[1], u_occupancy.blocks[1], u_volume.dimensions, ray_position, ray_step, skip_steps[1]);
-                break;
-            case 2:
-                occupied = check_occupancy_block(u_sampler.occumaps[2], u_occupancy.dimensions[2], u_occupancy.blocks[2], u_volume.dimensions, ray_position, ray_step, skip_steps[2]);
-                break;
-        }
-
-        current_level = i;
-
+        current_level = 0;
+        occupied = check_occupancy_block
+        (
+            u_sampler.occumaps[0], 
+            u_occupancy.dimensions[0], 
+            u_occupancy.blocks[0], 
+            u_volume.dimensions, 
+            ray_position, 
+            ray_step, 
+            skip_steps[0]
+        );
         if (!occupied) 
         {
-            next_level = next_levels[i];
+            next_level = 0;
             return false;
         }
-
     }
 
+    if (current_level == 1)
+    {
+        current_level = 1;
+        occupied = check_occupancy_block
+        (
+            u_sampler.occumaps[1], 
+            u_occupancy.dimensions[1], 
+            u_occupancy.blocks[1], 
+            u_volume.dimensions, 
+            ray_position, 
+            ray_step, 
+            skip_steps[1]
+        );
+        if (!occupied) 
+        {
+            next_level = int(skip_steps[1] < skip_steps[0]);
+            return false;
+        }
+    }
+
+    if (current_level == 2)
+    {
+        current_level = 2;
+        occupied = check_occupancy_block
+        (
+            u_sampler.occumaps[2], 
+            u_occupancy.dimensions[2], 
+            u_occupancy.blocks[2], 
+            u_volume.dimensions, 
+            ray_position, 
+            ray_step, 
+            skip_steps[2]
+        );
+        if (!occupied) 
+        {
+            next_level = int(skip_steps[2] < skip_steps[1]) + int(skip_steps[1] <= skip_steps[2] && skip_steps[2] < skip_steps[0]);
+            return false;
+        }
+    }
+
+    next_level = int(skip_steps[2] < skip_steps[1]) + int(skip_steps[1] <= skip_steps[2] && skip_steps[2] < skip_steps[0]);
     return true;
 }
 

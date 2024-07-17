@@ -50,7 +50,7 @@ void main()
     float hit_alpha = 1.0;
 
     // perform raycasting
-    bool intersected = compute_raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, hit_position, hit_sample, hit_depth);     
+    bool intersected = compute_raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, hit_position, hit_sample, hit_depth); 
     if (intersected) 
     {        
         // compute the gradient normal vector at hit position

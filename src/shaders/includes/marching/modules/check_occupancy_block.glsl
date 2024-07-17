@@ -10,7 +10,7 @@ bool check_occupancy_block
     out int skip_steps
 ) {
 
-    vec3 voxel_position = ray_position * volume_dimensions; // for some reason if I floor this and set divisions to 10 there a problems
+    vec3 voxel_position = floor(ray_position * volume_dimensions); // for some reason if I floor this and set divisions to 10 there a problems
     vec3 block_position = floor(voxel_position / block_dimensions);
 
     // compute block0 min and max voxel coordinates

@@ -42,8 +42,9 @@ bool marching_skip
             bool intersected = check_intersection(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, hit_position, hit_sample);
             if (intersected) 
             {
-                // refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample); // Seems to decrease frame rate
-                hit_depth = compute_frag_depth(u_volume, hit_position); // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
+                // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
+                refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample);
+                hit_depth = compute_frag_depth(u_volume, hit_position); 
                 return true;
             }
         }
@@ -51,6 +52,7 @@ bool marching_skip
         // skip space
         i_step += skip_steps[current_level];
         ray_position += ray_step * float(skip_steps[current_level]);
+        current_level = next_level;
     }   
 
     // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
