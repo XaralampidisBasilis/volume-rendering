@@ -8,12 +8,24 @@
  *
  * @return vec3: Gradient vector at the given position
  */
-vec3 gradient_sobel(in sampler3D sampler_volume, in vec3 gradient_step, in vec3 hit_position, inout float max_sample, out float gradient_magnitude)
+vec3 gradient_sobel
+(
+    in uniforms_gradient u_gradient, 
+    in uniforms_volume u_volume, 
+    in uniforms_sampler u_sampler, 
+    in vec3 ray_position, 
+    inout float ray_sample, 
+    out float gradient_magnitude
+)
 {
+    float voxel_spacing = min(u_volume.spacing.x, min(u_volume.spacing.y, u_volume.spacing.z));
+    vec3 voxel_step = voxel_spacing / u_volume.size;
+
     vec2 k = vec2(1.0, -1.0);
+    vec3 gradient_step = voxel_step / u_gradient.resolution;
 
     // Define offsets for the 8 neighboring points using swizzling
-    vec3 delta[8] = vec3[8](
+    vec3 offset[8] = vec3[8](
         gradient_step * k.xxx,  // Right Top Near
         gradient_step * k.xxy,  // Right Top Far
         gradient_step * k.xyx,  // Right Bottom Near
@@ -24,13 +36,22 @@ vec3 gradient_sobel(in sampler3D sampler_volume, in vec3 gradient_step, in vec3 
         gradient_step * k.yyy   // Left Bottom Far
     );
 
-    // Sample the values at the neighboring points
+    // Sample values at the neighboring points
     float samples[8];
     for (int i = 0; i < 8; i++)
     {
-        samples[i] = sample_intensity_3d(sampler_volume, hit_position + delta[i]);
-        max_sample = max(max_sample, samples[i]);
+        vec3 ray_offset = ray_position + offset[i];
+        samples[i] = sample_intensity_3d(u_sampler.volume, ray_offset) * inside_texture(ray_offset);
     }
+
+     // if multisampling is active
+    if (u_gradient.multisampling) 
+    {
+        for (int i = 0; i < 8; i++) 
+            ray_sample = max(ray_sample, samples[i]); 
+    }
+       
+    
 
     // Calculate the gradient using the Sobel operator
     vec3 gradient_vector = vec3(

@@ -9,7 +9,7 @@
  */
 vec3 step_isotropic(in uniforms_raycast u_raycast, in uniforms_volume u_volume, in vec3 ray_normal) 
 {
-    float voxel_delta = 0.1 * length(u_volume.voxel);
+    float voxel_delta = 0.1 * length(1.0 / u_volume.dimensions);
     float ray_delta = voxel_delta / u_raycast.resolution;
 
     // Return the stride vector by scaling the ray's direction vector by the step distance

@@ -10,7 +10,7 @@ struct uniforms_volume
 {
     vec3 dimensions;
     vec3 size;
-    vec3 voxel;
+    vec3 spacing;
 };
 
 uniform uniforms_volume u_volume;

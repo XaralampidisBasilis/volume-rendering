@@ -8,12 +8,24 @@
  *
  * @return vec3: Gradient vector at the given position
  */
-vec3 gradient_central(in sampler3D sampler_volume, in vec3 gradient_step, in vec3 ray_position, inout float max_sample, out float gradient_magnitude)
+vec3 gradient_central
+(
+    in uniforms_gradient u_gradient, 
+    in uniforms_volume u_volume, 
+    in uniforms_sampler u_sampler, 
+    in vec3 ray_position, 
+    inout float ray_sample, 
+    out float gradient_magnitude
+)
 {
-    vec3 k = vec3(1.0, -1.0, 0.0);
+    float voxel_spacing = min(u_volume.spacing.x, min(u_volume.spacing.y, u_volume.spacing.z));
+    vec3 voxel_step = voxel_spacing / u_volume.size;
+
+    vec3 k = vec3(1.0, 0.0, -1.0);
+    vec3 gradient_step = voxel_step / u_gradient.resolution;
 
     // Define offsets for the 6 neighboring points using swizzling
-    vec3 delta[6] = vec3[6](
+    vec3 offset[6] = vec3[6](
         gradient_step * k.xzz,  // Right
         gradient_step * k.yzz,  // Left
         gradient_step * k.zxz,  // Top
@@ -25,10 +37,17 @@ vec3 gradient_central(in sampler3D sampler_volume, in vec3 gradient_step, in vec
     float samples[6];
     for (int i = 0; i < 6; i++)
     {
-        samples[i] = texture(sampler_volume, ray_position + delta[i]).r;
-        max_sample = max(max_sample, samples[i]);
+        vec3 ray_offset = ray_position + offset[i];
+        samples[i] = sample_intensity_3d(u_sampler.volume, ray_offset) * inside_texture(ray_offset);
     }
 
+     // if multisampling is active
+    if (u_gradient.multisampling) 
+    {
+        for (int i = 0; i < 6; i++) 
+            ray_sample = max(ray_sample, samples[i]); 
+    }
+      
     // compute gradient vector
     vec3 gradient_vector = vec3(
         samples[1] - samples[0],
@@ -39,8 +58,6 @@ vec3 gradient_central(in sampler3D sampler_volume, in vec3 gradient_step, in vec
     gradient_magnitude = length(gradient_vector);
     gradient_vector = normalize(gradient_vector);
 
-   
-    
     return gradient_vector;
 }
 

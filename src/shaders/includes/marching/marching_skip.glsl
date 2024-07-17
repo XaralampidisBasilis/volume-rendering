@@ -49,7 +49,7 @@ bool marching_skip
             }
         }
         
-        // skip space
+        // update ray and skip space
         i_step += skip_steps[current_level];
         ray_position += ray_step * float(skip_steps[current_level]);
         current_level = next_level;

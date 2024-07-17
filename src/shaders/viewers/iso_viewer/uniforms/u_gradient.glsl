@@ -7,7 +7,7 @@ struct uniforms_gradient
     float threshold;
     float resolution;
     int method;
-    float neighbor;
+    bool multisampling;
 };
 
 uniform uniforms_gradient u_gradient;

@@ -9,7 +9,7 @@
  * @param hit_intensity: output float where the intensity at the intersection will be stored.
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
-bool marching_no_skip
+bool marching_full
 (
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
@@ -37,10 +37,11 @@ bool marching_no_skip
         {
             hit_position = ray_position;
             refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample); // Seems to decrease frame rate
-            hit_depth = compute_frag_depth(u_volume, ray_position);
+            hit_depth = compute_frag_depth(u_volume, hit_position);
             return true;
         }
 
+        // update ray
         n_step++;
         ray_position += ray_step;
     }   

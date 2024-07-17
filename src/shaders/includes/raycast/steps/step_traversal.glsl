@@ -16,10 +16,10 @@ vec3 step_traversal(in uniforms_raycast u_raycast, in uniforms_volume u_volume, 
     float ray_span = abs(ray_bounds.y - ray_bounds.x);
     
     // Determine the number of steps the ray should take, based on the resolution and maximum dimension
-    float ray_steps = ceil(ray_span * dimension_max * u_raycast.resolution);
+    float num_steps = ceil(ray_span * dimension_max * u_raycast.resolution);
     
     // Calculate the distance covered in each step
-    float ray_delta = ray_span / ray_steps;
+    float ray_delta = ray_span / num_steps;
 
     // Clamp ray delta to a min value
     ray_delta = max(ray_delta, 0.01 / dimension_max);

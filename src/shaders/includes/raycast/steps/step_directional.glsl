@@ -11,7 +11,7 @@ vec3 step_directional(in uniforms_raycast u_raycast, in uniforms_volume u_volume
 {
     // compute the voxel box 
     vec3 voxel_min = vec3(0.0);
-    vec3 voxel_max = u_volume.voxel;
+    vec3 voxel_max = 1.0 / u_volume.dimensions;
 
     // find the ray delta inside the voxel box
     float ray_delta = intersect_box_max(voxel_min, voxel_max, voxel_min, abs(ray_normal));

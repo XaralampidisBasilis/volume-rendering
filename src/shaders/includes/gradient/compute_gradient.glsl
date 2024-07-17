@@ -21,27 +21,16 @@ vec3 compute_gradient(
     inout float ray_sample, 
     out float gradient_magnitude
 )
-{
-    vec3 gradient_step = u_volume.voxel / u_gradient.resolution;
-    vec3 gradient_vector = vec3(0.0, 0.0, 0.0);
-
-    float max_sample = ray_sample;
-
+{    
     switch (u_gradient.method)
     {
         case 1: 
-            gradient_vector = gradient_sobel(u_sampler.volume, gradient_step, ray_position, max_sample, gradient_magnitude);
-            break;
+            return gradient_sobel(u_gradient, u_volume, u_sampler, ray_position, ray_sample, gradient_magnitude);
         case 2: 
-            gradient_vector = gradient_central(u_sampler.volume, gradient_step, ray_position, max_sample, gradient_magnitude);
-            break;
+            return gradient_central(u_gradient, u_volume, u_sampler, ray_position, ray_sample, gradient_magnitude);
         case 3:  
-            gradient_vector =  gradient_tetrahedron(u_sampler.volume, gradient_step, ray_position, max_sample, gradient_magnitude); 
-            break;
+            return gradient_tetrahedron(u_gradient, u_volume, u_sampler, ray_position, ray_sample, gradient_magnitude); 
     }
-
-    ray_sample = mix(ray_sample, max_sample, u_gradient.neighbor);
-    return gradient_vector;
 }
 
 // For visual debug

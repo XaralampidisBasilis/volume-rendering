@@ -129,9 +129,9 @@ export default class ISOViewer
     {
         this.material = new ISOMaterial()
 
-        this.material.uniforms.u_volume.value.voxel.fromArray(this.resource.volume.dimensions.map((x) => 1/x))
-        this.material.uniforms.u_volume.value.dimensions.fromArray(this.resource.volume.dimensions)
-        this.material.uniforms.u_volume.value.size.fromArray(this.resource.volume.size)
+        this.material.uniforms.u_volume.value.dimensions.copy(this.parameters.volume.dimensions)
+        this.material.uniforms.u_volume.value.size.copy(this.parameters.volume.size)
+        this.material.uniforms.u_volume.value.spacing.copy(this.parameters.volume.spacing)
 
         this.material.uniforms.u_sampler.value.volume = this.textures.volume
         this.material.uniforms.u_sampler.value.mask = this.textures.mask

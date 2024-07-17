@@ -3,7 +3,7 @@ import { colormapLocations } from '../../../../static/textures/colormaps/colorma
 import vertexShader from '../../../shaders/viewers/iso_viewer/vertex.glsl'
 import fragmentShader from '../../../shaders/viewers/iso_viewer/fragment.glsl'
 
-export default function()
+export default function(viewer)
 {
     const uniforms = {
                 
@@ -18,7 +18,7 @@ export default function()
         u_volume : new THREE.Uniform({
             dimensions:      new THREE.Vector3(),
             size:            new THREE.Vector3(),
-            voxel:           new THREE.Vector3(),
+            spacing:         new THREE.Vector3(),
         }),
 
         u_raycast: new THREE.Uniform({
@@ -34,7 +34,7 @@ export default function()
             threshold:       0,
             resolution:      0.7,  
             method:          1,        
-            neighbor:        true,
+            multisampling:   true,
         }),
             
         u_colormap: new THREE.Uniform({

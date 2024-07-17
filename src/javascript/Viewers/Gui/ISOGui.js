@@ -108,7 +108,7 @@ export default class ISOGui
             threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
             resolution: gradient.add(u_gradient, 'resolution').min(0.25).max(2).step(0.001),
             method: gradient.add(u_gradient, 'method').options({ sobel: 1, central: 2, tetrahedron: 3}),
-            neighbor: gradient.add(u_gradient, 'neighbor')
+            multisampling: gradient.add(u_gradient, 'multisampling')
         }
 
     }
