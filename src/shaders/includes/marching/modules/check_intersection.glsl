@@ -28,12 +28,10 @@ bool check_intersection
 
         // if the sampled intensity exceeds the threshold, a hit is detected.
         if (ray_sample > u_raycast.threshold) 
-        {
-            // refine_intersection(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
             return true;
-        }
     }
 
     ray_position = ray_position_0;
+    ray_sample = 0;
     return false;
 }
