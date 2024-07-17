@@ -3,7 +3,7 @@
 #include ./modules/refine_intersection.glsl;
 #include ./modules/compute_frag_depth.glsl;
 
-#include ./marching_no_skip.glsl;
+#include ./marching_full.glsl;
 #include ./marching_skip.glsl;
 
 /**
@@ -37,7 +37,7 @@ bool compute_marching
     switch(u_raycast.skipping)  
     {
         case 0:
-            return marching_no_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_sample, hit_depth);
+            return marching_full(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_sample, hit_depth);
         case 1:
             return marching_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_sample, hit_depth);
         default:
