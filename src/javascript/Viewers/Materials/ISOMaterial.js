@@ -42,6 +42,7 @@ export default function(viewer)
             v:               colormapLocations['cet_d9'].v,
             u_range:         new THREE.Vector2(colormapLocations['cet_d9'].u_start, colormapLocations['cet_d9'].u_end),
             u_lim:           new THREE.Vector2(0, 1),
+            levels:          255,
         }),
 
         u_lighting: new THREE.Uniform({
@@ -55,7 +56,6 @@ export default function(viewer)
             power:           0.7,    
             model:           2,    
             attenuation:     false,
-            levels:          10,
             edge_threshold:  1,
         }),
 

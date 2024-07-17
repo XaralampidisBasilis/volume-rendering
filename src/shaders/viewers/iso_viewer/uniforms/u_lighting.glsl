@@ -14,7 +14,6 @@ struct uniforms_lighting
     float power;
     int model;
     bool attenuation;
-    float levels;
     float edge_threshold;
 };
 

@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import Experience from '../Experience.js'
 import ISOMaterial from './Materials/ISOMaterial.js'
-import ISOGui from './GUI/ISOGui.js'
+import ISOGui from './GUI/ISOGui'
 import ISOHelpers from './Helpers/ISOHelpers.js'
 import ISOOccupancy from './Computes/ISOOccupancy.js'
 

@@ -1,9 +1,16 @@
 
-import { colormapLocations } from '../../../../static/textures/colormaps/colormaps.js'
-import { throttleByCalls, throttleByDelay } from '../../Utils/Throttle.js'
+import { colormapLocations } from '../../../../static/textures/colormaps/colormaps'
+import { throttleByCalls, throttleByDelay } from '../../Utils/Throttle'
+import type { Controller } from 'lil-gui'
 
 export default class ISOGui
 {
+    public viewer : any
+    public debug : any
+    public folders : any
+    public subfolders : any
+    public controllers : any
+
     constructor(viewer)
     {
         this.viewer = viewer
@@ -123,6 +130,7 @@ export default class ISOGui
 
             low: colormap.add(u_colormap.u_lim, 'x').name('low').min(0).max(1).step(0.001),
             high: colormap.add(u_colormap.u_lim, 'y').name('high').min(0).max(1).step(0.001),
+            levels: colormap.add(u_colormap, 'levels').min(1).max(255).step(1),
             name: colormap.add(u_colormap, 'name').options(Object.keys(colormapLocations)),
             flip: colormap.add(object, 'flip')
         }
@@ -141,9 +149,8 @@ export default class ISOGui
             ks: lighting.add(u_lighting, 'ks').min(0).max(1).step(0.001),
             shininess: lighting.add(u_lighting, 'shininess').min(0).max(40.0).step(0.2),
             power: lighting.add(u_lighting, 'power').min(0).max(2.0).step(0.1),
-            model: lighting.add(u_lighting, 'model').options({ phong: 1, blinn: 2, toon: 3}),
+            model: lighting.add(u_lighting, 'model').options({ phong: 1, blinn: 2}),
             attenuation: lighting.add(u_lighting, 'attenuation'),
-            levels: lighting.add(u_lighting, 'levels').min(2).max(255).step(1),
             edge_threshold: lighting.add(u_lighting, 'edge_threshold').min(0).max(1).step(0.001),
         }
     }

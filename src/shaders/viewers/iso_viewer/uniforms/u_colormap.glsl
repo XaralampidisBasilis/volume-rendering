@@ -8,6 +8,7 @@ struct uniforms_colormap
     float v;     
     vec2 u_range;
     vec2 u_lim;  
+    float levels;
 
 };
 

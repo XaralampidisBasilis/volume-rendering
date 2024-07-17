@@ -7,7 +7,6 @@
 
 #include ./lighting_phong.glsl;
 #include ./lighting_blinn.glsl;
-#include ./lighting_toon.glsl;
 
 /**
  * Calculates the final color using the Phong or Phong-Blin reflection model.
@@ -35,8 +34,6 @@ vec3 compute_lighting
             return lighting_phong(u_lighting, color, normal_vector, surface_position, view_position, light_position);
         case 2: 
             return lighting_blinn(u_lighting, color, normal_vector, surface_position, view_position, light_position);
-        case 3: 
-            return lighting_toon(u_lighting, color, normal_vector, surface_position, view_position, light_position);
         default: 
             return vec3(1.0, 0.0, 0.0); // error color
     }
