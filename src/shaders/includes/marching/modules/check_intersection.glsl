@@ -1,5 +1,3 @@
-#include ./traverse_refine.glsl;
-
 /**
  * performs a raycasting operation in a 3d volume texture to determine if a block of voxels is hit by the ray.
  *
@@ -11,7 +9,7 @@
  * @param hit_intensity: output float where the intensity of the voxel where the ray hits will be stored, if a hit occurs.
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
-bool traverse_space
+bool check_intersection
 ( 
     in uniforms_raycast u_raycast, 
     in uniforms_sampler u_sampler, 
@@ -20,9 +18,10 @@ bool traverse_space
     inout vec3 ray_position, 
     out float ray_sample
 ) {
-    vec3 ray_start = ray_position;
 
-    for (int n_step = 0; n_step < skip_steps; n_step++, ray_position += ray_step) {
+    vec3 ray_position_0 = ray_position;
+    
+    for (int i_step = 0; i_step < skip_steps; i_step++, ray_position += ray_step) {
 
         // sample the intensity of the volume at the current 'hit_position'.
         ray_sample = sample_intensity_3d(u_sampler.volume, ray_position);
@@ -30,11 +29,11 @@ bool traverse_space
         // if the sampled intensity exceeds the threshold, a hit is detected.
         if (ray_sample > u_raycast.threshold) 
         {
-            // traverse_refine(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
+            // refine_intersection(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
             return true;
         }
     }
 
-    ray_position = ray_start;
+    ray_position = ray_position_0;
     return false;
 }

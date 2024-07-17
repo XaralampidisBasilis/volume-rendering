@@ -29,31 +29,29 @@ bool marching_skip
 
     // raymarch loop to traverse through the volume
     float count = 0.0;
-    float MAX_COUNT = 1.73205080757 / length(ray_step); // for some reason some rays do not terminate. Need to find why
+    float MAX_COUNT = 0.1 * 1.73205080757 / length(ray_step); // for some reason some rays do not terminate. Need to find why
 
-    for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; ) 
+    for (int i_step = step_bounds.x; i_step < step_bounds.y && count < MAX_COUNT; ) 
     {
         // traverse space if block is occupied
-        bool occupied = skip_space(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
+        bool occupied = check_occupancy(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
         if (occupied) 
         {            
             // terminate marching if ray  hit
-            bool has_hit = traverse_space(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, ray_sample);
-            if (has_hit) 
+            bool intersected = check_intersection(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, ray_sample);
+            if (intersected) 
             {
-                gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
-                ray_depth = compute_frag_depth(u_volume, ray_position);
+                ray_depth = compute_frag_depth(u_volume, ray_position); // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
                 return true;
             }
         }
-
-        ray_position += ray_step * float(skip_steps[current_level]);
-        n_step += skip_steps[current_level];
-
+        
+        // if not occupancy and not intersection then skip space
+        skip_space(ray_step, skip_steps[current_level], ray_position, i_step);
         count++;
     }   
 
-    gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
+    // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
     ray_depth = 1.0;
     ray_sample = 0.0;
     return false;

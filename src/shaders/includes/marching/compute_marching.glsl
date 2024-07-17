@@ -1,4 +1,6 @@
-#include ./modules/traverse_space.glsl;
+#include ./modules/check_occupancy.glsl;
+#include ./modules/check_intersection.glsl;
+#include ./modules/refine_intersection.glsl;
 #include ./modules/skip_space.glsl;
 #include ./modules/compute_frag_depth.glsl;
 
@@ -19,7 +21,8 @@
  * @param ray_depth: output float where the depth at the intersection will be stored.
  * @return bool: returns true if an intersection is found, false otherwise.
  */
-bool compute_marching (
+bool compute_marching 
+(
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 

@@ -1,5 +1,5 @@
     
-bool skip_block
+bool check_occupancy_block
 (
     in sampler3D occumap,
     in vec3 occumap_dimensions,
@@ -28,9 +28,10 @@ bool skip_block
     // intersect ray with block
     float distance = intersect_box_max(block_min_voxel_pos, block_max_voxel_pos, ray_position, ray_step); 
     skip_steps = int(ceil(distance)); // we need ceil to go just outside of the block
-    
+    skip_steps = max(skip_steps, 1); // for some reason sometimes skip steps go zero. We need to clamp it
+
     // check if block is occupied
-    bool occupied = bool(sample_intensity_3d(occumap, block_position));
+    bool occupied = bool(sample_intensity_3d(occumap, block_position)); 
 
     return occupied;
 }

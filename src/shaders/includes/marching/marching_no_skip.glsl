@@ -34,7 +34,7 @@ bool marching_no_skip
         // if the sampled intensity exceeds the threshold, a hit is detected.
         if (ray_sample > u_raycast.threshold) 
         {
-            traverse_refine(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
+            refine_intersection(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
             ray_depth = compute_frag_depth(u_volume, ray_position);
             return true;
         }

@@ -27,7 +27,7 @@ export default function()
             resolution:      1,
             method:          3,   
             dithering:       true, 
-            skipping:        false,
+            skipping:        true,
         }),
 
         u_gradient: new THREE.Uniform({
@@ -64,7 +64,7 @@ export default function()
             blocks:          new Array(3).fill().map(() => new THREE.Vector3()),
             box_min:         new THREE.Vector3(0, 0, 0),
             box_max:         new THREE.Vector3(1, 1, 1),
-            divisions:       6, // divisions close to 2 makes computation shader to lag
+            divisions:       4, // divisions close to 2 makes computation shader to lag
             method:          1,
         })
 

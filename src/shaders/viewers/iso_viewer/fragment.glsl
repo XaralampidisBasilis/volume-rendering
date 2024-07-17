@@ -50,9 +50,7 @@ void main()
     float ray_alpha = 1.0;
 
     // perform raycasting
-    bool ray_hit = compute_raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, ray_position, ray_sample, ray_depth);  
-    return; // for debug
-     
+    bool ray_hit = compute_raycast(u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, ray_position, ray_sample, ray_depth);     
     if (ray_hit) 
     {        
         // compute the gradient normal vector at hit position
