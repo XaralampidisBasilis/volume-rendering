@@ -15,23 +15,23 @@ bool check_intersection
     in uniforms_sampler u_sampler, 
     in vec3 ray_step, 
     in int skip_steps, 
-    inout vec3 ray_position, 
-    out float ray_sample
+    in vec3 ray_position, 
+    out vec3 hit_position,
+    out float hit_sample
 ) {
 
-    vec3 ray_position_0 = ray_position;
+    hit_position = ray_position;
     
-    for (int i_step = 0; i_step < skip_steps; i_step++, ray_position += ray_step) {
+    for (int i_step = 0; i_step < skip_steps; i_step++, hit_position += ray_step) {
 
         // sample the intensity of the volume at the current 'hit_position'.
-        ray_sample = sample_intensity_3d(u_sampler.volume, ray_position);
+        hit_sample = sample_intensity_3d(u_sampler.volume, hit_position);
 
         // if the sampled intensity exceeds the threshold, a hit is detected.
-        if (ray_sample > u_raycast.threshold) 
+        if (hit_sample > u_raycast.threshold) 
             return true;
     }
 
-    ray_position = ray_position_0;
-    ray_sample = 0;
+    hit_sample = 0.0;
     return false;
 }

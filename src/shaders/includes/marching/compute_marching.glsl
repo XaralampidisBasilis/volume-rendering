@@ -28,17 +28,18 @@ bool compute_marching
     in uniforms_sampler u_sampler,
     in ivec2 step_bounds,
     in vec3 ray_step,
-    inout vec3 ray_position,
-    out float ray_sample,
-    out float ray_depth
+    in vec3 ray_position,
+    out vec3 hit_position,
+    out float hit_sample,
+    out float hit_depth
 ) 
 {
     switch(u_raycast.skipping)  
     {
         case 0:
-            return marching_no_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
+            return marching_no_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_sample, hit_depth);
         case 1:
-            return marching_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, ray_sample, ray_depth);
+            return marching_skip(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_sample, hit_depth);
         default:
             return false;
     }  

@@ -17,9 +17,10 @@ bool marching_no_skip
     in uniforms_sampler u_sampler,
     in ivec2 step_bounds,
     in vec3 ray_step,
-    inout vec3 ray_position,
-    out float ray_sample,
-    out float ray_depth
+    in vec3 ray_position,
+    out vec3 hit_position,
+    out float hit_sample,
+    out float hit_depth
 ) 
 { 
     // raymarch loop to traverse through the volume
@@ -29,20 +30,22 @@ bool marching_no_skip
     for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; n_step++, ray_position += ray_step) 
     {
         // sample the intensity of the volume at the current 'hit_position'.
-        ray_sample = sample_intensity_3d(u_sampler.volume, ray_position);
+        hit_sample = sample_intensity_3d(u_sampler.volume, ray_position);
 
         // if the sampled intensity exceeds the threshold, a hit is detected.
-        if (ray_sample > u_raycast.threshold) 
+        if (hit_sample > u_raycast.threshold) 
         {
-            refine_intersection(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
-            ray_depth = compute_frag_depth(u_volume, ray_position);
+            hit_position = ray_position;
+            refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample); // Seems to decrease frame rate
+            hit_depth = compute_frag_depth(u_volume, ray_position);
             return true;
         }
 
         count++;
     }   
 
-    ray_depth = 1.0;
-    ray_sample = 0.0;
+    hit_position = vec3(1.0/0.0);
+    hit_sample = 0.0;
+    hit_depth = 1.0;
     return false;
 }

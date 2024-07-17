@@ -17,17 +17,16 @@ bool marching_skip
     in uniforms_sampler u_sampler,
     in ivec2 step_bounds,
     in vec3 ray_step,
-    inout vec3 ray_position,
-    out float ray_sample,
-    out float ray_depth
+    in vec3 ray_position,
+    out vec3 hit_position,
+    out float hit_sample,
+    out float hit_depth
 ) 
 { 
     // initialize state vaiables
     int skip_steps[3] = int[3](0, 0, 0);
     int current_level = 0;
     int next_level = 0;
-    ray_sample = 0.0;
-    ray_depth = 1.0;
 
     // raymarch loop to traverse through the volume
     float count = 0.0;
@@ -40,11 +39,11 @@ bool marching_skip
         if (occupied) 
         {            
             // terminate marching if ray  hit
-            bool intersected = check_intersection(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, ray_sample);
+            bool intersected = check_intersection(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, hit_position, hit_sample);
             if (intersected) 
             {
-                // refine_intersection(u_raycast, u_sampler, ray_step, ray_position, ray_sample); // Seems to decrease frame rate
-                ray_depth = compute_frag_depth(u_volume, ray_position); // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
+                // refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample); // Seems to decrease frame rate
+                hit_depth = compute_frag_depth(u_volume, hit_position); // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
                 return true;
             }
         }
@@ -55,5 +54,8 @@ bool marching_skip
     }   
 
     // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
+    hit_position = vec3(1.0/0.0);
+    hit_sample = 0.0;
+    hit_depth = 1.0;
     return false;
 }
