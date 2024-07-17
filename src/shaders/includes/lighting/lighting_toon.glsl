@@ -8,7 +8,7 @@
  * @param source_vector: Vector from the surface point to the light source
  * @return vec3 The final color after applying lighting
  */
-vec3 lighting_phong_blin_toon(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_vector, in vec3 surface_position, in vec3 view_position, in vec3 source_position)
+vec3 lighting_toon(in uniforms_lighting u_lighting, in vec3 color, in vec3 normal_vector, in vec3 surface_position, in vec3 view_position, in vec3 source_position)
 {
     // calculate lighting vectors
     vec3 view_vector = surface_position - view_position;
@@ -16,7 +16,7 @@ vec3 lighting_phong_blin_toon(in uniforms_lighting u_lighting, in vec3 color, in
 
     // Calculate distance and its squared value, considering attenuation
     float distance_inv = 1.0 / (length(source_vector) + length(view_vector));
-    float attenuation = mix(1.0, distance_inv * distance_inv, u_lighting.attenuate) * u_lighting.power;  
+    float attenuation = mix(1.0, distance_inv * distance_inv, u_lighting.attenuation) * u_lighting.power;  
     
     // Normalize lighting vectors
     view_vector = normalize(view_vector);

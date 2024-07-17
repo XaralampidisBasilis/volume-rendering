@@ -34,7 +34,7 @@ export default function(viewer)
             threshold:       0,
             resolution:      0.7,  
             method:          1,        
-            multisampling:   true,
+            max_sampling:    true,
         }),
             
         u_colormap: new THREE.Uniform({
@@ -54,9 +54,9 @@ export default function(viewer)
             shininess:       40,    
             power:           0.7,    
             model:           2,    
-            attenuate:       false,
+            attenuation:     false,
             levels:          10,
-            edge:            0.1,
+            edge_threshold:  1,
         }),
 
         u_occupancy: new THREE.Uniform({

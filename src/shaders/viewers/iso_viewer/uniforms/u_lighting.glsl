@@ -13,9 +13,9 @@ struct uniforms_lighting
     float shininess;
     float power;
     int model;
-    bool attenuate;
+    bool attenuation;
     float levels;
-    float edge;
+    float edge_threshold;
 };
 
 uniform uniforms_lighting u_lighting;

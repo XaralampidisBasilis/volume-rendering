@@ -7,7 +7,7 @@ struct uniforms_gradient
     float threshold;
     float resolution;
     int method;
-    bool multisampling;
+    bool max_sampling;
 };
 
 uniform uniforms_gradient u_gradient;

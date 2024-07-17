@@ -38,10 +38,11 @@ bool compute_raycast
     float ray_dithering = compute_dithering(u_raycast, u_sampler, ray_normal, ray_bounds); // debug gl_FragColor = vec4(vec3(ray_dither), 1.0);  
 
     // initialize the starting position along the ray
-    vec3 ray_position = ray_start + ray_normal * ray_bounds.x  - ray_step * ray_dithering;
+    vec3 ray_position = ray_start + ray_normal * ray_bounds.x + ray_step * ray_dithering;
     
     // compute the ray step delta and step bounds
     ivec2 step_bounds = ivec2(ray_bounds / length(ray_step)); // debug gl_FragColor = vec4((step_bounds.y-step_bounds.x)*ray_delta/1.732, 1.0);  
+    step_bounds.x += 1;
 
     // raycasting loop to traverse through the volume
     return compute_marching(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_sample, hit_depth);

@@ -106,9 +106,9 @@ export default class ISOGui
         this.controllers.gradient = {
 
             threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
-            resolution: gradient.add(u_gradient, 'resolution').min(0.25).max(2).step(0.001),
+            resolution: gradient.add(u_gradient, 'resolution').min(0).max(1).step(0.001),
             method: gradient.add(u_gradient, 'method').options({ sobel: 1, central: 2, tetrahedron: 3}),
-            multisampling: gradient.add(u_gradient, 'multisampling')
+            max_sampling: gradient.add(u_gradient, 'max_sampling')
         }
 
     }
@@ -136,15 +136,15 @@ export default class ISOGui
     
         this.controllers.lighting = {
 
-            ka: lighting.add(u_lighting, 'ka').min(0).max(1).step(0.001),
+            ka: lighting.add(u_lighting, 'ka').min(0).max(10).step(0.001),
             kd: lighting.add(u_lighting, 'kd').min(0).max(1).step(0.001),
             ks: lighting.add(u_lighting, 'ks').min(0).max(1).step(0.001),
             shininess: lighting.add(u_lighting, 'shininess').min(0).max(40.0).step(0.2),
             power: lighting.add(u_lighting, 'power').min(0).max(2.0).step(0.1),
-            model: lighting.add(u_lighting, 'model').options({ phong: 1, blinn: 2, toon: 3, edge: 4}),
-            attenuate: lighting.add(u_lighting, 'attenuate'),
+            model: lighting.add(u_lighting, 'model').options({ phong: 1, blinn: 2, toon: 3}),
+            attenuation: lighting.add(u_lighting, 'attenuation'),
             levels: lighting.add(u_lighting, 'levels').min(2).max(255).step(1),
-            edge: lighting.add(u_lighting, 'edge').min(0).max(1).step(0.001),
+            edge_threshold: lighting.add(u_lighting, 'edge_threshold').min(0).max(1).step(0.001),
         }
     }
     
@@ -192,7 +192,7 @@ export default class ISOGui
         this.controllers.colormap.high.onChange(() => this.capColormapHigh())
 
         // adjust lighting power based on lighting attenuations being on or off
-        this.controllers.lighting.attenuate.onChange(() => this.adjustLightingPower())
+        this.controllers.lighting.attenuation.onChange(() => this.adjustLightingPower())
 
         // recompute new occupancy based on new divisions
         this.controllers.occupancy.divisions.onFinishChange(() => this.changeOccupancyDivisions())

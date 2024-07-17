@@ -37,12 +37,8 @@ vec3 gradient_tetrahedron
     {
         vec3 ray_offset = ray_position + offset[i];
         samples[i] = sample_intensity_3d(u_sampler.volume, ray_offset) * inside_texture(ray_offset);
-    }
 
-    // if multisampling is active
-    if (u_gradient.multisampling) 
-    {
-        for (int i = 0; i < 4; i++) 
+        if (u_gradient.max_sampling) 
             ray_sample = max(ray_sample, samples[i]); 
     }
 

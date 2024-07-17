@@ -8,7 +8,7 @@
  * @param source_vector: Vector from the surface point to the light source
  * @return vec3 The final color after applying lighting
  */
-vec3 lighting_phong
+vec3 lighting_blinn
 (
     in uniforms_lighting u_lighting, 
     in vec3 color, 
@@ -34,7 +34,7 @@ vec3 lighting_phong
     // Calculate edge fading 
     float edge_fading = compute_edge(u_lighting, view_vector, normal_vector);
 
-    // Calculate ambient component
+   // Calculate ambient component
     vec3 ambient_component = compute_ambient(u_lighting, color);
 
     // Calculate diffuse component
@@ -46,7 +46,7 @@ vec3 lighting_phong
     vec3 specular_component = vec3(0.0);
 
     if (lambertian > 0.0) 
-        specular_component = compute_specular_phong(u_lighting, color, normal_vector, view_vector, light_vector, specular);
+        specular_component = compute_specular_blinn(u_lighting, color, normal_vector, view_vector, light_vector, specular);
 
     // Compose the final color
 
