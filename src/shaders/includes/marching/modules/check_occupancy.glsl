@@ -27,6 +27,7 @@ bool check_occupancy
 ) 
 {
     bool occupied = false;
+    bool compare_steps[3] = bool[3](false, false, false);
     
     if (current_level == 0)
     {
@@ -41,6 +42,7 @@ bool check_occupancy
             ray_step, 
             skip_steps[0]
         );
+        
         if (!occupied) 
         {
             next_level = 0;
@@ -52,7 +54,7 @@ bool check_occupancy
     {
         current_level = 1;
         occupied = check_occupancy_block
-        (
+(
             u_sampler.occumaps[1], 
             u_occupancy.dimensions[1], 
             u_occupancy.blocks[1], 
@@ -61,13 +63,16 @@ bool check_occupancy
             ray_step, 
             skip_steps[1]
         );
+
+        compare_steps[0] = skip_steps[1] < skip_steps[0]; 
+
         if (!occupied) 
         {
-            next_level = int(skip_steps[1] < skip_steps[0]);
+            next_level = int(compare_steps[0]);
             return false;
         }
     }
-
+      
     if (current_level == 2)
     {
         current_level = 2;
@@ -81,14 +86,18 @@ bool check_occupancy
             ray_step, 
             skip_steps[2]
         );
+
+        compare_steps[1] = skip_steps[2] < skip_steps[1];
+        compare_steps[2] = skip_steps[2] < skip_steps[0];
+
         if (!occupied) 
         {
-            next_level = int(skip_steps[2] < skip_steps[1]) + int(skip_steps[1] <= skip_steps[2] && skip_steps[2] < skip_steps[0]);
+            next_level = int(compare_steps[1]) + int(compare_steps[2] && !compare_steps[1]);
             return false;
         }
     }
 
-    next_level = int(skip_steps[2] < skip_steps[1]) + int(skip_steps[1] <= skip_steps[2] && skip_steps[2] < skip_steps[0]);
+    next_level = int(compare_steps[1]) + int(compare_steps[2] && !compare_steps[1]);
     return true;
 }
 

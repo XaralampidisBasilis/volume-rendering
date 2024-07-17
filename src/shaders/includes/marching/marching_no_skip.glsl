@@ -27,7 +27,7 @@ bool marching_no_skip
     float count = 0.0;
     float MAX_COUNT = 1.73205080757 / length(ray_step); // sqrt(3) / length(ray_step)
 
-    for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; n_step++, ray_position += ray_step) 
+    for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; count++) 
     {
         // sample the intensity of the volume at the current 'hit_position'.
         hit_sample = sample_intensity_3d(u_sampler.volume, ray_position);
@@ -41,7 +41,8 @@ bool marching_no_skip
             return true;
         }
 
-        count++;
+        n_step++;
+        ray_position += ray_step;
     }   
 
     hit_position = vec3(1.0/0.0);
