@@ -1,7 +1,8 @@
-#include ./modules/check_occupancy.glsl;
-#include ./modules/check_intersection.glsl;
-#include ./modules/refine_intersection.glsl;
 #include ./modules/compute_frag_depth.glsl;
+#include ./modules/refine_intersection.glsl;
+#include ./modules/check_intersection.glsl;
+#include ./modules/check_occupancy_block.glsl;
+#include ./modules/check_occupancy.glsl;
 
 #include ./marching_full.glsl;
 #include ./marching_skip.glsl;

@@ -1,6 +1,8 @@
 import glsl from 'vite-plugin-glsl'
+import { defineConfig } from 'vite';
 
-export default {
+
+export default defineConfig({
     root: 'src/',
     publicDir: '../static/',
     base: './',
@@ -19,7 +21,8 @@ export default {
     [
         glsl({
             include: '**/*.glsl',  // Include all .glsl files
-            root: '**/src/shaders' // Directory for root imports
+            root: '**/src/shaders', // Directory for root imports
+            exclude: undefined,          // Glob pattern, or array of glob patterns to ignore
         })
-    ]
-}
+    ],   
+})

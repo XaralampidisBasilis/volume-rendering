@@ -4,3 +4,5 @@
 4. Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2ikVUXKBw&ab_channel=Rafadante
 
 1. Add typescript
+
+2. Fix problem of marching_skip when gradient threshold is applied

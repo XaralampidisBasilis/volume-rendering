@@ -31,9 +31,8 @@ bool marching_skip
     int next_level = 0;
 
     // raymarch loop to traverse through the volume
-    float hit_gradient = 0.0;
-    float count = 0.0;
     float MAX_COUNT = 1.73205080757 / length(ray_step); // for some reason some rays do not terminate. Need to find why
+    float count = 0.0;
 
     for (int i_step = step_bounds.x; i_step < step_bounds.y && count < MAX_COUNT; count++) 
     {
@@ -42,23 +41,11 @@ bool marching_skip
         if (occupied) 
         {            
             // terminate marching if ray  hit
-            bool intersected = check_intersection(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, hit_position, hit_sample);
+            bool intersected = check_intersection(u_gradient, u_raycast, u_sampler, u_volume, ray_step, skip_steps[current_level], ray_position, hit_position, hit_normal, hit_sample, hit_depth);
             if (intersected) 
             {
-                // compute the gradient at the current hit position
-                hit_normal = compute_gradient(u_gradient, u_volume, u_sampler, hit_position, hit_sample, hit_gradient);     
-
-                // check if the gradient magnitude exceeds the threshold
-                if (hit_gradient > u_gradient.threshold)
-                {
-                    refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample);
-
-                    // recompute the gradient after refining the intersection
-                    hit_normal = compute_gradient(u_gradient, u_volume, u_sampler, hit_position, hit_sample, hit_gradient);     
-                    hit_depth = compute_frag_depth(u_volume, hit_position);                   
-                    
-                    return true;
-                }
+                // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0);
+                return true;
             }
         }
         
@@ -69,9 +56,11 @@ bool marching_skip
     }   
 
     // no intersection found
-    hit_position = vec3(+1.0/+0.0); // set to infinity
+    // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0);
+    hit_position = vec3(0.0); 
     hit_normal = vec3(0.0);
     hit_sample = 0.0;
     hit_depth = 1.0;
+
     return false;
 }

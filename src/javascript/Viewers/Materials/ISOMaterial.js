@@ -23,8 +23,8 @@ export default function(viewer)
 
         u_raycast: new THREE.Uniform({
             threshold:       0.2,   
-            refinements:     0,   
-            resolution:      1,
+            refinements:     1,   
+            resolution:      0.5,
             method:          3,   
             dithering:       true, 
             skipping:        true,
@@ -33,7 +33,7 @@ export default function(viewer)
         u_gradient: new THREE.Uniform({
             threshold:       0,
             resolution:      0.7,  
-            method:          1,        
+            method:          3,        
             max_sampling:    true,
         }),
             
@@ -65,7 +65,7 @@ export default function(viewer)
             blocks:          new Array(3).fill().map(() => new THREE.Vector3()),
             box_min:         new THREE.Vector3(0, 0, 0),
             box_max:         new THREE.Vector3(1, 1, 1),
-            divisions:       4, // divisions close to 2 makes computation shader to lag
+            divisions:       10, // divisions close to 2 makes computation shader to lag
             method:          1,
         })
 
@@ -86,7 +86,7 @@ export default function(viewer)
         uniforms: uniforms,
         defines: defines,
         vertexShader: vertexShader,
-        fragmentShader: fragmentShader
+        fragmentShader: fragmentShader,
     })
 
     return material

@@ -1,3 +1,5 @@
+#include "../../../lygia/generative/random"
+
 /**
  * applies dithering to the initial distance to avoid artifacts. 
  *
@@ -6,16 +8,19 @@
  * @param ray_bounds: vec2 containing the start and end distances for raycasting.
  * @return vec3: returns the dithered intensity value in [0, 1] range.
  */
-float compute_dithering(in uniforms_raycast u_raycast, in uniforms_sampler u_sampler, in vec3 ray_normal, in vec2 ray_bounds)
+float compute_dithering(in uniforms_raycast u_raycast, in uniforms_volume u_volume, in uniforms_sampler u_sampler, in vec3 ray_normal, in vec2 ray_bounds)
 {
     // calculate the end position of the ray
     vec3 ray_end = ray_normal * ray_bounds.y;
 
-    // compute a hash value based on the end position transformed by the matrix
-    vec4 hash = v_projection_model_view_matrix * vec4(ray_end, 0.0);
+    // // compute a position value based on the end position transformed by the matrix
+    // vec4 position = v_projection_model_view_matrix * vec4(ray_end, 0.0);
+    // float dither_intensity = sample_intensity_2d(u_sampler.noise, 1000.0 * position.xy); 
 
-    // sample intensity from the noisemap texture and apply the dithering factor
-    float dither_intensity = sample_intensity_2d(u_sampler.noise, 1000.0 * hash.xy);    
+    // compute ray end position in world coordinates
+    vec4 position = v_model_view_matrix * vec4(ray_end * u_volume.size, 0.0);
+    float dither_intensity = random(position.xyz); 
+
     dither_intensity *= u_raycast.dithering;
 
     // return dithering step

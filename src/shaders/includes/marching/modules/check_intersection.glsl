@@ -11,16 +11,21 @@
  */
 bool check_intersection
 ( 
+    in uniforms_gradient u_gradient, 
     in uniforms_raycast u_raycast, 
     in uniforms_sampler u_sampler, 
+    in uniforms_volume u_volume, 
     in vec3 ray_step, 
     in int skip_steps, 
     in vec3 ray_position, 
     out vec3 hit_position,
-    out float hit_sample
+    out vec3 hit_normal,
+    out float hit_sample,
+    out float hit_depth
 ) {
 
     hit_position = ray_position;
+    float hit_gradient = 0.0;
     
     for (int i_step = 0; i_step < skip_steps; i_step++, hit_position += ray_step) {
 
@@ -28,10 +33,27 @@ bool check_intersection
         hit_sample = sample_intensity_3d(u_sampler.volume, hit_position);
 
         // if the sampled intensity exceeds the threshold, a hit is detected.
-        if (hit_sample > u_raycast.threshold) 
-            return true;
+        if (hit_sample >= u_raycast.threshold) 
+        {
+            // refine the hit position
+            refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample);
+
+            // compute the gradient at the current hit position
+            hit_normal = compute_gradient(u_gradient, u_volume, u_sampler, hit_position, hit_sample, hit_gradient);     
+
+            // check if the gradient magnitude exceeds the threshold
+            if (hit_gradient >= u_gradient.threshold)
+            {
+                hit_depth = compute_frag_depth(u_volume, hit_position);                
+                return true;
+            }
+        }
     }
 
+    hit_position = vec3(0.0); 
+    hit_normal = vec3(0.0);
     hit_sample = 0.0;
+    hit_depth = 1.0;    
+
     return false;
 }

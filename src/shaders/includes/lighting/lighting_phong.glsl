@@ -32,7 +32,7 @@ vec3 lighting_phong
     view_vector = normalize(view_vector);
     light_vector = normalize(light_vector);
     // normal_vector = normalize(normal_vector);
-    // normal_vector = -faceforward(normal_vector, view_vector, normal_vector); // ensure the normal points towards the viewer
+    normal_vector = -faceforward(normal_vector, view_vector, normal_vector); // ensure the normal points towards the viewer
 
     // Calculate edge fading 
     float edge_fading = compute_edge(u_lighting, view_vector, normal_vector);

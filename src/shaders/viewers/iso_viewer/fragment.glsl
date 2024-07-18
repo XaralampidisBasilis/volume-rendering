@@ -11,7 +11,8 @@ precision highp float;
 // varying
 varying vec3 v_camera;
 varying vec3 v_direction;
-varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMatrix * modelMatrix * viewMatrix
+varying mat4 v_projection_model_view_matrix;
+varying mat4 v_model_view_matrix;
 
 // uniforms
 #include ./uniforms/u_sampler.glsl;
@@ -52,7 +53,6 @@ void main()
 
     // perform raycasting
     bool intersected = compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, hit_position, hit_normal, hit_sample, hit_depth); 
-
     if (intersected) 
     {        
         // compute the max intensity color mapping

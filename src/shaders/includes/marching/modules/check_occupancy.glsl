@@ -1,4 +1,3 @@
-#include ./check_occupancy_block.glsl;
 
 /**
  * Determines if a block in the volume can be skipped based on an occupancy map
@@ -31,7 +30,6 @@ bool check_occupancy
     
     if (current_level == 0)
     {
-        current_level = 0;
         occupied = check_occupancy_block
         (
             u_sampler.occumaps[0], 
@@ -48,11 +46,13 @@ bool check_occupancy
             next_level = 0;
             return false;
         }
+
+        // if occupied follow through
+        current_level = 1;
     }
 
     if (current_level == 1)
     {
-        current_level = 1;
         occupied = check_occupancy_block
 (
             u_sampler.occumaps[1], 
@@ -71,11 +71,13 @@ bool check_occupancy
             next_level = int(compare_steps[0]);
             return false;
         }
+
+        // if occupied follow through
+        current_level = 2;
     }
       
     if (current_level == 2)
     {
-        current_level = 2;
         occupied = check_occupancy_block
         (
             u_sampler.occumaps[2], 
@@ -95,6 +97,8 @@ bool check_occupancy
             next_level = int(compare_steps[1]) + int(compare_steps[2] && !compare_steps[1]);
             return false;
         }
+
+        // if occupied follow through
     }
 
     next_level = int(compare_steps[1]) + int(compare_steps[2] && !compare_steps[1]);
