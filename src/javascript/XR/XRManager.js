@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import Experience from '../Experience.js'
-import HitTest from './HitTest.js'
-import XRGestures from './XRGestures/XRGestures.js'
-import { XRButton } from 'three/examples/jsm/webxr/XRButton.js'
+import Experience from '../Experience'
+import HitTest from './HitTest'
+import XRGestures from './XRGestures/XRGestures'
+import { XRButton } from 'three/examples/jsm/webxr/XRButton'
 
 export default class XRManager
 {

@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import * as CoordUtils from '../../Utils/CoordUtils.js';
+import * as CoordUtils from '../../Utils/CoordUtils'
 
 const _blockCoords = new THREE.Vector3()
 const _voxelCoords = new THREE.Vector3()

@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import Reticle from './Reticle.js'
+import Reticle from './Reticle'
 import EventEmitter from '../Utils/EventEmitter'
 
 export default class HitTest extends EventEmitter

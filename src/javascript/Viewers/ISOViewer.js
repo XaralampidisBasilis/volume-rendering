@@ -1,9 +1,9 @@
 import * as THREE from 'three'
-import Experience from '../Experience.js'
-import ISOMaterial from './Materials/ISOMaterial.js'
+import Experience from '../Experience'
+import ISOMaterial from './Materials/ISOMaterial'
 import ISOGui from './GUI/ISOGui'
-import ISOHelpers from './Helpers/ISOHelpers.js'
-import ISOOccupancy from './Computes/ISOOccupancy.js'
+import ISOHelpers from './Helpers/ISOHelpers'
+import ISOOccupancy from './Computes/ISOOccupancy'
 
 export default class ISOViewer
 {

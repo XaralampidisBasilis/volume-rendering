@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import Experience from '../Experience.js'
-import ViewerMaterial from '../Materials/ViewerMaterial.js'
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
+import Experience from '../Experience'
+import ViewerMaterial from '../Materials/ViewerMaterial'
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls'
 
 export default class Viewer
 {

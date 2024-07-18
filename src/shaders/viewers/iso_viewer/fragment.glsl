@@ -32,7 +32,7 @@ varying mat4 v_projection_model_view_matrix; // from vertex shader projectionMat
 #include ../../includes/utils/reshape_coordinates.glsl;
 #include ../../includes/utils/product.glsl;
 #include ../../includes/utils/sum.glsl;
-#include ../../includes/utils/ramp.glsl;
+#include ../../includes/utils/rampstep.glsl;
 #include ../../includes/utils/posterize.glsl;
 
 // functionality

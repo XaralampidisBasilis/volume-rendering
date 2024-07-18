@@ -1,6 +1,6 @@
-importScripts('Scripts/Utils.js')
-importScripts('Scripts/Decode.js')
-importScripts('Scripts/Occupied.js')
+importScripts('Scripts/Utils')
+importScripts('Scripts/Decode')
+importScripts('Scripts/Occupied')
 
 self.onmessage = function(event) 
 {

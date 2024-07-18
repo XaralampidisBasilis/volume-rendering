@@ -199,7 +199,7 @@ export default class ISOGui
         this.controllers.colormap.high.onChange(() => this.capColormapHigh())
 
         // adjust lighting power based on lighting attenuations being on or off
-        this.controllers.lighting.attenuation.onChange(() => this.adjustLightingPower())
+        // this.controllers.lighting.attenuation.onChange(() => this.adjustLightingPower())
 
         // recompute new occupancy based on new divisions
         this.controllers.occupancy.divisions.onFinishChange(() => this.changeOccupancyDivisions())
@@ -263,7 +263,7 @@ export default class ISOGui
 
     adjustLightingPower()
     {
-        if (this.controllers.lighting.attenuate.getValue())
+        if (this.controllers.lighting.attenuation.getValue())
 
             this.controllers.lighting.power
                 .min(0)

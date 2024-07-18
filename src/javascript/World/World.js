@@ -1,5 +1,5 @@
-import Experience from '../Experience.js'
-import ISOViewer from '../Viewers/ISOViewer.js'
+import Experience from '../Experience'
+import ISOViewer from '../Viewers/ISOViewer'
 
 export default class World
 {

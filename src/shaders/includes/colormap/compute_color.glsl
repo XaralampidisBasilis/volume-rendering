@@ -12,7 +12,7 @@ vec3 compute_color
 ) 
 {
     // Scale the input value 'u' using the provided limits
-    ray_sample = ramp(u_colormap.u_lim.x, u_colormap.u_lim.y, ray_sample);
+    ray_sample = rampstep(u_colormap.u_lim.x, u_colormap.u_lim.y, ray_sample);
 
     // Posterize the ray sample
     ray_sample = posterize(ray_sample, u_colormap.levels);

@@ -6,11 +6,11 @@ float compute_edge
     in vec3 normal_vector
 )
 {
-    float viewing_angle = dot(view_vector, normal_vector);
-    float edge_factor = pow(1.0 - abs(viewing_angle), 0.3);
+    float viewing_angle = abs(dot(view_vector, normal_vector));
+    float edge_factor = pow(1.0 - viewing_angle, 0.3);
 
     if (edge_factor > u_lighting.edge_threshold) 
-        return pow(ramp(u_lighting.edge_threshold, 1.0, edge_factor), 6.0);
+        return pow(rampstep(u_lighting.edge_threshold, 1.0, edge_factor), 6.0);
 
     return 0.0;
 }

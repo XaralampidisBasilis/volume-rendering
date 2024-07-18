@@ -1,5 +1,5 @@
 import { FileLoader, Loader, Matrix4, Vector3 } from 'three';
-import { Volume } from 'three/examples/jsm/misc/Volume.js';
+import { Volume } from 'three/examples/jsm/misc/Volume';
 import * as nifti from 'nifti-reader-js';
 
 class NIFTILoader extends Loader {
