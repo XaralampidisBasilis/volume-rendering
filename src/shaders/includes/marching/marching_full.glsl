@@ -11,6 +11,7 @@
  */
 bool marching_full
 (
+    in uniforms_gradient u_gradient, 
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
@@ -19,34 +20,49 @@ bool marching_full
     in vec3 ray_step,
     in vec3 ray_position,
     out vec3 hit_position,
+    out vec3 hit_normal,
     out float hit_sample,
     out float hit_depth
 ) 
 { 
     // raymarch loop to traverse through the volume
+    float hit_gradient = 0.0;
     float count = 0.0;
     float MAX_COUNT = 1.73205080757 / length(ray_step); // sqrt(3) / length(ray_step)
 
     for (int n_step = step_bounds.x; n_step < step_bounds.y && count < MAX_COUNT; count++) 
     {
-        // sample the intensity of the volume at the current 'hit_position'.
+        // sample the intensity of the volume at the current ray position
         hit_sample = sample_intensity_3d(u_sampler.volume, ray_position);
 
-        // if the sampled intensity exceeds the threshold, a hit is detected.
+        // check if the sampled intensity exceeds the threshold
         if (hit_sample > u_raycast.threshold) 
         {
+            // compute the gradient at the current hit position
             hit_position = ray_position;
-            refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample); // Seems to decrease frame rate
-            hit_depth = compute_frag_depth(u_volume, hit_position);
-            return true;
+            hit_normal = compute_gradient(u_gradient, u_volume, u_sampler, hit_position, hit_sample, hit_gradient);     
+
+            // check if the gradient magnitude exceeds the threshold
+            if (hit_gradient > u_gradient.threshold)
+            {
+                refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample); // Seems to decrease frame rate
+
+                // recompute the gradient after refining the intersection
+                hit_normal = compute_gradient(u_gradient, u_volume, u_sampler, hit_position, hit_sample, hit_gradient);     
+                hit_depth = compute_frag_depth(u_volume, hit_position);
+
+                return true;
+            }
         }
 
-        // update ray
+        // update ray position for the next step
         n_step++;
         ray_position += ray_step;
     }   
 
-    hit_position = vec3(1.0/0.0);
+    // no intersection found
+    hit_position = vec3(1.0/0.0); // set to infinity
+    hit_normal = vec3(0.0);
     hit_sample = 0.0;
     hit_depth = 1.0;
     return false;

@@ -11,6 +11,7 @@
  */
 bool marching_skip
 (
+    in uniforms_gradient u_gradient, 
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
@@ -19,6 +20,7 @@ bool marching_skip
     in vec3 ray_step,
     in vec3 ray_position,
     out vec3 hit_position,
+    out vec3 hit_normal,
     out float hit_sample,
     out float hit_depth
 ) 
@@ -29,6 +31,7 @@ bool marching_skip
     int next_level = 0;
 
     // raymarch loop to traverse through the volume
+    float hit_gradient = 0.0;
     float count = 0.0;
     float MAX_COUNT = 1.73205080757 / length(ray_step); // for some reason some rays do not terminate. Need to find why
 
@@ -42,10 +45,20 @@ bool marching_skip
             bool intersected = check_intersection(u_raycast, u_sampler, ray_step, skip_steps[current_level], ray_position, hit_position, hit_sample);
             if (intersected) 
             {
-                // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
-                refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample);
-                hit_depth = compute_frag_depth(u_volume, hit_position); 
-                return true;
+                // compute the gradient at the current hit position
+                hit_normal = compute_gradient(u_gradient, u_volume, u_sampler, hit_position, hit_sample, hit_gradient);     
+
+                // check if the gradient magnitude exceeds the threshold
+                if (hit_gradient > u_gradient.threshold)
+                {
+                    refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample);
+
+                    // recompute the gradient after refining the intersection
+                    hit_normal = compute_gradient(u_gradient, u_volume, u_sampler, hit_position, hit_sample, hit_gradient);     
+                    hit_depth = compute_frag_depth(u_volume, hit_position);                   
+                    
+                    return true;
+                }
             }
         }
         
@@ -55,8 +68,9 @@ bool marching_skip
         current_level = next_level;
     }   
 
-    // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0); // for debug
-    hit_position = vec3(1.0/0.0);
+    // no intersection found
+    hit_position = vec3(+1.0/+0.0); // set to infinity
+    hit_normal = vec3(0.0);
     hit_sample = 0.0;
     hit_depth = 1.0;
     return false;

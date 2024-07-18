@@ -18,6 +18,7 @@
  */
 bool compute_raycast
 (
+    in uniforms_gradient u_gradient, 
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
@@ -25,6 +26,7 @@ bool compute_raycast
     in vec3 ray_start, 
     in vec3 ray_normal, 
     out vec3 hit_position,
+    out vec3 hit_normal,
     out float hit_sample,
     out float hit_depth
 ) {    
@@ -45,5 +47,5 @@ bool compute_raycast
     step_bounds.x += 1;
 
     // raycasting loop to traverse through the volume
-    return compute_marching(u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_sample, hit_depth);
+    return compute_marching(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_normal, hit_sample, hit_depth);
 }

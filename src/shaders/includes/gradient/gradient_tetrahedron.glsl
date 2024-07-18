@@ -15,7 +15,7 @@ vec3 gradient_tetrahedron
     in uniforms_sampler u_sampler, 
     in vec3 ray_position, 
     inout float ray_sample, 
-    out float gradient_magnitude
+    out float ray_gradient
 )
 {
     float voxel_spacing = min(u_volume.spacing.x, min(u_volume.spacing.y, u_volume.spacing.z));
@@ -47,11 +47,9 @@ vec3 gradient_tetrahedron
         samples[1] + samples[3] - samples[0] - samples[2],
         samples[1] + samples[2] - samples[0] - samples[3]
     );
+    ray_gradient = length(gradient_vector) * 0.5;
 
-    gradient_magnitude = length(gradient_vector) * 0.5;
-    gradient_vector = normalize(gradient_vector);
-
-    return gradient_vector;
+    return normalize(gradient_vector);;
     
     // For visual debug
     // gradient.rgb = (gradient.rgb * 0.5) + 0.5; // transforms the normalized RGB components from the range [-1, 1] to the range [0, 1]

@@ -15,7 +15,7 @@ vec3 gradient_sobel
     in uniforms_sampler u_sampler, 
     in vec3 ray_position, 
     inout float ray_sample, 
-    out float gradient_magnitude
+    out float ray_gradient
 )
 {
     float voxel_spacing = min(u_volume.spacing.x, min(u_volume.spacing.y, u_volume.spacing.z));
@@ -53,9 +53,7 @@ vec3 gradient_sobel
         samples[2] + samples[3] + samples[6] + samples[7] - samples[0] - samples[1] - samples[4] - samples[5],
         samples[1] + samples[3] + samples[5] + samples[7] - samples[0] - samples[2] - samples[4] - samples[6]
     );
+    ray_gradient = length(gradient_vector) * 0.25;
 
-    gradient_magnitude = length(gradient_vector) * 0.25;
-    gradient_vector = normalize(gradient_vector);
-
-    return gradient_vector;
+    return normalize(gradient_vector);
 }

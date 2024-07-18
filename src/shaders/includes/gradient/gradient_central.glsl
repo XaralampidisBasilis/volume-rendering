@@ -15,7 +15,7 @@ vec3 gradient_central
     in uniforms_sampler u_sampler, 
     in vec3 ray_position, 
     inout float ray_sample, 
-    out float gradient_magnitude
+    out float ray_gradient
 )
 {
     float voxel_spacing = min(u_volume.spacing.x, min(u_volume.spacing.y, u_volume.spacing.z));
@@ -50,11 +50,9 @@ vec3 gradient_central
         samples[3] - samples[2],
         samples[5] - samples[4]
     );
-    
-    gradient_magnitude = length(gradient_vector);
-    gradient_vector = normalize(gradient_vector);
+    ray_gradient = length(gradient_vector);
 
-    return gradient_vector;
+    return normalize(gradient_vector);
 }
 
 /* SOURCE

@@ -19,17 +19,17 @@ vec3 compute_gradient(
     in uniforms_sampler u_sampler, 
     in vec3 ray_position, 
     inout float ray_sample, 
-    out float gradient_magnitude
+    out float ray_gradient
 )
 {    
     switch (u_gradient.method)
     {
         case 1: 
-            return gradient_sobel(u_gradient, u_volume, u_sampler, ray_position, ray_sample, gradient_magnitude);
+            return gradient_sobel(u_gradient, u_volume, u_sampler, ray_position, ray_sample, ray_gradient);
         case 2: 
-            return gradient_central(u_gradient, u_volume, u_sampler, ray_position, ray_sample, gradient_magnitude);
+            return gradient_central(u_gradient, u_volume, u_sampler, ray_position, ray_sample, ray_gradient);
         case 3:  
-            return gradient_tetrahedron(u_gradient, u_volume, u_sampler, ray_position, ray_sample, gradient_magnitude); 
+            return gradient_tetrahedron(u_gradient, u_volume, u_sampler, ray_position, ray_sample, ray_gradient); 
     }
 }
 
