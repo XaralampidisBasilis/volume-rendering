@@ -18,6 +18,9 @@ vec3 lighting_blinn
     in vec3 light_position
 )
 {
+    // set point light position
+    light_position += u_lighting.position;
+
     // calculate lighting vectors
     vec3 view_vector = view_position - surface_position;
     vec3 light_vector = light_position - surface_position;

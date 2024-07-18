@@ -21,5 +21,7 @@ export default class World
 
     update()
     {
+        if(this.viewer)
+            this.viewer.update()
     }
 }

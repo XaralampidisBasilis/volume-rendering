@@ -15,6 +15,7 @@ struct uniforms_lighting
     int model;
     bool attenuation;
     float edge_threshold;
+    vec3 position;
 };
 
 uniform uniforms_lighting u_lighting;

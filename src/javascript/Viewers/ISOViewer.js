@@ -4,6 +4,7 @@ import ISOMaterial from './Materials/ISOMaterial'
 import ISOGui from './GUI/ISOGui'
 import ISOHelpers from './Helpers/ISOHelpers'
 import ISOOccupancy from './Computes/ISOOccupancy'
+import { KawaseBlurPass, EffectComposer, RenderPass } from "postprocessing";
 
 export default class ISOViewer
 {
@@ -13,6 +14,8 @@ export default class ISOViewer
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.renderer = this.experience.renderer
+        this.camera = this.experience.camera
+        this.sizes = this.experience.sizes
         this.debug = this.experience.debug
 
         // Resource
@@ -28,6 +31,7 @@ export default class ISOViewer
         this.setMaterial()
         this.setOccupancy()
         this.setMesh()
+        this.setPostprocessing()
 
         if (this.debug.active) 
         {
@@ -167,8 +171,26 @@ export default class ISOViewer
         this.scene.add(this.mesh)
     }
 
+    setPostprocessing()
+    {
+        this.postprocessing = {}
+
+        this.postprocessing.composer = new EffectComposer(this.renderer.instance)
+        this.postprocessing.renderPass = new RenderPass(this.scene, this.camera.instance)
+        this.postprocessing.composer.addPass(this.postprocessing.renderPass)
+
+        // this.postprocessing.blurPass = new KawaseBlurPass({
+        //     resolutionScale: 10,  // Scale of the resolution, lower values for more blur
+        //     kernelSize: 1,         // Size of the kernel, higher values for more blur
+        //     iterations: 1,         // Number of blur iterations
+        //     resolutionX: window.innerWidth,  // Default is undefined
+        //     resolutionY: window.innerHeight // Default is undefined
+        // })
+        // this.postprocessing.composer.addPass(this.postprocessing.blurPass)
+    }
+
     update()
     {
-
+        this.postprocessing.composer.render()
     }
 }

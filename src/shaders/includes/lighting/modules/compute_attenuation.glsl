@@ -1,9 +1,9 @@
 // source https://learnwebgl.brown37.net/09_lights/lights_attenuation.html
 
 // attenuation parameters
-const float c1 = 1.0;
-const float c2 = 2.0;
-const float c3 = 0.2;
+const float c1 = 0.0;
+const float c2 = 0.8;
+const float c3 = 0.3;
 
 float compute_attenuation
 (

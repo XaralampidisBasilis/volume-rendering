@@ -18,11 +18,11 @@ export default class Renderer
     {
         this.instance = new THREE.WebGLRenderer({
             canvas: this.canvas,
-            antialias: true,
-            alpha: true,
             powerPreference: 'high-performance',
-            // sortObjects: false,
-            // preserveDrawingBuffer: true,
+            antialias: false,
+            stencil: false,
+            depth: true,
+            alpha: true,
         })
         this.instance.toneMapping = THREE.CineonToneMapping
         this.instance.toneMappingExposure = 1.75

@@ -148,10 +148,13 @@ export default class ISOGui
             kd: lighting.add(u_lighting, 'kd').min(0).max(1).step(0.001),
             ks: lighting.add(u_lighting, 'ks').min(0).max(1).step(0.001),
             shininess: lighting.add(u_lighting, 'shininess').min(0).max(40.0).step(0.2),
+            edge_threshold: lighting.add(u_lighting, 'edge_threshold').min(0).max(1).step(0.001),
             power: lighting.add(u_lighting, 'power').min(0).max(2.0).step(0.1),
+            position_x: lighting.add(u_lighting.position, 'x').min(-2).max(2).step(0.01),
+            position_y: lighting.add(u_lighting.position, 'y').min(-2).max(2).step(0.01),
+            position_z: lighting.add(u_lighting.position, 'z').min(-2).max(2).step(0.01),
             model: lighting.add(u_lighting, 'model').options({ phong: 1, blinn: 2}),
             attenuation: lighting.add(u_lighting, 'attenuation'),
-            edge_threshold: lighting.add(u_lighting, 'edge_threshold').min(0).max(1).step(0.001),
         }
     }
     

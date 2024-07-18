@@ -57,6 +57,7 @@ export default function(viewer)
             model:           2,    
             attenuation:     false,
             edge_threshold:  1,
+            position:        new THREE.Vector3(),
         }),
 
         u_occupancy: new THREE.Uniform({
