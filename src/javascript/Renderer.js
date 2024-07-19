@@ -23,15 +23,17 @@ export default class Renderer
             stencil: false,
             depth: true,
             alpha: true,
-        })
-        this.instance.toneMapping = THREE.CineonToneMapping
-        this.instance.toneMappingExposure = 1.75
-        this.instance.shadowMap.enabled = true
-        this.instance.shadowMap.type = THREE.PCFSoftShadowMap
+        })       
         this.instance.setClearColor('#211d20', 1)
         this.instance.setSize(this.sizes.width, this.sizes.height)
         this.instance.setPixelRatio(this.sizes.pixelRatio)
         this.instance.xr.enabled = true;
+
+        // extra
+        // this.instance.toneMapping = THREE.CineonToneMapping
+        // this.instance.toneMappingExposure = 1.75
+        // this.instance.shadowMap.enabled = true
+        // this.instance.shadowMap.type = THREE.PCFSoftShadowMap
     }
 
     resize()

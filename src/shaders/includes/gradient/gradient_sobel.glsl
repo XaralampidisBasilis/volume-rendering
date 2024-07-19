@@ -21,7 +21,7 @@ vec3 gradient_sobel
     float voxel_spacing = min(u_volume.spacing.x, min(u_volume.spacing.y, u_volume.spacing.z));
     vec3 voxel_step = voxel_spacing / u_volume.size;
 
-    vec2 k = vec2(1.0, -1.0);
+    vec2 k = vec2(1.0, -1.0) * 0.57735026919; // divide with sqrt(3) due to diagonal samples
     vec3 gradient_step = voxel_step / u_gradient.resolution;
 
     // Define offsets for the 8 neighboring points using swizzling
@@ -48,12 +48,15 @@ vec3 gradient_sobel
     }
 
     // Calculate the gradient using the Sobel operator
-    vec3 gradient_vector = vec3(
+    vec3 gradient_vector = vec3
+    (
         samples[4] + samples[5] + samples[6] + samples[7] - samples[0] - samples[1] - samples[2] - samples[3],
         samples[2] + samples[3] + samples[6] + samples[7] - samples[0] - samples[1] - samples[4] - samples[5],
         samples[1] + samples[3] + samples[5] + samples[7] - samples[0] - samples[2] - samples[4] - samples[6]
     );
-    ray_gradient = length(gradient_vector) * 0.25;
+
+    gradient_vector *= 0.288675134595; // normalize with 2 * sqrt(3) for length to be in [0 1]
+    ray_gradient = length(gradient_vector);
 
     return normalize(gradient_vector);
 }

@@ -21,11 +21,12 @@ vec3 gradient_central
     float voxel_spacing = min(u_volume.spacing.x, min(u_volume.spacing.y, u_volume.spacing.z));
     vec3 voxel_step = voxel_spacing / u_volume.size;
 
-    vec3 k = vec3(1.0, 0.0, -1.0);
+    vec3 k = vec3(1.0, -1.0, 0.0);
     vec3 gradient_step = voxel_step / u_gradient.resolution;
 
     // Define offsets for the 6 neighboring points using swizzling
-    vec3 offset[6] = vec3[6](
+    vec3 offset[6] = vec3[6]
+    (
         gradient_step * k.xzz,  // Right
         gradient_step * k.yzz,  // Left
         gradient_step * k.zxz,  // Top
@@ -50,6 +51,8 @@ vec3 gradient_central
         samples[3] - samples[2],
         samples[5] - samples[4]
     );
+    
+    gradient_vector *= 0.57735026919; // normalize with sqrt(3) for length to be in [0 1]
     ray_gradient = length(gradient_vector);
 
     return normalize(gradient_vector);

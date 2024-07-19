@@ -23,17 +23,17 @@ export default function(viewer)
 
         u_raycast: new THREE.Uniform({
             threshold:       0.2,   
-            refinements:     1,   
-            resolution:      0.5,
+            refinements:     0,   
+            resolution:      1,
             step_method:     3,
             dither_method:   1,
             dithering:       true, 
-            skipping:        true,
+            skipping:        false,
         }),
 
         u_gradient: new THREE.Uniform({
             threshold:       0,
-            resolution:      0.7,  
+            resolution:      1,  
             method:          3,        
             max_sampling:    true,
         }),

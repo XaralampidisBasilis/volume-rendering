@@ -48,6 +48,7 @@ export default class ISOViewer
             size:       new THREE.Vector3().fromArray(this.resource.volume.size),
             dimensions: new THREE.Vector3().fromArray(this.resource.volume.dimensions),
             spacing:    new THREE.Vector3().fromArray(this.resource.volume.spacing),
+            count:      this.resource.volume.dimensions.reduce((product, value) => product * value, 1),
         }
 
         this.parameters.mask = 
@@ -93,7 +94,8 @@ export default class ISOViewer
         this.textures = {}
 
         // Volume
-        this.textures.volume = new THREE.Data3DTexture( 
+        this.textures.volume = new THREE.Data3DTexture
+        ( 
             this.resource.volume.getDataUint8(), 
             this.resource.volume.xLength, 
             this.resource.volume.yLength,
@@ -101,7 +103,8 @@ export default class ISOViewer
         )          
 
         // Mask
-        this.textures.mask = new THREE.Data3DTexture( 
+        this.textures.mask = new THREE.Data3DTexture
+        ( 
             this.resource.mask.getDataUint8(), 
             this.resource.mask.xLength, 
             this.resource.mask.yLength,

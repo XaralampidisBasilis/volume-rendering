@@ -21,11 +21,12 @@ vec3 gradient_tetrahedron
     float voxel_spacing = min(u_volume.spacing.x, min(u_volume.spacing.y, u_volume.spacing.z));
     vec3 voxel_step = voxel_spacing / u_volume.size;
 
-    vec2 k = vec2(1.0, -1.0);
+    vec2 k = vec2(1.0, -1.0) * 0.57735026919; // divide with sqrt(3) due to diagonal samples
     vec3 gradient_step = voxel_step / u_gradient.resolution;
 
     // Define offsets for the 4 neighboring points using swizzling
-    vec3 offset[4] = vec3[4](
+    vec3 offset[4] = vec3[4]
+    (
         gradient_step * k.xxx,  // Right Top Near
         gradient_step * k.xyy,  // Right Bottom Far
         gradient_step * k.yxy,  // Left Top Far
@@ -47,9 +48,11 @@ vec3 gradient_tetrahedron
         samples[1] + samples[3] - samples[0] - samples[2],
         samples[1] + samples[2] - samples[0] - samples[3]
     );
-    ray_gradient = length(gradient_vector) * 0.5;
 
-    return normalize(gradient_vector);;
+    gradient_vector *= 0.5; // // normalize with 2 for length to be in [0 1]
+    ray_gradient = length(gradient_vector);
+
+    return normalize(gradient_vector);
     
     // For visual debug
     // gradient.rgb = (gradient.rgb * 0.5) + 0.5; // transforms the normalized RGB components from the range [-1, 1] to the range [0, 1]
