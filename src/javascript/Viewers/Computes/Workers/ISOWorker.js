@@ -14,24 +14,23 @@ self.onmessage = function(event)
 function setOutputData(inputData) 
 {
     return {
-        occupied0: new Uint8Array(inputData.occumap0Length).fill(0),
-        occupied1: new Uint8Array(inputData.occumap1Length).fill(0),
-        occupied2: new Uint8Array(inputData.occumap2Length).fill(0),
-        boxMin: new Float32Array(3).fill(+Infinity),
-        boxMax: new Float32Array(3).fill(-Infinity)
+        occumap0: new Uint8Array(inputData.occumap0Length).fill(0),
+        occumap1: new Uint8Array(inputData.occumap1Length).fill(0),
+        occumap2: new Uint8Array(inputData.occumap2Length).fill(0),
+        occuboxMin: new Float32Array(3).fill(1),
+        occuboxMax: new Float32Array(3).fill(0),
     }
 }
 
 function processComputationData(inputData, outputData) 
 {
-    for (let n = 0; n < inputData.occumap0Length; n ++)
+    for (let block0Index = 0; block0Index < inputData.occumap0Length; block0Index ++)
     {
-        const n4 = n * 4 // each computation block has 4 color values
-        decodeColorData(inputData, inputData.computationData.slice(n4, n4 + 4))
-        updateOccupancy(inputData, outputData, n)
+        const iBlock0Color = block0Index * 4 // each computation block has 4 color values
+        decodeColorData(inputData, inputData.computationData.slice(iBlock0Color, iBlock0Color + 4))
+        updateOccupancy(inputData, outputData, block0Index)
         updateBox(outputData)
     }
-    
     normalizeBox(inputData, outputData)
 }
 
@@ -39,18 +38,16 @@ function updateBox(outputData)
 {
     for (let i = 0; i < 3; i++) 
     {
-        outputData.boxMin[i] = Math.min(outputData.boxMin[i], decodedData.blockMin[i])
-        outputData.boxMax[i] = Math.max(outputData.boxMax[i], decodedData.blockMax[i])
+        outputData.occuboxMin[i] = Math.min(outputData.occuboxMin[i], decodedData.bblockMinVoxelCoord[i] + 0)
+        outputData.occuboxMax[i] = Math.max(outputData.occuboxMax[i], decodedData.bblockMaxVoxelCoord[i] + 1)
     }
 }
 
 function normalizeBox(inputData, outputData)
 {
-    // In order to convert voxel coordinates to model positions we need to take into account the voxel size
-    // that is why we need to add to boxMax + 1 to account for the correct physical bounding box
     for (let i = 0; i < 3; i++) 
     {
-        outputData.boxMin[i] = Math.max(0, Math.min(1, outputData.boxMin[i] / inputData.volumeDimensions[i]))
-        outputData.boxMax[i] = Math.max(0, Math.min(1, (outputData.boxMax[i] + 1) / inputData.volumeDimensions[i]))
+        outputData.occuboxMin[i] = Math.max(0, Math.min(1, outputData.occuboxMin[i] / inputData.volumeDimensions[i]))
+        outputData.occuboxMax[i] = Math.max(0, Math.min(1, outputData.occuboxMax[i] / inputData.volumeDimensions[i]))
     }
 }

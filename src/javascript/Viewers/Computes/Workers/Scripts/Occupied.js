@@ -1,45 +1,46 @@
 importScripts('Scripts/Utils')
 
 // reusable script scope variables for speedup
-const spatialData = {
-    blockMin1 : new Uint32Array(3),
-    blockMin2 : new Uint32Array(3),
-    blockMax1 : new Uint32Array(3),
-    blockMax2 : new Uint32Array(3),
-    coords0 : new Uint32Array(3),
-    indices1 : new Uint32Array(8),
-    indices2 : new Uint32Array(64),
+const spatialData = 
+{
+    block0Coords : new Uint32Array(3),
+    block1MinCoords : new Uint32Array(3),
+    block1MaxCoords : new Uint32Array(3),
+    block1Indices : new Uint32Array(8),
+    block2MinCoords : new Uint32Array(3),
+    block2MaxCoords : new Uint32Array(3),
+    block2Indices : new Uint32Array(64),
 }
 
-function computeBlock12IndicesFromBlock0(inputData, ind0)
+function updateOccupancy(inputData, outputData, block0Index) 
 {
-    ind2sub(inputData.occumap0Dimensions, ind0, spatialData.coords0)
+    computeBlock12IndicesFromBlock0Index(inputData, block0Index)
+
+    outputData.occumap0[block0Index] = decodedData.occupiedBlock[0]
+
+    for (let i = 0; i < spatialData.block1Indices.length; i++) 
+    {
+        outputData.occumap1[spatialData.block1Indices[i]] = decodedData.occupiedBytes[i]        
+    }
+
+    for (let i = 0; i < spatialData.block2Indices.length; i++) 
+    {
+        outputData.occumap2[spatialData.block2Indices[i]] = decodedData.occupiedBits[i] 
+    }
+}
+
+function computeBlock12IndicesFromBlock0Index(inputData, block0Index)
+{
+    ind2sub(inputData.occumap0Dimensions, block0Index, spatialData.block0Coords)
 
     for (let i = 0; i < 3; i++) 
     {
-        spatialData.blockMin1[i] = spatialData.coords0[i] * 2
-        spatialData.blockMin2[i] = spatialData.coords0[i] * 4
-
-        spatialData.blockMax1[i] = spatialData.blockMin1[i] + 2 - 1
-        spatialData.blockMax2[i] = spatialData.blockMin2[i] + 4 - 1
+        spatialData.block1MinCoords[i] = spatialData.block0Coords[i] * 2
+        spatialData.block2MinCoords[i] = spatialData.block0Coords[i] * 4
+        spatialData.block1MaxCoords[i] = spatialData.block1MinCoords[i] + 2 - 1
+        spatialData.block2MaxCoords[i] = spatialData.block2MinCoords[i] + 4 - 1
     }
 
-    box2ind(inputData.occumap1Dimensions, spatialData.blockMin1, spatialData.blockMax1, spatialData.indices1)
-    box2ind(inputData.occumap2Dimensions, spatialData.blockMin2, spatialData.blockMax2, spatialData.indices2)
-
-}
-
-function updateOccupancy(inputData, outputData, ind0) 
-{
-    computeBlock12IndicesFromBlock0(inputData, ind0)
-
-    outputData.occupied0[ind0] = decodedData.occupiedUint64[0]
-
-    for (let i = 0; i < spatialData.indices1.length; i++) 
-        outputData.occupied1[spatialData.indices1[i]] = decodedData.occupiedBytes[i]        
-
-    // iterate through sub blocks 2 
-    for (let i = 0; i < spatialData.indices2.length; i++) 
-        outputData.occupied2[spatialData.indices2[i]] = decodedData.occupiedBits[i] 
-
+    box2ind(inputData.occumap1Dimensions, spatialData.block1MinCoords, spatialData.block1MaxCoords, spatialData.block1Indices)
+    box2ind(inputData.occumap2Dimensions, spatialData.block2MinCoords, spatialData.block2MaxCoords, spatialData.block2Indices)
 }

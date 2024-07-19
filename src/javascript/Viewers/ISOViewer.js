@@ -35,33 +35,32 @@ export default class ISOViewer
 
         if (this.debug.active) 
         {
-            // this.helpers = new ISOHelpers(this)
             this.gui = new ISOGui(this)
-        }
-
-       
+        }       
     }
 
     setParameters()
     {
         this.parameters = {}
         
-        this.parameters.volume = {
-            size: new THREE.Vector3().fromArray(this.resource.volume.size),
+        this.parameters.volume = 
+        {
+            size:       new THREE.Vector3().fromArray(this.resource.volume.size),
             dimensions: new THREE.Vector3().fromArray(this.resource.volume.dimensions),
-            spacing: new THREE.Vector3().fromArray(this.resource.volume.spacing),
+            spacing:    new THREE.Vector3().fromArray(this.resource.volume.spacing),
         }
 
-        this.parameters.mask = {
-            size: new THREE.Vector3().fromArray(this.resource.mask.size),
+        this.parameters.mask = 
+        {
+            size:       new THREE.Vector3().fromArray(this.resource.mask.size),
             dimensions: new THREE.Vector3().fromArray(this.resource.mask.dimensions),
-            spacing: new THREE.Vector3().fromArray(this.resource.mask.spacing),
+            spacing:    new THREE.Vector3().fromArray(this.resource.mask.spacing),
         }
 
-        // in order to center model geometry vertices at the centers of voxels and normalize their positions in [0, 1]
-        this.parameters.geometry = {
-            size: new THREE.Vector3().copy(this.parameters.volume.size),
-            translation: new THREE.Vector3().add(this.parameters.volume.size).divideScalar(2),
+        this.parameters.geometry = 
+        {
+            size:       new THREE.Vector3().fromArray(this.resource.volume.size),
+            center:     new THREE.Vector3().fromArray(this.resource.volume.size).divideScalar(2),
         }
     }
 
@@ -126,7 +125,7 @@ export default class ISOViewer
     setGeometry()
     {
         this.geometry = new THREE.BoxGeometry(...this.parameters.geometry.size.toArray())
-        this.geometry.translate(...this.parameters.geometry.translation.toArray()) // to align model and texel coordinates
+        this.geometry.translate(...this.parameters.geometry.center.toArray()) // to align model and texel coordinates
     }
 
     setMaterial()
@@ -157,10 +156,11 @@ export default class ISOViewer
         this.occupancy.on('ready', () => 
         {
             for (let i = 0; i <  this.occupancy.occumaps.length; i++)
+            {
                 this.material.uniforms.u_sampler.value.occumaps[i] = this.occupancy.occumaps[i].texture
-
-            this.material.uniforms.u_occupancy.value.box_min = this.occupancy.occupancyBox.min
-            this.material.uniforms.u_occupancy.value.box_max = this.occupancy.occupancyBox.max        
+            }
+            this.material.uniforms.u_occupancy.value.box_min = this.occupancy.occubox.min
+            this.material.uniforms.u_occupancy.value.box_max = this.occupancy.occubox.max        
         })
     }
 

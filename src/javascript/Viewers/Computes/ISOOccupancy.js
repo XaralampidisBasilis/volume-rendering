@@ -18,7 +18,7 @@ export default class ISOOccupancy extends EventEmitter
         this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
         this.volumeDivisions = this.viewer.material.uniforms.u_occupancy.value.divisions 
 
-        this.setOccupancyBox()
+        this.setOccubox()
         this.setOccumaps()
         this.setComputation()
         this.compute()
@@ -36,11 +36,11 @@ export default class ISOOccupancy extends EventEmitter
 
     // setup
 
-    setOccupancyBox()
+    setOccubox()
     {
-        this.occupancyBox = new THREE.Box3()
-        this.occupancyBox.min.setScalar(0)
-        this.occupancyBox.max.setScalar(1)
+        this.occubox = new THREE.Box3()
+        this.occubox.min.setScalar(0)
+        this.occubox.max.setScalar(1)
     }
 
     setOccumaps()
@@ -95,14 +95,14 @@ export default class ISOOccupancy extends EventEmitter
     {
         const output = event.data
 
-        this.occumaps[0].fromArray(output.occupied0)
-        this.occumaps[1].fromArray(output.occupied1)
-        this.occumaps[2].fromArray(output.occupied2)
-        this.occupancyBox.min.fromArray(output.boxMin)
-        this.occupancyBox.max.fromArray(output.boxMax)
+        this.occumaps[0].fromArray(output.occumap0)
+        this.occumaps[1].fromArray(output.occumap1)
+        this.occumaps[2].fromArray(output.occumap2)
+        this.occubox.min.fromArray(output.occuboxMin)
+        this.occubox.max.fromArray(output.occuboxMax)
 
         // debug
-        // console.log([this.occumaps, this.occupancyBox])
+        // console.log([this.occumaps, this.occubox])
 
         this.trigger('ready')
     }
@@ -119,7 +119,8 @@ export default class ISOOccupancy extends EventEmitter
     {    
         this.readComputationData()
 
-        this.computation.worker.postMessage({
+        this.computation.worker.postMessage(
+        {
             computationData:     this.computation.data,
             volumeDimensions:    this.viewer.parameters.volume.dimensions.toArray(),
             occumap0Dimensions:  this.occumaps[0].dimensions.toArray(),
@@ -134,14 +135,13 @@ export default class ISOOccupancy extends EventEmitter
     readComputationData()
     {
         this.renderer.readRenderTargetPixels(
-        this.computation.instance.getCurrentRenderTarget(this.computation.variable),
-        0, 
-        0, 
-        this.computation.dimensions.width, 
-        this.computation.dimensions.height,
-        this.computation.texture.image.data // due to linked buffers, this.computation.data is updated also
+            this.computation.instance.getCurrentRenderTarget(this.computation.variable),
+            0, 
+            0, 
+            this.computation.dimensions.width, 
+            this.computation.dimensions.height,
+            this.computation.texture.image.data // due to linked buffers, this.computation.data is updated also
         )     
-
         this.computation.texture.needsUpdate = true;
     }
 
@@ -185,7 +185,6 @@ export default class ISOOccupancy extends EventEmitter
             helper.material.color = new THREE.Color([0x00FFFF, 0x00FF88, 0xFF88AA][i])
             helper.scale.divide(this.viewer.parameters.volume.dimensions).multiply(this.viewer.parameters.volume.size)
             helper.position.copy(this.viewer.parameters.volume.size).divideScalar(-2)
-
             this.helpers.occumaps.add(helper)
         }
 
@@ -194,13 +193,13 @@ export default class ISOOccupancy extends EventEmitter
 
     setComputationHelper()
     {
-        this.helpers.computation = new THREE.Mesh(
+        this.helpers.computation = new THREE.Mesh
+        (
             new THREE.PlaneGeometry(this.computation.dimensions.width, this.computation.dimensions.height),
             new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthTest: false })
         )
         this.helpers.computation.material.map = this.getComputationTexture()
         this.helpers.computation.scale.divideScalar(this.computation.dimensions.height)
-
         this.viewer.scene.add(this.helpers.computation)
     }
 
@@ -210,9 +209,8 @@ export default class ISOOccupancy extends EventEmitter
         const size = new THREE.Vector3()
         const box = new THREE.Box3()
 
-        this.occupancyBox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.translation)
-        this.occupancyBox.getSize(size).multiply(this.viewer.parameters.volume.size)  
-
+        this.occubox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.center)
+        this.occubox.getSize(size).multiply(this.viewer.parameters.volume.size)  
         this.helpers.occubox = new THREE.Box3Helper(box.setFromCenterAndSize(center, size), 0xFFFFFF) 
         this.viewer.scene.add(this.helpers.occubox)
     }
@@ -235,10 +233,8 @@ export default class ISOOccupancy extends EventEmitter
     {
         const center = new THREE.Vector3()
         const size = new THREE.Vector3()
-
-        this.occupancyBox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.translation)
-        this.occupancyBox.getSize(size).multiply(this.viewer.parameters.volume.size)  
-
+        this.occubox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.center)
+        this.occubox.getSize(size).multiply(this.viewer.parameters.volume.size)  
         this.helpers.occubox.box.setFromCenterAndSize(center, size)
     }
 
@@ -248,21 +244,26 @@ export default class ISOOccupancy extends EventEmitter
     {
         if (this.viewer.debug.active)
         {
+            this.viewer.scene.remove(this.helpers.occubox)
             this.viewer.scene.remove(this.helpers.occumaps)
             this.viewer.scene.remove(this.helpers.computation)
 
+            this.helpers.occubox.dispose()
             this.helpers.computation.geometry.dispose()
             this.helpers.computation.material.dispose()
-            this.helpers.occumaps.children.forEach((helper) => {
+            this.helpers.occumaps.children.forEach((helper) => 
+            {
                 helper.geometry.dispose()
                 helper.material.dispose()
             })
             
+            this.helpers.occubox = null
             this.helpers.occumap = null
             this.helpers.computation = null
             this.helpers = null
         }
 
+        
         this.occumaps.forEach((occumap) => occumap.dispose())
         this.computation.texture.dispose()
         this.computation.instance.dispose()
