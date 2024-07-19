@@ -90,7 +90,8 @@ export default class ISOGui
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
             resolution: raycast.add(u_raycast, 'resolution').min(0).max(2).step(0.001),
             refinements: raycast.add(u_raycast, 'refinements').min(0).max(5).step(1),
-            method: raycast.add(u_raycast, 'method').options({ isotropic: 1, directional: 2, traversal: 3 }),
+            step_method: raycast.add(u_raycast, 'step_method').options({ isotropic: 1, directional: 2, traversal: 3 }),
+            dither_method: raycast.add(u_raycast, 'dither_method').options({ generative: 1, texture: 2, }),
             dithering: raycast.add(u_raycast, 'dithering'),
             skipping: raycast.add(u_raycast, 'skipping')
         }

@@ -1,7 +1,8 @@
-#include ./modules/compute_bounds.glsl;
-#include ./modules/compute_dithering.glsl;
-#include ./steps/compute_step.glsl;
-#include ../marching/compute_marching.glsl;
+#include "./modules/compute_bounds"
+#include "./modules/compute_dithering"
+#include "../dithering/compute_dithering"
+#include "../stepping/compute_stepping"
+#include "../marching/compute_marching"
 
 /**
  * performs raycasting in a 3d texture to find the depth and intensity of an intersection.
@@ -34,7 +35,7 @@ bool compute_raycast
     vec2 ray_bounds = compute_bounds(u_occupancy, ray_start, ray_normal); // debug gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0);  
 
     // compute the ray step vector based on the raycast and volume parameters
-    vec3 ray_step = compute_step(u_raycast, u_volume, ray_normal, ray_bounds); 
+    vec3 ray_step = compute_stepping(u_raycast, u_volume, ray_normal, ray_bounds); 
 
     // apply dithering to the initial distance to avoid artifacts
     float ray_dithering = compute_dithering(u_raycast, u_volume, u_sampler, ray_normal, ray_bounds); // debug gl_FragColor = vec4(vec3(ray_dither), 1.0);  

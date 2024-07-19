@@ -15,32 +15,32 @@ varying mat4 v_projection_model_view_matrix;
 varying mat4 v_model_view_matrix;
 
 // uniforms
-#include ./uniforms/u_sampler.glsl;
-#include ./uniforms/u_volume.glsl;
-#include ./uniforms/u_occupancy.glsl;
-#include ./uniforms/u_raycast.glsl;
-#include ./uniforms/u_gradient.glsl;
-#include ./uniforms/u_colormap.glsl;
-#include ./uniforms/u_lighting.glsl;
+#include "./uniforms/uniforms_sampler"
+#include "./uniforms/uniforms_volume"
+#include "./uniforms/uniforms_occupancy"
+#include "./uniforms/uniforms_raycast"
+#include "./uniforms/uniforms_gradient"
+#include "./uniforms/uniforms_colormap"
+#include "./uniforms/uniforms_lighting"
 
 // utils
-#include ../../includes/utils/sample_color.glsl;
-#include ../../includes/utils/sample_intensity.glsl;
-#include ../../includes/utils/inside_texture.glsl;
-#include ../../includes/utils/intersect_box.glsl;
-#include ../../includes/utils/intersect_box_max.glsl;
-#include ../../includes/utils/intersect_box_min.glsl;
-#include ../../includes/utils/reshape_coordinates.glsl;
-#include ../../includes/utils/product.glsl;
-#include ../../includes/utils/sum.glsl;
-#include ../../includes/utils/rampstep.glsl;
-#include ../../includes/utils/posterize.glsl;
+#include "../../includes/utils/sample_color"
+#include "../../includes/utils/sample_intensity"
+#include "../../includes/utils/inside_texture"
+#include "../../includes/utils/intersect_box"
+#include "../../includes/utils/intersect_box_max"
+#include "../../includes/utils/intersect_box_min"
+#include "../../includes/utils/reshape_coordinates"
+#include "../../includes/utils/product"
+#include "../../includes/utils/sum"
+#include "../../includes/utils/rampstep"
+#include "../../includes/utils/posterize"
 
 // functionality
-#include ../../includes/gradient/compute_gradient.glsl;
-#include ../../includes/raycast/compute_raycast.glsl;
-#include ../../includes/colormap/compute_color.glsl;
-#include ../../includes/lighting/compute_lighting.glsl;
+#include "../../includes/gradient/compute_gradient"
+#include "../../includes/raycast/compute_raycast"
+#include "../../includes/colormap/compute_color"
+#include "../../includes/lighting/compute_lighting"
 
 void main() 
 {

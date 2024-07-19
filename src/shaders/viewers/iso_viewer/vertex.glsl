@@ -1,5 +1,5 @@
 // uniform
-#include ./uniforms/u_volume.glsl;
+#include "./uniforms/uniforms_volume"
 
 // varying
 varying vec3 v_position;
