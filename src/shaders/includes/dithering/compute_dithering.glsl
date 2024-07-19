@@ -1,7 +1,6 @@
-#include "../../lygia/generative/random"
+#include "../../libraries/lygia/generative/random"
 #include "./dithering_generative"
 #include "./dithering_texture"
-
 
 float compute_dithering
 (

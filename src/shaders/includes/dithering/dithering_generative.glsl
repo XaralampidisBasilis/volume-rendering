@@ -6,7 +6,7 @@
  * @param ray_bounds: vec2 containing the start and end distances for raycasting.
  * @return vec3: returns the dithered intensity value in [0, 1] range.
  */
-float dithering_random
+float dithering_generative
 (
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
