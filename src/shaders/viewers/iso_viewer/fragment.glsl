@@ -15,13 +15,13 @@ varying mat4 v_projection_model_view_matrix;
 varying mat4 v_model_view_matrix;
 
 // uniforms
-#include "./uniforms/uniforms_sampler"
-#include "./uniforms/uniforms_volume"
-#include "./uniforms/uniforms_occupancy"
-#include "./uniforms/uniforms_raycast"
-#include "./uniforms/uniforms_gradient"
-#include "./uniforms/uniforms_colormap"
-#include "./uniforms/uniforms_lighting"
+#include "../../includes/uniforms/uniforms_sampler"
+#include "../../includes/uniforms/uniforms_volume"
+#include "../../includes/uniforms/uniforms_occupancy"
+#include "../../includes/uniforms/uniforms_raycast"
+#include "../../includes/uniforms/uniforms_gradient"
+#include "../../includes/uniforms/uniforms_colormap"
+#include "../../includes/uniforms/uniforms_lighting"
 
 // utils
 #include "../../includes/utils/sample_color"

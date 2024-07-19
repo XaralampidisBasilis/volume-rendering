@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import EventEmitter from '../../Utils/EventEmitter'
 import Occumap from '../Helpers/Occumap'
 import OccumapHelper from '../Helpers/OccumapHelper'
-import computeShader from '../../../shaders/viewers/iso_viewer/computes/iso_occupancy.glsl'
+import computeShader from '../../../shaders/includes/computes/iso_occupancy.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
@@ -158,12 +158,10 @@ export default class ISOOccupancy extends EventEmitter
 
         this.setOccumapsHelper()
         this.setComputationHelper()
-
+        this.setOccupancyBoxHelper()
         this.helpers.occumaps.visible = false
         this.helpers.computation.visible = false
-
-        this.viewer.scene.add(this.helpers.occumaps)
-        this.viewer.scene.add(this.helpers.computation)
+        this.helpers.occubox.visible = false
     }
 
     updateHelpers()
@@ -172,6 +170,7 @@ export default class ISOOccupancy extends EventEmitter
         {
             this.updateComputationHelper()
             this.updateOccumapsHelper()
+            this.updateOccupancyBoxHelper()
         }
     }
 
@@ -189,6 +188,8 @@ export default class ISOOccupancy extends EventEmitter
 
             this.helpers.occumaps.add(helper)
         }
+
+        this.viewer.scene.add(this.helpers.occumaps)
     }
 
     setComputationHelper()
@@ -199,6 +200,21 @@ export default class ISOOccupancy extends EventEmitter
         )
         this.helpers.computation.material.map = this.getComputationTexture()
         this.helpers.computation.scale.divideScalar(this.computation.dimensions.height)
+
+        this.viewer.scene.add(this.helpers.computation)
+    }
+
+    setOccupancyBoxHelper()
+    {
+        const center = new THREE.Vector3()
+        const size = new THREE.Vector3()
+        const box = new THREE.Box3()
+
+        this.occupancyBox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.translation)
+        this.occupancyBox.getSize(size).multiply(this.viewer.parameters.volume.size)  
+
+        this.helpers.occubox = new THREE.Box3Helper(box.setFromCenterAndSize(center, size), 0xFFFFFF) 
+        this.viewer.scene.add(this.helpers.occubox)
     }
 
     updateOccumapsHelper()
@@ -213,6 +229,17 @@ export default class ISOOccupancy extends EventEmitter
     updateComputationHelper()
     {
         this.helpers.computation.material.map = this.getComputationTexture()
+    }
+
+    updateOccupancyBoxHelper()
+    {
+        const center = new THREE.Vector3()
+        const size = new THREE.Vector3()
+
+        this.occupancyBox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.translation)
+        this.occupancyBox.getSize(size).multiply(this.viewer.parameters.volume.size)  
+
+        this.helpers.occubox.box.setFromCenterAndSize(center, size)
     }
 
     // dispose
