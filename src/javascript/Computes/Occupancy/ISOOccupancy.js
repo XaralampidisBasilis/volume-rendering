@@ -18,10 +18,12 @@ export default class ISOOccupancy extends EventEmitter
         this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
         this.volumeDivisions = this.viewer.material.uniforms.u_occupancy.value.divisions 
 
+        console.time('occupancy')
         this.setOccubox()
         this.setOccumaps()
         this.setComputation()
         this.compute()
+        console.timeEnd('occupancy')
 
         if (this.viewer.debug.active)
         {

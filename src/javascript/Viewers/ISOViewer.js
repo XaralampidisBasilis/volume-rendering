@@ -3,8 +3,9 @@ import Experience from '../Experience'
 import ISOMaterial from './Materials/ISOMaterial'
 import ISOGui from './GUI/ISOGui'
 import ISOHelpers from './Helpers/ISOHelpers'
-import ISOOccupancy from '../Computes/Occupancy/ISOOccupancy'
+import Smoothing from '../Computes/Smoothing/Smoothing'
 import Gradients from '../Computes/Gradients/Gradients'
+import ISOOccupancy from '../Computes/Occupancy/ISOOccupancy'
 
 export default class ISOViewer
 {
@@ -31,15 +32,10 @@ export default class ISOViewer
         this.setMaterial()
         this.setMesh()
 
+        // this.computeSmoothing()
         // this.computeGradients()
-        // this.gradients.on('ready', () => 
-        // {
-        //     this.computeOccupancy()
-        // })
-
         this.computeOccupancy()
 
-       
         if (this.debug.active) 
         {
             this.gui = new ISOGui(this)
@@ -101,40 +97,38 @@ export default class ISOViewer
         this.textures = {}
 
         // Volume
-        this.textures.volume = new THREE.Data3DTexture
-        ( 
-            this.resource.volume.getDataUint8(), 
-            this.resource.volume.xLength, 
-            this.resource.volume.yLength,
-            this.resource.volume.zLength 
-        )          
+        const data = this.resource.volume.getDataUint8()
+        const dataRGBA = new Uint8Array(this.parameters.volume.count * 4)
+
+        for (let i = 0; i < data.length; i++) 
+        {
+            const i4 = i * 4;
+            dataRGBA[i4 + 0] = data[i];
+            dataRGBA[i4 + 1] = data[i];
+            dataRGBA[i4 + 2] = data[i];
+            dataRGBA[i4 + 3] = data[i];
+        }
+
+        this.textures.volume = new THREE.Data3DTexture(dataRGBA, ...this.parameters.volume.dimensions.toArray())
+        this.textures.volume.format = THREE.RGBAFormat
+        this.textures.volume.type = THREE.UnsignedByteType     
+        this.textures.volume.wrapS = THREE.ClampToEdgeWrapping
+        this.textures.volume.wrapT = THREE.ClampToEdgeWrapping
+        this.textures.volume.wrapR = THREE.ClampToEdgeWrapping
+        this.textures.volume.minFilter = THREE.LinearFilter
+        this.textures.volume.magFilter = THREE.LinearFilter
+        this.textures.volume.needsUpdate = true       
 
         // Mask
-        this.textures.mask = new THREE.Data3DTexture
-        ( 
-            this.resource.mask.getDataUint8(), 
-            this.resource.mask.xLength, 
-            this.resource.mask.yLength,
-            this.resource.mask.zLength 
-        )
-
-        for (let key in this.textures)
-        {
-            this.textures[key].format = THREE.RedFormat
-            this.textures[key].type = THREE.UnsignedByteType     
-            this.textures[key].wrapS = THREE.ClampToEdgeWrapping
-            this.textures[key].wrapT = THREE.ClampToEdgeWrapping
-            this.textures[key].wrapR = THREE.ClampToEdgeWrapping
-            this.textures[key].minFilter = THREE.LinearFilter
-            this.textures[key].magFilter = THREE.LinearFilter
-            this.textures[key].unpackAlignment = 1
-            this.textures[key].needsUpdate = true
-        }    
-    }
-
-    computeGradients()
-    {
-        this.gradients = new Gradients(this)
+        this.textures.mask = new THREE.Data3DTexture(this.resource.mask.getDataUint8(), ...this.parameters.mask.dimensions.toArray())
+        this.textures.mask.format = THREE.RedFormat
+        this.textures.mask.type = THREE.UnsignedByteType     
+        this.textures.mask.wrapS = THREE.ClampToEdgeWrapping
+        this.textures.mask.wrapT = THREE.ClampToEdgeWrapping
+        this.textures.mask.wrapR = THREE.ClampToEdgeWrapping
+        this.textures.mask.minFilter = THREE.LinearFilter
+        this.textures.mask.magFilter = THREE.LinearFilter
+        this.textures.mask.needsUpdate = true
     }
 
     setGeometry()
@@ -157,6 +151,30 @@ export default class ISOViewer
         this.material.uniforms.u_sampler.value.noise = this.noisemaps.white256
     }
 
+    setMesh()
+    {
+        this.mesh = new THREE.Mesh(this.geometry, this.material)
+        this.mesh.position.copy(this.parameters.volume.size).multiplyScalar(- 0.5)
+        this.scene.add(this.mesh)
+    }
+
+    computeSmoothing()
+    {
+        this.smoothing = new Smoothing(this)
+
+        for (let i = 0; i < this.textures.volume.image.data.length; i++)
+        {
+            this.textures.volume.image.data[i] = 255 * this.smoothing.computation.data[i]
+        }
+
+        this.textures.volume.needsUpdate = true
+    }
+
+    computeGradients()
+    {
+        this.gradients = new Gradients(this)
+    }
+
     computeOccupancy()
     {
         this.occupancy = new ISOOccupancy(this)
@@ -177,13 +195,6 @@ export default class ISOViewer
             this.material.uniforms.u_occupancy.value.box_min = this.occupancy.occubox.min
             this.material.uniforms.u_occupancy.value.box_max = this.occupancy.occubox.max        
         })
-    }
-
-    setMesh()
-    {
-        this.mesh = new THREE.Mesh(this.geometry, this.material)
-        this.mesh.position.copy(this.parameters.volume.size).multiplyScalar(- 0.5)
-        this.scene.add(this.mesh)
     }
 
     update()

@@ -1,37 +1,31 @@
 import * as THREE from 'three'
-import EventEmitter from '../../Utils/EventEmitter'
 import computeShader from '../../../shaders/includes/computes/gradients/compute_volume_gradients.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
-export default class Gradients extends EventEmitter
+export default class Gradients
 {   
     constructor(viewer)
     {
-        super()
-
         this.viewer = viewer
         this.parameters = this.viewer.parameters
         this.renderer = this.viewer.renderer
         this.resolution = this.viewer.material.uniforms.u_gradient.value.resolution
         this.method = this.viewer.material.uniforms.u_gradient.value.method
 
+        console.time('gradients')
         this.setComputation()
         this.compute()
-
         this.readComputationData()
-        this.updateVolumeTexture()
-        this.dispose()
-        
-        this.trigger('ready')
+        console.timeEnd('gradients')
     }
     
     setComputation()
     { 
-        const width = Math.ceil(Math.sqrt(this.parameters.volume.count))
+        const dimensionSq = Math.ceil(Math.sqrt(this.parameters.volume.count))
         
         this.computation = {}
-        this.computation.dimensions = new THREE.Vector2().setScalar(width)
+        this.computation.dimensions = new THREE.Vector2().setScalar(dimensionSq)
         this.computation.instance = new GPUComputationRenderer(this.computation.dimensions.width, this.computation.dimensions.height, this.renderer.instance)        
         this.computation.instance.setDataType(THREE.FloatType) 
         this.setComputationVariable()
@@ -71,27 +65,6 @@ export default class Gradients extends EventEmitter
             this.computation.texture.image.data // this.computation.data is updated also, due to linked buffers
         )     
         this.computation.texture.needsUpdate = true;
-    }
-
-    updateVolumeTexture()
-    {
-        this.viewer.textures.volume.dispose()
-        this.viewer.textures.volume = new THREE.Data3DTexture
-        ( 
-            this.computation.data, 
-            this.viewer.resource.volume.xLength, 
-            this.viewer.resource.volume.yLength,
-            this.viewer.resource.volume.zLength 
-        ) 
-        this.viewer.textures.volume.format = THREE.RGBAFormat
-        this.viewer.textures.volume.type = THREE.UnsignedByteType // UnsignedShortType // UnsignedIntType 
-        this.viewer.textures.volume.wrapS = THREE.ClampToEdgeWrapping
-        this.viewer.textures.volume.wrapT = THREE.ClampToEdgeWrapping
-        this.viewer.textures.volume.wrapR = THREE.ClampToEdgeWrapping
-        this.viewer.textures.volume.minFilter = THREE.LinearFilter
-        this.viewer.textures.volume.magFilter = THREE.LinearFilter
-        this.viewer.textures.volume.unpackAlignment = 1
-        this.viewer.textures.volume.needsUpdate = true
     }
 
     dispose()

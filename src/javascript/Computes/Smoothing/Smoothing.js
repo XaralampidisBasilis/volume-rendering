@@ -1,38 +1,31 @@
 import * as THREE from 'three'
-import EventEmitter from '../../Utils/EventEmitter'
-import computeShader from '../../../shaders/includes/computes/compute_volume_smoothing.glsl'
+import computeShader from '../../../shaders/includes/computes/smoothing/compute_volume_smoothing.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
-export default class Smoothing extends EventEmitter
+export default class Smoothing
 {   
     constructor(viewer)
     {
-        super()
-
         this.viewer = viewer
         this.parameters = this.viewer.parameters
         this.renderer = this.viewer.renderer
         this.resolution = this.viewer.material.uniforms.u_gradient.value.resolution
         this.method = this.viewer.material.uniforms.u_gradient.value.method
 
+        console.time('smoothing')
         this.setComputation()
         this.compute()
-
         this.readComputationData()
-        this.updateVolumeTexture()
-        this.dispose()
+        console.timeEnd('smoothing')
     }
     
     setComputation()
     { 
-        //set computation renderer
+        const dimensionSq = Math.ceil(Math.sqrt(this.parameters.volume.count))
+        
         this.computation = {}
-        this.computation.dimensions = new THREE.Vector2
-        (
-            this.parameters.volume.dimensions.x, 
-            this.parameters.volume.dimensions.y * this.parameters.volume.dimensions.z
-        )
+        this.computation.dimensions = new THREE.Vector2().setScalar(dimensionSq)
         this.computation.instance = new GPUComputationRenderer(this.computation.dimensions.width, this.computation.dimensions.height, this.renderer.instance)        
         this.computation.instance.setDataType(THREE.FloatType) 
         this.setComputationVariable()
@@ -41,7 +34,7 @@ export default class Smoothing extends EventEmitter
     setComputationVariable()
     {
         this.computation.texture = this.computation.instance.createTexture()
-        this.computation.data = new Float32Array(this.computation.texture.image.data.buffer) // shared buffer in order to decode Float32 to Uint32
+        this.computation.data = new Float32Array(this.computation.texture.image.data.buffer) // shared buffer 
         this.computation.variable = this.computation.instance.addVariable('v_computation_data', computeShader, this.computation.texture)
         this.computation.instance.setVariableDependencies(this.computation.variable, [this.computation.variable])
         this.computation.variable.material.uniforms = 
@@ -52,7 +45,7 @@ export default class Smoothing extends EventEmitter
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
             computation_dimensions: new THREE.Uniform(this.computation.dimensions),        
         }
-    
+
         this.computation.instance.init()
     }
     
@@ -69,14 +62,9 @@ export default class Smoothing extends EventEmitter
             0, 
             this.computation.dimensions.width, 
             this.computation.dimensions.height,
-            this.computation.texture.image.data // due to linked buffers, this.computation.data is updated also
+            this.computation.texture.image.data // this.computation.data is updated also, due to linked buffers
         )     
         this.computation.texture.needsUpdate = true;
-    }
-
-    updateVolumeTexture()
-    {
-
     }
 
     dispose()
