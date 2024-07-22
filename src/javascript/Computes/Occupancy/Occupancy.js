@@ -6,7 +6,7 @@ import computeShader from '../../../shaders/includes/computes/occupancy/compute_
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
-export default class ISOOccupancy extends EventEmitter
+export default class Occupancy extends EventEmitter
 {
     constructor(viewer)
     {
@@ -90,52 +90,12 @@ export default class ISOOccupancy extends EventEmitter
         this.computation.instance.init()
     }
 
-    setComputationWorker()
-    {
-        this.computation.worker = new Worker('./javascript/Computes/Occupancy/Workers/Worker')
-        this.computation.worker.onmessage = this.handleComputationWorker.bind(this)
-
-    }
-
-    handleComputationWorker(event) 
-    {
-        const output = event.data
-
-        this.occumaps[0].fromArray(output.occumap0)
-        this.occumaps[1].fromArray(output.occumap1)
-        this.occumaps[2].fromArray(output.occumap2)
-        this.occubox.min.fromArray(output.occuboxMin)
-        this.occubox.max.fromArray(output.occuboxMax)
-
-        // debug
-        // console.log([this.occumaps, this.occubox])
-
-        this.trigger('ready')
-    }
 
     compute()
     {
         this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
         this.computation.variable.material.uniforms.u_computation.value.threshold = this.threshold
         this.computation.instance.compute()
-        this.startComputationWorker()
-    }
-
-    startComputationWorker() 
-    {    
-        this.readComputationData()
-
-        this.computation.worker.postMessage(
-        {
-            computationData:     this.computation.data,
-            volumeDimensions:    this.viewer.parameters.volume.dimensions.toArray(),
-            occumap0Dimensions:  this.occumaps[0].dimensions.toArray(),
-            occumap1Dimensions:  this.occumaps[1].dimensions.toArray(),
-            occumap2Dimensions:  this.occumaps[2].dimensions.toArray(),
-            occumap0Length:      this.occumaps[0].dimensions.toArray().reduce((a, b) => a * b),
-            occumap1Length:      this.occumaps[1].dimensions.toArray().reduce((a, b) => a * b),
-            occumap2Length:      this.occumaps[2].dimensions.toArray().reduce((a, b) => a * b),
-        })
     }
 
     readComputationData()

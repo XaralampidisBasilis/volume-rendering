@@ -1,8 +1,14 @@
 
-2. Modularize XRGestures function
+Modularize XRGestures function
 
-4. Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2ikVUXKBw&ab_channel=Rafadante
+Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2ikVUXKBw&ab_channel=Rafadante
 
-1. Add typescript
+Add typescript
 
-2. Fix problem of marching_skip when gradient threshold is applied
+Fix problem of marching_skip when gradient threshold is applied
+
+Write simpler Occupancy function
+
+Improve OccupancyMux function
+
+Think how to optimize texture lookup for Occumaps

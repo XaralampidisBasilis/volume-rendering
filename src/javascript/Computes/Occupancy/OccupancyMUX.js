@@ -6,7 +6,7 @@ import computeShader from '../../../shaders/includes/computes/occupancy/compute_
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
-export default class ISOOccupancy extends EventEmitter
+export default class OccupancyMUX extends EventEmitter
 {
     constructor(viewer)
     {
@@ -18,12 +18,12 @@ export default class ISOOccupancy extends EventEmitter
         this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
         this.volumeDivisions = this.viewer.material.uniforms.u_occupancy.value.divisions 
 
-        console.time('occupancy')
+        console.time('occupancyMux')
         this.setOccubox()
         this.setOccumaps()
         this.setComputation()
         this.compute()
-        console.timeEnd('occupancy')
+        console.timeEnd('occupancyMux')
 
         if (this.viewer.debug.active)
         {
