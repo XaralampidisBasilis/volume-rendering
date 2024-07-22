@@ -3,8 +3,8 @@ import Experience from '../Experience'
 import ISOMaterial from './Materials/ISOMaterial'
 import ISOGui from './GUI/ISOGui'
 import ISOHelpers from './Helpers/ISOHelpers'
-import ISOOccupancy from './Computes/ISOOccupancy'
-import { KawaseBlurPass, EffectComposer, RenderPass } from "postprocessing";
+import ISOOccupancy from '../Computes/Occupancy/ISOOccupancy'
+import Gradients from '../Computes/Gradients/Gradients'
 
 export default class ISOViewer
 {
@@ -29,10 +29,17 @@ export default class ISOViewer
         this.setTextures()
         this.setGeometry()
         this.setMaterial()
-        this.setOccupancy()
         this.setMesh()
-        this.setPostprocessing()
 
+        // this.computeGradients()
+        // this.gradients.on('ready', () => 
+        // {
+        //     this.computeOccupancy()
+        // })
+
+        this.computeOccupancy()
+
+       
         if (this.debug.active) 
         {
             this.gui = new ISOGui(this)
@@ -125,6 +132,11 @@ export default class ISOViewer
         }    
     }
 
+    computeGradients()
+    {
+        this.gradients = new Gradients(this)
+    }
+
     setGeometry()
     {
         this.geometry = new THREE.BoxGeometry(...this.parameters.geometry.size.toArray())
@@ -145,7 +157,7 @@ export default class ISOViewer
         this.material.uniforms.u_sampler.value.noise = this.noisemaps.white256
     }
 
-    setOccupancy()
+    computeOccupancy()
     {
         this.occupancy = new ISOOccupancy(this)
 
@@ -174,26 +186,7 @@ export default class ISOViewer
         this.scene.add(this.mesh)
     }
 
-    setPostprocessing()
-    {
-        this.postprocessing = {}
-
-        this.postprocessing.composer = new EffectComposer(this.renderer.instance)
-        this.postprocessing.renderPass = new RenderPass(this.scene, this.camera.instance)
-        this.postprocessing.composer.addPass(this.postprocessing.renderPass)
-
-        // this.postprocessing.blurPass = new KawaseBlurPass({
-        //     resolutionScale: 10,  // Scale of the resolution, lower values for more blur
-        //     kernelSize: 1,         // Size of the kernel, higher values for more blur
-        //     iterations: 1,         // Number of blur iterations
-        //     resolutionX: window.innerWidth,  // Default is undefined
-        //     resolutionY: window.innerHeight // Default is undefined
-        // })
-        // this.postprocessing.composer.addPass(this.postprocessing.blurPass)
-    }
-
     update()
     {
-        this.postprocessing.composer.render()
     }
 }

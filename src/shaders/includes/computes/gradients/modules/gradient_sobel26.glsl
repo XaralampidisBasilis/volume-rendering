@@ -32,7 +32,7 @@ vec3 gradient_sobel26
     {
         vec3 position = voxel_position + voxel_step * sobel_k_offset[i];
 
-        samples[i] = sample_intensity_3d(volume_data, position);
+        samples[i] = texture(volume_data, position).r;
         samples[i] *= inside_texture(position);
     }
 

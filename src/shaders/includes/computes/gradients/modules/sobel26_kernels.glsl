@@ -24,7 +24,7 @@ const float[27] sobel_kernel_x = float[27]
      0.0,  0.0,  0.0,
     -1.0, -2.0, -1.0,
     -2.0, -4.0, -2.0,
-    -1.0, -2.0, -1.0,
+    -1.0, -2.0, -1.0
 );
 
 const float[27] sobel_kernel_y = float[27]
@@ -37,7 +37,7 @@ const float[27] sobel_kernel_y = float[27]
     -2.0, -4.0, -2.0,
     +1.0, +2.0, +1.0,
      0.0,  0.0,  0.0,
-    -1.0, -2.0, -1.0,
+    -1.0, -2.0, -1.0
 );
 
 const float[27] sobel_kernel_z = float[27]
@@ -50,7 +50,7 @@ const float[27] sobel_kernel_z = float[27]
     +2.0,  0.0, -2.0,
     +1.0,  0.0, -1.0,
     +2.0,  0.0, -2.0,
-    +1.0,  0.0, -1.0,
+    +1.0,  0.0, -1.0
 );
 
 // computed using non-linear optimizations with MATLAB script sobel_max_length.m

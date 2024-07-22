@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import EventEmitter from '../../Utils/EventEmitter'
-import Occumap from '../Helpers/Occumap'
-import OccumapHelper from '../Helpers/OccumapHelper'
-import computeShader from '../../../shaders/includes/computes/compute_volume_occupancy_iso.glsl'
+import Occumap from './Helpers/Occumap'
+import OccumapHelper from './Helpers/OccumapHelper'
+import computeShader from '../../../shaders/includes/computes/occupancy/compute_volume_occupancy_iso.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
@@ -50,7 +50,11 @@ export default class ISOOccupancy extends EventEmitter
 
         // we need to make sure that each occumap fits to the parent perfectly
         this.occumaps = new Array(3).fill().map(() => new Occumap(volumeDimensions, volumeSubdivisions))
-        this.occumaps.forEach((occumap, n) => occumap.combineBlocks(2 ** (2 - n)))
+        this.occumaps.forEach((occumap, n) => 
+        {
+            occumap.combineBlocks(2 ** (2 - n))
+            occumap.texture.unpackAlignment = 2 ** n
+        })
     }
 
     setComputation()
@@ -71,8 +75,8 @@ export default class ISOOccupancy extends EventEmitter
         this.computation.data = new Uint32Array(this.computation.texture.image.data.buffer) // shared buffer in order to decode Float32 to Uint32
         this.computation.variable = this.computation.instance.addVariable('v_computation_data', computeShader, this.computation.texture)
         this.computation.instance.setVariableDependencies(this.computation.variable, [this.computation.variable])
-        
-        this.computation.variable.material.uniforms.u_computation = new THREE.Uniform({
+        this.computation.variable.material.uniforms.u_computation = new THREE.Uniform
+        ({
             threshold:              this.threshold,
             volume_data:            this.viewer.textures.volume,
             volume_dimensions:      this.viewer.parameters.volume.dimensions,
@@ -86,7 +90,7 @@ export default class ISOOccupancy extends EventEmitter
 
     setComputationWorker()
     {
-        this.computation.worker = new Worker('./javascript/Viewers/Computes/Workers/ISOWorker')
+        this.computation.worker = new Worker('./javascript/Computes/Occupancy/Workers/ISOWorker')
         this.computation.worker.onmessage = this.handleComputationWorker.bind(this)
 
     }

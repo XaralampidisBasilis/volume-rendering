@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import * as CoordUtils from '../../Utils/CoordUtils'
+import * as CoordUtils from '../../../Utils/CoordUtils'
 
 const _blockCoords = new THREE.Vector3()
 const _voxelCoords = new THREE.Vector3()
@@ -43,8 +43,8 @@ export default class Occumap
         this.texture.wrapR = THREE.ClampToEdgeWrapping;
         this.texture.minFilter = THREE.NearestFilter;
         this.texture.magFilter = THREE.NearestFilter;
-        this.texture.unpackAlignment = 1;
         this.texture.needsUpdate = true;
+        this.texture.unpackAlignment = 1;
     }
 
     fromArray(array)

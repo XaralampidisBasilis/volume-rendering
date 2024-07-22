@@ -6,7 +6,7 @@ precision highp sampler3D;
 #include "./modules/uniforms_computation"
 #include "./modules/compute_sign"
 #include "./modules/compute_block_64_index"
-#include "../utils/reshape_coordinates"
+#include "../../utils/reshape_coordinates"
 
 void main()
 {

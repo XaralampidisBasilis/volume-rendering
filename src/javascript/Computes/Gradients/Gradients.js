@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import EventEmitter from '../../Utils/EventEmitter'
-import computeShader from '../../../shaders/includes/computes/compute_volume_smoothing.glsl'
+import computeShader from '../../../shaders/includes/computes/gradients/compute_volume_gradients.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
-export default class Smoothing extends EventEmitter
+export default class Gradients extends EventEmitter
 {   
     constructor(viewer)
     {
@@ -17,23 +17,21 @@ export default class Smoothing extends EventEmitter
         this.method = this.viewer.material.uniforms.u_gradient.value.method
 
         this.setComputation()
-        this.setDataTexture()
         this.compute()
 
         this.readComputationData()
-        this.updateVolumeData()
+        this.updateVolumeTexture()
         this.dispose()
+        
+        this.trigger('ready')
     }
     
     setComputation()
     { 
-        //set computation renderer
+        const width = Math.ceil(Math.sqrt(this.parameters.volume.count))
+        
         this.computation = {}
-        this.computation.dimensions = new THREE.Vector2
-        (
-            this.parameters.volume.dimensions.x, 
-            this.parameters.volume.dimensions.y * this.parameters.volume.dimensions.z
-        )
+        this.computation.dimensions = new THREE.Vector2().setScalar(width)
         this.computation.instance = new GPUComputationRenderer(this.computation.dimensions.width, this.computation.dimensions.height, this.renderer.instance)        
         this.computation.instance.setDataType(THREE.FloatType) 
         this.setComputationVariable()
@@ -42,6 +40,7 @@ export default class Smoothing extends EventEmitter
     setComputationVariable()
     {
         this.computation.texture = this.computation.instance.createTexture()
+        this.computation.data = new Float32Array(this.computation.texture.image.data.buffer) // shared buffer 
         this.computation.variable = this.computation.instance.addVariable('v_computation_data', computeShader, this.computation.texture)
         this.computation.instance.setVariableDependencies(this.computation.variable, [this.computation.variable])
         this.computation.variable.material.uniforms = 
@@ -52,31 +51,15 @@ export default class Smoothing extends EventEmitter
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
             computation_dimensions: new THREE.Uniform(this.computation.dimensions),        
         }
-    
+
         this.computation.instance.init()
     }
-
-    setDataTexture()
-    {
-        this.texture = new THREE.Data3DTexture
-        ( 
-            new Float32Array(this.computation.texture.image.data.buffer), 
-            this.parameters.volume.dimensions.x, 
-            this.parameters.volume.dimensions.y,
-            this.parameters.volume.dimensions.z 
-        )
-
-        this.texture.format = THREE.RGBAFormat
-        this.texture.type = THREE.FloatType     
-        this.texture.wrapS = THREE.ClampToEdgeWrapping
-        this.texture.wrapT = THREE.ClampToEdgeWrapping
-        this.texture.wrapR = THREE.ClampToEdgeWrapping
-        this.texture.minFilter = THREE.LinearFilter
-        this.texture.magFilter = THREE.LinearFilter
-        this.texture.unpackAlignment = 1
-        this.texture.needsUpdate = true
-    }
     
+    compute()
+    {
+        this.computation.instance.compute()
+    }
+
     readComputationData()
     {
         this.renderer.instance.readRenderTargetPixels(
@@ -85,27 +68,38 @@ export default class Smoothing extends EventEmitter
             0, 
             this.computation.dimensions.width, 
             this.computation.dimensions.height,
-            this.computation.texture.image.data // due to linked buffers, this.computation.texture.image.data is updated also
+            this.computation.texture.image.data // this.computation.data is updated also, due to linked buffers
         )     
         this.computation.texture.needsUpdate = true;
     }
 
-    updateVolumeData()
+    updateVolumeTexture()
     {
-
-    }
-
-    compute()
-    {
-        this.computation.instance.compute()
+        this.viewer.textures.volume.dispose()
+        this.viewer.textures.volume = new THREE.Data3DTexture
+        ( 
+            this.computation.data, 
+            this.viewer.resource.volume.xLength, 
+            this.viewer.resource.volume.yLength,
+            this.viewer.resource.volume.zLength 
+        ) 
+        this.viewer.textures.volume.format = THREE.RGBAFormat
+        this.viewer.textures.volume.type = THREE.UnsignedByteType // UnsignedShortType // UnsignedIntType 
+        this.viewer.textures.volume.wrapS = THREE.ClampToEdgeWrapping
+        this.viewer.textures.volume.wrapT = THREE.ClampToEdgeWrapping
+        this.viewer.textures.volume.wrapR = THREE.ClampToEdgeWrapping
+        this.viewer.textures.volume.minFilter = THREE.LinearFilter
+        this.viewer.textures.volume.magFilter = THREE.LinearFilter
+        this.viewer.textures.volume.unpackAlignment = 1
+        this.viewer.textures.volume.needsUpdate = true
     }
 
     dispose()
     {
-        this.texture.dispose()
         this.computation.texture.dispose()
         this.computation.instance.dispose()
         this.computation.texture = null
+        this.computation.data = null
         this.computation = null
     }
 }

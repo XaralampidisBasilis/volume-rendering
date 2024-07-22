@@ -1,6 +1,24 @@
 #ifndef UTILS_RESHAPE_COORDINATES
 #define UTILS_RESHAPE_COORDINATES
 
+
+float reshape_2d_to_1d(in vec2 pos2, in vec2 size)
+{
+    // pos in [0, size]
+    return pos2.y * size.x + pos2.x;
+}
+
+vec2 reshape_1d_to_2d(in float pos1, in vec2 size)
+{
+    // pos in [0, size]
+    vec2 pos2;
+
+    pos2.y = floor(pos1 / size.x);
+    pos2.x = mod(pos1, size.x);
+
+    return pos2;
+}
+
 float reshape_3d_to_1d(in vec3 pos3, in vec3 size)
 {
     // pos in [0, size]
