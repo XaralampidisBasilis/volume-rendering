@@ -13,7 +13,8 @@ void refine_intersection
     in uniforms_sampler u_sampler, 
     in vec3 ray_step, 
     inout vec3 hit_position, 
-    out float hit_sample)
+    out float hit_sample
+)
 {
     // calculate the refined substep based on the number of refinements
     vec3 ray_substep = ray_step / float(u_raycast.refinements + 1);  

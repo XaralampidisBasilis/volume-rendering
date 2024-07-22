@@ -1,4 +1,4 @@
-#include ../gradient/gradient_sobel.glsl;
+#include ../gradient/gradient_sobel8.glsl;
 #include ../gradient/gradient_central.glsl;
 #include ../gradient/gradient_tetrahedron.glsl;
 
@@ -25,7 +25,7 @@ vec3 compute_gradient(
     switch (u_gradient.method)
     {
         case 1: 
-            return gradient_sobel(u_gradient, u_volume, u_sampler, ray_position, ray_sample, ray_gradient);
+            return gradient_sobel8(u_gradient, u_volume, u_sampler, ray_position, ray_sample, ray_gradient);
         case 2: 
             return gradient_central(u_gradient, u_volume, u_sampler, ray_position, ray_sample, ray_gradient);
         case 3:  

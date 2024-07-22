@@ -8,7 +8,7 @@
  *
  * @return vec3: Gradient vector at the given position
  */
-vec3 gradient_sobel
+vec3 gradient_sobel8
 (
     in uniforms_gradient u_gradient, 
     in uniforms_volume u_volume, 

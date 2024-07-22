@@ -22,8 +22,8 @@ bool check_intersection
     out vec3 hit_normal,
     out float hit_sample,
     out float hit_depth
-) {
-
+) 
+{
     hit_position = ray_position;
     float hit_gradient = 0.0;
     
@@ -50,7 +50,7 @@ bool check_intersection
         }
     }
 
-    hit_position = vec3(0.0); 
+    hit_position = vec3(1.0/0.0); 
     hit_normal = vec3(0.0);
     hit_sample = 0.0;
     hit_depth = 1.0;    

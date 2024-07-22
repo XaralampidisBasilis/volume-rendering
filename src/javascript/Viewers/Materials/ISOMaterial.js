@@ -28,7 +28,7 @@ export default function(viewer)
             step_method:     3,
             dither_method:   1,
             dithering:       true, 
-            skipping:        false,
+            skipping:        true,
         }),
 
         u_gradient: new THREE.Uniform({

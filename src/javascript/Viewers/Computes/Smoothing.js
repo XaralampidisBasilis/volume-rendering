@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import EventEmitter from '../../Utils/EventEmitter'
-import computeShader from '../../../shaders/includes/computes/compute_volume_gradients.glsl'
+import computeShader from '../../../shaders/includes/computes/compute_volume_smoothing.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
-export default class Gradients extends EventEmitter
+export default class Smoothing extends EventEmitter
 {   
     constructor(viewer)
     {
@@ -23,14 +23,17 @@ export default class Gradients extends EventEmitter
         this.readComputationData()
         this.updateVolumeData()
         this.dispose()
-        this.trigger('ready')
     }
     
     setComputation()
     { 
         //set computation renderer
         this.computation = {}
-        this.computation.dimensions = new THREE.Vector2(this.parameters.volume.dimensions.x, this.parameters.volume.dimensions.y * this.parameters.volume.dimensions.z)
+        this.computation.dimensions = new THREE.Vector2
+        (
+            this.parameters.volume.dimensions.x, 
+            this.parameters.volume.dimensions.y * this.parameters.volume.dimensions.z
+        )
         this.computation.instance = new GPUComputationRenderer(this.computation.dimensions.width, this.computation.dimensions.height, this.renderer.instance)        
         this.computation.instance.setDataType(THREE.FloatType) 
         this.setComputationVariable()
@@ -49,7 +52,7 @@ export default class Gradients extends EventEmitter
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
             computation_dimensions: new THREE.Uniform(this.computation.dimensions),        
         }
-
+    
         this.computation.instance.init()
     }
 
@@ -62,6 +65,7 @@ export default class Gradients extends EventEmitter
             this.parameters.volume.dimensions.y,
             this.parameters.volume.dimensions.z 
         )
+
         this.texture.format = THREE.RGBAFormat
         this.texture.type = THREE.FloatType     
         this.texture.wrapS = THREE.ClampToEdgeWrapping
@@ -73,11 +77,6 @@ export default class Gradients extends EventEmitter
         this.texture.needsUpdate = true
     }
     
-    compute()
-    {
-        this.computation.instance.compute()
-    }
-
     readComputationData()
     {
         this.renderer.instance.readRenderTargetPixels(
@@ -86,7 +85,7 @@ export default class Gradients extends EventEmitter
             0, 
             this.computation.dimensions.width, 
             this.computation.dimensions.height,
-            this.computation.texture.image.data // this.texture.image.data is updated also, due to linked buffers
+            this.computation.texture.image.data // due to linked buffers, this.computation.texture.image.data is updated also
         )     
         this.computation.texture.needsUpdate = true;
     }
@@ -94,6 +93,11 @@ export default class Gradients extends EventEmitter
     updateVolumeData()
     {
 
+    }
+
+    compute()
+    {
+        this.computation.instance.compute()
     }
 
     dispose()

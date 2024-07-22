@@ -152,7 +152,7 @@ export default class Occumap
             _blockCoords.copy(blockCoordsOrIndex)
         }
 
-        const blockCap = this.volumeDimensions.clone().subScalar(1)
+        const blockCap = this.volumeDimensions.clone()
 
         const blockBox = new THREE.Box3()
         blockBox.min.copy(_blockCoords).multiply(this.blockDimensions)

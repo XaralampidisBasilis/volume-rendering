@@ -8,14 +8,14 @@ bool check_occupancy_block
     in vec3 ray_position, 
     in vec3 ray_step, 
     out int skip_steps
-) {
-
+) 
+{
     vec3 voxel_coords = floor(ray_position * volume_dimensions);
     vec3 block_coords = floor(voxel_coords / block_dimensions);
 
     // compute block0 min and max voxel coordinates
     vec3 block_min_voxel_pos = block_coords * block_dimensions;
-    vec3 block_max_voxel_pos = min(block_min_voxel_pos + block_dimensions, volume_dimensions); // if we had coords we would need to subtract one
+    vec3 block_max_voxel_pos = block_min_voxel_pos + block_dimensions; // if we had coords we would need to subtract one
 
     // normalize block voxel positions
     vec3 inv_vol_dim = 1.0 / volume_dimensions;
@@ -27,8 +27,8 @@ bool check_occupancy_block
     
     // intersect ray with block
     float distance = intersect_box_max(block_min_voxel_pos, block_max_voxel_pos, ray_position, ray_step); 
-    skip_steps = int(ceil(distance)); // we need ceil to go just outside of the block
-    skip_steps = max(skip_steps, 1); // for some reason sometimes skip steps go zero. We need to clamp it
+    skip_steps = int(ceil(distance)); 
+    skip_steps = max(skip_steps, 1); 
 
     // check if block is occupied
     bool occupied = bool(sample_intensity_3d(occumap, block_coords)); 
