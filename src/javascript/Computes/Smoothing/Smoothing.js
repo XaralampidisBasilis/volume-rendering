@@ -10,23 +10,32 @@ export default class Smoothing
         this.viewer = viewer
         this.parameters = this.viewer.parameters
         this.renderer = this.viewer.renderer
-        this.resolution = this.viewer.material.uniforms.u_gradient.value.resolution
-        this.method = this.viewer.material.uniforms.u_gradient.value.method
 
         console.time('smoothing')
         this.setComputation()
         this.compute()
         this.readComputationData()
+        this.writeSmoothingData()
         console.timeEnd('smoothing')
+
+        if (this.viewer.debug.active)
+        {
+            this.setHelpers()
+        }
     }
     
     setComputation()
     { 
-        const dimensionSq = Math.ceil(Math.sqrt(this.parameters.volume.count))
+        const voxelCountSq = Math.ceil(Math.sqrt(this.parameters.volume.count))
         
         this.computation = {}
-        this.computation.dimensions = new THREE.Vector2().setScalar(dimensionSq)
-        this.computation.instance = new GPUComputationRenderer(this.computation.dimensions.width, this.computation.dimensions.height, this.renderer.instance)        
+        this.computation.dimensions = new THREE.Vector2().setScalar(voxelCountSq)
+        this.computation.instance = new GPUComputationRenderer
+        (
+            this.computation.dimensions.width, 
+            this.computation.dimensions.height, 
+            this.renderer.instance
+        )        
         this.computation.instance.setDataType(THREE.FloatType) 
         this.setComputationVariable()
     }
@@ -34,7 +43,7 @@ export default class Smoothing
     setComputationVariable()
     {
         this.computation.texture = this.computation.instance.createTexture()
-        this.computation.data = new Float32Array(this.computation.texture.image.data.buffer) // shared buffer 
+        this.computation.data = new Float32Array(this.computation.texture.image.data.buffer) 
         this.computation.variable = this.computation.instance.addVariable('v_computation_data', computeShader, this.computation.texture)
         this.computation.instance.setVariableDependencies(this.computation.variable, [this.computation.variable])
         this.computation.variable.material.uniforms = 
@@ -62,9 +71,25 @@ export default class Smoothing
             0, 
             this.computation.dimensions.width, 
             this.computation.dimensions.height,
-            this.computation.texture.image.data // this.computation.data is updated also, due to linked buffers
+            this.computation.texture.image.data, // computation data are updated also
         )     
         this.computation.texture.needsUpdate = true;
+    }
+
+    writeSmoothingData()
+    {
+        const voxelCount = this.parameters.volume.count;
+        const voxelCountSq = this.computation.dimensions.width;
+        const extra = (voxelCountSq * voxelCountSq - voxelCount) * 4
+
+        this.data = this.computation.data.slice(0, -extra)
+
+        // this.data = new Float32Array(this.viewer.textures.volume.image.data).map((value) => value/255)
+    }
+
+    getComputationTexture()
+    {
+        return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
     }
 
     dispose()
@@ -72,7 +97,39 @@ export default class Smoothing
         this.computation.texture.dispose()
         this.computation.instance.dispose()
         this.computation.texture = null
-        this.computation.data = null
         this.computation = null
+    }
+
+    setHelpers()
+    {
+        this.helpers = {}
+
+        this.setComputationHelper()
+        this.helpers.computation.visible = true
+    }
+
+    updateHelpers()
+    {
+        if (this.viewer.debug.active)
+        {
+            this.updateComputationHelper()
+        }
+    }
+
+    setComputationHelper()
+    {
+        this.helpers.computation = new THREE.Mesh
+        (
+            new THREE.PlaneGeometry(this.computation.dimensions.width, this.computation.dimensions.height),
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthTest: false })
+        )
+        this.helpers.computation.material.map = this.getComputationTexture()
+        this.helpers.computation.scale.divideScalar(this.computation.dimensions.height).multiplyScalar(2)
+        this.viewer.scene.add(this.helpers.computation)
+    }
+
+    updateComputationHelper()
+    {
+        this.helpers.computation.material.map = this.getComputationTexture()
     }
 }

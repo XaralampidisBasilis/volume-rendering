@@ -9,7 +9,7 @@
  * @return vec3: Gradient vector at the given position
  */
 
- #include "gaussian27_kernel"
+ #include "gaussian27_kernels"
 
 float smoothing_gaussian27
 (
@@ -29,17 +29,18 @@ float smoothing_gaussian27
 
     for (int i = 0; i < 27; i++)
     {
-        vec3 position = voxel_position + voxel_step * gaussian_k_offset[i];
+        vec3 position = voxel_position + voxel_step * gaussian27_k_offset[i];
         samples[i] = texture(volume_data, position).r;
     }
     
     // Calculate the gradient using the gaussian26 operator
     float smooth_sample = 0.0;
-    float[27] gaussian_kernel = generate_gaussian27_kernel(0.5);
 
     for (int i = 0; i < 27; i++)
-        smooth_sample += gaussian_kernel[i] * samples[i];
+        smooth_sample += gaussian27_kernel_sigma_2[i] * samples[i];
     
+    // for debug
+    smooth_sample = samples[13];
 
     return smooth_sample; 
 }

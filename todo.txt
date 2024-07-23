@@ -12,3 +12,5 @@ Write simpler Occupancy function
 Improve OccupancyMux function
 
 Think how to optimize texture lookup for Occumaps
+
+Need to fix smoothing, and improve the speed

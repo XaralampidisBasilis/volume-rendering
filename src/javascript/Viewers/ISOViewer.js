@@ -95,8 +95,12 @@ export default class ISOViewer
     setTextures()
     {
         this.textures = {}
+        this.setVolumeTexture()
+        // this.setMaskTexture()
+    }
 
-        // Volume
+    setVolumeTexture()
+    {
         const data = this.resource.volume.getDataUint8()
         const dataRGBA = new Uint8Array(this.parameters.volume.count * 4)
 
@@ -106,7 +110,7 @@ export default class ISOViewer
             dataRGBA[i4 + 0] = data[i];
             dataRGBA[i4 + 1] = data[i];
             dataRGBA[i4 + 2] = data[i];
-            dataRGBA[i4 + 3] = data[i];
+            dataRGBA[i4 + 3] = 255;
         }
 
         this.textures.volume = new THREE.Data3DTexture(dataRGBA, ...this.parameters.volume.dimensions.toArray())
@@ -118,8 +122,10 @@ export default class ISOViewer
         this.textures.volume.minFilter = THREE.LinearFilter
         this.textures.volume.magFilter = THREE.LinearFilter
         this.textures.volume.needsUpdate = true       
+    }
 
-        // Mask
+    setMaskTexture()
+    {
         this.textures.mask = new THREE.Data3DTexture(this.resource.mask.getDataUint8(), ...this.parameters.mask.dimensions.toArray())
         this.textures.mask.format = THREE.RedFormat
         this.textures.mask.type = THREE.UnsignedByteType     
@@ -161,13 +167,9 @@ export default class ISOViewer
     computeSmoothing()
     {
         this.smoothing = new Smoothing(this)
-
-        for (let i = 0; i < this.textures.volume.image.data.length; i++)
-        {
-            this.textures.volume.image.data[i] = 255 * this.smoothing.computation.data[i]
-        }
-
+        this.textures.volume.image.data = new Uint8Array(this.smoothing.data.map(value => 255 * value));
         this.textures.volume.needsUpdate = true
+        // this.smoothing.dispose()
     }
 
     computeGradients()

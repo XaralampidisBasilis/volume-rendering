@@ -22,10 +22,10 @@ export default class Gradients
     
     setComputation()
     { 
-        const dimensionSq = Math.ceil(Math.sqrt(this.parameters.volume.count))
+        const voxelCountSq = Math.ceil(Math.sqrt(this.parameters.volume.count))
         
         this.computation = {}
-        this.computation.dimensions = new THREE.Vector2().setScalar(dimensionSq)
+        this.computation.dimensions = new THREE.Vector2().setScalar(voxelCountSq)
         this.computation.instance = new GPUComputationRenderer(this.computation.dimensions.width, this.computation.dimensions.height, this.renderer.instance)        
         this.computation.instance.setDataType(THREE.FloatType) 
         this.setComputationVariable()

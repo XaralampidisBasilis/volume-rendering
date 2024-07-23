@@ -20,7 +20,7 @@ void main()
     // Get min and max block voxel positions in the volume
     ivec3 block_min_voxel_coords = block_coords * u_computation.block_dimensions; 
     ivec3 block_max_voxel_coords = block_min_voxel_coords + u_computation.block_dimensions; 
-    block_max_voxel_coords = min(block_max_voxel_coords, u_computation.volume_dimensions) - 1;
+    // block_max_voxel_coords = min(block_max_voxel_coords, u_computation.volume_dimensions) - 1;
 
     // gl_FragColor = vec4((vec3(block_voxel_min)/vec3(u_computation.volume_dimensions-1)), 1.0);   
     // gl_FragColor = vec4((vec3(block_voxel_max)/vec3(u_computation.volume_dimensions-1)), 1.0);

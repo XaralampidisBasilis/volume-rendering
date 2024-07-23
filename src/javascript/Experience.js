@@ -54,6 +54,12 @@ export default class Experience
         {
             this.update()
         })
+
+        // Refresh event
+        window.addEventListener('beforeunload', () => 
+        {
+            this.destroy()
+        })
     }
 
     resize()

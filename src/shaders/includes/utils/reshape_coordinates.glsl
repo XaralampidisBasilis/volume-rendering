@@ -5,7 +5,7 @@
 float reshape_2d_to_1d(in vec2 pos2, in vec2 size)
 {
     // pos in [0, size]
-    return pos2.y * size.x + pos2.x;
+    return pos2.x + pos2.y * size.x;
 }
 
 vec2 reshape_1d_to_2d(in float pos1, in vec2 size)
@@ -22,7 +22,7 @@ vec2 reshape_1d_to_2d(in float pos1, in vec2 size)
 float reshape_3d_to_1d(in vec3 pos3, in vec3 size)
 {
     // pos in [0, size]
-    return pos3.z * size.x * size.y + pos3.y * size.x + pos3.x;
+    return pos3.x + pos3.y * size.x + pos3.z * size.x * size.y;
 }
 
 vec3 reshape_1d_to_3d(in float pos1, in vec3 size)

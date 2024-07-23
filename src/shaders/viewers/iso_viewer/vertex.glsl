@@ -5,8 +5,8 @@
 varying vec3 v_position;
 varying vec3 v_camera;
 varying vec3 v_direction;
-varying mat4 v_projection_model_view_matrix;
 varying mat4 v_model_view_matrix;
+varying mat4 v_projection_model_view_matrix;
 
 void main() {				    
 
@@ -19,6 +19,6 @@ void main() {
     v_position = position / u_volume.size; // vertex position in model texel coordinates
     v_camera = camera.xyz / u_volume.size; // camera position in model texel coordinates
     v_direction = v_position - v_camera; // direction vector from camera to vertex in model texel coordinates
-    v_projection_model_view_matrix = projectionMatrix * modelViewMatrix;
     v_model_view_matrix = modelViewMatrix;
+    v_projection_model_view_matrix = projectionMatrix * modelViewMatrix;
 }

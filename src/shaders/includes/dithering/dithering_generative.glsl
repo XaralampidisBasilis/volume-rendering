@@ -20,7 +20,7 @@ float dithering_generative
 
     // compute ray end position in world coordinates
     vec4 position = v_model_view_matrix * vec4(ray_end * u_volume.size, 1.0);
-    float dither_intensity = random(position.xyz); 
+    float dither_intensity = random(1000.0 * position.xyz); 
 
     dither_intensity *= u_raycast.dithering;
 

@@ -5,9 +5,10 @@ import fragmentShader from '../../../shaders/viewers/iso_viewer/fragment.glsl'
 
 export default function(viewer)
 {
-    const uniforms = {
-                
-        u_sampler: new THREE.Uniform({
+    const uniforms = 
+    {
+        u_sampler: new THREE.Uniform
+        ({
             volume:          null,
             mask:            null,
             colormap:        null,
@@ -15,30 +16,34 @@ export default function(viewer)
             occumaps:        new Array(3),
         }),
 
-        u_volume : new THREE.Uniform({
+        u_volume : new THREE.Uniform
+        ({
             dimensions:      new THREE.Vector3(),
             size:            new THREE.Vector3(),
             spacing:         new THREE.Vector3(),
         }),
 
-        u_raycast: new THREE.Uniform({
-            threshold:       0,   
-            refinements:     0,   
-            resolution:      1,
+        u_raycast: new THREE.Uniform
+        ({
+            threshold:       0.2,   
+            refinements:     2,   
+            resolution:      0.3,
             step_method:     3,
             dither_method:   1,
             dithering:       true, 
-            skipping:        true,
+            skipping:        false,
         }),
 
-        u_gradient: new THREE.Uniform({
+        u_gradient: new THREE.Uniform
+        ({
             threshold:       0,
             resolution:      1,  
             method:          3,        
-            max_sampling:    true,
+            max_sampling:    false,
         }),
             
-        u_colormap: new THREE.Uniform({
+        u_colormap: new THREE.Uniform
+        ({
             name:            'cet_d9',
             v:               colormapLocations['cet_d9'].v,
             u_range:         new THREE.Vector2(colormapLocations['cet_d9'].u_start, colormapLocations['cet_d9'].u_end),
@@ -46,7 +51,8 @@ export default function(viewer)
             levels:          255,
         }),
 
-        u_lighting: new THREE.Uniform({
+        u_lighting: new THREE.Uniform
+        ({
             a_color:         new THREE.Color(0xffffff).multiplyScalar(0.15),    
             d_color:         new THREE.Color(0xffffff),    
             s_color:         new THREE.Color(0xffffff),      
@@ -61,7 +67,8 @@ export default function(viewer)
             position:        new THREE.Vector3(),
         }),
 
-        u_occupancy: new THREE.Uniform({
+        u_occupancy: new THREE.Uniform
+        ({
             dimensions:      new Array(3).fill().map(() => new THREE.Vector3()),
             blocks:          new Array(3).fill().map(() => new THREE.Vector3()),
             box_min:         new THREE.Vector3(0, 0, 0),
