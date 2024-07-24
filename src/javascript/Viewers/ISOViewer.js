@@ -32,7 +32,7 @@ export default class ISOViewer
         this.setMaterial()
         this.setMesh()
 
-        // this.computeSmoothing()
+        this.computeSmoothing()
         // this.computeGradients()
         this.computeOccupancy()
 

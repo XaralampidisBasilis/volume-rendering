@@ -21,8 +21,9 @@ float smoothing_gaussian27
 )
 {
     float voxel_spacing = min(volume_spacing.x, min(volume_spacing.y, volume_spacing.z));
+    // vec3 voxel_step = voxel_spacing / volume_size;
+    vec3 voxel_step = 1.0 / volume_dimensions;
     vec3 voxel_position = voxel_coords / volume_dimensions;
-    vec3 voxel_step = voxel_spacing / volume_size;
 
     // Sample values at the neighboring points    
     float samples[27];
@@ -30,14 +31,18 @@ float smoothing_gaussian27
     for (int i = 0; i < 27; i++)
     {
         vec3 position = voxel_position + voxel_step * gaussian27_k_offset[i];
+
         samples[i] = texture(volume_data, position).r;
+        samples[i] *= inside_texture(position);
     }
     
     // Calculate the gradient using the gaussian26 operator
     float smooth_sample = 0.0;
 
     for (int i = 0; i < 27; i++)
+    {
         smooth_sample += gaussian27_kernel_sigma_2[i] * samples[i];
+    }
     
     // for debug
     smooth_sample = samples[13];
