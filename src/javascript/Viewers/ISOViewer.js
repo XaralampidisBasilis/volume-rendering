@@ -6,6 +6,7 @@ import ISOHelpers from './Helpers/ISOHelpers'
 import Smoothing from '../Computes/Smoothing/Smoothing'
 import Gradients from '../Computes/Gradients/Gradients'
 import ISOOccupancy from '../Computes/Occupancy/ISOOccupancy'
+import { ind2sub } from '../Utils/CoordUtils'
 
 export default class ISOViewer
 {
@@ -102,7 +103,7 @@ export default class ISOViewer
     setVolumeTexture()
     {
         const data = this.resource.volume.getDataUint8()
-        const dataRGBA = new Uint8Array(this.parameters.volume.count * 4)
+        const dataRGBA = new Uint8ClampedArray(this.parameters.volume.count * 4)
 
         for (let i = 0; i < data.length; i++) 
         {
@@ -121,7 +122,8 @@ export default class ISOViewer
         this.textures.volume.wrapR = THREE.ClampToEdgeWrapping
         this.textures.volume.minFilter = THREE.LinearFilter
         this.textures.volume.magFilter = THREE.LinearFilter
-        this.textures.volume.needsUpdate = true       
+        this.textures.volume.needsUpdate = true   
+        this.textures.volume.unpackAlignment = 1   
     }
 
     setMaskTexture()
@@ -135,6 +137,7 @@ export default class ISOViewer
         this.textures.mask.minFilter = THREE.LinearFilter
         this.textures.mask.magFilter = THREE.LinearFilter
         this.textures.mask.needsUpdate = true
+        this.textures.volume.unpackAlignment = 1   
     }
 
     setGeometry()
@@ -167,9 +170,15 @@ export default class ISOViewer
     computeSmoothing()
     {
         this.smoothing = new Smoothing(this)
-        this.textures.volume.image.data = new Uint8Array(this.smoothing.data.map(value => 255 * value));
+        
+        for (let i = 0; i < this.parameters.volume.count; i++)
+        {
+            const i4 = i * 4
+            this.textures.volume.image.data[i4] = this.smoothing.computation.data[i4] * 255
+        }
+
         this.textures.volume.needsUpdate = true
-        // this.smoothing.dispose()
+        this.smoothing.dispose()
     }
 
     computeGradients()

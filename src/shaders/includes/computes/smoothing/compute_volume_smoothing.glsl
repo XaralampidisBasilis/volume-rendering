@@ -27,8 +27,8 @@ void main()
     // gl_FragColor = vec4(vec3(1.0 - float(pixel_index < product(volume_dimensions))), 1.0);
     // return;
 
-    float smooth_sample = smoothing_gaussian27(volume_data, volume_size, volume_spacing, volume_dimensions, voxel_coords);
-    // float inside_volume = float(pixel_index < product(volume_dimensions));
+    // float smooth_sample = smoothing_gaussian27(volume_data, volume_size, volume_spacing, volume_dimensions, voxel_coords);
+    float smooth_sample = texture(volume_data, (voxel_coords + 0.5) / volume_dimensions).r;
 
     gl_FragColor = vec4(vec3(smooth_sample), 1.0);
 }

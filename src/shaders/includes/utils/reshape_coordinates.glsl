@@ -33,9 +33,9 @@ vec3 reshape_1d_to_3d(in float pos1, in vec3 size)
     float size_xy = size.x * size.y;
     pos3.z = floor(pos1 / size_xy);
 
-    float pos_xy = mod(pos1, size_xy);
-    pos3.y = floor(pos_xy / size.x);
-    pos3.x = mod(pos_xy, size.x);
+    float pos1_xy = mod(pos1, size_xy);
+    pos3.y = floor(pos1_xy / size.x);
+    pos3.x = mod(pos1_xy, size.x);
 
     return pos3;
 }

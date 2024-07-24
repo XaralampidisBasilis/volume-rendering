@@ -15,7 +15,6 @@ export default class Smoothing
         this.setComputation()
         this.compute()
         this.readComputationData()
-        this.writeSmoothingData()
         console.timeEnd('smoothing')
 
         if (this.viewer.debug.active)
@@ -26,10 +25,10 @@ export default class Smoothing
     
     setComputation()
     { 
-        const voxelCountSq = Math.ceil(Math.sqrt(this.parameters.volume.count))
+        const voxelCountSqrt = Math.ceil(Math.sqrt(this.parameters.volume.count))
         
         this.computation = {}
-        this.computation.dimensions = new THREE.Vector2().setScalar(voxelCountSq)
+        this.computation.dimensions = new THREE.Vector2().setScalar(voxelCountSqrt)
         this.computation.instance = new GPUComputationRenderer
         (
             this.computation.dimensions.width, 
@@ -76,17 +75,6 @@ export default class Smoothing
         this.computation.texture.needsUpdate = true;
     }
 
-    writeSmoothingData()
-    {
-        const voxelCount = this.parameters.volume.count;
-        const voxelCountSq = this.computation.dimensions.width;
-        const extra = (voxelCountSq * voxelCountSq - voxelCount) * 4
-
-        this.data = this.computation.data.slice(0, -extra)
-
-        // this.data = new Float32Array(this.viewer.textures.volume.image.data).map((value) => value/255)
-    }
-
     getComputationTexture()
     {
         return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
@@ -105,7 +93,7 @@ export default class Smoothing
         this.helpers = {}
 
         this.setComputationHelper()
-        this.helpers.computation.visible = true
+        this.helpers.computation.visible = false
     }
 
     updateHelpers()

@@ -9,9 +9,9 @@ import * as THREE from 'three'
  * @param in sub: 3-vector of indices ex THREE.Vector(1, 1, 1)
  * @param out: a linear index ex 6
  */
-export function vec2ind(dim, sub)
+export function vec2ind(dim, vec)
 {
-    return sub.x + sub.y * dim.x + sub.z * dim.x * dim.z
+    return vec.x + vec.y * dim.x + vec.z * dim.x * dim.z
 }
 
 /*
@@ -21,16 +21,16 @@ export function vec2ind(dim, sub)
  * @param in ind: a linear index ex 6
  * @param out sub: 3-vector of indices ex THREE.Vector(1, 1, 1)
  */
-export function ind2vec(dim, ind, sub) 
+export function ind2vec(dim, ind, vec) 
 {
     const XY = dim.x * dim.y;
     const xy = ind % XY;
 
-    sub.z = Math.floor(ind / XY);
-    sub.y = Math.floor(xy / dim.x);
-    sub.x = xy % dim.x;
+    vec.z = Math.floor(ind / XY);
+    vec.y = Math.floor(xy / dim.x);
+    vec.x = xy % dim.x;
 
-    return sub;
+    return vec;
 }
 
 /*
