@@ -33,11 +33,8 @@ function resetDecodedData(inputData)
     decodedData.occupiedBlock.fill(0)
     decodedData.occupiedBytes.fill(0)
     decodedData.occupiedBits.fill(0)
-    decodedData.bblockMaxVoxelCoord.fill(0)
-    for (let i = 0; i < 3; i++)
-    {
-        decodedData.bblockMinVoxelCoord[i] = inputData.volumeDimensions[i] - 1
-    }
+    decodedData.bblockMinVoxelCoord.fill(+Infinity)
+    decodedData.bblockMaxVoxelCoord.fill(0)   
 }
 
 function decodeRedGreen(red, green) 

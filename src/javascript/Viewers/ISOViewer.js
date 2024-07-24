@@ -33,7 +33,7 @@ export default class ISOViewer
         this.setMaterial()
         this.setMesh()
 
-        this.computeSmoothing()
+        // this.computeSmoothing()
         // this.computeGradients()
         this.computeOccupancy()
 
@@ -102,19 +102,19 @@ export default class ISOViewer
 
     setVolumeTexture()
     {
-        const data = this.resource.volume.getDataUint8()
-        const dataRGBA = new Uint8ClampedArray(this.parameters.volume.count * 4)
+        const volumeData = this.resource.volume.getDataUint8()
+        const volumeDataRGBA = new Uint8ClampedArray(this.parameters.volume.count * 4)
 
-        for (let i = 0; i < data.length; i++) 
+        for (let i = 0; i < volumeData.length; i++) 
         {
             const i4 = i * 4;
-            dataRGBA[i4 + 0] = data[i];
-            dataRGBA[i4 + 1] = data[i];
-            dataRGBA[i4 + 2] = data[i];
-            dataRGBA[i4 + 3] = 255;
+            volumeDataRGBA[i4 + 0] = volumeData[i];
+            volumeDataRGBA[i4 + 1] = volumeData[i];
+            volumeDataRGBA[i4 + 2] = volumeData[i];
+            volumeDataRGBA[i4 + 3] = 255;
         }
 
-        this.textures.volume = new THREE.Data3DTexture(dataRGBA, ...this.parameters.volume.dimensions.toArray())
+        this.textures.volume = new THREE.Data3DTexture(volumeDataRGBA, ...this.parameters.volume.dimensions.toArray())
         this.textures.volume.format = THREE.RGBAFormat
         this.textures.volume.type = THREE.UnsignedByteType     
         this.textures.volume.wrapS = THREE.ClampToEdgeWrapping
@@ -174,7 +174,7 @@ export default class ISOViewer
         for (let i = 0; i < this.parameters.volume.count; i++)
         {
             const i4 = i * 4
-            this.textures.volume.image.data[i4] = this.smoothing.computation.data[i4] * 255
+            this.textures.volume.image.data[i4] = this.smoothing.data[i4]
         }
 
         this.textures.volume.needsUpdate = true

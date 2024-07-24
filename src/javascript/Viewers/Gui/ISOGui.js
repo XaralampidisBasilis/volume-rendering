@@ -315,20 +315,21 @@ export default class ISOGui
 
     changeOccupancyDivisions()
     {
+        const occuboxVisible = this.controllers.occupancy.occubox.getValue()
         const occumapsVisible = this.controllers.occupancy.occumaps.getValue()
         const computationVisible = this.controllers.occupancy.computation.getValue()
 
         this.viewer.occupancy.dispose()
-        this.viewer.setOccupancy()
-        this.viewer.occupancy.compute()
+        this.viewer.computeOccupancy()
 
         // destroy and create occupancy visible controller
+        this.controllers.occupancy.occubox.destroy()
         this.controllers.occupancy.occumaps.destroy()
         this.controllers.occupancy.computation.destroy()
         
+        this.controllers.occupancy.occubox = this.subfolders.occupancy.add(this.viewer.occupancy.helpers.occubox, 'visible').name('occubox').setValue(occuboxVisible).updateDisplay()
         this.controllers.occupancy.occumaps = this.subfolders.occupancy.add(this.viewer.occupancy.helpers.occumaps, 'visible').name('occumaps').setValue(occumapsVisible).updateDisplay()
         this.controllers.occupancy.computation = this.subfolders.occupancy.add(this.viewer.occupancy.helpers.computation, 'visible').name('computation').setValue(computationVisible).updateDisplay()
-
     }
 
     dispose() {

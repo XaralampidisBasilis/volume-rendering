@@ -15,6 +15,7 @@ export default class Smoothing
         this.setComputation()
         this.compute()
         this.readComputationData()
+        this.writeSmoothingData()
         console.timeEnd('smoothing')
 
         if (this.viewer.debug.active)
@@ -75,6 +76,15 @@ export default class Smoothing
         this.computation.texture.needsUpdate = true;
     }
 
+    writeSmoothingData()
+    {
+        const voxelCount = this.parameters.volume.count;
+        const voxelCountSqrt = this.computation.dimensions.width;
+        const extra = (voxelCountSqrt * voxelCountSqrt - voxelCount) * 4
+
+        this.data = new Uint8ClampedArray(this.computation.data.slice(0, -extra).map((x) => x * 255))
+    }
+
     getComputationTexture()
     {
         return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
@@ -86,6 +96,13 @@ export default class Smoothing
         this.computation.instance.dispose()
         this.computation.texture = null
         this.computation = null
+
+        if (this.viewer.debug.active)
+        {
+            this.helpers.computation.material.dispose()
+            this.helpers.computation.geometry.dispose()
+            this.viewer.scene.remove(this.helpers.computation)
+        }
     }
 
     setHelpers()
@@ -93,7 +110,7 @@ export default class Smoothing
         this.helpers = {}
 
         this.setComputationHelper()
-        this.helpers.computation.visible = false
+        this.helpers.computation.visible = true
     }
 
     updateHelpers()
@@ -112,7 +129,7 @@ export default class Smoothing
             new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthTest: false })
         )
         this.helpers.computation.material.map = this.getComputationTexture()
-        this.helpers.computation.scale.divideScalar(this.computation.dimensions.height).multiplyScalar(2)
+        this.helpers.computation.scale.divideScalar(this.computation.dimensions.height / 2)
         this.viewer.scene.add(this.helpers.computation)
     }
 

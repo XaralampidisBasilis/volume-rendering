@@ -22,9 +22,10 @@ void main()
     vec3 voxel_coords = reshape_1d_to_3d(pixel_index, volume_dimensions); 
 
     // gl_FragColor = vec4(vec2(pixel_coords)/vec2(computation_dimensions-1.0), 0.0, 1.0);
-    // gl_FragColor = vec4(vec3(voxel_coords.z)/vec3(volume_dimensions.z-1.0), 1.0);
+    // gl_FragColor = vec4(vec3(pixel_index/(product(computation_dimensions) - 1.0)), 1.0);
+    // gl_FragColor = vec4(vec3(voxel_coords)/vec3(volume_dimensions-1.0), 1.0);
     // gl_FragColor = vec4(vec3(1.0 - inside_texture(voxel_coords / (volume_dimensions-1.0))), 1.0);
-    // gl_FragColor = vec4(vec3(1.0 - float(pixel_index < product(volume_dimensions))), 1.0);
+    // gl_FragColor = vec4(vec3(1.0 - float(pixel_index < (product(volume_dimensions) - 1.0))), 1.0);
     // return;
 
     // float smooth_sample = smoothing_gaussian27(volume_data, volume_size, volume_spacing, volume_dimensions, voxel_coords);

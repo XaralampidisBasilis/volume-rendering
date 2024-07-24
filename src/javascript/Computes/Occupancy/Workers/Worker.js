@@ -17,7 +17,7 @@ function setOutputData(inputData)
         occumap0: new Uint8Array(inputData.occumap0Length).fill(0),
         occumap1: new Uint8Array(inputData.occumap1Length).fill(0),
         occumap2: new Uint8Array(inputData.occumap2Length).fill(0),
-        occuboxMin: new Float32Array(3).fill(1),
+        occuboxMin: new Float32Array(3).fill(+Infinity),
         occuboxMax: new Float32Array(3).fill(0),
     }
 }
@@ -31,7 +31,7 @@ function processComputationData(inputData, outputData)
         updateOccupancy(inputData, outputData, block0Index)
         updateBox(outputData)
     }
-    normalizeBox(inputData, outputData)
+    normalizeBox(inputData, outputData)   
 }
 
 function updateBox(outputData) 
@@ -47,7 +47,8 @@ function normalizeBox(inputData, outputData)
 {
     for (let i = 0; i < 3; i++) 
     {
-        outputData.occuboxMin[i] = Math.max(0, Math.min(1, outputData.occuboxMin[i] / inputData.volumeDimensions[i]))
-        outputData.occuboxMax[i] = Math.max(0, Math.min(1, outputData.occuboxMax[i] / inputData.volumeDimensions[i]))
+        outputData.occuboxMin[i] /= inputData.volumeDimensions[i]
+        outputData.occuboxMax[i] /= inputData.volumeDimensions[i]
     }
+
 }
