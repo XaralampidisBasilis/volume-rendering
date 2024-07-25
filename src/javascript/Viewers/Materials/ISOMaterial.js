@@ -26,8 +26,8 @@ export default function(viewer)
         u_raycast: new THREE.Uniform
         ({
             threshold:       0.2,   
-            refinements:     2,   
-            resolution:      0.3,
+            refinements:     0,   
+            resolution:      1,
             step_method:     3,
             dither_method:   1,
             dithering:       true, 

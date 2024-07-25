@@ -33,7 +33,7 @@ bool check_intersection
         hit_sample = sample_intensity_3d(u_sampler.volume, hit_position);
 
         // if the sampled intensity exceeds the threshold, a hit is detected.
-        if (hit_sample >= u_raycast.threshold) 
+        if (hit_sample > u_raycast.threshold) 
         {
             // refine the hit position
             refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample);
@@ -42,7 +42,7 @@ bool check_intersection
             hit_normal = compute_gradient(u_gradient, u_volume, u_sampler, hit_position, hit_sample, hit_gradient);     
 
             // check if the gradient magnitude exceeds the threshold
-            if (hit_gradient >= u_gradient.threshold)
+            if (hit_gradient > u_gradient.threshold)
             {
                 hit_depth = compute_frag_depth(u_volume, hit_position);                
                 return true;

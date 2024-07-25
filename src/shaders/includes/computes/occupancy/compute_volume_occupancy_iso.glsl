@@ -48,7 +48,7 @@ void main()
                 float voxel_sample = texelFetch(u_computation.volume_data, voxel_coords, 0).r;
 
                 // if sample is above threshold update occupancy data
-                if (voxel_sample >= u_computation.threshold) 
+                if (voxel_sample > u_computation.threshold) 
                 {
                     // update bounding box
                     bblock_min_voxel_coords = min(bblock_min_voxel_coords, voxel_coords);

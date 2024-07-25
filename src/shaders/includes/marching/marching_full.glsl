@@ -46,7 +46,7 @@ bool marching_full
             hit_normal = compute_gradient(u_gradient, u_volume, u_sampler, hit_position, hit_sample, hit_gradient);     
 
             // check if the gradient magnitude exceeds the threshold
-            if (hit_gradient >= u_gradient.threshold)
+            if (hit_gradient > u_gradient.threshold)
             {
                 hit_depth = compute_frag_depth(u_volume, hit_position);                   
                 return true;
