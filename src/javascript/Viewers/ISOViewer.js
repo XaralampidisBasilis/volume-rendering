@@ -6,7 +6,7 @@ import ISOHelpers from './Helpers/ISOHelpers'
 import Smoothing from '../Computes/Smoothing/Smoothing'
 import Gradients from '../Computes/Gradients/Gradients'
 import ISOOccupancy from '../Computes/Occupancy/ISOOccupancy'
-import { ind2sub } from '../Utils/CoordUtils'
+import { sub2ind } from '../Utils/CoordUtils'
 
 export default class ISOViewer
 {
@@ -108,6 +108,7 @@ export default class ISOViewer
         for (let i = 0; i < volumeData.length; i++) 
         {
             const i4 = i * 4;
+            
             volumeDataRGBA[i4 + 0] = volumeData[i];
             volumeDataRGBA[i4 + 1] = volumeData[i];
             volumeDataRGBA[i4 + 2] = volumeData[i];
@@ -170,15 +171,7 @@ export default class ISOViewer
     computeSmoothing()
     {
         this.smoothing = new Smoothing(this)
-        
-        for (let i = 0; i < this.parameters.volume.count; i++)
-        {
-            const i4 = i * 4
-            this.textures.volume.image.data[i4] = this.smoothing.data[i4]
-        }
-
-        this.textures.volume.needsUpdate = true
-        this.smoothing.dispose()
+        // this.smoothing.dispose()
     }
 
     computeGradients()

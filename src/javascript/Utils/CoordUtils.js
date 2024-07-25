@@ -11,7 +11,7 @@ import * as THREE from 'three'
  */
 export function vec2ind(dim, vec)
 {
-    return vec.x + vec.y * dim.x + vec.z * dim.x * dim.z
+    return vec.x + vec.y * dim.x + vec.z * dim.x * dim.y
 }
 
 /*

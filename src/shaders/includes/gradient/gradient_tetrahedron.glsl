@@ -39,7 +39,7 @@ vec3 gradient_tetrahedron
         vec3 ray_offset = ray_position + offset[i];
         
         samples[i] = sample_intensity_3d(u_sampler.volume, ray_offset);
-        samples[i] *= inside_texture(ray_offset);
+        // samples[i] *= inside_texture(ray_offset);
 
         if (u_gradient.max_sampling) 
             ray_sample = max(ray_sample, samples[i]); 
@@ -51,7 +51,7 @@ vec3 gradient_tetrahedron
         samples[1] + samples[2] - samples[0] - samples[3]
     );
 
-    gradient_vector *= 0.5; // // normalize with 2 for length to be in [0 1]
+    gradient_vector *= 0.5; // normalize with max posible gradient vector length (2)
     ray_gradient = length(gradient_vector);
 
     return normalize(gradient_vector);

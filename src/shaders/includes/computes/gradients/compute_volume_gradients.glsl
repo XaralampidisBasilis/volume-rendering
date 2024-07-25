@@ -30,4 +30,8 @@ void main()
     gradient_vector = (0.5 * gradient_vector) + 0.5;
 
     gl_FragColor = vec4(gradient_vector, voxel_sample);
+
+    // include tone mapping and color space correction
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
 }

@@ -28,7 +28,7 @@ void main()
     // gl_FragColor = vec4((vec3(block_voxel_max)/vec3(u_computation.volume_dimensions-1)), 1.0);
 
     // set occupancy bounding box
-    ivec3 bblock_min_voxel_coords = u_computation.volume_dimensions - 1; 
+    ivec3 bblock_min_voxel_coords = u_computation.volume_dimensions - 1; // if i remove -1 then bblock min is not computed correcly somehow
     ivec3 bblock_max_voxel_coords = ivec3(0);
     
     // set occupancy array
@@ -78,4 +78,8 @@ void main()
 
     // write color data
     gl_FragColor = uintBitsToFloat(color_data);
+
+    // include tone mapping and color space correction
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
 }

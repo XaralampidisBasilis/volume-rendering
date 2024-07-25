@@ -42,8 +42,7 @@ vec3 gradient_sobel8
     {
         vec3 ray_offset = ray_position + offset[i];
         samples[i] = sample_intensity_3d(u_sampler.volume, ray_offset);
-        samples[i] *= inside_texture(ray_offset);
-
+        // samples[i] *= inside_texture(ray_offset);
 
         if (u_gradient.max_sampling) 
             ray_sample = max(ray_sample, samples[i]); 
@@ -57,7 +56,7 @@ vec3 gradient_sobel8
         samples[1] + samples[3] + samples[5] + samples[7] - samples[0] - samples[2] - samples[4] - samples[6]
     );
 
-    gradient_vector *= 0.288675134595; // normalize with 2 * sqrt(3) for length to be in [0 1]
+    gradient_vector *= 0.25; // normalize with max posible gradient vector length (4)
     ray_gradient = length(gradient_vector);
 
     return normalize(gradient_vector);

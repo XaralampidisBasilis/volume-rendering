@@ -40,7 +40,7 @@ vec3 gradient_central
     {
         vec3 ray_offset = ray_position + offset[i];
         samples[i] = sample_intensity_3d(u_sampler.volume, ray_offset);
-        samples[i] *= inside_texture(ray_offset);
+        // samples[i] *= inside_texture(ray_offset);
 
         if (u_gradient.max_sampling) 
             ray_sample = max(ray_sample, samples[i]); 
@@ -53,7 +53,7 @@ vec3 gradient_central
         samples[5] - samples[4]
     );
     
-    gradient_vector *= 0.57735026919; // normalize with sqrt(3) for length to be in [0 1]
+    gradient_vector *= 0.57735026919; // normalize with max posible gradient vector length (sqrt(3))
     ray_gradient = length(gradient_vector);
 
     return normalize(gradient_vector);

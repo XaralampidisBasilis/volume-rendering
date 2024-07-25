@@ -43,9 +43,6 @@ float smoothing_gaussian27
     {
         smooth_sample += gaussian27_kernel_sigma_2[i] * samples[i];
     }
-    
-    // for debug
-    smooth_sample = samples[13];
 
     return smooth_sample; 
 }
