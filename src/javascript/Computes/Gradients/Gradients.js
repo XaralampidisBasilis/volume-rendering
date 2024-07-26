@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import computeShader from '../../../shaders/includes/computes/gradients/compute_volume_gradients.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
+const _vector = new THREE.Vector3()
+
 // assumes intensity data 3D, and data3DTexture
 export default class Gradients
 {   
@@ -10,38 +12,45 @@ export default class Gradients
         this.viewer = viewer
         this.parameters = this.viewer.parameters
         this.renderer = this.viewer.renderer
-        this.resolution = this.viewer.material.uniforms.u_gradient.value.resolution
-        this.method = this.viewer.material.uniforms.u_gradient.value.method
 
         console.time('gradients')
         this.setComputation()
         this.compute()
-        this.readComputationData()
+        this.readComputation()
         console.timeEnd('gradients')
+
+        if (this.viewer.debug.active)
+        {
+            this.setHelpers()
+        }
     }
     
     setComputation()
     { 
-        const voxelCountSq = Math.ceil(Math.sqrt(this.parameters.volume.count))
+        const voxelCountSqrt = Math.ceil(Math.sqrt(this.parameters.volume.count))
         
         this.computation = {}
-        this.computation.dimensions = new THREE.Vector2().setScalar(voxelCountSq)
-        this.computation.instance = new GPUComputationRenderer(this.computation.dimensions.width, this.computation.dimensions.height, this.renderer.instance)        
-        this.computation.instance.setDataType(THREE.FloatType) 
+        this.computation.dimensions = new THREE.Vector2(voxelCountSqrt, voxelCountSqrt)
+        this.computation.instance = new GPUComputationRenderer
+        (
+            this.computation.dimensions.width, 
+            this.computation.dimensions.height, 
+            this.renderer.instance
+        )        
+        this.computation.instance.setDataType(THREE.UnsignedByteType) 
+        this.computation.texture = this.computation.instance.createTexture()
+        this.computation.data = new Uint8Array(this.computation.texture.image.data.length) 
         this.setComputationVariable()
     }
 
     setComputationVariable()
     {
-        this.computation.texture = this.computation.instance.createTexture()
-        this.computation.data = new Float32Array(this.computation.texture.image.data.buffer) // shared buffer 
         this.computation.variable = this.computation.instance.addVariable('v_computation_data', computeShader, this.computation.texture)
         this.computation.instance.setVariableDependencies(this.computation.variable, [this.computation.variable])
         this.computation.variable.material.uniforms = 
         {
             volume_data:            new THREE.Uniform(this.viewer.textures.volume),
-            volume_size:            new THREE.Uniform(this.parameters.volume.size),
-            volume_spacing:         new THREE.Uniform(this.parameters.volume.spacing),
+            volume_count:           new THREE.Uniform(this.parameters.volume.count),
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
             computation_dimensions: new THREE.Uniform(this.computation.dimensions),        
         }
@@ -54,7 +63,7 @@ export default class Gradients
         this.computation.instance.compute()
     }
 
-    readComputationData()
+    readComputation()
     {
         this.renderer.instance.readRenderTargetPixels(
             this.computation.instance.getCurrentRenderTarget(this.computation.variable),
@@ -62,9 +71,46 @@ export default class Gradients
             0, 
             this.computation.dimensions.width, 
             this.computation.dimensions.height,
-            this.computation.texture.image.data // this.computation.data is updated also, due to linked buffers
+            this.computation.data, 
         )     
-        this.computation.texture.needsUpdate = true;
+    }
+
+    getComputationTexture()
+    {
+        return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
+    }    
+
+    setHelpers()
+    {
+        this.helpers = {}
+
+        this.setComputationHelper()
+        this.helpers.computation.visible = false
+    }
+
+    updateHelpers()
+    {
+        if (this.viewer.debug.active)
+        {
+            this.updateComputationHelper()
+        }
+    }
+
+    setComputationHelper()
+    {
+        this.helpers.computation = new THREE.Mesh
+        (
+            new THREE.PlaneGeometry(this.computation.dimensions.width, this.computation.dimensions.height),
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthTest: false })
+        )
+        this.helpers.computation.material.map = this.getComputationTexture()
+        this.helpers.computation.scale.divideScalar(this.computation.dimensions.height / 10)
+        this.viewer.scene.add(this.helpers.computation)
+    }
+
+    updateComputationHelper()
+    {
+        this.helpers.computation.material.map = this.getComputationTexture()
     }
 
     dispose()
@@ -72,7 +118,13 @@ export default class Gradients
         this.computation.texture.dispose()
         this.computation.instance.dispose()
         this.computation.texture = null
-        this.computation.data = null
         this.computation = null
+
+        if (this.viewer.debug.active)
+        {
+            this.helpers.computation.material.dispose()
+            this.helpers.computation.geometry.dispose()
+            this.viewer.scene.remove(this.helpers.computation)
+        }
     }
 }

@@ -20,7 +20,12 @@ float dithering_texture
 
     // // compute a position value based on the end position transformed by the matrix
     vec4 position = v_projection_model_view_matrix * vec4(ray_end * u_volume.size, 1.0);
-    float dither_intensity = sample_intensity_2d(u_sampler.noise, 1000.0 * position.xy);    
+    position /= position.w; // Perform perspective division to get NDC space
+    position = (position + 1.0) * 0.5; // Calculate ndc position in the range [0, 1]
+    position *= 1000.0; // Subdivide screen to mulitple tilings 
+
+    // Sample noisemap texture at xy coordinates 
+    float dither_intensity = sample_intensity_2d(u_sampler.noise, position.xy);    
 
     dither_intensity *= u_raycast.dithering;
 

@@ -17,8 +17,7 @@ export default class Smoothing
         console.time('smoothing')
         this.setComputation()
         this.compute()
-        this.readComputationData()
-        this.updateVolumeTexture()
+        this.readComputation()
         console.timeEnd('smoothing')
 
         if (this.viewer.debug.active)
@@ -39,20 +38,19 @@ export default class Smoothing
             this.computation.dimensions.height, 
             this.renderer.instance
         )        
+        this.computation.instance.setDataType(THREE.UnsignedByteType) 
+        this.computation.texture = this.computation.instance.createTexture()
+        this.computation.data = new Uint8Array(this.computation.texture.image.data.length) 
         this.setComputationVariable()
     }
 
     setComputationVariable()
     {
-        this.computation.texture = this.computation.instance.createTexture()
-        this.computation.data = new Float32Array(this.computation.texture.image.data.buffer) 
         this.computation.variable = this.computation.instance.addVariable('v_computation_data', computeShader, this.computation.texture)
         this.computation.instance.setVariableDependencies(this.computation.variable, [this.computation.variable])
         this.computation.variable.material.uniforms = 
         {
             volume_data:            new THREE.Uniform(this.viewer.textures.volume),
-            volume_size:            new THREE.Uniform(this.parameters.volume.size),
-            volume_spacing:         new THREE.Uniform(this.parameters.volume.spacing),
             volume_count:           new THREE.Uniform(this.parameters.volume.count),
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
             computation_dimensions: new THREE.Uniform(this.computation.dimensions),        
@@ -66,7 +64,7 @@ export default class Smoothing
         this.computation.instance.compute()
     }
 
-    readComputationData()
+    readComputation()
     {
         this.renderer.instance.readRenderTargetPixels(
             this.computation.instance.getCurrentRenderTarget(this.computation.variable),
@@ -74,67 +72,21 @@ export default class Smoothing
             0, 
             this.computation.dimensions.width, 
             this.computation.dimensions.height,
-            this.computation.texture.image.data, // computation data are updated also
+            this.computation.data, 
         )     
-        this.computation.texture.needsUpdate = true;
-    }
-
-    updateVolumeTexture()
-    {
-        // for (let i = 0; i < this.viewer.textures.volume.image.data.length; i++)
-        // {
-        //     this.viewer.textures.volume.image.data[i] = 255 * this.computation.data[i]
-        // }
-
-        for (let z = 0; z < this.parameters.volume.dimensions.z; z++)
-        {
-            for (let y = 0; y < this.parameters.volume.dimensions.y; y++)
-            {
-                for (let x = 0; x < this.parameters.volume.dimensions.x; x++)
-                {
-                    _vector.set(x, y, z)
-
-                    let i = vec2ind(this.parameters.volume.dimensions, _vector)
-                    let i4 = i * 4
-
-                    this.viewer.textures.volume.image.data[i4 + 0] = 255 * this.computation.data[i4 + 0]
-                    // this.viewer.textures.volume.image.data[i4 + 1] = 255 * this.computation.data[i4 + 1]
-                    // this.viewer.textures.volume.image.data[i4 + 2] = 255 * this.computation.data[i4 + 2]
-                    // this.viewer.textures.volume.image.data[i4 + 3] = 255 * this.computation.data[i4 + 3]
-                }
-            }
-        }
-
-        this.viewer.textures.volume.needsUpdate = true
-
     }
 
     getComputationTexture()
     {
         return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
-    }
-
-    dispose()
-    {
-        this.computation.texture.dispose()
-        this.computation.instance.dispose()
-        this.computation.texture = null
-        this.computation = null
-
-        if (this.viewer.debug.active)
-        {
-            this.helpers.computation.material.dispose()
-            this.helpers.computation.geometry.dispose()
-            this.viewer.scene.remove(this.helpers.computation)
-        }
-    }
+    }    
 
     setHelpers()
     {
         this.helpers = {}
 
         this.setComputationHelper()
-        this.helpers.computation.visible = true
+        this.helpers.computation.visible = false
     }
 
     updateHelpers()
@@ -160,5 +112,20 @@ export default class Smoothing
     updateComputationHelper()
     {
         this.helpers.computation.material.map = this.getComputationTexture()
+    }
+
+    dispose()
+    {
+        this.computation.texture.dispose()
+        this.computation.instance.dispose()
+        this.computation.texture = null
+        this.computation = null
+
+        if (this.viewer.debug.active)
+        {
+            this.helpers.computation.material.dispose()
+            this.helpers.computation.geometry.dispose()
+            this.viewer.scene.remove(this.helpers.computation)
+        }
     }
 }

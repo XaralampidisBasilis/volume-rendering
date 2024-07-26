@@ -33,7 +33,7 @@ export default class ISOViewer
         this.setMaterial()
         this.setMesh()
 
-        // this.computeSmoothing()
+        this.computeSmoothing()
         // this.computeGradients()
         this.computeOccupancy()
 
@@ -72,7 +72,7 @@ export default class ISOViewer
     setNoisemaps()
     {
         this.noisemaps = {}        
-        this.noisemaps.white256 = this.resources.items.white256Noisemap
+        this.noisemaps.white256 = this.resources.items.blue256Noisemap
 
         this.noisemaps.white256.repeat.set(4, 4)
         this.noisemaps.white256.format = THREE.RedFormat
@@ -81,7 +81,8 @@ export default class ISOViewer
         this.noisemaps.white256.wrapT = THREE.RepeatWrapping
         this.noisemaps.white256.minFilter = THREE.NearestFilter
         this.noisemaps.white256.magFilter = THREE.NearestFilter
-        this.noisemaps.white256.needsUpdate = true            
+        this.noisemaps.white256.unpackAlignment = 8   
+        this.noisemaps.white256.needsUpdate = true         
     }
 
     setColormaps()
@@ -90,7 +91,8 @@ export default class ISOViewer
         this.colormaps.colorSpace = THREE.SRGBColorSpace
         this.colormaps.minFilter = THREE.LinearFilter
         this.colormaps.magFilter = THREE.LinearFilter         
-        this.colormaps.needsUpdate = true  
+        this.colormaps.unpackAlignment = 8
+        this.colormaps.needsUpdate = true 
     }
 
     setTextures()
@@ -124,7 +126,7 @@ export default class ISOViewer
         this.textures.volume.minFilter = THREE.LinearFilter
         this.textures.volume.magFilter = THREE.LinearFilter
         this.textures.volume.needsUpdate = true   
-        this.textures.volume.unpackAlignment = 1   
+        this.textures.volume.unpackAlignment = 1 
     }
 
     setMaskTexture()
@@ -171,7 +173,16 @@ export default class ISOViewer
     computeSmoothing()
     {
         this.smoothing = new Smoothing(this)
-        // this.smoothing.dispose()
+
+        // update volume texture image data
+        for (let i4 = 0; i4 < this.parameters.volume.count; i4 += 4)
+        {
+            this.textures.volume.image.data[i4 + 3] = this.smoothing.computation.data[i4 + 3]
+        }
+        this.textures.volume.needsUpdate = true
+
+        // dispose smoothing
+        this.smoothing.dispose()
     }
 
     computeGradients()

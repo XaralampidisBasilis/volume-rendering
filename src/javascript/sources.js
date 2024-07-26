@@ -19,15 +19,20 @@ export default [
         path: 'textures/colormaps/colormaps.png'
     },
 
-    // Noisemaps    
+    // Noisemaps  
     {
-        name: 'white256Noisemap',
+        name: 'blue256Noisemap',
         type: 'texture',
-        path: 'textures/noisemaps/white_256.png'
-    },
-    {
-        name: 'white512Noisemap',
-        type: 'texture',
-        path: 'textures/noisemaps/white_512.png'
-    },    
+        path: 'textures/noisemaps/blue_256.png'
+    },   
+    // {
+    //     name: 'white256Noisemap',
+    //     type: 'texture',
+    //     path: 'textures/noisemaps/white_256.png'
+    // },
+    // {
+    //     name: 'white512Noisemap',
+    //     type: 'texture',
+    //     path: 'textures/noisemaps/white_512.png'
+    // },   
 ]

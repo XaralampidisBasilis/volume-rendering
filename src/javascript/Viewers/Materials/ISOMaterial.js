@@ -29,7 +29,7 @@ export default function(viewer)
             refinements:     0,   
             resolution:      1,
             step_method:     3,
-            dither_method:   1,
+            dither_method:   2,
             dithering:       true, 
             skipping:        false,
         }),
@@ -86,7 +86,7 @@ export default function(viewer)
     const material = new THREE.ShaderMaterial({
         
         side: THREE.BackSide,
-        transparent: true,
+        transparent: false,
         depthTest: true,
         depthWrite: true,
 
