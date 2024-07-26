@@ -6,7 +6,7 @@ import ISOHelpers from './Helpers/ISOHelpers'
 import Smoothing from '../Computes/Smoothing/Smoothing'
 import Gradients from '../Computes/Gradients/Gradients'
 import ISOOccupancy from '../Computes/Occupancy/ISOOccupancy'
-import { sub2ind } from '../Utils/CoordUtils'
+import { vec2ind } from '../Utils/CoordUtils'
 
 export default class ISOViewer
 {
@@ -33,8 +33,7 @@ export default class ISOViewer
         this.setMaterial()
         this.setMesh()
 
-        this.computeSmoothing()
-        // this.computeGradients()
+        this.computeGradients()
         this.computeOccupancy()
 
         if (this.debug.active) 
@@ -175,19 +174,60 @@ export default class ISOViewer
         this.smoothing = new Smoothing(this)
 
         // update volume texture image data
-        for (let i4 = 0; i4 < this.parameters.volume.count; i4 += 4)
+        for (let i = 0; i < this.parameters.volume.count; i++)
         {
+            const i4 = i * 4            
+            this.textures.volume.image.data[i4 + 0] = this.smoothing.computation.data[i4 + 0]
+            this.textures.volume.image.data[i4 + 1] = this.smoothing.computation.data[i4 + 1]
+            this.textures.volume.image.data[i4 + 2] = this.smoothing.computation.data[i4 + 2]
             this.textures.volume.image.data[i4 + 3] = this.smoothing.computation.data[i4 + 3]
         }
         this.textures.volume.needsUpdate = true
 
         // dispose smoothing
         this.smoothing.dispose()
+
+        /** debug
+         
+        const coords = new THREE.Vector3()
+    
+        for (let z = Math.floor(this.parameters.volume.dimensions.z / 2); z < this.parameters.volume.dimensions.z; z++)
+        {
+            for (let y = Math.floor(this.parameters.volume.dimensions.y / 2); y < this.parameters.volume.dimensions.y; y++)
+            {
+                for (let x = Math.floor(this.parameters.volume.dimensions.x / 2); x < this.parameters.volume.dimensions.x; x++)
+                {
+                    let i = vec2ind(this.parameters.volume.dimensions, coords.set(x, y, z))
+                    let i4 = i * 4
+                    
+                    this.textures.volume.image.data[i4 + 0] = this.smoothing.computation.data[i4 + 0]
+                    this.textures.volume.image.data[i4 + 1] = this.smoothing.computation.data[i4 + 1]
+                    this.textures.volume.image.data[i4 + 2] = this.smoothing.computation.data[i4 + 2]
+                    this.textures.volume.image.data[i4 + 3] = this.smoothing.computation.data[i4 + 3]                
+                }
+            }
+        }
+        this.textures.volume.needsUpdate = true
+        */
     }
 
     computeGradients()
     {
-        this.gradients = new Gradients(this)
+        this.gradients = new Gradients(this)  
+        
+        // update volume texture image data
+        for (let i = 0; i < this.parameters.volume.count; i++)
+        {
+            const i4 = i * 4            
+            this.textures.volume.image.data[i4 + 0] = this.gradients.computation.data[i4 + 0]
+            this.textures.volume.image.data[i4 + 1] = this.gradients.computation.data[i4 + 1]
+            this.textures.volume.image.data[i4 + 2] = this.gradients.computation.data[i4 + 2]
+            this.textures.volume.image.data[i4 + 3] = this.gradients.computation.data[i4 + 3]
+        }
+        this.textures.volume.needsUpdate = true
+
+        // dispose gradients
+        this.gradients.dispose()
     }
 
     computeOccupancy()

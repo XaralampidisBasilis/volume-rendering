@@ -9,6 +9,11 @@
  * @param hit_intensity: output float where the intensity at the intersection will be stored.
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
+
+#include ./modules/check_intersection.glsl;
+#include ./modules/check_occupancy_block.glsl;
+#include ./modules/check_occupancy_linear.glsl;
+
 bool marching_skip
 (
     in uniforms_gradient u_gradient, 
@@ -37,7 +42,7 @@ bool marching_skip
     for (int i_step = step_bounds.x; i_step < step_bounds.y && count < MAX_COUNT; count++) 
     {
         // traverse space if block is occupied
-        bool occupied = check_occupancy(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
+        bool occupied = check_occupancy_linear(u_occupancy, u_volume, u_sampler, ray_position, ray_step, skip_steps, current_level, next_level);
         if (occupied) 
         {            
             // terminate marching if ray  hit

@@ -11,9 +11,9 @@
 
 vec4 gradient_smoothing_sobel8
 (
-    in sampler3D volume_data,
+    in sampler3D volume_data, // assumes LinearFilter & ClampToEdgeWrapping
     in ivec3 volume_dimensions,
-    in ivec3 voxel_coords,
+    in ivec3 voxel_coords
 )
 {
     // Calculate the position and step sizes within the 3D texture
@@ -33,12 +33,14 @@ vec4 gradient_smoothing_sobel8
     
     // Sample values at the neighboring points
     float samples[8];
+    
     for (int i = 0; i < 8; i++)
     {
         vec3 neighbor_step = gradient_step * k_offset[i];
         vec3 sample_pos = voxel_pos + neighbor_step;
         samples[i] = texture(volume_data, sample_pos).r;
     }
+
 
     // Calculate the gradient based on the sampled values using the Sobel operator
     vec3 gradient = vec3
@@ -47,17 +49,22 @@ vec4 gradient_smoothing_sobel8
         samples[2] + samples[3] + samples[6] + samples[7] - samples[0] - samples[1] - samples[4] - samples[5],
         samples[1] + samples[3] + samples[5] + samples[7] - samples[0] - samples[2] - samples[4] - samples[6]
     );
-    gradient *= 0.125; // adjust gradient scale due to trilinear sampling dividing with 8
-    gradient *= 0.25; // normalize with the maximum possible gradient vector length 4
-    gradient = gradient * 0.5 + 0.5; // adjust gradient in range [0, 1]
+
+    // Adjust gradient
+    // gradient *= 0.125;               // adjust gradient scale due to trilinear sampling dividing with 8
+    gradient *= 0.25;                   // normalize with the maximum possible gradient vector length 4
+    gradient = gradient * 0.5 + 0.5;    // adjust gradient in range [0, 1]
+
 
     // Calculate smooth sample based on the sum of neighbor trilinear samples
     float smooth_sample = 
     (
         samples[0] + samples[1] + samples[2] + samples[3] + samples[4] + samples[5] + samples[6] + samples[7]
     );
-    smooth_sample *= 0.125; // adjust smooth sample scale due to trilinear sampling dividing with 8
+
+    // Adjust smooth sample
+    smooth_sample *= 0.125;     // adjust smooth sample scale due to trilinear sampling dividing with 8
 
     // Combine results
-    return vec4(gradient, smooth_sample);
+    return vec4(smooth_sample, gradient);
 }

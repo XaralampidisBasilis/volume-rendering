@@ -1,12 +1,12 @@
-#include ./modules/compute_edge.glsl;
-#include ./modules/compute_attenuation.glsl;
-#include ./modules/compute_ambient.glsl;
-#include ./modules/compute_diffuse.glsl;
-#include ./modules/compute_specular_phong.glsl;
-#include ./modules/compute_specular_blinn.glsl;
+#include "./modules/compute_edge"
+#include "./modules/compute_attenuation"
+#include "./modules/compute_ambient"
+#include "./modules/compute_diffuse"
+#include "./modules/compute_specular_phong"
+#include "./modules/compute_specular_blinn"
 
-#include ./lighting_phong.glsl;
-#include ./lighting_blinn.glsl;
+#include "./lighting_phong"
+#include "./lighting_blinn"
 
 /**
  * Calculates the final color using the Phong or Phong-Blin reflection model.

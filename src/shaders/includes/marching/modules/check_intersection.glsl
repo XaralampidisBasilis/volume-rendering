@@ -25,35 +25,33 @@ bool check_intersection
 ) 
 {
     hit_position = ray_position;
-    float hit_gradient = 0.0;
     
     for (int i_step = 0; i_step < skip_steps; i_step++, hit_position += ray_step) {
 
-        // sample the intensity of the volume at the current 'hit_position'.
-        hit_sample = sample_intensity_3d(u_sampler.volume, hit_position);
+        // sample the intensity of the volume at the current ray position
+        vec4 texture_data = texture(u_sampler.volume, hit_position);
+
+        // get sample and gradient from texture data
+        hit_sample = texture_data.r;
+        vec3 hit_gradient = texture_data.gba * 2.0 - 1.0;
 
         // if the sampled intensity exceeds the threshold, a hit is detected.
-        if (hit_sample > u_raycast.threshold) 
+        if (hit_sample > u_raycast.threshold && length(hit_gradient) > u_gradient.threshold) 
         {
             // refine the hit position
-            refine_intersection(u_raycast, u_sampler, ray_step, hit_position, hit_sample);
+            refine_intersection(u_raycast, u_gradient, u_sampler, ray_step, hit_position, hit_sample, hit_normal);
 
-            // compute the gradient at the current hit position
-            hit_normal = compute_gradient(u_gradient, u_volume, u_sampler, hit_position, hit_sample, hit_gradient);     
-
-            // check if the gradient magnitude exceeds the threshold
-            if (hit_gradient > u_gradient.threshold)
-            {
-                hit_depth = compute_frag_depth(u_volume, hit_position);                
-                return true;
-            }
+            // compute fragment depth at hit position
+            hit_depth = compute_frag_depth(u_volume, hit_position);                   
+            return true;
         }
     }
 
-    hit_position = vec3(1.0/0.0); 
+    // no intersection found
+    hit_position = vec3(0.0);
     hit_normal = vec3(0.0);
     hit_sample = 0.0;
-    hit_depth = 1.0;    
+    hit_depth = 1.0;
 
     return false;
 }

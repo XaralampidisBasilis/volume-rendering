@@ -1,11 +1,7 @@
-#include ./modules/compute_frag_depth.glsl;
-#include ./modules/refine_intersection.glsl;
-#include ./modules/check_intersection.glsl;
-#include ./modules/check_occupancy_block.glsl;
-#include ./modules/check_occupancy.glsl;
-
-#include ./marching_full.glsl;
-#include ./marching_skip.glsl;
+#include "./modules/compute_frag_depth"
+#include "./modules/refine_intersection"
+#include "./marching_full"
+#include "./marching_skip"
 
 /**
  * Determines if a ray intersects with the volume and optionally skips empty space.
