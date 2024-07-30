@@ -5,11 +5,11 @@
 struct uniforms_colormap 
 {
     int name;
-    float v;     
-    vec2 u_range;
-    vec2 u_lim;  
+    float texture_id;     
+    vec2 texture_range;
+    float low;  
+    float high;  
     float levels;
-
 };
 
 uniform uniforms_colormap u_colormap;

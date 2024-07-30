@@ -88,7 +88,8 @@ export default class ISOGui
         this.controllers.raycast = 
         {
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
-            resolution: raycast.add(u_raycast, 'resolution').min(0).max(2).step(0.001),
+            resolutionMin: raycast.add(u_raycast, 'resolution_min').min(0).max(3).step(0.001),
+            resolutionMax: raycast.add(u_raycast, 'resolution_max').min(0).max(3).step(0.001),
             refinements: raycast.add(u_raycast, 'refinements').min(0).max(5).step(1),
             step_method: raycast.add(u_raycast, 'step_method').options({ isotropic: 1, directional: 2, traversal: 3 }),
             dither_method: raycast.add(u_raycast, 'dither_method').options({ generative: 1, texture: 2, }),
@@ -121,8 +122,8 @@ export default class ISOGui
     
         this.controllers.colormap = 
         {
-            low: colormap.add(u_colormap.u_lim, 'x').name('low').min(0).max(1).step(0.001),
-            high: colormap.add(u_colormap.u_lim, 'y').name('high').min(0).max(1).step(0.001),
+            low: colormap.add(u_colormap, 'low').min(0).max(1).step(0.001),
+            high: colormap.add(u_colormap, 'high').min(0).max(1).step(0.001),
             levels: colormap.add(u_colormap, 'levels').min(1).max(255).step(1),
             name: colormap.add(u_colormap, 'name').options(Object.keys(colormapLocations)),
             flip: colormap.add(object, 'flip')
@@ -262,15 +263,15 @@ export default class ISOGui
 
     flipColormapRange()
     {
-        [this.viewer.material.uniforms.u_colormap.value.u_range.y, this.viewer.material.uniforms.u_colormap.value.u_range.x] = 
-        [this.viewer.material.uniforms.u_colormap.value.u_range.x, this.viewer.material.uniforms.u_colormap.value.u_range.y]      
+        [this.viewer.material.uniforms.u_colormap.value.texture_range.y, this.viewer.material.uniforms.u_colormap.value.texture_range.x] = 
+        [this.viewer.material.uniforms.u_colormap.value.texture_range.x, this.viewer.material.uniforms.u_colormap.value.texture_range.y]      
     }
 
     locateColormapTexture()
     {
         let { v, u_start, u_end } = colormapLocations[this.controllers.colormap.name.getValue()]
-        this.viewer.material.uniforms.u_colormap.value.v = v
-        this.viewer.material.uniforms.u_colormap.value.u_range.set(u_start, u_end)      
+        this.viewer.material.uniforms.u_colormap.value.texture_id = v
+        this.viewer.material.uniforms.u_colormap.value.texture_range.set(u_start, u_end)      
     }
 
     adjustLightingPower()

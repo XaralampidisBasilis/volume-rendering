@@ -5,12 +5,8 @@ Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2i
 
 Add typescript
 
-Fix problem of marching_skip when gradient threshold is applied
-
 Write simpler Occupancy function
-
-Improve OccupancyMux function
 
 Think how to optimize texture lookup for Occumaps
 
-Need to fix smoothing, and improve the speed
+Add addaptive stepping, using gradient information and linear approximation

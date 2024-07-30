@@ -27,7 +27,8 @@ export default function(viewer)
         ({
             threshold:       0.2,   
             refinements:     0,   
-            resolution:      1,
+            resolution_min:  1,
+            resolution_max:  1,
             step_method:     3,
             dither_method:   2,
             dithering:       true, 
@@ -45,9 +46,10 @@ export default function(viewer)
         u_colormap: new THREE.Uniform
         ({
             name:            'cet_d9',
-            v:               colormapLocations['cet_d9'].v,
-            u_range:         new THREE.Vector2(colormapLocations['cet_d9'].u_start, colormapLocations['cet_d9'].u_end),
-            u_lim:           new THREE.Vector2(0, 1),
+            texture_id:      colormapLocations['cet_d9'].v,
+            texture_range:   new THREE.Vector2(colormapLocations['cet_d9'].u_start, colormapLocations['cet_d9'].u_end),
+            low:             0,
+            high:            1,
             levels:          255,
         }),
 
@@ -90,7 +92,7 @@ export default function(viewer)
         depthTest: true,
         depthWrite: true,
 
-        // glslVersion: THREE.GLSL3,
+        glslVersion: THREE.GLSL1,
         uniforms: uniforms,
         defines: defines,
         vertexShader: vertexShader,

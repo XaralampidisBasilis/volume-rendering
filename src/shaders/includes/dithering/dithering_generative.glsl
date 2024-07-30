@@ -1,29 +1,26 @@
 /**
- * applies dithering to the initial distance to avoid artifacts. 
+ * Applies dithering to the initial distance to avoid artifacts.
  *
- * @param u_raycast: struct containing raycast-related uniforms.
- * @param ray_normal: direction vector of the ray (should be normalized).
- * @param ray_bounds: vec2 containing the start and end distances for raycasting.
- * @return vec3: returns the dithered intensity value in [0, 1] range.
+ * @param u_raycast: Struct containing raycast-related uniforms.
+ * @param u_volume: Struct containing volume-related uniforms.
+ * @param ray: Struct containing ray parameters (origin, direction, bounds, etc.).
+ * @return float: Returns the dithered intensity value in the [0, 1] range.
  */
 float dithering_generative
 (
-    in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
-    in uniforms_sampler u_sampler, 
-    in vec3 ray_normal, 
-    in vec2 ray_bounds
+    in parameters_ray ray
 )
 {
-    // calculate the end position of the ray
-    vec3 ray_end = ray_normal * ray_bounds.y;
+    // Calculate the end position of the ray.
+    vec3 ray_end = ray.direction * ray.bounds.y;
 
-    // compute ray end position in world coordinates
-    vec4 position = v_model_view_matrix * vec4(ray_end * u_volume.size, 1.0);
-    float dither_intensity = random(1000.0 * position.xyz); 
+    // Compute the ray end position in world coordinates.
+    ray_end = vec3(v_model_view_matrix * vec4(ray_end * u_volume.size, 1.0));
 
-    dither_intensity *= u_raycast.dithering;
+    // Generate a random number based on position
+    float dither_intensity = random(ray_end); 
 
-    // return dithering step
-    return dither_intensity; // in [0, 1]
+    // Return the dithered intensity value in the [0, 1] range.
+    return dither_intensity; 
 }

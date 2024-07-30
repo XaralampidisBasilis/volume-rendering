@@ -1,34 +1,37 @@
 /**
- * applies dithering to the initial distance to avoid artifacts. 
+ * Applies dithering to the initial distance to avoid artifacts.
  *
- * @param u_raycast: struct containing raycast-related uniforms.
- * @param ray_normal: direction vector of the ray (should be normalized).
- * @param ray_bounds: vec2 containing the start and end distances for raycasting.
- * @return vec3: returns the dithered intensity value in [0, 1] range.
+ * @param u_raycast: Struct containing raycast-related uniforms.
+ * @param u_volume: Struct containing volume-related uniforms.
+ * @param u_sampler: Struct containing sampler-related uniforms.
+ * @param ray: Struct containing ray parameters (origin, direction, bounds, etc.).
+ * @return float: Returns the dithered intensity value in the [0, 1] range.
  */
 float dithering_texture
 (
-    in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
-    in uniforms_sampler u_sampler, 
-    in vec3 ray_normal, 
-    in vec2 ray_bounds
+    in sampler2D noisemap, 
+    in parameters_ray ray
 )
 {
-    // calculate the end position of the ray
-    vec3 ray_end = ray_normal * ray_bounds.y;
+    // Calculate the end position of the ray.
+    vec3 ray_end = ray.direction * ray.bounds.y;
 
-    // // compute a position value based on the end position transformed by the matrix
+    // Compute a position value based on the end position transformed by the matrix.
     vec4 position = v_projection_model_view_matrix * vec4(ray_end * u_volume.size, 1.0);
-    position /= position.w; // Perform perspective division to get NDC space
-    position = (position + 1.0) * 0.5; // Calculate ndc position in the range [0, 1]
-    position *= 1000.0; // Subdivide screen to mulitple tilings 
 
-    // Sample noisemap texture at xy coordinates 
-    float dither_intensity = sample_intensity_2d(u_sampler.noise, position.xy);    
+    // Perform perspective division to get NDC space.
+    position /= position.w; 
+    
+    // Calculate NDC position in the range [0, 1].
+    position = (position + 1.0) * 0.5; 
 
-    dither_intensity *= u_raycast.dithering;
+    // Subdivide the screen into multiple tilings.
+    position *= 1000.0; 
 
-    // return dithering step
-    return dither_intensity; // in [0, 1]
+    // Sample the noise map texture at xy coordinates.
+    float dither_intensity = texture(noisemap, position.xy).r;    
+
+    // Return the dithered intensity value in the [0, 1] range.
+    return dither_intensity; 
 }

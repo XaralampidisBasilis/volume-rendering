@@ -4,17 +4,15 @@
 #include "../marching/compute_marching"
 
 /**
- * performs raycasting in a 3d texture to find the depth and intensity of an intersection.
+ * Performs raycasting in a 3D texture to find the depth and intensity of an intersection.
  *
- * @param u_raycast: struct containing raycast-related uniforms.
- * @param u_volume: struct containing volume-related uniforms.
- * @param u_occupancy: struct containing occupancy-related uniforms.
- * @param ray_start: starting point of the ray.
- * @param ray_normal: direction vector of the ray (should be normalized).
- * @param ray_bounds: vec2 containing the start and end distances for raycasting.
- * @param hit_position: output vec3 where the position of the intersection will be stored.
- * @param hit_intensity: output float where the intensity at the intersection will be stored.
- * @return bool: returns true if an intersection is found above the threshold, false otherwise.
+ * @param u_gradient: Struct containing gradient-related uniforms.
+ * @param u_raycast: Struct containing raycast-related uniforms.
+ * @param u_volume: Struct containing volume-related uniforms.
+ * @param u_occupancy: Struct containing occupancy-related uniforms.
+ * @param u_sampler: Struct containing sampler-related uniforms.
+ * @param ray: Struct containing ray parameters (origin, direction, bounds, etc.).
+ * @return bool: Returns true if an intersection is found above the threshold, false otherwise.
  */
 bool compute_raycast
 (
@@ -23,30 +21,28 @@ bool compute_raycast
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
     in uniforms_sampler u_sampler,
-    in vec3 ray_start, 
-    in vec3 ray_normal, 
-    out vec3 hit_position,
-    out vec3 hit_normal,
-    out float hit_sample,
-    out float hit_depth
+    inout parameters_ray ray
 ) {    
-    // compute the intersection bounds of a ray with occypancy axis-aligned bounding box.
-    vec2 ray_bounds = compute_bounds(u_occupancy, ray_start, ray_normal); // debug gl_FragColor = vec4(vec3((ray_bounds.y-ray_bounds.x) / 1.732), 1.0);  
+    // Compute the intersection bounds of a ray with the occupancy axis-aligned bounding box.
+    ray.bounds = compute_bounds(u_occupancy.box_min, u_occupancy.box_max, ray.origin, ray.direction); // debug gl_FragColor = vec4(vec3((ray.bounds.y - ray.bounds.x) / 1.732), 1.0);  
+    ray.span = ray.bounds.y - ray.bounds.x;
 
-    // compute the ray step vector based on the raycast and volume parameters
-    vec3 ray_step = compute_stepping(u_raycast, u_volume, ray_normal, ray_bounds); 
-    float ray_delta = length(ray_step);
+    // Compute the ray step vector based on the raycast and volume parameters.
+    ray.step = compute_stepping(u_raycast, u_volume, ray); 
+    ray.delta = length(ray.step);
 
-    // apply dithering to the initial distance to avoid artifacts
-    float ray_dithering = compute_dithering(u_raycast, u_volume, u_sampler, ray_normal, ray_bounds); // debug gl_FragColor = vec4(vec3(ray_dither), 1.0);  
+    // Apply dithering to the initial distance to avoid artifacts.
+    ray.dither = compute_dithering(u_raycast, u_volume, u_sampler, ray); // debug gl_FragColor = vec4(vec3(ray.dither), 1.0);  
+    ray.dither *= u_raycast.dithering;
 
-    // initialize the starting position along the ray
-    vec3 ray_position = ray_start + ray_normal * ray_bounds.x - ray_step * ray_dithering;
+    // Initialize the starting position along the ray.
+    ray.position = ray.origin + ray.direction * ray.bounds.x;
+    ray.position += ray.dither * ray.step;
+    ray.span -= ray.dither * ray.delta;
     
-    // compute the ray step delta and step bounds
-    ivec2 step_bounds = ivec2(ray_bounds / ray_delta); // debug gl_FragColor = vec4((step_bounds.y-step_bounds.x)*ray_delta/1.732, 1.0);  
-    step_bounds.x += 1;
+    // Compute the max number of steps in the worst case
+    ray.num_steps = int((ray.span / ray.delta) * u_raycast.resolution_max); // debug gl_FragColor = vec4(vec3(num_steps) * ray.delta / 1.732, 1.0);  
 
-    // raycasting loop to traverse through the volume
-    return compute_marching(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_normal, hit_sample, hit_depth);
+    // Raycasting loop to traverse through the volume and find intersections.
+    return compute_marching(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray);
 }

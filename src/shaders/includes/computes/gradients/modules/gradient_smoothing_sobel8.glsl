@@ -22,7 +22,7 @@ vec4 gradient_smoothing_sobel8
     vec3 gradient_step = voxel_step * 0.5;
    
     // Define offsets for the 8 neighboring points
-    const vec2 k = vec2(1.0, -1.0);
+    const vec2 k = vec2(-1.0, +1.0);
     const vec3 k_offset[8] = vec3[8]
     (
         k.xxx, k.xxy, 

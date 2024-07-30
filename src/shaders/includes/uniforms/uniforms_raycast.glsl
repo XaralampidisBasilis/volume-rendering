@@ -6,7 +6,8 @@ struct uniforms_raycast
 {
     float threshold;  
     int refinements;  
-    float resolution;
+    float resolution_min;
+    float resolution_max;
     int step_method;
     int dither_method;
     float dithering; 

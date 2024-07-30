@@ -14,37 +14,32 @@ void refine_intersection
     in uniforms_raycast u_raycast, 
     in uniforms_gradient u_gradient, 
     in uniforms_sampler u_sampler, 
-    in vec3 ray_step, 
-    inout vec3 hit_position, 
-    out float hit_sample,
-    out vec3 hit_normal
+    inout parameters_ray ray
 )
 {
     // Calculate the refined substep based on the number of refinements
-    vec3 ray_substep = ray_step / float(u_raycast.refinements + 1);  
+    vec3 ray_substep = ray.step / float(u_raycast.refinements + 1);  
 
     // Step back to refine the hit point
-    hit_position -= ray_step;    
-    hit_sample = 0.0;
-    hit_normal = vec3(0.0);
+    ray.position -= ray.step;    
 
     // Perform additional sampling steps to refine the hit point
     for (int i_substep = 0; i_substep <= u_raycast.refinements; i_substep++) 
     {
         // Move position forward by substep
-        hit_position += ray_substep;  
+        ray.position += ray_substep;  
         
         // Sample value again with refined position
-        vec4 texture_data = texture(u_sampler.volume, hit_position);  
+        vec4 texture_data = texture(u_sampler.volume, ray.position);  
 
         // Get sample and gradient from texture data
-        hit_sample = texture_data.r;
-        vec3 hit_gradient = texture_data.gba * 2.0 - 1.0;
+        float derivative = length(texture_data.gba * 2.0 - 1.0);
+        ray.value = texture_data.r;
 
         // If the sampled value exceeds the threshold, return early
-        if (hit_sample > u_raycast.threshold && length(hit_gradient) > u_gradient.threshold) 
+        if ( ray.value > u_raycast.threshold && derivative > u_gradient.threshold) 
         {
-            hit_normal = normalize(hit_gradient);
+            ray.normal = normalize(texture_data.gba * 2.0 - 1.0);
             return;   
         }
     }

@@ -23,6 +23,9 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/uniforms/uniforms_colormap"
 #include "../../includes/uniforms/uniforms_lighting"
 
+//param
+#include "../../includes/parameters/parameters_ray"
+
 // utils
 #include "../../includes/utils/sample_color"
 #include "../../includes/utils/sample_intensity"
@@ -36,43 +39,35 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/utils/rampstep"
 #include "../../includes/utils/posterize"
 
-// functionality
-#include "../../includes/gradient/compute_gradient"
+// func
 #include "../../includes/raycast/compute_raycast"
 #include "../../includes/colormap/compute_color"
 #include "../../includes/lighting/compute_lighting"
 
 void main() 
 {
-    // set ray variables
-    vec3 ray_normal = normalize(v_direction);   
-    vec3 hit_position = vec3(0.0);
-    vec3 hit_normal = vec3(0.0);
-    float hit_sample = 0.0;
-    float hit_depth = 0.0;
+    // initialize ray    
+    ray.origin = v_camera;
+    ray.direction = normalize(v_direction);   
 
     // perform raycasting
-    bool intersected = compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, v_camera, ray_normal, hit_position, hit_normal, hit_sample, hit_depth); 
-    if (intersected) 
+    bool intersection = compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray); 
+    if (intersection) 
     {        
         // compute the max intensity color mapping
-        vec3 color_sample = compute_color(u_colormap, u_sampler, hit_sample); // debug gl_FragColor = vec4(intensity_color, 1.0);       
+        vec3 color_sample = compute_color(u_colormap, u_sampler.colormap, ray.value); // debug gl_FragColor = vec4(intensity_color, 1.0);       
 
         // compute the lighting color
-        vec3 color_lighting = compute_lighting(u_lighting, color_sample, hit_normal, hit_position, v_camera, v_camera);
+        vec3 color_lighting = compute_lighting(u_lighting, color_sample, ray.normal, ray.position, v_camera, v_camera);
 
         // final color
         gl_FragColor = vec4(color_lighting, 1.0);
         
         // final fragment depth
-        gl_FragDepth = hit_depth;
+        gl_FragDepth = ray.depth;
 
         return;
         
     } 
     else discard;  // discard fragment if there is no hit
-
-    // include tone mapping and color space correction
-    #include <tonemapping_fragment>
-    #include <colorspace_fragment>
 }

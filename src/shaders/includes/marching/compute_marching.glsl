@@ -1,7 +1,8 @@
+#include "./modules/compute_resolution"
 #include "./modules/compute_frag_depth"
 #include "./modules/refine_intersection"
 #include "./marching_full"
-#include "./marching_skip"
+// #include "./marching_skip"
 
 /**
  * Determines if a ray intersects with the volume and optionally skips empty space.
@@ -24,21 +25,13 @@ bool compute_marching
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
     in uniforms_sampler u_sampler,
-    in ivec2 step_bounds,
-    in vec3 ray_step,
-    in vec3 ray_position,
-    out vec3 hit_position,
-    out vec3 hit_normal,
-    out float hit_sample,
-    out float hit_depth
+    inout parameters_ray ray
 ) 
 {
     switch(u_raycast.skipping)  
     {
         case 0:
-            return marching_full(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_normal, hit_sample, hit_depth);
-        case 1:
-            return marching_skip(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, step_bounds, ray_step, ray_position, hit_position, hit_normal, hit_sample, hit_depth);
+            return marching_full(u_gradient, u_raycast, u_volume, u_sampler, ray);
         default:
             return false;
     }  

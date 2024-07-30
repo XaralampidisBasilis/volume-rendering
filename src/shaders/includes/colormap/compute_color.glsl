@@ -1,27 +1,30 @@
 /**
  * Maps a float value to a color using a 2D colormap texture.
  *
- * @param u Input value to be mapped to a color
+ * @param u_colormap Uniform containing colormap parameters
+ * @param colormap 2D texture representing the colormap
+ * @param ray_value Input value to be mapped to a color
  * @return vec3 The RGB color corresponding to the input value
  */
 vec3 compute_color
 (
     in uniforms_colormap u_colormap, 
-    in uniforms_sampler u_sampler, 
-    in float ray_sample
+    in sampler2D colormap, 
+    in float ray_value
 ) 
 {
-    // Scale the input value 'u' using the provided limits
-    ray_sample = rampstep(u_colormap.u_lim.x, u_colormap.u_lim.y, ray_sample);
+    // Scale the input value 'ray_value' using the provided limits
+    ray_value = rampstep(u_colormap.low, u_colormap.high, ray_value);
 
-    // Posterize the ray sample
-    ray_sample = posterize(ray_sample, u_colormap.levels);
+    // Posterize the scaled ray sample to discrete levels
+    ray_value = posterize(ray_value, u_colormap.levels);
     
     // Interpolate the u-coordinate within the colormap texture range
-    ray_sample = mix(u_colormap.u_range.x, u_colormap.u_range.y, ray_sample);
+    ray_value = mix(u_colormap.texture_range.x, u_colormap.texture_range.y, ray_value);
 
-    // Return the sample from the colormap texture at the calculated coordinates
-    vec2 uv = vec2(ray_sample, u_colormap.v);
+    // Create the UV coordinates for the texture lookup
+    vec2 uv = vec2(ray_value, u_colormap.texture_id);
     
-    return sample_color_2d(u_sampler.colormap, uv).rgb;
+    // Sample the colormap texture at the calculated UV coordinates and return the RGB color
+    return texture(colormap, uv).rgb;
 }
