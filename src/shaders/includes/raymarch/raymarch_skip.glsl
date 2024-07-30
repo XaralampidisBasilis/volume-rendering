@@ -14,7 +14,7 @@
 #include ./modules/check_occupancy_block.glsl;
 #include ./modules/check_occupancy_linear.glsl;
 
-bool marching_skip
+bool raymarch_skip
 (
     in uniforms_gradient u_gradient, 
     in uniforms_raycast u_raycast, 

@@ -1,8 +1,8 @@
 #include "../../libraries/lygia/generative/random"
-#include "./dithering_generative"
-#include "./dithering_texture"
+#include "./dither_generative"
+#include "./dither_texture"
 
-float compute_dithering
+float compute_dither
 (
     in uniforms_raycast u_raycast, 
     in sampler2D noisemap, 
@@ -14,9 +14,9 @@ float compute_dithering
     switch (u_raycast.dither_method)
     {
         case 1: 
-            return dithering_generative(volume_size, ray_direction, ray_bounds);
+            return dither_generative(volume_size, ray_direction, ray_bounds);
         case 2: 
-            return dithering_texture(noisemap, volume_size, ray_direction, ray_bounds);
+            return dither_texture(noisemap, volume_size, ray_direction, ray_bounds);
         default: 
             return 0.0; 
     }

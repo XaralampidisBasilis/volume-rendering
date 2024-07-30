@@ -14,4 +14,14 @@ struct parameters_trace
 
 parameters_trace trace;
 
+void set_trace(in vec3 position)
+{
+    trace.position = position;
+    trace.normal = vec3(0.0); 
+    trace.gradient = vec3(0.0); 
+    trace.value = 0.0;    
+    trace.distance = 0.0;
+    trace.slope = 0.0;    
+}
+
 #endif

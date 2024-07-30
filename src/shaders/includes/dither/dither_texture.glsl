@@ -7,7 +7,7 @@
  * @param ray: Struct containing ray parameters (origin, direction, bounds, etc.).
  * @return float: Returns the dithered intensity value in the [0, 1] range.
  */
-float dithering_texture
+float dither_texture
 (
         in sampler2D noisemap, 
         in vec3 volume_size, 

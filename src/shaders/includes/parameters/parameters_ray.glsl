@@ -16,4 +16,16 @@ struct parameters_ray
 
 parameters_ray ray;
 
+void set_ray(in vec3 origin, in vec3 direction)
+{
+    ray.origin = origin;
+    ray.direction = direction;
+    ray.step = vec3(0.0); 
+    ray.bounds = vec2(0.0);
+    ray.span = 0.0;
+    ray.dither = 0.0;
+    ray.delta = 0.0;
+    ray.num_steps = 0;
+}
+
 #endif

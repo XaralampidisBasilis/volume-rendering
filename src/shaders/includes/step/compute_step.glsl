@@ -11,7 +11,7 @@
  * @param ray: Struct containing ray parameters (origin, direction, bounds, etc.).
  * @return vec3 The march vector for stepping through the volume along the ray.
  */
-vec3 compute_stepping
+vec3 compute_step
 (
     in uniforms_raycast u_raycast, 
     in vec3 volume_dimensions, 

@@ -46,29 +46,30 @@ varying mat4 v_model_view_matrix;
 
 void main() 
 {
-    // initialize ray    
-    ray.origin = v_camera;
-    ray.direction = normalize(v_direction);   
+    // set parameters
+    set_ray(v_camera, normalize(v_direction));
+    set_trace(v_camera);
+    
 
-    // perform raycasting
-    bool intersection = compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace); 
-    if (intersection) 
+    // compute raycast
+    if (compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace)) 
     {        
-        // compute the max intensity color mapping
+        // compute color
         vec3 color_sample = compute_color(u_colormap, u_sampler.colormap, trace.value); // debug gl_FragColor = vec4(intensity_color, 1.0);       
 
-        // compute the lighting color
+        // compute lighting
         vec3 light_position = v_camera + u_lighting.position;
         vec3 color_lighting = compute_lighting(u_lighting, color_sample, trace.normal, trace.position, ray.origin, light_position);
 
-        // final fragment depth
+        // set fragment depth
         gl_FragDepth = compute_frag_depth(u_volume.size, trace.position);
 
-        // final color
+        // set fragment color
         gl_FragColor = vec4(color_lighting, 1.0);
 
         return;
         
-    } 
-    else discard;  // discard fragment if there is no hit
+    }   
+    // discard fragment if there is no intersection
+    else discard;  
 }

@@ -6,7 +6,7 @@
  * @param ray: Struct containing ray parameters (origin, direction, bounds, etc.).
  * @return float: Returns the dithered intensity value in the [0, 1] range.
  */
-float dithering_generative
+float dither_generative
 (
     in vec3 volume_size, 
     in vec3 ray_direction,

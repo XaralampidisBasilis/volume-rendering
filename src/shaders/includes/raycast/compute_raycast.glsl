@@ -1,7 +1,7 @@
 #include "./modules/compute_bounds"
-#include "../dithering/compute_dithering"
-#include "../stepping/compute_stepping"
-#include "../marching/compute_marching"
+#include "../dither/compute_dither"
+#include "../step/compute_step"
+#include "../raymarch/compute_raymarch"
 
 /**
  * Performs raycasting in a 3D texture to find the depth and intensity of an intersection.
@@ -29,21 +29,21 @@ bool compute_raycast
     ray.span = ray.bounds.y - ray.bounds.x;
 
     // Compute the ray step vector based on the raycast and volume parameters.
-    ray.step = compute_stepping(u_raycast, u_volume.dimensions, ray.direction, ray.span); 
+    ray.step = compute_step(u_raycast, u_volume.dimensions, ray.direction, ray.span); 
     ray.delta = length(ray.step);
 
     // Apply dithering to the initial distance to avoid artifacts.
-    ray.dither = compute_dithering(u_raycast, u_sampler.noisemap, u_volume.size, ray.direction, ray.bounds); // debug gl_FragColor = vec4(vec3(ray.dither), 1.0);  
+    ray.dither = compute_dither(u_raycast, u_sampler.noisemap, u_volume.size, ray.direction, ray.bounds); // debug gl_FragColor = vec4(vec3(ray.dither), 1.0); 
+    ray.dither *= ray.delta;
     ray.dither *= u_raycast.dithering;
-    ray.span -= ray.dither * ray.delta;
 
     // Compute the max number of steps in the worst case
-    ray.num_steps = int((ray.span / ray.delta) * u_raycast.resolution_max); // debug gl_FragColor = vec4(vec3(num_steps) * ray.delta / 1.732, 1.0);  
+    ray.num_steps = int(((ray.span - ray.dither) / ray.delta) * u_raycast.resolution_max); // debug gl_FragColor = vec4(vec3(num_steps) * ray.delta / 1.732, 1.0);  
 
     // Initialize trace starting position along the ray.
-    trace.position = ray.origin + ray.direction * ray.bounds.x;
-    trace.position += ray.dither * ray.step;
+    trace.distance = ray.bounds.x + ray.dither;
+    trace.position = ray.origin + ray.direction * trace.distance;
     
     // Raycasting loop to traverse through the volume and find intersections.
-    return compute_marching(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace);
+    return compute_raymarch(u_gradient, u_raycast, u_occupancy, u_sampler, ray, trace);
 }
