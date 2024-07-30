@@ -159,7 +159,7 @@ export default class ISOViewer
         this.material.uniforms.u_sampler.value.volume = this.textures.volume
         this.material.uniforms.u_sampler.value.mask = this.textures.mask
         this.material.uniforms.u_sampler.value.colormap = this.colormaps    
-        this.material.uniforms.u_sampler.value.noise = this.noisemaps.white256
+        this.material.uniforms.u_sampler.value.noisemap = this.noisemaps.white256
     }
 
     setMesh()

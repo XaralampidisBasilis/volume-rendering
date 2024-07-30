@@ -9,16 +9,17 @@
  */
 float dithering_texture
 (
-    in uniforms_volume u_volume, 
-    in sampler2D noisemap, 
-    in parameters_ray ray
+        in sampler2D noisemap, 
+        in vec3 volume_size, 
+        in vec3 ray_direction,
+        in vec2 ray_bounds
 )
 {
     // Calculate the end position of the ray.
-    vec3 ray_end = ray.direction * ray.bounds.y;
+    vec3 end_position = ray_direction * ray_bounds.y;
 
     // Compute a position value based on the end position transformed by the matrix.
-    vec4 position = v_projection_model_view_matrix * vec4(ray_end * u_volume.size, 1.0);
+    vec4 position = v_projection_model_view_matrix * vec4(end_position * volume_size, 1.0);
 
     // Perform perspective division to get NDC space.
     position /= position.w; 

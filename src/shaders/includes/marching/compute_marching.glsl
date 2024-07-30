@@ -1,6 +1,5 @@
 #include "./modules/compute_resolution"
-#include "./modules/compute_frag_depth"
-#include "./modules/refine_intersection"
+// #include "./modules/refine_intersection"
 #include "./marching_full"
 // #include "./marching_skip"
 
@@ -25,13 +24,14 @@ bool compute_marching
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
     in uniforms_sampler u_sampler,
-    inout parameters_ray ray
+    inout parameters_ray ray,
+    inout parameters_trace trace
 ) 
 {
     switch(u_raycast.skipping)  
     {
         case 0:
-            return marching_full(u_gradient, u_raycast, u_volume, u_sampler, ray);
+            return marching_full(u_gradient, u_raycast, u_volume, u_sampler, ray, trace);
         default:
             return false;
     }  

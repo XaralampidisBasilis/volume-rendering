@@ -10,13 +10,13 @@
 float compute_resolution
 (
     in uniforms_raycast u_raycast, 
-    in parameters_ray ray,
-    in vec3 gradient
+    in vec3 ray_direction,
+    in vec3 trace_gradient
 )
 {
     // Compute the alignment between the gradient and the ray direction.
     // This represents how much the ray is moving in the direction of the gradient.
-    float alignment = max(dot(gradient, ray.direction), 0.0);
+    float alignment = max(dot(trace_gradient, ray_direction), 0.0);
 
     // Interpolate the resolution based on the alignment.
     // when alignment is high, use higher resolution, when low, use lower resolution.

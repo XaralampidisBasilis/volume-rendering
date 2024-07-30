@@ -25,10 +25,9 @@ varying mat4 v_model_view_matrix;
 
 //param
 #include "../../includes/parameters/parameters_ray"
+#include "../../includes/parameters/parameters_trace"
 
 // utils
-#include "../../includes/utils/sample_color"
-#include "../../includes/utils/sample_intensity"
 #include "../../includes/utils/inside_texture"
 #include "../../includes/utils/intersect_box"
 #include "../../includes/utils/intersect_box_max"
@@ -43,6 +42,7 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/raycast/compute_raycast"
 #include "../../includes/colormap/compute_color"
 #include "../../includes/lighting/compute_lighting"
+#include "../../includes/compute_frag_depth"
 
 void main() 
 {
@@ -51,20 +51,21 @@ void main()
     ray.direction = normalize(v_direction);   
 
     // perform raycasting
-    bool intersection = compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray); 
+    bool intersection = compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace); 
     if (intersection) 
     {        
         // compute the max intensity color mapping
-        vec3 color_sample = compute_color(u_colormap, u_sampler.colormap, ray.value); // debug gl_FragColor = vec4(intensity_color, 1.0);       
+        vec3 color_sample = compute_color(u_colormap, u_sampler.colormap, trace.value); // debug gl_FragColor = vec4(intensity_color, 1.0);       
 
         // compute the lighting color
-        vec3 color_lighting = compute_lighting(u_lighting, color_sample, ray.normal, ray.position, v_camera, v_camera);
+        vec3 light_position = v_camera + u_lighting.position;
+        vec3 color_lighting = compute_lighting(u_lighting, color_sample, trace.normal, trace.position, ray.origin, light_position);
+
+        // final fragment depth
+        gl_FragDepth = compute_frag_depth(u_volume.size, trace.position);
 
         // final color
         gl_FragColor = vec4(color_lighting, 1.0);
-        
-        // final fragment depth
-        gl_FragDepth = ray.depth;
 
         return;
         

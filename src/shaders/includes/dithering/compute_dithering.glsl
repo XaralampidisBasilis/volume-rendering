@@ -5,17 +5,18 @@
 float compute_dithering
 (
     in uniforms_raycast u_raycast, 
-    in uniforms_volume u_volume, 
-    in uniforms_sampler u_sampler, 
-    in parameters_ray ray
+    in sampler2D noisemap, 
+    in vec3 volume_size, 
+    in vec3 ray_direction,
+    in vec2 ray_bounds
 )
 {
     switch (u_raycast.dither_method)
     {
         case 1: 
-            return dithering_generative(u_volume, ray);
+            return dithering_generative(volume_size, ray_direction, ray_bounds);
         case 2: 
-            return dithering_texture(u_volume, u_sampler.noise, ray);
+            return dithering_texture(noisemap, volume_size, ray_direction, ray_bounds);
         default: 
             return 0.0; 
     }

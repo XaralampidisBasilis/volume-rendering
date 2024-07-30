@@ -8,12 +8,12 @@
  */
 vec3 step_isotropic
 (
-    in uniforms_volume u_volume, 
-    in parameters_ray ray
+    in vec3 volume_dimensions, 
+    in vec3 ray_direction
 ) 
 {
-    float ray_delta = 0.1 * length(1.0 / u_volume.dimensions);
-    vec3 ray_step = ray_delta * ray.direction;
+    float ray_delta = 0.1 * length(1.0 / volume_dimensions);
+    vec3 ray_step = ray_delta * ray_direction;
 
     // Return the stride vector by scaling the ray's direction vector by the step distance
     return ray_step;

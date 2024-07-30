@@ -12,7 +12,7 @@ export default function(viewer)
             volume:          null,
             mask:            null,
             colormap:        null,
-            noise:           null,
+            noisemap:        null,
             occumaps:        new Array(3),
         }),
 

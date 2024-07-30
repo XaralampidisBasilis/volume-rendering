@@ -14,17 +14,18 @@
 vec3 compute_stepping
 (
     in uniforms_raycast u_raycast, 
-    in uniforms_volume u_volume, 
-    in parameters_ray ray
+    in vec3 volume_dimensions, 
+    in vec3 ray_direction,
+    in float ray_span
 ) 
 {
     switch(u_raycast.step_method)
     {
         case 1: 
-            return step_isotropic(u_volume, ray);
+            return step_isotropic(volume_dimensions, ray_direction);
         case 2: 
-            return step_directional(u_volume, ray);
+            return step_directional(volume_dimensions, ray_direction);
         case 3: 
-            return step_traversal(u_volume, ray);
+            return step_traversal(volume_dimensions, ray_direction, ray_span);
     }
 }
