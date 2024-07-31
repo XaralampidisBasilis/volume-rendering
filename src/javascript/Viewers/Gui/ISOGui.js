@@ -88,8 +88,8 @@ export default class ISOGui
         this.controllers.raycast = 
         {
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
-            resolutionMin: raycast.add(u_raycast, 'resolution_min').min(0).max(3).step(0.001),
-            resolutionMax: raycast.add(u_raycast, 'resolution_max').min(0).max(3).step(0.001),
+            spacingMin: raycast.add(u_raycast, 'spacing_min').min(0.01).max(3).step(0.001),
+            spacingMax: raycast.add(u_raycast, 'spacing_max').min(0.01).max(3).step(0.001),
             refinements: raycast.add(u_raycast, 'refinements').min(0).max(5).step(1),
             step_method: raycast.add(u_raycast, 'step_method').options({ isotropic: 1, directional: 2, traversal: 3 }),
             dither_method: raycast.add(u_raycast, 'dither_method').options({ generative: 1, texture: 2, }),
@@ -141,6 +141,7 @@ export default class ISOGui
             ka: lighting.add(u_lighting, 'ka').min(0).max(10).step(0.001),
             kd: lighting.add(u_lighting, 'kd').min(0).max(1).step(0.001),
             ks: lighting.add(u_lighting, 'ks').min(0).max(1).step(0.001),
+            shadows: lighting.add(u_lighting, 'shadows').min(0).max(1.0).step(0.01),
             shininess: lighting.add(u_lighting, 'shininess').min(0).max(40.0).step(0.2),
             edge_threshold: lighting.add(u_lighting, 'edge_threshold').min(0).max(1).step(0.001),
             power: lighting.add(u_lighting, 'power').min(0).max(2.0).step(0.1),
@@ -189,6 +190,7 @@ export default class ISOGui
             this.viewer.occupancy.compute()
         })
 
+     
         // flip colormap colors
         this.controllers.colormap.flip.onChange(() => this.flipColormapRange())
 
@@ -201,6 +203,12 @@ export default class ISOGui
         // cap colormap high based on raycast threshold
         this.controllers.colormap.high.onChange(() => this.capColormapHigh())
 
+        // cap raycast spacing min based on spacing max
+        this.controllers.raycast.spacingMin.onChange(() => this.capRaycastSpacingMin())
+
+        // cap raycast spacing max based on spacing min
+        this.controllers.raycast.spacingMax.onChange(() => this.capRaycastSpacingMax())
+    
         // adjust lighting power based on lighting attenuations being on or off
         // this.controllers.lighting.attenuation.onChange(() => this.adjustLightingPower())
 
@@ -209,6 +217,30 @@ export default class ISOGui
         // recompute new occupancy based on new divisions
         this.controllers.occupancy.divisions.onFinishChange(() => this.changeOccupancyDivisions())
 
+    }
+
+    capRaycastSpacingMin()
+    {
+        this.controllers.raycast.spacingMin.setValue
+        (
+            Math.min
+            (
+                this.controllers.raycast.spacingMin.getValue(),
+                this.controllers.raycast.spacingMax.getValue()
+            )
+        ).updateDisplay()
+    }
+
+    capRaycastSpacingMax()
+    {
+        this.controllers.raycast.spacingMax.setValue
+        (
+            Math.max
+            (
+                this.controllers.raycast.spacingMin.getValue(),
+                this.controllers.raycast.spacingMax.getValue()
+            )
+        ).updateDisplay()
     }
 
     displaceColormapLow()

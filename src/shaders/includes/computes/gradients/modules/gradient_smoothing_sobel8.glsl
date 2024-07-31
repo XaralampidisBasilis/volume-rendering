@@ -38,9 +38,9 @@ vec4 gradient_smoothing_sobel8
     {
         vec3 neighbor_step = gradient_step * k_offset[i];
         vec3 sample_pos = voxel_pos + neighbor_step;
+
         samples[i] = texture(volume_data, sample_pos).r;
     }
-
 
     // Calculate the gradient based on the sampled values using the Sobel operator
     vec3 gradient = vec3
@@ -50,11 +50,19 @@ vec4 gradient_smoothing_sobel8
         samples[1] + samples[3] + samples[5] + samples[7] - samples[0] - samples[2] - samples[4] - samples[6]
     );
 
-    // Adjust gradient
-    // gradient *= 0.125;               // adjust gradient scale due to trilinear sampling dividing with 8
-    gradient *= 0.25;                   // normalize with the maximum possible gradient vector length 4
-    gradient = gradient * 0.5 + 0.5;    // adjust gradient in range [0, 1]
+    // adjust gradient scale due to trilinear sampling dividing with 8
+    // this gives us the classical sobel operator [1 2 1; 2 4 2; 1 2 1]
+    // gradient *= 8.0; // multiply with 8        
 
+    // normalize the coefficients of the sobel operator [1 2 1; 2 4 2; 1 2 1] / 16 to sum to 1
+    // gradient *= 0.0625; // divide with 16              
+
+    // normalize with the maximum possible gradient vector length 4 when samples in range [0, 1]
+    // adjust gradient vector in range [-1, 1] for correct encoding
+    gradient *= 0.25; // divide with 4  
+
+    // adjust gradient vector in range [0, 1] for correct encoding
+    gradient = gradient * 0.5 + 0.5;  
 
     // Calculate smooth sample based on the sum of neighbor trilinear samples
     float smooth_sample = 

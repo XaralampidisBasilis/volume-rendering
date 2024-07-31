@@ -31,15 +31,16 @@ vec3 lighting_blinn
     // normal_vector = normalize(normal_vector);
     // normal_vector = -faceforward(normal_vector, view_vector, normal_vector); // ensure the normal points towards the viewer
 
-    // Calculate edge fading 
-    float edge_fading = compute_edge(u_lighting, view_vector, normal_vector);
-
    // Calculate ambient component
     vec3 ambient_component = compute_ambient(u_lighting, color);
+
+    // Calculate edge fading 
+    float edge_fading = compute_edge(u_lighting, view_vector, normal_vector);
 
     // Calculate diffuse component
     float lambertian;
     vec3 diffuse_component = compute_diffuse(u_lighting, color, normal_vector, light_vector, lambertian);
+    diffuse_component *= 1.0 - edge_fading;
 
     // Calculate specular component 
     float specular = 0.0;
@@ -50,7 +51,6 @@ vec3 lighting_blinn
 
     // Compose the final color
     vec3 directional_component = mix(diffuse_component, specular_component, specular);
-    directional_component *= 1.0 - edge_fading;
     directional_component *= attenuation_fading;
 
     vec3 final_color = ambient_component + directional_component;

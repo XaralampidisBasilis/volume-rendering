@@ -10,7 +10,7 @@ struct parameters_ray
     vec2 bounds;
     float span;
     float dither;
-    float delta;
+    float spacing;
     int num_steps;
 };
 
@@ -24,7 +24,7 @@ void set_ray(in vec3 origin, in vec3 direction)
     ray.bounds = vec2(0.0);
     ray.span = 0.0;
     ray.dither = 0.0;
-    ray.delta = 0.0;
+    ray.spacing = 0.0;
     ray.num_steps = 0;
 }
 

@@ -9,4 +9,4 @@ Write simpler Occupancy function
 
 Think how to optimize texture lookup for Occumaps
 
-Add addaptive stepping, using gradient information and linear approximation
+Use hermitian interpolation to avoid refinement with texture lookup

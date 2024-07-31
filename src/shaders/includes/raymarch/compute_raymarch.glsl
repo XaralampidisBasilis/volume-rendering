@@ -1,5 +1,5 @@
-#include "./modules/compute_resolution"
-// #include "./modules/refine_intersection"
+#include "./modules/adaptive_spacing"
+#include "./modules/compute_refinement"
 #include "./raymarch_full"
 // #include "./raymarch_skip"
 
@@ -21,6 +21,7 @@ bool compute_raymarch
 (
     in uniforms_gradient u_gradient, 
     in uniforms_raycast u_raycast, 
+    in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
     in uniforms_sampler u_sampler,
     inout parameters_ray ray,
@@ -30,7 +31,7 @@ bool compute_raymarch
     switch(u_raycast.skipping)  
     {
         case 0:
-            return raymarch_full(u_gradient, u_raycast, u_sampler, ray, trace);
+            return raymarch_full(u_gradient, u_raycast, u_volume, u_sampler, ray, trace);
         default:
             return false;
     }  

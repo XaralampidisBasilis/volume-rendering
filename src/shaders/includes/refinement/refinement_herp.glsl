@@ -9,7 +9,7 @@
  * @param hit_sample: output float where the refined value at the intersection will be stored.
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
-void compute_refinement
+void refinement_herp
 (
     in uniforms_raycast u_raycast, 
     in uniforms_gradient u_gradient, 
@@ -39,7 +39,7 @@ void compute_refinement
         trace.value = texture_data.r;
 
         // If the sampled value exceeds the threshold, return early
-        if (trace.value > u_raycast.threshold && trace.slope > u_gradient.threshold) 
+        if (trace.value > u_raycast.threshold) 
         {
             return;   
         }

@@ -26,6 +26,7 @@ varying mat4 v_model_view_matrix;
 //param
 #include "../../includes/parameters/parameters_ray"
 #include "../../includes/parameters/parameters_trace"
+#include "../../includes/parameters/parameters_points"
 
 // utils
 #include "../../includes/utils/inside_texture"
@@ -49,20 +50,26 @@ void main()
     // set parameters
     set_ray(v_camera, normalize(v_direction));
     set_trace(v_camera);
+    set_points();
     
-
     // compute raycast
-    if (compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace)) 
-    {        
-        // compute color
-        vec3 color_sample = compute_color(u_colormap, u_sampler.colormap, trace.value); // debug gl_FragColor = vec4(intensity_color, 1.0);       
+    bool hit = compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace); 
 
-        // compute lighting
-        vec3 light_position = v_camera + u_lighting.position;
-        vec3 color_lighting = compute_lighting(u_lighting, color_sample, trace.normal, trace.position, ray.origin, light_position);
+    // hit detected
+    if (hit) 
+    {        
+        // go in model coordinates
+        vec3 view_position = ray.origin * u_volume.size;  
+        vec3 light_position = v_camera * u_volume.size + u_lighting.position;
+        vec3 surface_position = trace.position * u_volume.size;
+        vec3 surface_normal = normalize(trace.normal / u_volume.spacing);
+
+        // compute color and lighting
+        vec3 color_sample = compute_color(u_colormap, u_sampler.colormap, trace.value);       
+        vec3 color_lighting = compute_lighting(u_lighting, color_sample, surface_normal, surface_position, view_position, light_position);
 
         // set fragment depth
-        gl_FragDepth = compute_frag_depth(u_volume.size, trace.position);
+        gl_FragDepth = compute_frag_depth(surface_position);
 
         // set fragment color
         gl_FragColor = vec4(color_lighting, 1.0);

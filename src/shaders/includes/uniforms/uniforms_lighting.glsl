@@ -10,6 +10,7 @@ struct uniforms_lighting
     float ka;
     float kd;
     float ks;
+    float shadows;
     float shininess;
     float power;
     int model;

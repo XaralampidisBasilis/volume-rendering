@@ -6,12 +6,7 @@
  * @param ray: Struct containing ray parameters (origin, direction, bounds, etc.).
  * @return vec3: The stride vector for stepping through the volume along the ray.
  */
-vec3 step_traversal
-(
-    in vec3 volume_dimensions, 
-    in vec3 ray_direction,
-    in float ray_span
-) 
+float spacing_traversal(in vec3 volume_dimensions, in float ray_span) 
 {
     // Find the maximum dimension of the volume to ensure proper scaling.
     float dimension_max = max(volume_dimensions.x, max(volume_dimensions.y, volume_dimensions.z));
@@ -20,13 +15,10 @@ vec3 step_traversal
     float num_steps = ceil(ray_span * dimension_max);
     
     // Calculate the distance covered in each step.
-    float ray_delta = ray_span / num_steps;
+    float spacing = ray_span / num_steps;
 
     // Clamp ray delta to a minimum value.
-    ray_delta = max(ray_delta, 0.01 / dimension_max);
-
-    // Update the ray's step and return the stride vector by scaling the ray's direction vector by the step distance.
-    vec3 ray_step = ray_delta * ray_direction;
+    float ray_spacing = max(spacing, 0.01 / dimension_max);
     
-    return ray_step;
+    return ray_spacing;
 }

@@ -7,20 +7,29 @@
  *
  * @return The computed resolution based on the gradient alignment.
  */
-float compute_resolution
+float adaptive_spacing
 (
-    in uniforms_raycast u_raycast, 
+    in uniforms_volume u_volume, 
+    in float spacing_min,
+    in float spacing_max,
     in vec3 ray_direction,
     in vec3 trace_gradient
 )
 {
+    // get to model coordinates
+    ray_direction = normalize(ray_direction * u_volume.size);
+    trace_gradient = trace_gradient / normalize(u_volume.spacing);
+
     // Compute the alignment between the gradient and the ray direction.
     // This represents how much the ray is moving in the direction of the gradient.
+    
+    // float alignment = max(dot(normalize(trace_gradient), ray_direction), 0.0);
     float alignment = max(dot(trace_gradient, ray_direction), 0.0);
+    // float alignment = length(trace_gradient);
 
     // Interpolate the resolution based on the alignment.
     // when alignment is high, use higher resolution, when low, use lower resolution.
-    float resolution = mix(u_raycast.resolution_min, u_raycast.resolution_max, alignment);
+    float spacing = mix(spacing_max, spacing_min, alignment);
 
-    return resolution;
+    return spacing;
 }
