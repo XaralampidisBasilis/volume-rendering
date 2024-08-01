@@ -5,6 +5,7 @@ import ISOGui from './GUI/ISOGui'
 import ISOHelpers from './Helpers/ISOHelpers'
 import Smoothing from '../Computes/Smoothing/Smoothing'
 import Gradients from '../Computes/Gradients/Gradients'
+import GradientsCopy from '../Computes/Gradients copy/GradientsCopy'
 import ISOOccupancy from '../Computes/Occupancy/ISOOccupancy'
 import { vec2ind } from '../Utils/CoordUtils'
 
@@ -142,6 +143,33 @@ export default class ISOViewer
         this.textures.volume.unpackAlignment = 1   
     }
 
+    setGradientsTexture()
+    {
+        const volumeData = this.resource.volume.getDataUint8()
+        const volumeDataRGBA = new Uint8ClampedArray(this.parameters.volume.count * 4)
+
+        for (let i = 0; i < volumeData.length; i++) 
+        {
+            const i4 = i * 4;
+            
+            volumeDataRGBA[i4 + 0] = volumeData[i];
+            volumeDataRGBA[i4 + 1] = volumeData[i];
+            volumeDataRGBA[i4 + 2] = volumeData[i];
+            volumeDataRGBA[i4 + 3] = 255;
+        }
+
+        this.textures.gradients = new THREE.Data3DTexture(volumeDataRGBA, ...this.parameters.volume.dimensions.toArray())
+        this.textures.gradients.format = THREE.RGBAFormat
+        this.textures.gradients.type = THREE.UnsignedByteType     
+        this.textures.gradients.wrapS = THREE.ClampToEdgeWrapping
+        this.textures.gradients.wrapT = THREE.ClampToEdgeWrapping
+        this.textures.gradients.wrapR = THREE.ClampToEdgeWrapping
+        this.textures.gradients.minFilter = THREE.LinearFilter
+        this.textures.gradients.magFilter = THREE.LinearFilter
+        this.textures.gradients.needsUpdate = true   
+        this.textures.gradients.unpackAlignment = 1 
+    }
+
     setGeometry()
     {
         this.geometry = new THREE.BoxGeometry(...this.parameters.geometry.size.toArray())
@@ -214,6 +242,7 @@ export default class ISOViewer
     computeGradients()
     {
         this.gradients = new Gradients(this)  
+        this.gradientsCopy = new GradientsCopy(this)
         
         // update volume texture image data
         for (let i = 0; i < this.parameters.volume.count; i++)

@@ -165,8 +165,6 @@ class NIFTILoader extends Loader {
                 dataUint8.fill(255)
             }
            
-           
-            
             return dataUint8;
         }
 

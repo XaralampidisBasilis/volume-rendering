@@ -30,7 +30,7 @@ bool raymarch_full
         trace.value = texture_data.r;
 
         // update points in model coordinates
-        update_points(u_volume, trace);
+        // update_points(u_volume, trace);
 
         // Check if the sampled intensity exceeds the threshold
         if (trace.value > u_raycast.threshold && trace.slope > u_gradient.threshold) 
