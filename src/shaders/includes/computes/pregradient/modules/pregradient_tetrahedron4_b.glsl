@@ -21,24 +21,24 @@ vec4 pregradient_sobel8
 
     // Define offsets for the 8 neighboring points
     const vec2 k = vec2(-1.0, +1.0);
-    const vec3 samples_offset[8] = vec3[8]
+    const vec3 samples_offset[4] = vec3[4]
     (
-        k.xxx, k.xxy, 
-        k.xyx, k.xyy, 
-        k.yxx, k.yxy,
-        k.yyx, k.yyy 
+        k.xxy,
+        k.xyx,
+        k.yxx,
+        k.yyy,
     );
     
     // Calculate the position and step sizes within the 3D texture
     vec3 voxel_step = 1.0 / vec3(volume_dimensions);
     vec3 voxel_pos = voxel_step * (vec3(voxel_coords) + 0.5); // we need 0.5 to go to voxel centers
-    vec3 subvoxel_step = voxel_step * 0.5; // we need for trilinear interpolation
+    vec3 trilinear_step = voxel_step * 0.5;
    
     // Sample values at the neighboring points
     float samples[8];
     for (int i = 0; i < 8; i++)
     {
-        vec3 sample_pos = voxel_pos + subvoxel_step * samples_offset[i];
+        vec3 sample_pos = voxel_pos + trilinear_step * samples_offset[i];
         samples[i] = texture(volume_data, sample_pos).r;
     }
 

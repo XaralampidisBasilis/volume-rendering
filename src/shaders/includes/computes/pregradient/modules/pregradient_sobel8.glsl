@@ -32,13 +32,13 @@ vec4 pregradient_sobel8
     // Calculate the position and step sizes within the 3D texture
     vec3 voxel_step = 1.0 / vec3(volume_dimensions);
     vec3 voxel_pos = voxel_step * (vec3(voxel_coords) + 0.5); // we need 0.5 to go to voxel centers
-    vec3 subvoxel_step = voxel_step * 0.5; // we need for trilinear interpolation
+    vec3 trilinear_step = voxel_step * 0.5;
    
     // Sample values at the neighboring points
     float samples[8];
     for (int i = 0; i < 8; i++)
     {
-        vec3 sample_pos = voxel_pos + subvoxel_step * samples_offset[i];
+        vec3 sample_pos = voxel_pos + trilinear_step * samples_offset[i];
         samples[i] = texture(volume_data, sample_pos).r;
     }
 
