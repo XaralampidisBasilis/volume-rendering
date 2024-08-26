@@ -10,7 +10,7 @@
  */
 
 
-vec4 pregradient_sobel8
+vec4 gradient_central6
 (
     in sampler3D volume_data, // assumes LinearFilter & ClampToEdgeWrapping
     in vec3 volume_spacing,
@@ -20,38 +20,33 @@ vec4 pregradient_sobel8
 {
 
     // Define offsets for the 8 neighboring points
-    const vec2 k = vec2(-1.0, +1.0);
-    const vec3 samples_offset[4] = vec3[4]
+    const vec2 k = vec2(-1.0, 0.0, +1.0);
+    const vec3 samples_offset[6] = vec3[6]
     (
-        k.xxy,
-        k.xyx,
-        k.yxx,
-        k.yyy,
+        k.xyy, k.zyy, 
+        k.yxy, k.yzy, 
+        k.yyx, k.yyz,
     );
     
     // Calculate the position and step sizes within the 3D texture
     vec3 voxel_step = 1.0 / vec3(volume_dimensions);
     vec3 voxel_pos = voxel_step * (vec3(voxel_coords) + 0.5); // we need 0.5 to go to voxel centers
-    vec3 trilinear_step = voxel_step * 0.5;
    
     // Sample values at the neighboring points
-    float samples[8];
-    for (int i = 0; i < 8; i++)
+    float samples[6];
+    for (int i = 0; i < 6; i++)
     {
-        vec3 sample_pos = voxel_pos + trilinear_step * samples_offset[i];
+        vec3 sample_pos = voxel_pos + voxel_step * samples_offset[i];
         samples[i] = texture(volume_data, sample_pos).r;
     }
 
     // Calculate the gradient based on the sampled values using the Sobel operator
     vec3 gradient = vec3
     (
-        samples[4] + samples[5] + samples[6] + samples[7] - samples[0] - samples[1] - samples[2] - samples[3],
-        samples[2] + samples[3] + samples[6] + samples[7] - samples[0] - samples[1] - samples[4] - samples[5],
-        samples[1] + samples[3] + samples[5] + samples[7] - samples[0] - samples[2] - samples[4] - samples[6]
+        samples[1] - samples[0],
+        samples[3] - samples[2],
+        samples[5] - samples[4],
     );
-
-    // Normalize the kernel values
-    gradient *= 8.0 / 16.0;
   
     // Adjust gradient to physical space 
     gradient /= 2.0 * volume_spacing;

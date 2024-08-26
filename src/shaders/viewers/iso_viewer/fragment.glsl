@@ -26,7 +26,6 @@ varying mat4 v_model_view_matrix;
 //param
 #include "../../includes/parameters/parameters_ray"
 #include "../../includes/parameters/parameters_trace"
-#include "../../includes/parameters/parameters_points"
 
 // utils
 #include "../../includes/utils/inside_texture"
@@ -50,7 +49,6 @@ void main()
     // set parameters
     set_ray(v_camera, normalize(v_direction));
     set_trace(v_camera);
-    set_points();
     
     // compute raycast
     bool hit = compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace); 

@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import EventEmitter from '../../Utils/EventEmitter'
 import Occumap from './Helpers/Occumap'
 import OccumapHelper from './Helpers/OccumapHelper'
-import computeShader from '../../../shaders/includes/computes/occupancy/compute_volume_occupancy_iso.glsl'
+import computeShader from '../../../shaders/includes/precomputes/occupancy/compute_volume_occupancy_iso.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
@@ -92,7 +92,7 @@ export default class ISOOccupancy extends EventEmitter
 
     setComputationWorker()
     {
-        this.computation.worker = new Worker('./javascript/Computes/Occupancy/Workers/Worker')
+        this.computation.worker = new Worker('./javascript/Precomputes/Occupancy/Workers/Worker')
         this.computation.worker.onmessage = this.handleComputationWorker.bind(this)
 
     }

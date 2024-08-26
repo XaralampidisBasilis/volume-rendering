@@ -9,7 +9,7 @@
  * @return vec4: Gradient vector at the given position as rgb and smoothed sample as alpha
  */
 
-vec4 pregradient_prewitt27
+vec4 gradient_sobel27
 (
     in sampler3D volume_data, // assumes LinearFilter & ClampToEdgeWrapping
     in vec3 volume_spacing,
@@ -17,10 +17,10 @@ vec4 pregradient_prewitt27
     in ivec3 voxel_coords
 )
 {
-    // Define offsets for the 26 neighboring samples
+    // Define offsets for the 26 neighboring samples and the center
     const vec3 k = vec3(-1.0, 0.0, +1.0);
 
-    const vec3[27] samples_offset = vec3[27]
+    const vec3[27] sample_offset = vec3[27]
     (
          k.xxx,   k.xxy,   k.xxz,  
          k.xyx,   k.xyy,   k.xyz,  
@@ -33,44 +33,44 @@ vec4 pregradient_prewitt27
         k.zzx,  k.zzy,  k.zzz
     );
 
-    // Compute scharr 27 kernels 
+    // Compute sobel 27 kernels 
     const float[27] kernel_x = float[27]
     (
-         -1.0,  -1.0,   -1.0,
-         -1.0,  -1.0,   -1.0,
-         -1.0,  -1.0,   -1.0,
-          0.0,  0.0,   0.0,
-         0.0,  0.0,   0.0,
-         0.0,  0.0,   0.0,
-        +1.0, +1.0,  +1.0,
-        +1.0, +1.0,  +1.0,
-        +1.0, +1.0,  +1.0
+         -1.0,   -2.0,   -1.0,
+         -2.0,   -4.0,   -2.0,
+         -1.0,   -2.0,   -1.0,
+          0.0,   0.0,   0.0,
+         0.0,   0.0,   0.0,
+         0.0,   0.0,   0.0,
+        +1.0,  +2.0,  +1.0,
+        +2.0,  +4.0,  +2.0,
+        +1.0,  +2.0,  +1.0
     );
 
     const float[27] kernel_y = float[27]
     (
-         -1.0,  -1.0,  -1.0,
-          0.0,   0.0,   0.0,
-         +1.0,  +1.0,  +1.0,
-         -1.0, -1.0, -1.0,
-         0.0,  0.0,  0.0,
-        +1.0, +1.0, +1.0,
-        -1.0, -1.0, -1.0,
-         0.0,  0.0,  0.0,
-        +1.0, +1.0, +1.0
+         -1.0,   -2.0,   -1.0,
+          0.0,    0.0,    0.0,
+         +1.0,   +2.0,   +1.0,
+         -2.0,  -4.0,  -2.0,
+         0.0,   0.0,   0.0,
+        +2.0,  +4.0,  +2.0,
+        -1.0,  -2.0,  -1.0,
+         0.0,   0.0,   0.0,
+        +1.0,  +2.0,  +1.0
     );
 
     const float[27] kernel_z = float[27]
     (
-         -1.0,   0.0,   +1.0,
-         -1.0,   0.0,   +1.0,
-         -1.0,   0.0,   +1.0,
-         -1.0,  0.0,  +1.0,
-        -1.0,  0.0,  +1.0,
-        -1.0,  0.0,  +1.0,
-        -1.0,  0.0,  +1.0,
-        -1.0,  0.0,  +1.0,
-        -1.0,  0.0,  +1.0
+         -1.0,    0.0,   +1.0,
+         -2.0,    0.0,   +2.0,
+         -1.0,    0.0,   +1.0,
+         -2.0,   0.0,  +2.0,
+        -4.0,   0.0,  +4.0,
+        -2.0,   0.0,  +2.0,
+        -1.0,   0.0,  +1.0,
+        -2.0,   0.0,  +2.0,
+        -1.0,   0.0,  +1.0
     );
 
     // Calculate the position and step sizes within the 3D texture
@@ -81,7 +81,7 @@ vec4 pregradient_prewitt27
     float samples[27];
     for (int i = 0; i < 27; i++)
     {
-        vec3 sample_step = voxel_step * samples_offset[i];
+        vec3 sample_step = voxel_step * sample_offset[i];
         vec3 sample_pos = voxel_pos + sample_step;
 
         samples[i] = texture(volume_data, sample_pos).r;
@@ -97,8 +97,8 @@ vec4 pregradient_prewitt27
         gradient.z += kernel_z[i] * samples[i];
     }
 
-    // Normalize the kernel values
-    gradient /= 9.0;
+    // Normalize the gradient kernels
+    gradient /= 16.0;
   
     // Adjust gradient to physical space 
     gradient /= 2.0 * volume_spacing;

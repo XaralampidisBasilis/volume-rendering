@@ -5,10 +5,10 @@ precision highp sampler3D;
 
 #include "../../utils/reshape_coordinates"
 #include "../../utils/inside_texture"
-#include "./modules/pregradient_sobel8"
-#include "./modules/pregradient_sobel27"
-#include "./modules/pregradient_scharr27"
-#include "./modules/pregradient_prewitt27"
+#include "./modules/gradient_sobel8"
+#include "./modules/gradient_sobel27"
+#include "./modules/gradient_scharr27"
+#include "./modules/gradient_prewitt27"
 
 uniform sampler3D volume_data;
 uniform int volume_count;
@@ -28,7 +28,7 @@ void main()
     // float is_volume = float(pixel_index < volume_count);
 
     // compute gradients, smoothing and assign color data
-    gl_FragColor = pregradient_scharr27(volume_data, volume_spacing, volume_dimensions, voxel_coords);
+    gl_FragColor = gradient_sobel8(volume_data, volume_spacing, volume_dimensions, voxel_coords);
 
     // include tone mapping and color space correction
     #include <tonemapping_fragment>

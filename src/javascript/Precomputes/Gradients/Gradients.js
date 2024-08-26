@@ -1,28 +1,30 @@
 import * as THREE from 'three'
-import computeShader from '../../../shaders/includes/computes/gradients/compute_volume_gradients.glsl'
+import computeShader from '../../../shaders/includes/precomputes/gradients/compute_volume_gradients.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
-
-const _vector = new THREE.Vector3()
 
 // assumes intensity data 3D, and data3DTexture
 export default class Gradients
 {   
     constructor(viewer)
     {
+        console.time('gradients')
+
         this.viewer = viewer
         this.parameters = this.viewer.parameters
         this.renderer = this.viewer.renderer
 
-        // console.time('gradients')
         this.setComputation()
         this.compute()
-        this.readComputation()
-        // console.timeEnd('gradients')
+        this.readData()
+        this.quantizeData()
+        this.disposeComputation()
 
         if (this.viewer.debug.active)
         {
-            this.setHelpers()
+            // this.setHelpers()
         }
+
+        console.timeEnd('gradients')
     }
     
     setComputation()
@@ -37,10 +39,11 @@ export default class Gradients
             this.computation.dimensions.height, 
             this.renderer.instance
         )        
-        this.computation.instance.setDataType(THREE.UnsignedByteType) 
+        this.computation.instance.setDataType(THREE.FloatType) 
         this.computation.texture = this.computation.instance.createTexture()
-        this.computation.data = new Uint8Array(this.computation.texture.image.data.length) 
         this.setComputationVariable()
+
+        this.computation.data = new Float32Array(this.computation.texture.image.data.length) 
     }
 
     setComputationVariable()
@@ -51,6 +54,8 @@ export default class Gradients
         {
             volume_data:            new THREE.Uniform(this.viewer.textures.volume),
             volume_count:           new THREE.Uniform(this.parameters.volume.count),
+            volume_sizes:           new THREE.Uniform(this.parameters.volume.size),
+            volume_spacing:         new THREE.Uniform(this.parameters.volume.spacing),
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
             computation_dimensions: new THREE.Uniform(this.computation.dimensions),        
         }
@@ -62,8 +67,8 @@ export default class Gradients
     {
         this.computation.instance.compute()
     }
-
-    readComputation()
+    
+    readData()
     {
         this.renderer.instance.readRenderTargetPixels(
             this.computation.instance.getCurrentRenderTarget(this.computation.variable),
@@ -75,11 +80,43 @@ export default class Gradients
         )     
     }
 
+    quantizeData()
+    {
+
+        let min = Infinity;
+        let max = -Infinity;
+        const dataCount = this.parameters.volume.count * 4;
+
+        for (let i4 = 3; i4 < dataCount; i4 += 4) 
+        {
+            const value = this.computation.data[i4];
+            min = Math.min(min, value);
+            max = Math.max(max, value);
+        }
+        let range = max - min;
+
+        // create a data view to manipulate the buffer directly
+        let dataView = new DataView(this.computation.data.buffer)
+
+        for (let i4 = 0; i4 < dataCount; i4 += 4)
+        {
+            dataView.setUint8(i4 + 0, Math.round((this.computation.data[i4 + 0] * 0.5 + 0.5) * 255))
+            dataView.setUint8(i4 + 1, Math.round((this.computation.data[i4 + 1] * 0.5 + 0.5) * 255))
+            dataView.setUint8(i4 + 2, Math.round((this.computation.data[i4 + 2] * 0.5 + 0.5) * 255))
+            dataView.setUint8(i4 + 3, Math.round((this.computation.data[i4 + 3] - min)/range * 255))
+        }
+
+        // The original floatArray buffer now contains the Uint8Array values
+        this.data = new Uint8Array(this.computation.data.buffer).subarray(0, dataCount)
+    }
+
     getComputationTexture()
     {
         return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
-    }    
+    }   
 
+    // helpers 
+    
     setHelpers()
     {
         this.helpers = {}
@@ -113,18 +150,24 @@ export default class Gradients
         this.helpers.computation.material.map = this.getComputationTexture()
     }
 
+    // dispose
+
     dispose()
     {
-        this.computation.texture.dispose()
-        this.computation.instance.dispose()
-        this.computation.texture = null
-        this.computation = null
-
         if (this.viewer.debug.active)
         {
             this.helpers.computation.material.dispose()
             this.helpers.computation.geometry.dispose()
             this.viewer.scene.remove(this.helpers.computation)
         }
+    }
+
+    disposeComputation()
+    {
+        this.computation.texture.dispose()
+        this.computation.instance.dispose()
+        this.computation.variable = null
+        this.computation.texture = null
+        this.computation = null
     }
 }

@@ -10,7 +10,7 @@
  */
 
 
-vec4 pregradient_sobel8
+vec4 gradient_tetrahedron4
 (
     in sampler3D volume_data, // assumes LinearFilter & ClampToEdgeWrapping
     in vec3 volume_spacing,

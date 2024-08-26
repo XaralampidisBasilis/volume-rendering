@@ -30,16 +30,16 @@ void compute_refinement
         // Move position forward by substep
         trace.position += substep;  
         
-        // Sample value again with refined position
-        vec4 texture_data = texture(u_sampler.volume, trace.position);  
+       // Sample the intensity of the volume at the current ray position
+        trace.value = texture(u_sampler.volume, trace.position).r;
 
         // Extract gradient and value from texture data
-        trace.gradient = texture_data.gba * 2.0 - 1.0;
-        trace.slope = length(trace.gradient);
-        trace.value = texture_data.r;
+        vec4 gradient_data = texture(u_sampler.gradients, trace.position);
+        trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
+        trace.steepness = length(gradient_data.a);
 
         // If the sampled value exceeds the threshold, return early
-        if (trace.value > u_raycast.threshold && trace.slope > u_gradient.threshold) 
+        if (trace.value > u_raycast.threshold && trace.steepness > u_gradient.threshold) 
         {
             return;   
         }

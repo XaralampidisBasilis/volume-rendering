@@ -10,7 +10,7 @@
  * @return vec4: Gradient vector at the given position as rgb and smoothed sample as alpha.
  */
 
-vec4 pregradient_scharr27
+vec4 gradient_scharr27
 (
     in sampler3D volume_data, 
     in vec3 volume_spacing,
@@ -95,6 +95,7 @@ vec4 pregradient_scharr27
     }
     // Normalize the kernel values
     gradient /= 82.0;
+    
     // Adjust gradient to physical space 
     gradient /= 2.0 * volume_spacing;
 

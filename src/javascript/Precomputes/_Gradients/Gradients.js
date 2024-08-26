@@ -1,12 +1,11 @@
 import * as THREE from 'three'
-import computeShader from '../../../shaders/includes/computes/smoothing/compute_volume_smoothing.glsl'
+import computeShader from '../../../shaders/includes/precomputes/gradients/compute_volume_gradients.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
-import { vec2ind } from '../../Utils/CoordUtils'
 
 const _vector = new THREE.Vector3()
 
 // assumes intensity data 3D, and data3DTexture
-export default class Smoothing
+export default class Gradients
 {   
     constructor(viewer)
     {
@@ -14,11 +13,11 @@ export default class Smoothing
         this.parameters = this.viewer.parameters
         this.renderer = this.viewer.renderer
 
-        console.time('smoothing')
+        // console.time('gradients')
         this.setComputation()
         this.compute()
         this.readComputation()
-        console.timeEnd('smoothing')
+        // console.timeEnd('gradients')
 
         if (this.viewer.debug.active)
         {

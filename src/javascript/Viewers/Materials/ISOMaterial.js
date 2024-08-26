@@ -10,6 +10,7 @@ export default function(viewer)
         u_sampler: new THREE.Uniform
         ({
             volume:          null,
+            gradients:       null,
             mask:            null,
             colormap:        null,
             noisemap:        null,
