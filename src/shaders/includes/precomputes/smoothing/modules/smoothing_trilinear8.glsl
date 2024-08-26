@@ -21,11 +21,12 @@ float smoothing_trilinear8
     // Calculate the position and step sizes within the 3D texture
     vec3 voxel_step = 1.0 / vec3(volume_dimensions);
     vec3 voxel_pos = voxel_step * (vec3(voxel_coords) + 0.5);
-    vec3 smooth_step = voxel_step * smoothing_factor * 0.666666666667;
+    vec3 substep = voxel_step * smoothing_factor * 0.666666666667;
    
     // Define offsets for the 8 neighboring points
     const vec2 k = vec2(1.0, -1.0);
-    const vec3 k_offset[8] = vec3[8]
+
+    const vec3 samples_offset[8] = vec3[8]
     (
         k.xxx, k.xxy, 
         k.xyx, k.xyy, 
@@ -37,8 +38,7 @@ float smoothing_trilinear8
     float samples[8];
     for (int i = 0; i < 8; i++)
     {
-        vec3 neighbor_step = smooth_step * k_offset[i];
-        vec3 sample_pos = voxel_pos + neighbor_step;
+        vec3 sample_pos = voxel_pos + substep * samples_offset[i];;
         samples[i] = texture(volume_data, sample_pos).r;
     }
 
@@ -50,7 +50,7 @@ float smoothing_trilinear8
     }
 
     // Normalize the result
-    smooth_sample *= 0.125;
+    smooth_sample /= 8.0;
 
     return smooth_sample;
 }

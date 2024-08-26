@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { NIFTILoader } from '../Loaders/NIFTILoader'
+import { NIFTILoader } from './NIFTILoader'
 import EventEmitter from './EventEmitter'
 
 export default class Resources extends EventEmitter

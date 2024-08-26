@@ -83,6 +83,7 @@ vec4 gradient_scharr27
     {
         vec3 sample_pos = voxel_pos + voxel_step * samples_offset[i];
         samples[i] = texture(volume_data, sample_pos).r;
+        samples[i] *= inside_box(voxel_step, 1.0 - voxel_step, sample_pos);
     }
 
     // Calculate the gradient based on the sampled values using the Sobel operator

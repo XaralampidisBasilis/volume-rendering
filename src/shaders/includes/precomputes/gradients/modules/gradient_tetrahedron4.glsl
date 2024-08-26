@@ -26,20 +26,21 @@ vec4 gradient_tetrahedron4
         k.xxx,
         k.xyy,
         k.yxy,
-        k.yyx,
+        k.yyx
     );
     
     // Calculate the position and step sizes within the 3D texture
     vec3 voxel_step = 1.0 / vec3(volume_dimensions);
     vec3 voxel_pos = voxel_step * (vec3(voxel_coords) + 0.5); // we need 0.5 to go to voxel centers
-    vec3 trilinear_step = voxel_step * 0.5;
+    vec3 substep = voxel_step * 0.5;
    
     // Sample values at the neighboring points
     float samples[4];
     for (int i = 0; i < 4; i++)
     {
-        vec3 sample_pos = voxel_pos + trilinear_step * samples_offset[i];
+        vec3 sample_pos = voxel_pos + substep * samples_offset[i];
         samples[i] = texture(volume_data, sample_pos).r;
+        samples[i] *= inside_box(substep, 1.0 - substep, sample_pos);
     }
 
     // Calculate the gradient based on the sampled values using the Sobel operator

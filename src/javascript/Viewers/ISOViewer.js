@@ -34,11 +34,12 @@ export default class ISOViewer
 
         this.computeGradients()
         this.computeOccupancy()
+        this.computeSmoothing()
 
         if (this.debug.active) 
         {
             this.gui = new ISOGui(this)
-        }       
+        } 
     }
 
     setParameters()
@@ -97,15 +98,33 @@ export default class ISOViewer
     setTextures()
     {
         this.textures = {}
+        this.setSourceTexture()
         this.setVolumeTexture()
         this.setGradientsTexture()
         this.setMaskTexture()
     }
 
+    setSourceTexture()
+    {
+        const volumeDimensions = this.parameters.volume.dimensions.toArray()
+        const sourceData = this.resource.volume.getData()
+        this.textures.source = new THREE.Data3DTexture(sourceData, ...volumeDimensions)
+        this.textures.source.format = THREE.RedFormat
+        this.textures.source.type = THREE.FloatType     
+        this.textures.source.wrapS = THREE.ClampToEdgeWrapping
+        this.textures.source.wrapT = THREE.ClampToEdgeWrapping
+        this.textures.source.wrapR = THREE.ClampToEdgeWrapping
+        this.textures.source.minFilter = THREE.LinearFilter
+        this.textures.source.magFilter = THREE.LinearFilter
+        this.textures.source.needsUpdate = true   
+        this.textures.source.unpackAlignment = 1 
+    }
+
     setVolumeTexture()
     {
+        const volumeDimensions = this.parameters.volume.dimensions.toArray()
         const volumeData = this.resource.volume.getDataUint8()
-        this.textures.volume = new THREE.Data3DTexture(volumeData, ...this.parameters.volume.dimensions.toArray())
+        this.textures.volume = new THREE.Data3DTexture(volumeData, ...volumeDimensions)
         this.textures.volume.format = THREE.RedFormat
         this.textures.volume.type = THREE.UnsignedByteType     
         this.textures.volume.wrapS = THREE.ClampToEdgeWrapping
@@ -119,8 +138,9 @@ export default class ISOViewer
 
     setGradientsTexture()
     {
+        const volumeDimensions = this.parameters.volume.dimensions.toArray()
         const gradientsData = new Uint8ClampedArray(this.parameters.volume.count * 4)
-        this.textures.gradients = new THREE.Data3DTexture(gradientsData, ...this.parameters.volume.dimensions.toArray())
+        this.textures.gradients = new THREE.Data3DTexture(gradientsData, ...volumeDimensions)
         this.textures.gradients.format = THREE.RGBAFormat
         this.textures.gradients.type = THREE.UnsignedByteType     
         this.textures.gradients.wrapS = THREE.ClampToEdgeWrapping
@@ -134,8 +154,9 @@ export default class ISOViewer
 
     setMaskTexture()
     {
+        const maskDimensions = this.parameters.mask.dimensions.toArray()
         const maskData = this.resource.volume.getDataUint8()
-        this.textures.mask = new THREE.Data3DTexture(maskData, ...this.parameters.mask.dimensions.toArray())
+        this.textures.mask = new THREE.Data3DTexture(maskData, ...maskDimensions)
         this.textures.mask.format = THREE.RedFormat
         this.textures.mask.type = THREE.UnsignedByteType     
         this.textures.mask.wrapS = THREE.ClampToEdgeWrapping
@@ -213,42 +234,11 @@ export default class ISOViewer
     {
         this.smoothing = new Smoothing(this)
 
-        // update volume texture image data
-        for (let i = 0; i < this.parameters.volume.count; i++)
-        {
-            const i4 = i * 4            
-            this.textures.volume.image.data[i4 + 0] = this.smoothing.computation.data[i4 + 0]
-            this.textures.volume.image.data[i4 + 1] = this.smoothing.computation.data[i4 + 1]
-            this.textures.volume.image.data[i4 + 2] = this.smoothing.computation.data[i4 + 2]
-            this.textures.volume.image.data[i4 + 3] = this.smoothing.computation.data[i4 + 3]
-        }
+        this.textures.volume.image.data.set(this.smoothing.data);
         this.textures.volume.needsUpdate = true
 
         // dispose smoothing
-        this.smoothing.dispose()
-
-        /** debug
-         
-        const coords = new THREE.Vector3()
-    
-        for (let z = Math.floor(this.parameters.volume.dimensions.z / 2); z < this.parameters.volume.dimensions.z; z++)
-        {
-            for (let y = Math.floor(this.parameters.volume.dimensions.y / 2); y < this.parameters.volume.dimensions.y; y++)
-            {
-                for (let x = Math.floor(this.parameters.volume.dimensions.x / 2); x < this.parameters.volume.dimensions.x; x++)
-                {
-                    let i = vec2ind(this.parameters.volume.dimensions, coords.set(x, y, z))
-                    let i4 = i * 4
-                    
-                    this.textures.volume.image.data[i4 + 0] = this.smoothing.computation.data[i4 + 0]
-                    this.textures.volume.image.data[i4 + 1] = this.smoothing.computation.data[i4 + 1]
-                    this.textures.volume.image.data[i4 + 2] = this.smoothing.computation.data[i4 + 2]
-                    this.textures.volume.image.data[i4 + 3] = this.smoothing.computation.data[i4 + 3]                
-                }
-            }
-        }
-        this.textures.volume.needsUpdate = true
-        */
+        // this.smoothing.dispose()
     }
 
     update()

@@ -16,7 +16,7 @@ export default class Gradients
         this.setComputation()
         this.compute()
         this.readData()
-        this.quantizeData()
+        this.compressData()
         this.disposeComputation()
 
         if (this.viewer.debug.active)
@@ -29,10 +29,10 @@ export default class Gradients
     
     setComputation()
     { 
-        const voxelCountSqrt = Math.ceil(Math.sqrt(this.parameters.volume.count))
+        const dataCountSqrt = Math.ceil(Math.sqrt(this.parameters.volume.count))
         
         this.computation = {}
-        this.computation.dimensions = new THREE.Vector2(voxelCountSqrt, voxelCountSqrt)
+        this.computation.dimensions = new THREE.Vector2(dataCountSqrt, dataCountSqrt)
         this.computation.instance = new GPUComputationRenderer
         (
             this.computation.dimensions.width, 
@@ -41,9 +41,10 @@ export default class Gradients
         )        
         this.computation.instance.setDataType(THREE.FloatType) 
         this.computation.texture = this.computation.instance.createTexture()
-        this.setComputationVariable()
-
         this.computation.data = new Float32Array(this.computation.texture.image.data.length) 
+        this.setComputationVariable()
+        
+        this.computation.instance.init()
     }
 
     setComputationVariable()
@@ -52,15 +53,13 @@ export default class Gradients
         this.computation.instance.setVariableDependencies(this.computation.variable, [this.computation.variable])
         this.computation.variable.material.uniforms = 
         {
-            volume_data:            new THREE.Uniform(this.viewer.textures.volume),
+            volume_data:            new THREE.Uniform(this.viewer.textures.source),
             volume_count:           new THREE.Uniform(this.parameters.volume.count),
             volume_sizes:           new THREE.Uniform(this.parameters.volume.size),
             volume_spacing:         new THREE.Uniform(this.parameters.volume.spacing),
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
             computation_dimensions: new THREE.Uniform(this.computation.dimensions),        
         }
-
-        this.computation.instance.init()
     }
     
     compute()
@@ -80,7 +79,7 @@ export default class Gradients
         )     
     }
 
-    quantizeData()
+    compressData()
     {
 
         let min = Infinity;
@@ -97,7 +96,7 @@ export default class Gradients
 
         // create a data view to manipulate the buffer directly
         let dataView = new DataView(this.computation.data.buffer)
-
+        
         for (let i4 = 0; i4 < dataCount; i4 += 4)
         {
             dataView.setUint8(i4 + 0, Math.round((this.computation.data[i4 + 0] * 0.5 + 0.5) * 255))
@@ -105,8 +104,6 @@ export default class Gradients
             dataView.setUint8(i4 + 2, Math.round((this.computation.data[i4 + 2] * 0.5 + 0.5) * 255))
             dataView.setUint8(i4 + 3, Math.round((this.computation.data[i4 + 3] - min)/range * 255))
         }
-
-        // The original floatArray buffer now contains the Uint8Array values
         this.data = new Uint8Array(this.computation.data.buffer).subarray(0, dataCount)
     }
 

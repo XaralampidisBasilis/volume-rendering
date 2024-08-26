@@ -16,7 +16,7 @@
  * @param normal: Output vector where the gradient will be stored
  * @param value_max: Output float where the maximum value of the sampled points will be stored
  */
-vec3 compute_gradient
+vec4 compute_gradient
 (
     in sampler3D volume_data, 
     in vec3 volume_spacing, 

@@ -27,23 +27,22 @@ bool raymarch_full
         // Extract gradient and value from texture data
         vec4 gradient_data = texture(u_sampler.gradients, trace.position);
         trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-        trace.steepness = length(gradient_data.a);
+        trace.steepness = gradient_data.a;
 
         // Check if the sampled intensity exceeds the threshold
         if (trace.value > u_raycast.threshold && trace.steepness > u_gradient.threshold) 
         {
             // Compute refinement
             compute_refinement(u_raycast, u_gradient, u_sampler, ray, trace);
-
             return true;
         }
 
         // Compute adaptive resolution based on gradient
-        float spacing = adaptive_spacing(u_volume, u_raycast.spacing_min, u_raycast.spacing_max, ray.direction, trace.normal, trace.steepness);
+        float resolution = adaptive_spacing(u_volume, u_raycast.spacing_min, u_raycast.spacing_max, ray.direction, trace.normal, trace.steepness);
 
         // Update ray position for the next step
-        trace.position += ray.step * spacing;
-        trace.depth += ray.spacing * spacing;
+        trace.position += ray.step * resolution;
+        trace.depth += ray.spacing * resolution;
     }   
 
     return false;
