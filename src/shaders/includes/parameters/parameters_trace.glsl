@@ -13,7 +13,7 @@ struct parameters_trace
 
 parameters_trace trace;
 
-void set_trace(in vec3 position)
+void set_parameters_trace(in vec3 position)
 {
     trace.position = position;
     trace.normal = vec3(0.0); 

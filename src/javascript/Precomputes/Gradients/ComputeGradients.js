@@ -3,7 +3,7 @@ import computeShader from '../../../shaders/includes/precomputes/gradients/compu
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
-export default class Gradients
+export default class ComputeGradients
 {   
     constructor(viewer)
     {
@@ -15,7 +15,7 @@ export default class Gradients
 
         this.setComputation()
         this.compute()
-        this.readData()
+        this.readComputation()
         this.compressData()
         this.disposeComputation()
 
@@ -67,7 +67,7 @@ export default class Gradients
         this.computation.instance.compute()
     }
     
-    readData()
+    readComputation()
     {
         this.renderer.instance.readRenderTargetPixels(
             this.computation.instance.getCurrentRenderTarget(this.computation.variable),

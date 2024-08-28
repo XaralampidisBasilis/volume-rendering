@@ -3,7 +3,7 @@ import computeShader from '../../../shaders/includes/precomputes/smoothing/compu
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
-export default class Smoothing
+export default class ComputeSmoothing
 {   
     constructor(viewer)
     {
@@ -15,7 +15,7 @@ export default class Smoothing
 
         this.setComputation()
         this.compute()
-        this.readData()
+        this.readComputation()
         this.compressData()
         this.disposeComputation()
 
@@ -65,7 +65,7 @@ export default class Smoothing
         this.computation.instance.compute()
     }
 
-    readData()
+    readComputation()
     {
         this.renderer.instance.readRenderTargetPixels(
             this.computation.instance.getCurrentRenderTarget(this.computation.variable),

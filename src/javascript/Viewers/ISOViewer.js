@@ -3,8 +3,8 @@ import Experience from '../Experience'
 import ISOMaterial from './Materials/ISOMaterial'
 import ISOGui from './GUI/ISOGui'
 import ISOHelpers from './Helpers/ISOHelpers'
-import Smoothing from '../Precomputes/Smoothing/Smoothing'
-import Gradients from '../Precomputes/Gradients/Gradients'
+import ComputeSmoothing from '../Precomputes/Smoothing/ComputeSmoothing'
+import ComputeGradients from '../Precomputes/Gradients/ComputeGradients'
 import ISOOccupancy from '../Precomputes/Occupancy/ISOOccupancy'
 
 export default class ISOViewer
@@ -33,8 +33,8 @@ export default class ISOViewer
         this.setMesh()
 
         this.computeGradients()
-        this.computeOccupancy()
         this.computeSmoothing()
+        this.computeOccupancy()
 
         if (this.debug.active) 
         {
@@ -73,7 +73,6 @@ export default class ISOViewer
     {
         this.noisemaps = {}        
         this.noisemaps.white256 = this.resources.items.blue256Noisemap
-
         this.noisemaps.white256.repeat.set(4, 4)
         this.noisemaps.white256.format = THREE.RedFormat
         this.noisemaps.white256.type = THREE.UnsignedByteType
@@ -179,11 +178,9 @@ export default class ISOViewer
     setMaterial()
     {
         this.material = new ISOMaterial()
-
         this.material.uniforms.u_volume.value.dimensions.copy(this.parameters.volume.dimensions)
         this.material.uniforms.u_volume.value.size.copy(this.parameters.volume.size)
         this.material.uniforms.u_volume.value.spacing.copy(this.parameters.volume.spacing)
-
         this.material.uniforms.u_sampler.value.volume = this.textures.volume
         this.material.uniforms.u_sampler.value.gradients = this.textures.gradients
         this.material.uniforms.u_sampler.value.mask = this.textures.mask
@@ -200,12 +197,17 @@ export default class ISOViewer
 
     computeGradients()
     {
-        this.gradients = new Gradients(this)  
-
+        this.gradients = new ComputeGradients(this)  
         this.textures.gradients.image.data.set(this.gradients.data);
         this.textures.gradients.needsUpdate = true
 
-        // this.gradients.dispose()
+    }
+
+    computeSmoothing()
+    {
+        this.smoothing = new ComputeSmoothing(this)
+        this.textures.volume.image.data.set(this.smoothing.data);
+        this.textures.volume.needsUpdate = true
     }
 
     computeOccupancy()
@@ -228,17 +230,6 @@ export default class ISOViewer
             this.material.uniforms.u_occupancy.value.box_min = this.occupancy.occubox.min
             this.material.uniforms.u_occupancy.value.box_max = this.occupancy.occubox.max        
         })
-    }
-
-    computeSmoothing()
-    {
-        this.smoothing = new Smoothing(this)
-
-        this.textures.volume.image.data.set(this.smoothing.data);
-        this.textures.volume.needsUpdate = true
-
-        // dispose smoothing
-        // this.smoothing.dispose()
     }
 
     update()

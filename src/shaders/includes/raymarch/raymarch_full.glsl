@@ -38,11 +38,11 @@ bool raymarch_full
         }
 
         // Compute adaptive resolution based on gradient
-        float resolution = adaptive_spacing(u_volume, u_raycast.spacing_min, u_raycast.spacing_max, ray.direction, trace.normal, trace.steepness);
+        float spacing_factor = adaptive_spacing(u_volume, u_raycast.spacing_min, u_raycast.spacing_max, ray.direction, trace.normal, trace.steepness);
 
         // Update ray position for the next step
-        trace.position += ray.step * resolution;
-        trace.depth += ray.spacing * resolution;
+        trace.position += ray.step * spacing_factor;
+        trace.depth += ray.spacing * spacing_factor;
     }   
 
     return false;

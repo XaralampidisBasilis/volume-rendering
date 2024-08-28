@@ -16,7 +16,7 @@ struct parameters_ray
 
 parameters_ray ray;
 
-void set_ray(in vec3 origin, in vec3 direction)
+void set_parameters_ray(in vec3 origin, in vec3 direction)
 {
     ray.origin = origin;
     ray.direction = direction;

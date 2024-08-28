@@ -47,8 +47,8 @@ varying mat4 v_model_view_matrix;
 void main() 
 {
     // set parameters
-    set_ray(v_camera, normalize(v_direction));
-    set_trace(v_camera);
+    set_parameters_ray(v_camera, normalize(v_direction));
+    set_parameters_trace(v_camera);
     
     // compute raycast
     bool hit = compute_raycast(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace); 
@@ -59,15 +59,15 @@ void main()
         // go in model coordinates
         vec3 view_position = ray.origin * u_volume.size;  
         vec3 light_position = v_camera * u_volume.size + u_lighting.position;
-        vec3 surface_position = trace.position * u_volume.size;
-        vec3 surface_normal = normalize(trace.normal / u_volume.spacing);
+        vec3 hit_position = trace.position * u_volume.size;
+        vec3 hit_normal = normalize(trace.normal / u_volume.spacing);
 
         // compute color and lighting
         vec3 color_sample = compute_color(u_colormap, u_sampler.colormap, trace.value);       
-        vec3 color_lighting = compute_lighting(u_lighting, color_sample, surface_normal, surface_position, view_position, light_position);
+        vec3 color_lighting = compute_lighting(u_lighting, color_sample, hit_normal, hit_position, view_position, light_position);
 
         // set fragment depth
-        gl_FragDepth = compute_frag_depth(surface_position);
+        gl_FragDepth = compute_frag_depth(hit_position);
 
         // set fragment color
         gl_FragColor = vec4(color_lighting, 1.0);

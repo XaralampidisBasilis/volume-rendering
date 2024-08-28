@@ -66,7 +66,10 @@ export default class ISOGui
         this.addControllersGradient() 
         this.addControllersColormap() 
         this.addControllersLighting() 
-        this.addControllersOccupancy() 
+
+        if (this.viewer.occupancy)
+            this.addControllersOccupancy() 
+
         this.setControllersBindings()  
     }
 
@@ -187,7 +190,8 @@ export default class ISOGui
         })
         .onFinishChange(() => 
         {
-            this.viewer.occupancy.compute()
+            if (this.viewer.occupancy)
+                this.viewer.occupancy.compute()
         })
 
      
@@ -212,11 +216,13 @@ export default class ISOGui
         // adjust lighting power based on lighting attenuations being on or off
         // this.controllers.lighting.attenuation.onChange(() => this.adjustLightingPower())
 
-        this.controllers.occupancy.levels.onChange(() => this.occumapsVisible())
+        if (this.viewer.occupancy)
+        {
+            this.controllers.occupancy.levels.onChange(() => this.occumapsVisible())
 
-        // recompute new occupancy based on new divisions
-        this.controllers.occupancy.divisions.onFinishChange(() => this.changeOccupancyDivisions())
-
+            // recompute new occupancy based on new divisions
+            this.controllers.occupancy.divisions.onFinishChange(() => this.changeOccupancyDivisions())
+        }
     }
 
     capRaycastSpacingMin()
