@@ -125,28 +125,27 @@ export default class ComputeOccupancy extends EventEmitter
 
     parseComputation()
     {
-        for (let level = 0; level < 4; level++)
+        for (let c = 0; c < 4; c++)
         {
-            const size = 2 ** level
+            const size = 2 ** c
             const numBlocks = Math.ceil(this.parameters.numBlocks / size**3)
 
-            for (let blockIndex = 0; blockIndex < numBlocks; blockIndex++)
+            for (let n = 0; n < numBlocks; n++)
             {
-                const blockCoords = ind2sub(this.parameters.occumapDimensions.toArray(), blockIndex)
-                const blockMin = blockCoords.map(coord => size * Math.floor(coord / size)) // calculate block min and max coordinates in 3d occumap
-                const blockMax = blockMin.map(coord => coord + size)
+                const blockCoords = ind2sub(this.parameters.occumapDimensions.toArray(), n)
+                const blockMin = blockCoords.map(x => size * Math.floor(x / size)) // calculate block min and max coordinates in 3d occumap
+                const blockMax = blockMin.map(x => x + size)
             
                 const indices = box2ind(this.parameters.occumapDimensions.toArray(), blockMin, blockMax) // get linear block indices in 3d occumap
-                const indices4 = indices.map(index => index * 4).filter(index => index < this.computation.data.length) // convert indices to 4x values because computation has rgba values for each block
-                const occupied = indices4.some(index4 => this.computation.data[index4 + 0] > 0) // check if any value at those indices is occupied
+                const indices4 = indices.map(i => i * 4).filter(i => i < this.computation.data.length) // convert indices to 4x values because computation has rgba values for each block
+                const occupied = indices4.some(i4 => this.computation.data[i4 + 0] > 0) // check if any value at those indices is occupied
             
                 // update occumap texture data at the specific level
-                indices4.forEach(index4 => 
-                {
-                    this.occumap.image.data[index4 + level] = occupied
-                })
+                indices4.forEach(i4 => this.occumap.image.data[i4 + c] = occupied)
             }
         }
+
+        this.occumap.needsUpdate = true
 
     }
 
