@@ -5,6 +5,7 @@ import ISOGui from './GUI/ISOGui'
 import ISOHelpers from './Helpers/ISOHelpers'
 import ComputeSmoothing from '../Precomputes/Smoothing/ComputeSmoothing'
 import ComputeGradients from '../Precomputes/Gradients/ComputeGradients'
+import ComputeOccupancy from '../Precomputes/_Occupancy/ComputeOccupancy'
 import ISOOccupancy from '../Precomputes/Occupancy/ISOOccupancy'
 
 export default class ISOViewer
@@ -34,7 +35,8 @@ export default class ISOViewer
 
         this.computeGradients()
         this.computeSmoothing()
-        this.computeOccupancy()
+        // this.computeOccupancy()
+        this.compute_Occupancy()
 
         if (this.debug.active) 
         {
@@ -230,6 +232,11 @@ export default class ISOViewer
             this.material.uniforms.u_occupancy.value.box_min = this.occupancy.occubox.min
             this.material.uniforms.u_occupancy.value.box_max = this.occupancy.occubox.max        
         })
+    }
+
+    compute_Occupancy()
+    {
+        this._occupancy = new ComputeOccupancy(this)
     }
 
     update()
