@@ -18,7 +18,6 @@ vec4 gradient_sobel8
     in ivec3 voxel_coords
 )
 {
-
     // Define offsets for the 8 neighboring points
     const vec2 k = vec2(-1.0, +1.0);
     const vec3 samples_offset[8] = vec3[8]

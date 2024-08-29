@@ -1,0 +1,38 @@
+    
+bool check_occupancy
+(
+    in sampler3D occumap,
+    in uniforms_occupancy u_occupancy,
+    in uniforms_volume u_volume,  
+    in parameters_ray ray,
+    out int skip_steps
+) 
+{
+    vec3 voxel_coords = floor(ray.position * u_volume.dimensions);
+    vec3 block_coords = floor(voxel_coords / u_occupancy.block_dimensions);
+    vec3 block_tex = (block_coords + 0.5) / u_occupancy.occumap_dimensions;
+    
+    // Sample the occupancy map to get occupancy data
+    vec4 multi_ocupancy = texture(occumap, block_tex);
+    float block_resolution = 3 - (multi_ocupancy.g + multi_ocupancy.b + multi_ocupancy.a);
+    float block_scaling = exp2(block_resolution); 
+
+    // compute block0 min and max voxel coordinates
+    vec3 bblock_dimensions = u_occupancy.block_dimensions * block_scaling;
+    vec3 bblock_min_voxel_pos = floor(voxel_coords / bblock_dimensions) * bblock_dimensions;
+    vec3 bblock_max_voxel_pos = bblock_min_voxel_pos + bblock_dimensions; // if we had coords we would need to subtract one
+
+    // normalize block voxel positions
+    vec3 inv_vol_dim = 1.0 / u_volume.dimensions;
+    bblock_min_voxel_pos *= inv_vol_dim;
+    bblock_max_voxel_pos *= inv_vol_dim;
+    
+    // intersect ray with block
+    float distance = intersect_box_max(bblock_min_voxel_pos, bblock_max_voxel_pos, ray.position, ray.step); 
+    skip_steps = max(int(ceil(distance)), 1); 
+
+    // check if block is occupied
+    bool occupied = bool(multi_ocupancy.r); 
+
+    return occupied;
+}

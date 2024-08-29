@@ -82,17 +82,17 @@ export default class ComputeGradients
     compressData()
     {
 
-        let min = Infinity;
-        let max = -Infinity;
-        const dataCount = this.parameters.volume.count * 4;
+        this.minLength = Infinity
+        this.maxLength = 0
+        const dataCount = this.parameters.volume.count * 4
 
         for (let i4 = 3; i4 < dataCount; i4 += 4) 
         {
-            const value = this.computation.data[i4];
-            min = Math.min(min, value);
-            max = Math.max(max, value);
+            const value = this.computation.data[i4]
+            this.minLength = Math.min(this.minLength, value)
+            this.maxLength = Math.max(this.maxLength, value)
         }
-        let range = max - min;
+        this.lengthRange = this.maxLength - this.minLength
 
         // create a data view to manipulate the buffer directly
         let dataView = new DataView(this.computation.data.buffer)
@@ -102,7 +102,7 @@ export default class ComputeGradients
             dataView.setUint8(i4 + 0, Math.round((this.computation.data[i4 + 0] * 0.5 + 0.5) * 255))
             dataView.setUint8(i4 + 1, Math.round((this.computation.data[i4 + 1] * 0.5 + 0.5) * 255))
             dataView.setUint8(i4 + 2, Math.round((this.computation.data[i4 + 2] * 0.5 + 0.5) * 255))
-            dataView.setUint8(i4 + 3, Math.round((this.computation.data[i4 + 3] - min)/range * 255))
+            dataView.setUint8(i4 + 3, Math.round((this.computation.data[i4 + 3] - this.minLength) / this.lengthRange * 255))
         }
         this.data = new Uint8Array(this.computation.data.buffer).subarray(0, dataCount)
     }

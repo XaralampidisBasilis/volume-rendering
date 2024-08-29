@@ -5,8 +5,7 @@ import ISOGui from './GUI/ISOGui'
 import ISOHelpers from './Helpers/ISOHelpers'
 import ComputeSmoothing from '../Precomputes/Smoothing/ComputeSmoothing'
 import ComputeGradients from '../Precomputes/Gradients/ComputeGradients'
-import ComputeOccupancy from '../Precomputes/_Occupancy/ComputeOccupancy'
-import ISOOccupancy from '../Precomputes/Occupancy/ISOOccupancy'
+import ComputeOccupancy from '../Precomputes/Occupancy/ComputeOccupancy'
 
 export default class ISOViewer
 {
@@ -35,8 +34,7 @@ export default class ISOViewer
 
         this.computeGradients()
         this.computeSmoothing()
-        // this.computeOccupancy()
-        this.compute_Occupancy()
+        this.computeOccupancy()
 
         if (this.debug.active) 
         {
@@ -202,7 +200,9 @@ export default class ISOViewer
         this.gradients = new ComputeGradients(this)  
         this.textures.gradients.image.data.set(this.gradients.data);
         this.textures.gradients.needsUpdate = true
-
+        this.material.uniforms.u_gradient.value.min_length = this.gradients.minLength
+        this.material.uniforms.u_gradient.value.max_length = this.gradients.maxLength
+        this.material.uniforms.u_gradient.value.length_range = this.gradients.lengthRange
     }
 
     computeSmoothing()
@@ -214,32 +214,12 @@ export default class ISOViewer
 
     computeOccupancy()
     {
-        this.occupancy = new ISOOccupancy(this)
-
-        for (let i = 0; i <  this.occupancy.occumaps.length; i++)
-        {
-            this.material.uniforms.u_sampler.value.occumaps[i] = this.occupancy.occumaps[i].texture
-            this.material.uniforms.u_occupancy.value.dimensions[i] = this.occupancy.occumaps[i].dimensions
-            this.material.uniforms.u_occupancy.value.blocks[i] = this.occupancy.occumaps[i].blockDimensions
-        }
-
-        this.occupancy.on('ready', () => 
-        {
-            for (let i = 0; i <  this.occupancy.occumaps.length; i++)
-            {
-                this.material.uniforms.u_sampler.value.occumaps[i] = this.occupancy.occumaps[i].texture
-            }
-            this.material.uniforms.u_occupancy.value.box_min = this.occupancy.occubox.min
-            this.material.uniforms.u_occupancy.value.box_max = this.occupancy.occubox.max        
-        })
-    }
-
-    compute_Occupancy()
-    {
         this.occupancy = new ComputeOccupancy(this)
-
-        this.material.uniforms.u_occupancy.value.box_min = this.occupancy.occubox.min
-        this.material.uniforms.u_occupancy.value.box_max = this.occupancy.occubox.max        
+        this.material.uniforms.u_sampler.value.occumap = this.occupancy.occumap
+        this.material.uniforms.u_occupancy.value.occumap_dimensions.copy(this.occupancy.parameters.occumapDimensions)
+        this.material.uniforms.u_occupancy.value.block_dimensions.copy(this.occupancy.parameters.blockDimensions)
+        this.material.uniforms.u_occupancy.value.box_min.copy(this.occupancy.occubox.min)
+        this.material.uniforms.u_occupancy.value.box_max.copy(this.occupancy.occubox.max)        
     }
 
     update()

@@ -15,11 +15,13 @@ bool raymarch_full
     in uniforms_volume u_volume, 
     in uniforms_sampler u_sampler,
     inout parameters_ray ray,
-    inout parameters_trace trace
+    inout parameters_trace trace,
+    int start_step,
+    int num_steps
 ) 
 { 
     // Raymarch loop to traverse through the volume
-    for (int i_step = 0; i_step < ray.num_steps && trace.depth < ray.bounds.y; i_step++) 
+    for (int i_step = start_step; i_step < num_steps && trace.depth < ray.bounds.y; i_step++) 
     {
         // Sample the intensity of the volume at the current ray position
         trace.value = texture(u_sampler.volume, trace.position).r;
@@ -28,8 +30,6 @@ bool raymarch_full
         vec4 gradient_data = texture(u_sampler.gradients, trace.position);
         trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
         trace.steepness = gradient_data.a;
-        // trace.steepness = gradient_data.a * u_gradient.length_range + u_gradient.min_length;
-        // trace.gradient = trace.normal * trace.steepness;
 
         // Check if the sampled intensity exceeds the threshold
         if (trace.value > u_raycast.threshold && trace.steepness > u_gradient.threshold) 
@@ -40,11 +40,11 @@ bool raymarch_full
         }
 
         // Compute adaptive resolution based on gradient
-        float stepping_factor = adaptive_spacing(u_volume, u_raycast.spacing_min, u_raycast.spacing_max, ray.direction, trace.normal, trace.steepness);
+        float spacing_factor = adaptive_spacing(u_volume, u_raycast.spacing_min, u_raycast.spacing_max, ray.direction, trace.normal, trace.steepness);
 
         // Update ray position for the next step
-        trace.position += ray.step * stepping_factor;
-        trace.depth += ray.spacing * stepping_factor;
+        trace.position += ray.step * spacing_factor;
+        trace.depth += ray.spacing * spacing_factor;
     }   
 
     return false;

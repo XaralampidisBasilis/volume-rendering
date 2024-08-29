@@ -7,7 +7,7 @@
  *
  * @return The computed resolution based on the gradient alignment.
  */
-float adaptive_spacing
+float stepping_gradient
 (
     in uniforms_volume u_volume, 
     in float spacing_min,
@@ -19,12 +19,11 @@ float adaptive_spacing
 {
     // get to model coordinates
     ray_direction = normalize(ray_direction * u_volume.size);
+    vec3 gradient = - trace_normal * trace_steepness;
 
     // Compute the alignment between the gradient and the ray direction.
     // This represents how much the ray is moving in the direction of the gradient.
-    float alignment = max(dot(-trace_normal, ray_direction), 0.0) * trace_steepness;
-    // float alignment = max(dot(-trace_normal, ray_direction), 0.0);
-    // float alignment = trace_steepness;
+    float alignment = max(dot(gradient, ray_direction), 0.0);
 
     // Interpolate the resolution based on the alignment.
     // when alignment is high, use higher resolution, when low, use lower resolution.

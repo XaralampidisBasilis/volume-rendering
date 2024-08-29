@@ -14,7 +14,7 @@ export default function(viewer)
             mask:            null,
             colormap:        null,
             noisemap:        null,
-            occumaps:        new Array(3),
+            occumap:         null,
         }),
 
         u_volume : new THREE.Uniform
@@ -39,7 +39,10 @@ export default function(viewer)
         u_gradient: new THREE.Uniform
         ({
             threshold:       0,
-            resolution:      1,  
+            resolution:      1,
+            min_length:      0,
+            max_length:      0,
+            length_range:    0,
             method:          3,        
             max_sampling:    false,
         }),
@@ -73,12 +76,12 @@ export default function(viewer)
 
         u_occupancy: new THREE.Uniform
         ({
-            dimensions:      new Array(3).fill().map(() => new THREE.Vector3()),
-            blocks:          new Array(3).fill().map(() => new THREE.Vector3()),
-            box_min:         new THREE.Vector3(0, 0, 0),
-            box_max:         new THREE.Vector3(1, 1, 1),
-            divisions:       10, // divisions close to 2 makes computation shader to lag
-            method:          1,
+            occumap_dimensions: new THREE.Vector3(),
+            block_dimensions:   new THREE.Vector3(),
+            box_min:            new THREE.Vector3(0, 0, 0),
+            box_max:            new THREE.Vector3(1, 1, 1),
+            divisions:          10, 
+            method:             1,
         })
 
     }

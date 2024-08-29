@@ -6,6 +6,9 @@ struct uniforms_gradient
 {
     float threshold;
     float resolution;
+    float min_length;
+    float max_length;
+    float length_range;
     int method;
     bool max_sampling;
 };

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import EventEmitter from '../../Utils/EventEmitter'
-import computeShader from '../../../shaders/includes/precomputes/_occupancy/compute_volume_occupancy_iso.glsl'
+import computeShader from '../../../shaders/includes/precomputes/occupancy/compute_volume_occupancy_iso.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 import { ind2sub, box2ind } from '../../Utils/CoordUtils'
 
@@ -149,8 +149,6 @@ export default class ComputeOccupancy extends EventEmitter
         this.occubox.max.addScalar(1)
         this.occubox.max.divide(this.parameters.volumeDimensions)
         this.occubox.min.divide(this.parameters.volumeDimensions)
-
-        console.log(this.occubox)
     }
 
     updateOccupancyMap()

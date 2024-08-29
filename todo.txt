@@ -5,8 +5,4 @@ Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2i
 
 Add typescript
 
-Write simpler Occupancy function
-
-Think how to optimize texture lookup for Occumaps
-
 Use hermitian interpolation to avoid refinement with texture lookup

@@ -60,7 +60,7 @@ void main()
         vec3 view_position = ray.origin * u_volume.size;  
         vec3 light_position = v_camera * u_volume.size + u_lighting.position;
         vec3 hit_position = trace.position * u_volume.size;
-        vec3 hit_normal = normalize(trace.normal / u_volume.spacing);
+        vec3 hit_normal = trace.normal;
 
         // compute color and lighting
         vec3 color_sample = compute_color(u_colormap, u_sampler.colormap, trace.value);       

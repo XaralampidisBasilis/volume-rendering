@@ -21,37 +21,27 @@ bool raymarch_skip
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
     in uniforms_sampler u_sampler,
-    inout parameters_ray ray
+    inout parameters_ray ray,
+    inout parameters_trace trace
 ) 
 { 
-    // initialize state vaiables
-    int skip_steps[3] = int[3](0, 0, 0);
-    int current_level = 0;
-    int next_level = 0;
-
-    // raymarch loop to traverse through the volume
-    float MAX_COUNT = 1.73205080757 / length(ray.step); // for some reason some rays do not terminate. Need to find why
-    float count = 0.0;
-
-    for (int i_step = ray.step_bounds.x; i_step < ray.step_bounds.y && count < MAX_COUNT; count++) 
+    int skip_steps = 0;
+    for (int i_step = 0; i_step < ray.num_steps && trace.depth < ray.bounds.y; i_step++) 
     {
         // traverse space if block is occupied
-        bool occupied = check_occupancy_linear(u_occupancy, u_volume, u_sampler, ray.position, ray.step, skip_steps, current_level, next_level);
+        bool occupied = check_occupancy(u_occupancy, u_volume, u_sampler, ray.position, ray.step, skip_steps);
+
         if (occupied) 
         {            
-            // terminate marching if ray  hit
-            bool intersected = check_intersection(u_gradient, u_raycast, u_sampler, u_volume, ray.step, skip_steps[current_level], ray_position, hit_position, hit_normal, hit_sample, hit_depth);
-            if (intersected) 
-            {
-                // gl_FragColor = vec4(vec3(count/MAX_COUNT), 1.0);
-                return true;
-            }
+           
         }
-        
-        // update ray and skip space
-        i_step += skip_steps[current_level];
-        ray.position += ray_step * float(skip_steps[current_level]);
-        current_level = next_level;
+        else 
+        {
+            // skip space
+            i_step += skip_steps;
+            ray.position += ray.step * float(skip_steps);
+            trace.depth += ray.spacing * spacing_factor;
+        }
     }   
 
     return false;
