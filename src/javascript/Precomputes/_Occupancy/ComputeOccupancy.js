@@ -15,23 +15,21 @@ export default class ComputeOccupancy extends EventEmitter
         this.scene = this.viewer.scene
         
         console.time('occupancy')
+        this.set()
+        this.compute()
+        this.update()
+        console.timeEnd('occupancy')
+    }
+
+    set()
+    {
         this.setParameters()
         this.setBoundingBox()
         this.setOccupancyMap()
         this.setComputation()
-        this.compute()
-        this.readComputation()
-        this.parseComputation()
-        console.timeEnd('occupancy')
 
         if (this.viewer.debug.active)
-        {
-            // this.setComputationHelper()
-        }
-        this.on('ready', () =>
-        {
-            // this.updateComputationHelper()
-        })
+            this.setHelpers()
     }
 
     setParameters()
@@ -47,9 +45,9 @@ export default class ComputeOccupancy extends EventEmitter
 
     setBoundingBox()
     {
-        this.bbox = new THREE.Box3()
-        this.bbox.min.setScalar(0)
-        this.bbox.max.setScalar(1)
+        this.occubox = new THREE.Box3()
+        this.occubox.min.setScalar(0)
+        this.occubox.max.setScalar(1)
     }
 
     setOccupancyMap()
@@ -107,7 +105,19 @@ export default class ComputeOccupancy extends EventEmitter
     
     compute()
     {
+        this.parameters.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
+        this.computation.variable.material.uniforms.threshold.value = this.parameters.threshold
         this.computation.instance.compute()
+    }
+
+    update()
+    {
+        this.readComputation()
+        this.updateBoundingBox()
+        this.updateOccupancyMap()
+
+        if (this.viewer.debug.active)
+            this.updateHelpers()
     }
     
     readComputation()
@@ -123,7 +133,27 @@ export default class ComputeOccupancy extends EventEmitter
         this.computation.texture.needsUpdate = true;    
     }
 
-    parseComputation()
+    updateBoundingBox()
+    {
+        this.occubox.min.setScalar(+Infinity)
+        this.occubox.max.setScalar(0)
+
+        for (let i4 = 0; i4 < this.computation.data.length; i4 += 4)
+        {
+            const blockVoxelMin = ind2sub(this.parameters.volumeDimensions, this.computation.data[i4 + 2])
+            const blockVoxelMax = ind2sub(this.parameters.volumeDimensions, this.computation.data[i4 + 3])
+            this.occubox.min.min(blockVoxelMin)
+            this.occubox.max.max(blockVoxelMax)
+        }
+        
+        this.occubox.max.addScalar(1)
+        this.occubox.max.divide(this.parameters.volumeDimensions)
+        this.occubox.min.divide(this.parameters.volumeDimensions)
+
+        console.log(this.occubox)
+    }
+
+    updateOccupancyMap()
     {
         for (let c = 0; c < 4; c++)
         {
@@ -138,10 +168,10 @@ export default class ComputeOccupancy extends EventEmitter
             
                 const indices = box2ind(this.parameters.occumapDimensions.toArray(), blockMin, blockMax) // get linear block indices in 3d occumap
                 const indices4 = indices.map(i => i * 4).filter(i => i < this.computation.data.length) // convert indices to 4x values because computation has rgba values for each block
+                
                 const occupied = indices4.some(i4 => this.computation.data[i4 + 0] > 0) // check if any value at those indices is occupied
-            
-                // update occumap texture data at the specific level
-                indices4.forEach(i4 => this.occumap.image.data[i4 + c] = occupied)
+                if (occupied) 
+                    indices4.forEach(i4 => this.occumap.image.data[i4 + c] = occupied) // update occumap texture data at the specific level
             }
         }
 
@@ -154,20 +184,58 @@ export default class ComputeOccupancy extends EventEmitter
         return this.computation.instance.getCurrentRenderTarget(this.computation.variable).texture
     }
 
+    // helpers
+
+    setHelpers()
+    {
+        this.helpers = {}
+        this.setComputationHelper()
+        this.setOccupancyBoxHelper()
+        this.helpers.computation.visible = false
+        this.helpers.occubox.visible = false
+    }
+
     setComputationHelper()
     {
-        this.computation.helper = new THREE.Mesh
+        this.helpers.computation = new THREE.Mesh
         (
             new THREE.PlaneGeometry(this.computation.dimensions.width, this.computation.dimensions.height),
             new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthTest: false })
         )
-        this.computation.helper.material.map = this.getComputationTexture()
-        this.computation.helper.scale.divideScalar(this.computation.dimensions.height)
-        this.scene.add(this.computation.helper)
+        this.helpers.computation.material.map = this.getComputationTexture()
+        this.helpers.computation.scale.divideScalar(this.computation.dimensions.height)
+        this.scene.add(this.helpers.computation)
+    }
+
+    setOccupancyBoxHelper()
+    {
+        const center = new THREE.Vector3()
+        const size = new THREE.Vector3()
+        const box = new THREE.Box3()
+
+        this.occubox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.center)
+        this.occubox.getSize(size).multiply(this.viewer.parameters.volume.size)  
+        this.helpers.occubox = new THREE.Box3Helper(box.setFromCenterAndSize(center, size), 0xFFFFFF) 
+        this.viewer.scene.add(this.helpers.occubox)
+    }
+
+    updateHelpers()
+    {
+        this.updateComputationHelper()
+        this.updateOccupancyBoxHelper()
     }
 
     updateComputationHelper()
     {
-        this.computation.helper.material.map = this.getComputationTexture()
+        this.helpers.computation.material.map = this.getComputationTexture()
+    }
+
+    updateOccupancyBoxHelper()
+    {
+        const center = new THREE.Vector3()
+        const size = new THREE.Vector3()
+        this.occubox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.center)
+        this.occubox.getSize(size).multiply(this.viewer.parameters.volume.size)  
+        this.helpers.occubox.box.setFromCenterAndSize(center, size)
     }
 }

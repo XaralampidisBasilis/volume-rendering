@@ -167,7 +167,7 @@ export default class ISOGui
             divisions: occupancy.add(u_occupancy, 'divisions').min(2).max(20).step(1),
             occubox: occupancy.add(this.viewer.occupancy.helpers.occubox, 'visible').name('occubox'),
             computation: occupancy.add(this.viewer.occupancy.helpers.computation, 'visible').name('computation'),
-            occumaps: occupancy.add(this.viewer.occupancy.helpers.occumaps, 'visible').name('occumaps'),
+            // occumaps: occupancy.add(this.viewer.occupancy.helpers.occumaps, 'visible').name('occumaps'),
             levels: occupancy.add(object, 'options').options({ all: 0, level0: 1, level1: 2, level2: 3}).name('levels'),
         }
 
@@ -191,7 +191,10 @@ export default class ISOGui
         .onFinishChange(() => 
         {
             if (this.viewer.occupancy)
+            {
                 this.viewer.occupancy.compute()
+                this.viewer.occupancy.update()
+            }
         })
 
      

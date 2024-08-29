@@ -236,7 +236,10 @@ export default class ISOViewer
 
     compute_Occupancy()
     {
-        this._occupancy = new ComputeOccupancy(this)
+        this.occupancy = new ComputeOccupancy(this)
+
+        this.material.uniforms.u_occupancy.value.box_min = this.occupancy.occubox.min
+        this.material.uniforms.u_occupancy.value.box_max = this.occupancy.occubox.max        
     }
 
     update()
