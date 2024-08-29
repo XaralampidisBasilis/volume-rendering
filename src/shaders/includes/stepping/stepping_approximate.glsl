@@ -7,7 +7,7 @@
  *
  * @return The computed resolution based on the gradient alignment.
  */
-float stepping_approximative
+float stepping_approximate
 (
     in uniforms_volume u_volume, 
     in uniforms_gradient u_gradient,

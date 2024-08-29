@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import EventEmitter from '../../Utils/EventEmitter'
-import computeShader from '../../../shaders/includes/precomputes/occupancy/compute_volume_occupancy_iso.glsl'
+import computeShader from '../../../shaders/includes/gpgpu/occupancy/compute_volume_occupancy_iso.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 import { ind2sub, box2ind } from '../../Utils/CoordUtils'
 

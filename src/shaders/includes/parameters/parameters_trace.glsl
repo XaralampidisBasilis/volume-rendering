@@ -9,6 +9,9 @@ struct parameters_trace
     float value;     // Scalar value at the intersection
     float depth;     // Distance the ray has traveled to the intersection
     float steepness; // The normalized length of the gradient vector
+    vec3 voxel;
+    vec3 texel;
+    vec3 gradient;
 };
 
 parameters_trace trace;

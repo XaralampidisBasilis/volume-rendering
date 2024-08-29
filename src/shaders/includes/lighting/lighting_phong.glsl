@@ -28,7 +28,7 @@ vec3 lighting_phong
     // normalize lighting vectors
     view_vector = normalize(view_vector);
     light_vector = normalize(light_vector);
-    // normal_vector = normalize(normal_vector);
+    normal_vector = normalize(normal_vector);
     // normal_vector = -faceforward(normal_vector, view_vector, normal_vector); // ensure the normal points towards the viewer
 
     // Calculate edge fading 
@@ -49,7 +49,6 @@ vec3 lighting_phong
         specular_component = compute_specular_phong(u_lighting, color, normal_vector, view_vector, light_vector, specular);
 
     // Compose the final color
-
     vec3 directional_component = mix(diffuse_component, specular_component, specular);
     directional_component *= 1.0 - edge_fading;
     directional_component *= attenuation_fading;

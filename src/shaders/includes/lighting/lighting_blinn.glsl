@@ -28,7 +28,7 @@ vec3 lighting_blinn
     // normalize lighting vectors
     view_vector = normalize(view_vector);
     light_vector = normalize(light_vector);
-    // normal_vector = normalize(normal_vector);
+    normal_vector = normalize(normal_vector);
     // normal_vector = -faceforward(normal_vector, view_vector, normal_vector); // ensure the normal points towards the viewer
 
    // Calculate ambient component
@@ -51,6 +51,7 @@ vec3 lighting_blinn
 
     // Compose the final color
     vec3 directional_component = mix(diffuse_component, specular_component, specular);
+    directional_component *= 1.0 - edge_fading;
     directional_component *= attenuation_fading;
 
     vec3 final_color = ambient_component + directional_component;
