@@ -13,6 +13,7 @@ uniform vec3 volume_size;
 uniform vec3 volume_spacing;
 uniform ivec3 volume_dimensions;  
 uniform ivec2 computation_dimensions; 
+uniform int gradient_method;
 
 void main()
 {
@@ -25,7 +26,7 @@ void main()
     // float is_volume = float(pixel_index < volume_count);
 
     // compute gradients, smoothing and assign color data
-    gl_FragColor = compute_gradient(volume_data, volume_spacing, volume_dimensions, voxel_coords, 1);
+    gl_FragColor = compute_gradient(volume_data, volume_spacing, volume_dimensions, voxel_coords, gradient_method);
 
     // include tone mapping and color space correction
     #include <tonemapping_fragment>

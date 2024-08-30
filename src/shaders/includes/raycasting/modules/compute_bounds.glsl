@@ -9,12 +9,16 @@
  */
 vec2 compute_bounds
 (
+    in vec3 volume_size,
     in vec3 box_min, 
     in vec3 box_max, 
     in vec3 ray_origin, 
     in vec3 ray_direction
 )
 {
+    box_min *= volume_size;
+    box_max *= volume_size;
+
     // Intersect the box with the ray and compute the bounds.
     vec2 ray_bounds = intersect_box(box_min, box_max, ray_origin, ray_direction);
 

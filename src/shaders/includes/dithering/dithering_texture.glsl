@@ -7,10 +7,9 @@
  * @param ray: Struct containing ray parameters (origin, direction, bounds, etc.).
  * @return float: Returns the dithered intensity value in the [0, 1] range.
  */
-float dither_texture
+float dithering_texture
 (
         in sampler2D noisemap, 
-        in vec3 volume_size, 
         in vec3 ray_direction,
         in vec2 ray_bounds
 )
@@ -19,10 +18,10 @@ float dither_texture
     vec3 end_position = ray_direction * ray_bounds.y;
 
     // Compute a position value based on the end position transformed by the matrix.
-    vec4 position = v_projection_model_view_matrix * vec4(end_position * volume_size, 1.0);
+    vec4 position = v_projection_model_view_matrix * vec4(end_position, 1.0);
 
     // Perform perspective division to get NDC space.
-    position /= position.w; 
+    position /= position.w;
     
     // Calculate NDC position in the range [0, 1].
     position = (position + 1.0) * 0.5; 

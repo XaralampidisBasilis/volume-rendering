@@ -11,6 +11,7 @@
  */
 void compute_refinement
 (
+    in uniforms_volume u_volume, 
     in uniforms_raycast u_raycast, 
     in uniforms_gradient u_gradient, 
     in uniforms_sampler u_sampler, 
@@ -29,17 +30,19 @@ void compute_refinement
     {
         // Move position forward by substep
         trace.position += substep;  
+        trace.texel = trace.position * u_volume.inv_size;
         
        // Sample the intensity of the volume at the current ray position
-        trace.value = texture(u_sampler.volume, trace.position).r;
+        trace.value = texture(u_sampler.volume, trace.texel).r;
 
         // Extract gradient and value from texture data
-        vec4 gradient_data = texture(u_sampler.gradients, trace.position);
+        vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
         trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-        trace.steepness = length(gradient_data.a);
+        trace.steepness = gradient_data.a * u_gradient.length_range + u_gradient.min_length;
+        trace.gradient = trace.normal * trace.steepness;
 
         // If the sampled value exceeds the threshold, return early
-        if (trace.value > u_raycast.threshold && trace.steepness > u_gradient.threshold) 
+        if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
         {
             return;   
         }

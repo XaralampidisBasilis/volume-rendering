@@ -9,14 +9,15 @@
  */
 float stepping_steepness
 (
-    in float spacing_min,
-    in float spacing_max,
-    in float trace_steepness
+    in uniforms_raycast u_raycast,
+    in parameters_ray ray,
+    in parameters_trace trace
 )
 {
     // Interpolate the resolution based on the alignment.
     // when alignment is high, use higher resolution, when low, use lower resolution.
-    float spacing = mix(spacing_max, spacing_min, trace_steepness);
+    float gradial_steepness = trace.gradial_data.a;
+    float stepping = mix(u_raycast.stepping_max, u_raycast.stepping_min, gradial_steepness);
 
-    return spacing;
+    return stepping;
 }

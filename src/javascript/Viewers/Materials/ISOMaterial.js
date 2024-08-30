@@ -22,29 +22,31 @@ export default function(viewer)
             dimensions:      new THREE.Vector3(),
             size:            new THREE.Vector3(),
             spacing:         new THREE.Vector3(),
+            inv_dimensions:  new THREE.Vector3(),
+            inv_size:        new THREE.Vector3(),   
+            inv_spacing:     new THREE.Vector3(),
         }),
 
         u_raycast: new THREE.Uniform
         ({
-            threshold:       0,   
-            refinements:     0,   
-            spacing_min:     1,
-            spacing_max:     1,
-            step_method:     1,
-            dither_method:   2,
-            dithering:       true, 
-            skipping:        false,
+            threshold:        0.2,   
+            refinements:      0,   
+            stepping_min:     1,
+            stepping_max:     1,
+            spacing_method:   1,
+            stepping_method:  1,
+            dithering_method: 1,
+            has_dithering:    true, 
+            has_skipping:     false,
         }),
 
         u_gradient: new THREE.Uniform
         ({
             threshold:       0,
-            resolution:      1,
             min_length:      0,
             max_length:      0,
             length_range:    0,
             method:          3,        
-            max_sampling:    false,
         }),
             
         u_colormap: new THREE.Uniform

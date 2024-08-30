@@ -13,18 +13,18 @@
  */
 float compute_spacing
 (
-    in uniforms_raycast u_raycast, 
-    in vec3 volume_dimensions, 
-    in float ray_span
+    int spacing_method, 
+    in uniforms_volume u_volume, 
+    inout parameters_ray ray
 ) 
 {
-    switch(u_raycast.step_method)
+    switch(spacing_method)
     {
         case 1: 
-            return spacing_isotropic(volume_dimensions);
+            return spacing_isotropic(u_volume.spacing);
         case 2: 
-            return spacing_directional(volume_dimensions);
+            return spacing_directional(u_volume.spacing, ray.direction);
         case 3: 
-            return spacing_traversal(volume_dimensions, ray_span);
+            return spacing_traversal(u_volume.spacing, u_volume.dimensions, ray.span);
     }
 }

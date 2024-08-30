@@ -19,32 +19,32 @@ bool raymarch_full
 ) 
 { 
     // Raymarch loop to traverse through the volume
-    for (int i_step = 0; i_step < ray.num_steps && trace.depth < ray.bounds.y; i_step++) 
+    for (trace.i_step = 0; trace.i_step < ray.max_steps && trace.depth < ray.bounds.y; trace.i_step++) 
     {
         // Sample the intensity of the volume at the current ray position
-        trace.value = texture(u_sampler.volume, trace.position).r;
+        trace.texel = trace.position * u_volume.inv_size;
+        trace.value = texture(u_sampler.volume, trace.texel).r;
 
         // Extract gradient and value from texture data
-        vec4 gradient_data = texture(u_sampler.gradients, trace.position);
-        trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-        trace.steepness = gradient_data.a;
-        // trace.steepness = gradient_data.a * u_gradient.length_range + u_gradient.min_length;
-        // trace.gradient = trace.normal * trace.steepness;
+        trace.gradial_data = texture(u_sampler.gradients, trace.texel);
+        trace.normal = normalize(1.0 - 2.0 * trace.gradial_data.rgb);
+        trace.steepness = trace.gradial_data.a * u_gradient.length_range + u_gradient.min_length;
+        trace.gradient = - trace.normal * trace.steepness;
 
         // Check if the sampled intensity exceeds the threshold
-        if (trace.value > u_raycast.threshold && trace.steepness > u_gradient.threshold) 
+        if (trace.value > u_raycast.threshold && trace.gradial_data.a > u_gradient.threshold) 
         {
             // Compute refinement
-            compute_refinement(u_raycast, u_gradient, u_sampler, ray, trace);
+            compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
             return true;
         }
 
         // Compute adaptive resolution based on gradient
-        float stepping_factor = adaptive_spacing(u_volume, u_raycast.spacing_min, u_raycast.spacing_max, ray.direction, trace.normal, trace.steepness);
+        float stepping = compute_stepping(u_raycast, ray, trace);
 
         // Update ray position for the next step
-        trace.position += ray.step * stepping_factor;
-        trace.depth += ray.spacing * stepping_factor;
+        trace.position += ray.step * stepping;
+        trace.depth += ray.spacing * stepping;
     }   
 
     return false;

@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import computeShader from '../../../shaders/includes/gpgpu/gradients/compute_volume_gradients.glsl'
+import computeShader from '../../../shaders/includes/gpgpu/gradients/compute_gradients.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
@@ -58,7 +58,8 @@ export default class ComputeGradients
             volume_sizes:           new THREE.Uniform(this.parameters.volume.size),
             volume_spacing:         new THREE.Uniform(this.parameters.volume.spacing),
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
-            computation_dimensions: new THREE.Uniform(this.computation.dimensions),        
+            computation_dimensions: new THREE.Uniform(this.computation.dimensions),     
+            gradient_method:        new THREE.Uniform(this.viewer.material.uniforms.u_gradient.value.method)   
         }
     }
     

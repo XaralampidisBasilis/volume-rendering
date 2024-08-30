@@ -91,13 +91,14 @@ export default class ISOGui
         this.controllers.raycast = 
         {
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
-            spacingMin: raycast.add(u_raycast, 'spacing_min').min(0.01).max(3).step(0.001),
-            spacingMax: raycast.add(u_raycast, 'spacing_max').min(0.01).max(3).step(0.001),
+            steppingMin: raycast.add(u_raycast, 'stepping_min').min(0.01).max(3).step(0.001),
+            steppingMax: raycast.add(u_raycast, 'stepping_max').min(0.01).max(3).step(0.001),
             refinements: raycast.add(u_raycast, 'refinements').min(0).max(5).step(1),
-            step_method: raycast.add(u_raycast, 'step_method').options({ isotropic: 1, directional: 2, traversal: 3 }),
-            dither_method: raycast.add(u_raycast, 'dither_method').options({ generative: 1, texture: 2, }),
-            dithering: raycast.add(u_raycast, 'dithering'),
-            skipping: raycast.add(u_raycast, 'skipping')
+            spacingMethod: raycast.add(u_raycast, 'spacing_method').options({ isotropic: 1, directional: 2, traversal: 3 }),
+            steppingMethod: raycast.add(u_raycast, 'stepping_method').options({ approximation: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5 }),
+            ditheringMethod: raycast.add(u_raycast, 'dithering_method').options({ generative: 1, texture: 2, }),
+            hasDithering: raycast.add(u_raycast, 'has_dithering'),
+            hasSkipping: raycast.add(u_raycast, 'has_skipping')
         }
 
     }
@@ -110,9 +111,7 @@ export default class ISOGui
         this.controllers.gradient = 
         {
             threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
-            resolution: gradient.add(u_gradient, 'resolution').min(0).max(1).step(0.001),
-            method: gradient.add(u_gradient, 'method').options({ sobel: 1, central: 2, tetrahedron: 3}),
-            max_sampling: gradient.add(u_gradient, 'max_sampling')
+            method: gradient.add(u_gradient, 'method').options({ sobel8: 1, sobel27: 2, scharr27: 3, prewitt27: 4, central6: 5, tetrahedron4: 6 }),
         }
 
     }
@@ -194,8 +193,22 @@ export default class ISOGui
             {
                 this.viewer.occupancy.compute()
                 this.viewer.occupancy.update()
+                this.viewer.material.uniforms.u_sampler.value.occumap = this.viewer.occupancy.occumap
+                this.viewer.material.uniforms.u_occupancy.value.occumap_dimensions.copy(this.viewer.occupancy.parameters.occumapDimensions)
+                this.viewer.material.uniforms.u_occupancy.value.block_dimensions.copy(this.viewer.occupancy.parameters.blockDimensions)
+                this.viewer.material.uniforms.u_occupancy.value.box_min.copy(this.viewer.occupancy.occubox.min)
+                this.viewer.material.uniforms.u_occupancy.value.box_max.copy(this.viewer.occupancy.occubox.max)            
             }
         })
+
+        // gradient method controller
+        this.controllers.gradient.method
+        .onFinishChange(() => 
+        {
+            this.viewer.computeGradients()
+        })
+
+
 
      
         // flip colormap colors
@@ -211,10 +224,10 @@ export default class ISOGui
         this.controllers.colormap.high.onChange(() => this.capColormapHigh())
 
         // cap raycast spacing min based on spacing max
-        this.controllers.raycast.spacingMin.onChange(() => this.capRaycastSpacingMin())
+        this.controllers.raycast.steppingMin.onChange(() => this.capRaycastSpacingMin())
 
         // cap raycast spacing max based on spacing min
-        this.controllers.raycast.spacingMax.onChange(() => this.capRaycastSpacingMax())
+        this.controllers.raycast.steppingMax.onChange(() => this.capRaycastSpacingMax())
     
         // adjust lighting power based on lighting attenuations being on or off
         // this.controllers.lighting.attenuation.onChange(() => this.adjustLightingPower())
@@ -230,24 +243,24 @@ export default class ISOGui
 
     capRaycastSpacingMin()
     {
-        this.controllers.raycast.spacingMin.setValue
+        this.controllers.raycast.steppingMin.setValue
         (
             Math.min
             (
-                this.controllers.raycast.spacingMin.getValue(),
-                this.controllers.raycast.spacingMax.getValue()
+                this.controllers.raycast.steppingMin.getValue(),
+                this.controllers.raycast.steppingMax.getValue()
             )
         ).updateDisplay()
     }
 
     capRaycastSpacingMax()
     {
-        this.controllers.raycast.spacingMax.setValue
+        this.controllers.raycast.steppingMax.setValue
         (
             Math.max
             (
-                this.controllers.raycast.spacingMin.getValue(),
-                this.controllers.raycast.spacingMax.getValue()
+                this.controllers.raycast.steppingMin.getValue(),
+                this.controllers.raycast.steppingMax.getValue()
             )
         ).updateDisplay()
     }

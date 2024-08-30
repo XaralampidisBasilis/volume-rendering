@@ -1,6 +1,8 @@
-#include ./spacing_isotropic;
-#include ./spacing_directional;
-#include ./spacing_traversal;
+#include "./stepping_approximation"
+#include "./stepping_gradial"
+#include "./stepping_alignment"
+#include "./stepping_steepness"
+#include "./stepping_uniform"
 
 /**
  * Calculates the march (spacing vector) for raycasting with 4 different methods
@@ -13,18 +15,22 @@
  */
 float compute_stepping
 (
-    in uniforms_raycast u_raycast, 
-    in vec3 volume_dimensions, 
-    in float ray_span
+    in uniforms_raycast u_raycast,
+    in parameters_ray ray,
+    in parameters_trace trace
 ) 
 {
-    switch(u_raycast.step_method)
+    switch(u_raycast.stepping_method)
     {
         case 1: 
-            return spacing_isotropic(volume_dimensions);
+            return stepping_approximation(u_raycast, ray, trace);
         case 2: 
-            return spacing_directional(volume_dimensions);
+            return stepping_gradial(u_raycast, ray, trace);
         case 3: 
-            return spacing_traversal(volume_dimensions, ray_span);
+            return stepping_alignment(u_raycast, ray, trace);
+        case 4: 
+            return stepping_steepness(u_raycast, ray, trace);
+        case 5: 
+            return stepping_uniform(u_raycast, ray, trace);
     }
 }

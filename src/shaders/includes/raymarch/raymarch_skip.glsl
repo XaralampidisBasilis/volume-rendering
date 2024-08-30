@@ -24,46 +24,47 @@ bool raymarch_skip
 ) 
 { 
     int skip_steps = 0;
-    for (int i_step = 0; i_step < ray.num_steps && trace.depth < ray.bounds.y; i_step++) 
+    for (trace.i_step = 0; trace.i_step < ray.max_steps && trace.depth < ray.bounds.y; trace.i_step++) 
     {
         // traverse space if block is occupied
         bool occupied = check_occupancy(u_sampler.occumap, u_occupancy, u_volume, ray, trace, skip_steps);
-
         if (occupied) 
         {
             // Raymarch loop to traverse through the volume
             for (int n = 0; n < skip_steps && trace.depth < ray.bounds.y; n++) 
             {
                 // Sample the intensity of the volume at the current ray position
-                trace.value = texture(u_sampler.volume, trace.position).r;
+                trace.texel = trace.position * u_volume.inv_size;
+                trace.value = texture(u_sampler.volume, trace.texel).r;
 
                 // Extract gradient and value from texture data
-                vec4 gradient_data = texture(u_sampler.gradients, trace.position);
+                vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
                 trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-                trace.steepness = gradient_data.a;
+                trace.steepness = gradient_data.a * u_gradient.length_range + u_gradient.min_length;
+                trace.gradient = trace.normal * trace.steepness;
 
                 // Check if the sampled intensity exceeds the threshold
-                if (trace.value > u_raycast.threshold && trace.steepness > u_gradient.threshold) 
+                if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
                 {
                     // Compute refinement
-                    compute_refinement(u_raycast, u_gradient, u_sampler, ray, trace);
+                    compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
                     return true;
                 }
 
                 // Update ray trace
-                i_step += 1;
+                trace.i_step += 1;
                 trace.position += ray.step;
                 trace.depth += ray.spacing;
             }   
             
-            i_step += 1;
+            trace.i_step += 1;
             trace.position += ray.step;
             trace.depth += ray.spacing;        
         }
         else 
         {
             // skip space
-            i_step += skip_steps;
+            trace.i_step += skip_steps;
             trace.position += ray.step * float(skip_steps);
             trace.depth += ray.spacing * float(skip_steps);
         }

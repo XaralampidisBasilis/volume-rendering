@@ -1,5 +1,5 @@
 #include "./modules/compute_bounds"
-#include "../dither/compute_dither"
+#include "../dithering/compute_dithering"
 #include "../spacing/compute_spacing"
 #include "../raymarch/compute_raymarch"
 
@@ -14,7 +14,7 @@
  * @param ray: Struct containing ray parameters (origin, direction, bounds, etc.).
  * @return bool: Returns true if an intersection is found above the threshold, false otherwise.
  */
-bool compute_raycast
+bool compute_raycasting
 (
     in uniforms_gradient u_gradient, 
     in uniforms_raycast u_raycast, 
@@ -25,25 +25,28 @@ bool compute_raycast
     inout parameters_trace trace
 ) {    
     // Compute the intersection bounds of a ray with the occupancy axis-aligned bounding box.
-    ray.bounds = compute_bounds(u_occupancy.box_min, u_occupancy.box_max, ray.origin, ray.direction); 
+    ray.bounds = compute_bounds(u_volume.size, u_occupancy.box_min, u_occupancy.box_max, ray.origin, ray.direction); 
     ray.span = ray.bounds.y - ray.bounds.x;
+    // gl_FragColor = vec4(vec3(ray.bounds.x / ray.bounds.y), 1.0); return true;
+    // gl_FragColor = vec4(vec3(ray.span / length(u_volume.size)), 1.0); return true;
 
     // Compute the ray step vector based on the raycast and volume parameters.
-    ray.spacing = compute_spacing(u_raycast, u_volume.dimensions, ray.span); 
+    ray.spacing = compute_spacing(u_raycast.spacing_method, u_volume, ray); 
+    ray.max_steps = int(ray.span / (ray.spacing * u_raycast.stepping_min));
     ray.step = ray.direction * ray.spacing;
+    // gl_FragColor = vec4(vec3(ray.spacing / length(u_volume.spacing)), 1.0); return true;
+    // gl_FragColor = vec4(vec3(ray.direction * 0.5 + 0.5), 1.0); return true;
 
     // Apply dithering to the initial distance to avoid artifacts.
-    ray.dither = compute_dither(u_raycast, u_sampler.noisemap, u_volume.size, ray.direction, ray.bounds); 
-    ray.dither *= ray.spacing;
-    ray.dither *= u_raycast.dithering;
-
-    // Compute the max number of steps in the worst case
-    ray.span += ray.dither;
-    ray.num_steps = int(ray.span / ray.spacing / u_raycast.spacing_min);
+    ray.dithering = compute_dithering(u_raycast.dithering_method, u_sampler.noisemap, ray); 
+    ray.dithering *= ray.spacing * u_raycast.has_dithering;
+    // gl_FragColor = vec4(vec3(ray.dithering / ray.spacing), 1.0); return true;
 
     // Initialize trace starting position along the ray.
-    trace.depth = ray.bounds.x + ray.dither;
+    ray.span += ray.dithering;
+    trace.depth = ray.bounds.x - ray.dithering;
     trace.position = ray.origin + ray.direction * trace.depth;
+    // gl_FragColor = vec4(vec3(trace.position / u_volume.size), 1.0); return true;
     
     // Raycasting loop to traverse through the volume and find intersections.
     return compute_raymarch(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace);

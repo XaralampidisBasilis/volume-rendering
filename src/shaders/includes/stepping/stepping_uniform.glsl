@@ -7,22 +7,17 @@
  *
  * @return The computed resolution based on the gradient alignment.
  */
-float adaptive_spacing
+float stepping_uniform
 (
-    in float stepping_min,
-    in float stepping_max,
-    in vec3 ray_direction,
-    in vec3 trace_normal,
-    in float trace_steepness
+    in uniforms_raycast u_raycast,
+    in parameters_ray ray,
+    in parameters_trace trace
 )
 {
-    // Compute the alignment between the gradient and the ray direction.
-    // This represents how much the ray is moving in the direction of the gradient.
-    float alignment = max(dot(-trace_normal, ray_direction), 0.0) * trace_steepness;
-
     // Interpolate the resolution based on the alignment.
     // when alignment is high, use higher resolution, when low, use lower resolution.
-    float stepping = mix(stepping_max, stepping_min, alignment);
+    // float stepping = mix(u_raycast.stepping_max, u_raycast.stepping_min, 0.5);
+    float stepping = u_raycast.stepping_min;
 
     return stepping;
 }

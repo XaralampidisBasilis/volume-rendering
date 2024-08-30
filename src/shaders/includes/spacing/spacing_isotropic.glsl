@@ -6,11 +6,9 @@
  * @param ray: Struct containing ray parameters (origin, direction, bounds, etc.).
  * @return vec3 The stride vector for stepping through the volume along the ray.
  */
-float spacing_isotropic(in vec3 volume_dimensions)
+float spacing_isotropic(in vec3 volume_spacing)
 {
-    vec3 voxel_spacing = 1.0 / volume_dimensions;
-    float ray_spacing = min(voxel_spacing.x, min(voxel_spacing.y, voxel_spacing.z));
+    float ray_spacing = min(volume_spacing.x, min(volume_spacing.y, volume_spacing.z));
 
-    // Return the stride vector by scaling the ray's direction vector by the step distance
     return ray_spacing;
 }

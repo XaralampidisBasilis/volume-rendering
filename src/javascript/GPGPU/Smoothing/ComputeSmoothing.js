@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import computeShader from '../../../shaders/includes/gpgpu/smoothing/compute_volume_smoothing.glsl'
+import computeShader from '../../../shaders/includes/gpgpu/smoothing/compute_smoothing.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture

@@ -1,3 +1,4 @@
+#include "../stepping/compute_stepping"
 #include "./modules/adaptive_spacing"
 #include "./modules/compute_refinement"
 #include "./raymarch_full"
@@ -28,7 +29,7 @@ bool compute_raymarch
     inout parameters_trace trace
 ) 
 {
-    switch(u_raycast.skipping)  
+    switch(u_raycast.has_skipping)  
     {
         case 0:
             return raymarch_full(u_gradient, u_raycast, u_volume, u_sampler, ray, trace);

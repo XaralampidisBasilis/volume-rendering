@@ -51,6 +51,9 @@ export default class ISOViewer
                 size:       new THREE.Vector3().fromArray(this.resource.volume.size),
                 dimensions: new THREE.Vector3().fromArray(this.resource.volume.dimensions),
                 spacing:    new THREE.Vector3().fromArray(this.resource.volume.spacing),
+                invSize:       new THREE.Vector3().fromArray(this.resource.volume.size.map((x) => 1 / x)),
+                invDimensions: new THREE.Vector3().fromArray(this.resource.volume.dimensions.map((x) => 1 / x)),
+                invSpacing:    new THREE.Vector3().fromArray(this.resource.volume.spacing.map((x) => 1 / x)),
                 count:      this.resource.volume.dimensions.reduce((product, value) => product * value, 1),
             },
 
@@ -181,6 +184,9 @@ export default class ISOViewer
         this.material.uniforms.u_volume.value.dimensions.copy(this.parameters.volume.dimensions)
         this.material.uniforms.u_volume.value.size.copy(this.parameters.volume.size)
         this.material.uniforms.u_volume.value.spacing.copy(this.parameters.volume.spacing)
+        this.material.uniforms.u_volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
+        this.material.uniforms.u_volume.value.inv_size.copy(this.parameters.volume.invSize)
+        this.material.uniforms.u_volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
         this.material.uniforms.u_sampler.value.volume = this.textures.volume
         this.material.uniforms.u_sampler.value.gradients = this.textures.gradients
         this.material.uniforms.u_sampler.value.mask = this.textures.mask
