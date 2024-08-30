@@ -8,11 +8,10 @@
  * @param trace: Struct to hold the information about the intersection (position, normal, value, gradient, etc.).
  * @return bool: Returns true if an intersection is found above the threshold, false otherwise.
  */
-bool raymarch_full
+bool raymarch_block
 (
     in uniforms_gradient u_gradient, 
     in uniforms_raycast u_raycast, 
-    in uniforms_volume u_volume, 
     in uniforms_sampler u_sampler,
     inout parameters_ray ray,
     inout parameters_trace trace,
@@ -39,12 +38,9 @@ bool raymarch_full
             return true;
         }
 
-        // Compute adaptive resolution based on gradient
-        float spacing_factor = adaptive_spacing(u_volume, u_raycast.spacing_min, u_raycast.spacing_max, ray.direction, trace.normal, trace.steepness);
-
         // Update ray position for the next step
-        trace.position += ray.step * spacing_factor;
-        trace.depth += ray.spacing * spacing_factor;
+        trace.position += ray.step;
+        trace.depth += ray.spacing;
     }   
 
     return false;

@@ -10,9 +10,7 @@
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
 
-#include ./modules/check_intersection.glsl;
-#include ./modules/check_occupancy_block.glsl;
-#include ./modules/check_occupancy_linear.glsl;
+#include ./modules/check_occupancy.glsl;
 
 bool raymarch_skip
 (
@@ -29,18 +27,45 @@ bool raymarch_skip
     for (int i_step = 0; i_step < ray.num_steps && trace.depth < ray.bounds.y; i_step++) 
     {
         // traverse space if block is occupied
-        bool occupied = check_occupancy(u_occupancy, u_volume, u_sampler, ray.position, ray.step, skip_steps);
+        bool occupied = check_occupancy(u_sampler.occumap, u_occupancy, u_volume, ray, trace, skip_steps);
 
         if (occupied) 
-        {            
-           
+        {
+            // Raymarch loop to traverse through the volume
+            for (int n = 0; n < skip_steps && trace.depth < ray.bounds.y; n++) 
+            {
+                // Sample the intensity of the volume at the current ray position
+                trace.value = texture(u_sampler.volume, trace.position).r;
+
+                // Extract gradient and value from texture data
+                vec4 gradient_data = texture(u_sampler.gradients, trace.position);
+                trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
+                trace.steepness = gradient_data.a;
+
+                // Check if the sampled intensity exceeds the threshold
+                if (trace.value > u_raycast.threshold && trace.steepness > u_gradient.threshold) 
+                {
+                    // Compute refinement
+                    compute_refinement(u_raycast, u_gradient, u_sampler, ray, trace);
+                    return true;
+                }
+
+                // Update ray trace
+                i_step += 1;
+                trace.position += ray.step;
+                trace.depth += ray.spacing;
+            }   
+            
+            i_step += 1;
+            trace.position += ray.step;
+            trace.depth += ray.spacing;        
         }
         else 
         {
             // skip space
             i_step += skip_steps;
-            ray.position += ray.step * float(skip_steps);
-            trace.depth += ray.spacing * spacing_factor;
+            trace.position += ray.step * float(skip_steps);
+            trace.depth += ray.spacing * float(skip_steps);
         }
     }   
 

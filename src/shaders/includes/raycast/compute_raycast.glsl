@@ -42,7 +42,7 @@ bool compute_raycast
     ray.num_steps = int(ray.span / ray.spacing / u_raycast.spacing_min);
 
     // Initialize trace starting position along the ray.
-    trace.depth = ray.bounds.x - ray.dither;
+    trace.depth = ray.bounds.x + ray.dither;
     trace.position = ray.origin + ray.direction * trace.depth;
     
     // Raycasting loop to traverse through the volume and find intersections.

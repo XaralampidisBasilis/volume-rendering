@@ -146,9 +146,8 @@ export default class ComputeOccupancy extends EventEmitter
             this.occubox.max.max(blockVoxelMax)
         }
         
-        this.occubox.max.addScalar(1)
-        this.occubox.max.divide(this.parameters.volumeDimensions)
-        this.occubox.min.divide(this.parameters.volumeDimensions)
+        this.occubox.max.addScalar(1).divide(this.parameters.volumeDimensions)
+        this.occubox.min.subScalar(0).divide(this.parameters.volumeDimensions)
     }
 
     updateOccupancyMap()

@@ -39,7 +39,7 @@ void main()
     // set occumap_dimensions bounding box
     ivec3 bblock_min_voxel_coords = volume_dimensions - 1; // if i remove -1 then bblock min is not computed correcly somehow
     ivec3 bblock_max_voxel_coords = ivec3(0);
-    bool occupancy = false;
+    int occupancy = 0;
     
     // Scan the volume block to find voxels with value above threshold
     for (int z = block_min_voxel_coords.z; z <= block_max_voxel_coords.z; z++) 
@@ -57,7 +57,7 @@ void main()
                     // update bounding box
                     bblock_min_voxel_coords = min(bblock_min_voxel_coords, voxel_coords);
                     bblock_max_voxel_coords = max(bblock_max_voxel_coords, voxel_coords);
-                    occupancy = occupancy || true;
+                    occupancy++;
                 }
             }
         }
