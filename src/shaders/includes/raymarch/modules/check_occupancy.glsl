@@ -9,12 +9,12 @@ bool check_occupancy
     out int skip_steps
 ) 
 {
-    vec3 voxel_coords = floor(trace.position * u_volume.inv_spacing);
+    vec3 voxel_coords = trace.position * u_volume.inv_spacing;
     vec3 block_coords = floor(voxel_coords / u_occupancy.block_dimensions);
     vec3 block_texel = (block_coords + 0.5) / u_occupancy.occumap_dimensions;
     
     // Sample the occupancy map to get occupancy data
-    vec4 multi_ocupancy = texture(occumap, block_texel);
+    vec4 multi_ocupancy = step(0.5, texture(occumap, block_texel));
     float occupancy_resolution = 3.0 - multi_ocupancy.g - multi_ocupancy.b - multi_ocupancy.a;
     float block_scaling = exp2(occupancy_resolution); 
 
@@ -32,7 +32,5 @@ bool check_occupancy
     skip_steps = max(int(ceil(distance)), 1); 
 
     // check if block is occupied
-    bool occupied = bool(multi_ocupancy.r); 
-
-    return occupied;
+    return multi_ocupancy.r > 0.5;
 }

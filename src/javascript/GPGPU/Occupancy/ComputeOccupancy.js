@@ -29,7 +29,9 @@ export default class ComputeOccupancy extends EventEmitter
         this.setComputation()
 
         if (this.viewer.debug.active)
+        {
             this.setHelpers()
+        }
     }
 
     setParameters()
@@ -118,7 +120,9 @@ export default class ComputeOccupancy extends EventEmitter
         this.updateOccupancyMap()
 
         if (this.viewer.debug.active)
-            this.updateHelpers()
+        {
+            // this.updateHelpers()
+        }
     }
     
     readComputation()
@@ -176,8 +180,6 @@ export default class ComputeOccupancy extends EventEmitter
         }
 
         this.occumap.needsUpdate = true
-
-        console.log(this.occumap.image.data)
     }
 
     getComputationTexture()
@@ -195,7 +197,7 @@ export default class ComputeOccupancy extends EventEmitter
         this.setOccumapHelper()
         this.helpers.computation.visible = false
         this.helpers.occubox.visible = false
-        this.helpers.occumap.visible = true
+        this.helpers.occumap.visible = false
     }
 
     setComputationHelper()

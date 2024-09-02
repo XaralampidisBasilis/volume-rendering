@@ -24,7 +24,7 @@ bool raymarch_skip
 ) 
 { 
     int skip_steps = 0;
-    for (trace.i_step = 0; trace.i_step < ray.max_steps && trace.depth < ray.bounds.y; /*trace.i_step++*/) 
+    for (trace.i_step = 0; trace.depth < ray.bounds.y; ) 
     {
         // traverse space if block is occupied
         bool occupied = check_occupancy(u_sampler.occumap, u_occupancy, u_volume, ray, trace, skip_steps);
@@ -42,7 +42,7 @@ bool raymarch_skip
                 trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
                 trace.steepness = gradient_data.a * u_gradient.length_range + u_gradient.min_length;
                 trace.gradient = trace.normal * trace.steepness;
-                
+                                
                 // Check if the sampled intensity exceeds the threshold
                 if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
                 {
