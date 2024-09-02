@@ -34,7 +34,7 @@ export default function(viewer)
             stepping_min:     1,
             stepping_max:     1,
             spacing_method:   1,
-            stepping_method:  1,
+            stepping_method:  5,
             dithering_method: 1,
             has_dithering:    true, 
             has_skipping:     false,

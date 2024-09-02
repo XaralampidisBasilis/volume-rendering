@@ -24,7 +24,7 @@ bool raymarch_skip
 ) 
 { 
     int skip_steps = 0;
-    for (trace.i_step = 0; trace.i_step < ray.max_steps && trace.depth < ray.bounds.y; trace.i_step++) 
+    for (trace.i_step = 0; trace.i_step < ray.max_steps && trace.depth < ray.bounds.y; /*trace.i_step++*/) 
     {
         // traverse space if block is occupied
         bool occupied = check_occupancy(u_sampler.occumap, u_occupancy, u_volume, ray, trace, skip_steps);
@@ -33,7 +33,7 @@ bool raymarch_skip
             // Raymarch loop to traverse through the volume
             for (int n = 0; n < skip_steps && trace.depth < ray.bounds.y; n++) 
             {
-                // Sample the intensity of the volume at the current ray position
+                // Calculate texel position once and reuse
                 trace.texel = trace.position * u_volume.inv_size;
                 trace.value = texture(u_sampler.volume, trace.texel).r;
 
@@ -47,7 +47,7 @@ bool raymarch_skip
                 if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
                 {
                     // Compute refinement
-                    compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
+                    // compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
                     return true;
                 }
 
@@ -57,6 +57,7 @@ bool raymarch_skip
                 trace.depth += ray.spacing;
             }   
             
+            // Update position after the inner loop
             trace.i_step += 1;
             trace.position += ray.step;
             trace.depth += ray.spacing;        

@@ -9,14 +9,14 @@ bool check_occupancy
     out int skip_steps
 ) 
 {
-    vec3 voxel_coords = floor(trace.position * u_volume.dimensions);
+    vec3 voxel_coords = floor(trace.position * u_volume.inv_spacing);
     vec3 block_coords = floor(voxel_coords / u_occupancy.block_dimensions);
     vec3 block_texel = (block_coords + 0.5) / u_occupancy.occumap_dimensions;
     
     // Sample the occupancy map to get occupancy data
     vec4 multi_ocupancy = texture(occumap, block_texel);
-    float block_resolution = 3.0 - (multi_ocupancy.g + multi_ocupancy.b + multi_ocupancy.a);
-    float block_scaling = exp2(block_resolution); 
+    float occupancy_resolution = 3.0 - multi_ocupancy.g - multi_ocupancy.b - multi_ocupancy.a;
+    float block_scaling = exp2(occupancy_resolution); 
 
     // compute block0 min and max voxel coordinates
     vec3 bblock_dimensions = u_occupancy.block_dimensions * block_scaling;
@@ -24,9 +24,8 @@ bool check_occupancy
     vec3 bblock_max_voxel_pos = bblock_min_voxel_pos + bblock_dimensions; // if we had coords we would need to subtract one
 
     // normalize block voxel positions
-    vec3 inv_vol_dim = 1.0 / u_volume.dimensions;
-    bblock_min_voxel_pos *= inv_vol_dim;
-    bblock_max_voxel_pos *= inv_vol_dim;
+    bblock_min_voxel_pos *= u_volume.spacing;
+    bblock_max_voxel_pos *= u_volume.spacing;
     
     // intersect ray with block
     float distance = intersect_box_max(bblock_min_voxel_pos, bblock_max_voxel_pos, trace.position, ray.step); 

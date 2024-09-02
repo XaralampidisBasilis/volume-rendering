@@ -51,8 +51,11 @@ vec4 gradient_tetrahedron4
         samples[1] + samples[2] - samples[0] - samples[3]
     );
 
+    // Get sobel kernel values from trilinear sampling
+    gradient *= 8.0;
+
     // Normalize the kernel values
-    gradient *= 8.0 / 16.0;
+    gradient /= 16.0;
   
     // Adjust gradient to physical space 
     gradient /= 2.0 * volume_spacing;

@@ -91,8 +91,8 @@ export default class ISOGui
         this.controllers.raycast = 
         {
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
-            steppingMin: raycast.add(u_raycast, 'stepping_min').min(0.01).max(3).step(0.001),
-            steppingMax: raycast.add(u_raycast, 'stepping_max').min(0.01).max(3).step(0.001),
+            steppingMin: raycast.add(u_raycast, 'stepping_min').min(0.1).max(3).step(0.001),
+            steppingMax: raycast.add(u_raycast, 'stepping_max').min(0.1).max(3).step(0.001),
             refinements: raycast.add(u_raycast, 'refinements').min(0).max(5).step(1),
             spacingMethod: raycast.add(u_raycast, 'spacing_method').options({ isotropic: 1, directional: 2, traversal: 3 }),
             steppingMethod: raycast.add(u_raycast, 'stepping_method').options({ approximation: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5 }),

@@ -15,24 +15,27 @@ void compute_refinement
     in uniforms_raycast u_raycast, 
     in uniforms_gradient u_gradient, 
     in uniforms_sampler u_sampler, 
-    inout parameters_ray ray,
+    in parameters_ray ray,
     inout parameters_trace trace
 )
 {
     // Step back to refine the hit point
-    trace.position -= ray.step;    
+    trace.position -= ray.direction * trace.spacing;
+    trace.depth -= trace.spacing;
 
     // Calculate the refined substep based on the number of refinements
-    vec3 substep = ray.step / float(u_raycast.refinements + 1);  
-   
+    float subspacing = trace.spacing / float(u_raycast.refinements + 1);  
+      
     // Perform additional sampling steps to refine the hit point
-    for (int i_step = 0; i_step <= u_raycast.refinements; i_step++) 
+    for (int i = 0; i <= u_raycast.refinements; i++) 
     {
         // Move position forward by substep
-        trace.position += substep;  
-        trace.texel = trace.position * u_volume.inv_size;
+        trace.position += ray.direction * subspacing;  
+        trace.depth += subspacing;
+        trace.i_step++;
         
        // Sample the intensity of the volume at the current ray position
+        trace.texel = trace.position * u_volume.inv_size;
         trace.value = texture(u_sampler.volume, trace.texel).r;
 
         // Extract gradient and value from texture data
@@ -42,7 +45,7 @@ void compute_refinement
         trace.gradient = trace.normal * trace.steepness;
 
         // If the sampled value exceeds the threshold, return early
-        if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
+        if (trace.value > u_raycast.threshold) 
         {
             return;   
         }

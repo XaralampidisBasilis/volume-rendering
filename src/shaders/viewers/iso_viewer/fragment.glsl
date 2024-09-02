@@ -4,9 +4,9 @@
 */
 
 // precision
-precision highp sampler3D;
-precision highp sampler2D;
-precision highp float;
+precision lowp sampler3D;
+precision lowp sampler2D;
+precision lowp float;
 
 // varying
 varying vec3 v_camera;
@@ -76,9 +76,10 @@ void main()
         // gl_FragColor = vec4(vec3(trace.i_step) / vec3(1000.0), 1.0);
         // gl_FragColor = vec4(vec3(trace.value), 1.0);
         // gl_FragColor = vec4(trace.normal * 0.5 + 0.5, 1.0);
+        // gl_FragColor = vec4(vec3(u_gradient.length_range / 1000.0), 1.0);
+        // gl_FragColor = vec4(vec3(trace.steepness / u_gradient.max_length), 1.0);
         // gl_FragColor = vec4((trace.gradient / u_gradient.max_length) * 0.5 + 0.5, 1.0);
         // gl_FragColor = vec4(abs(trace.gradient / u_gradient.max_length), 1.0);
-        // gl_FragColor = vec4(vec3(trace.steepness / u_gradient.max_length), 1.0);
         // gl_FragColor = vec4(vec3(trace.depth / length(2.0 * u_volume.size)), 1.0);
         // gl_FragColor = vec4(vec3((trace.depth - ray.bounds.x) / length(u_volume.size)), 1.0);
         return;

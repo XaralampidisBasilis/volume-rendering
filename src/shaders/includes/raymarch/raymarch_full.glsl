@@ -33,7 +33,7 @@ bool raymarch_full
 
         // Check if the sampled intensity exceeds the threshold
         if (trace.value > u_raycast.threshold && trace.gradial_data.a > u_gradient.threshold) 
-        {
+        {   
             // Compute refinement
             compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
             return true;
@@ -43,8 +43,9 @@ bool raymarch_full
         float stepping = compute_stepping(u_raycast, ray, trace);
 
         // Update ray position for the next step
-        trace.position += ray.step * stepping;
-        trace.depth += ray.spacing * stepping;
+        trace.spacing = ray.spacing * stepping;
+        trace.position += ray.direction * trace.spacing;
+        trace.depth += trace.spacing;
     }   
 
     return false;

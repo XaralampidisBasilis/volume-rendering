@@ -36,10 +36,11 @@ export default class ComputeOccupancy extends EventEmitter
     {
         this.parameters = {}
         this.parameters.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
-        this.parameters.volumeDivisions = 8 * this.viewer.material.uniforms.u_occupancy.value.divisions // in order to account for 3 subdivision levels
+        this.parameters.divisions = this.viewer.material.uniforms.u_occupancy.value.divisions
+        this.parameters.volumeDivisions = 8 * this.parameters.divisions // in order to account for 3 subdivision levels
         this.parameters.volumeDimensions = this.viewer.parameters.volume.dimensions
         this.parameters.blockDimensions = this.parameters.volumeDimensions.clone().divideScalar(this.parameters.volumeDivisions).ceil()
-        this.parameters.occumapDimensions = this.parameters.volumeDimensions.clone().divide(this.parameters.blockDimensions).ceil()
+        this.parameters.occumapDimensions = this.parameters.volumeDimensions.clone().divide(this.parameters.blockDimensions.clone().multiplyScalar(8)).ceil().multiplyScalar(8)
         this.parameters.numBlocks = this.parameters.occumapDimensions.toArray().reduce((product, value) => product * value, 1)
     }
 
@@ -150,25 +151,25 @@ export default class ComputeOccupancy extends EventEmitter
         this.occubox.min.subScalar(0).divide(this.parameters.volumeDimensions)
     }
 
+    // IS NOT CORRECT
     updateOccupancyMap()
     {
-        for (let c = 0; c < 4; c++)
+        for (let lod = 0; lod < 4; lod++)
         {
-            const size = 2 ** c
-            const numBlocks = Math.ceil(this.parameters.numBlocks / size**3)
+            const size = 2 ** lod
+            const blocks = Math.ceil(this.parameters.numBlocks / size**3)
 
-            for (let n = 0; n < numBlocks; n++)
+            for (let n = 0; n < blocks; n++)
             {
-                const blockCoords = ind2sub(this.parameters.occumapDimensions.toArray(), n)
-                const blockMin = blockCoords.map(x => size * Math.floor(x / size)) // calculate block min and max coordinates in 3d occumap
+                const blockCoords = ind2sub(this.parameters.occumapDimensions.clone().divideScalar(size).toArray(), n)
+                const blockMin = blockCoords.map(x => x * size) // calculate block min and max coordinates in 3d occumap
                 const blockMax = blockMin.map(x => x + size)
-            
                 const indices = box2ind(this.parameters.occumapDimensions.toArray(), blockMin, blockMax) // get linear block indices in 3d occumap
                 const indices4 = indices.map(i => i * 4).filter(i => i < this.computation.data.length) // convert indices to 4x values because computation has rgba values for each block
-                
                 const occupied = indices4.some(i4 => this.computation.data[i4 + 0] > 0) // check if any value at those indices is occupied
+                
                 if (occupied) 
-                    indices4.forEach(i4 => this.occumap.image.data[i4 + c] = occupied) // update occumap texture data at the specific level
+                    indices4.forEach(i4 => this.occumap.image.data[i4 + lod] = occupied) // update occumap texture data at the specific level
             }
         }
 
@@ -188,8 +189,10 @@ export default class ComputeOccupancy extends EventEmitter
         this.helpers = {}
         this.setComputationHelper()
         this.setOccupancyBoxHelper()
+        this.setOccumapHelper()
         this.helpers.computation.visible = false
         this.helpers.occubox.visible = false
+        this.helpers.occumap.visible = false
     }
 
     setComputationHelper()
@@ -216,10 +219,22 @@ export default class ComputeOccupancy extends EventEmitter
         this.viewer.scene.add(this.helpers.occubox)
     }
 
+    setOccumapHelper()
+    {
+        this.helpers.occumap = new THREE.Mesh
+        (
+            new THREE.PlaneGeometry(this.computation.dimensions.width, this.computation.dimensions.height),
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthTest: false })
+        )
+        this.helpers.occumap.scale.divideScalar(this.computation.dimensions.height)
+        this.scene.add(this.helpers.occumap)
+    }
+
     updateHelpers()
     {
         this.updateComputationHelper()
         this.updateOccupancyBoxHelper()
+        this.updateOccumapHelper()
     }
 
     updateComputationHelper()
@@ -234,5 +249,21 @@ export default class ComputeOccupancy extends EventEmitter
         this.occubox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.center)
         this.occubox.getSize(size).multiply(this.viewer.parameters.volume.size)  
         this.helpers.occubox.box.setFromCenterAndSize(center, size)
+    }
+
+    updateOccumapHelper()
+    {
+        const occumapData = Float32Array.from(this.occumap.image.data) 
+        const occumap = new THREE.DataTexture(occumapData, this.computation.dimensions.width, this.computation.dimensions.height)
+        occumap.format = THREE.RGBAFormat
+        occumap.type = THREE.FloatType     
+        occumap.wrapS = THREE.ClampToEdgeWrapping
+        occumap.wrapT = THREE.ClampToEdgeWrapping
+        occumap.minFilter = THREE.NearestFilter
+        occumap.magFilter = THREE.NearestFilter
+        occumap.unpackAlignment = 8
+        occumap.needsUpdate = true   
+
+        this.helpers.occumap.material.map = occumap
     }
 }

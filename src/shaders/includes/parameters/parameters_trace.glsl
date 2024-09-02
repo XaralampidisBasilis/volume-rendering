@@ -12,6 +12,7 @@ struct parameters_trace
     float value;     // Scalar value at the intersection
     float depth;     // Distance the ray has traveled to the intersection
     float steepness; // The normalized length of the gradient vector
+    float spacing;
     int i_step;
 };
 
@@ -27,6 +28,7 @@ void set_trace()
     trace.value = 0.0;    
     trace.depth = 0.0;
     trace.steepness = 0.0;    
+    trace.spacing = 0.0;
     trace.i_step = 0;
 }
 

@@ -17,22 +17,7 @@ vec4 gradient_sobel27
     in ivec3 voxel_coords
 )
 {
-    // Define offsets for the 26 neighboring samples and the center
-    const vec3 k = vec3(-1.0, 0.0, +1.0);
-
-    const vec3[27] sample_offset = vec3[27]
-    (
-         k.xxx,   k.xxy,   k.xxz,  
-         k.xyx,   k.xyy,   k.xyz,  
-         k.xzx,   k.xzy,   k.xzz,
-         k.yxx,  k.yxy,  k.yxz, 
-        k.yyx,  k.yyy,  k.yyz,
-        k.yzx,  k.yzy,  k.yzz,
-        k.zxx,  k.zxy,  k.zxz, 
-        k.zyx,  k.zyy,  k.zyz, 
-        k.zzx,  k.zzy,  k.zzz
-    );
-
+   
     // Compute sobel 27 kernels 
     const float[27] kernel_x = float[27]
     (
@@ -71,6 +56,22 @@ vec4 gradient_sobel27
         -1.0,   0.0,  +1.0,
         -2.0,   0.0,  +2.0,
         -1.0,   0.0,  +1.0
+    );
+
+     // Define offsets for the 26 neighboring samples and the center
+    const vec3 k = vec3(-1.0, 0.0, +1.0);
+
+    const vec3[27] sample_offset = vec3[27]
+    (
+         k.xxx,   k.xxy,   k.xxz,  
+         k.xyx,   k.xyy,   k.xyz,  
+         k.xzx,   k.xzy,   k.xzz,
+         k.yxx,  k.yxy,  k.yxz, 
+        k.yyx,  k.yyy,  k.yyz,
+        k.yzx,  k.yzy,  k.yzz,
+        k.zxx,  k.zxy,  k.zxz, 
+        k.zyx,  k.zyy,  k.zyz, 
+        k.zzx,  k.zzy,  k.zzz
     );
 
     // Calculate the position and step sizes within the 3D texture
