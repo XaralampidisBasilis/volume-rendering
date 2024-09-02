@@ -23,10 +23,10 @@ bool check_occupancy
     vec3 bblock_min_voxel_pos = floor(voxel_coords / bblock_dimensions) * bblock_dimensions;
     vec3 bblock_max_voxel_pos = bblock_min_voxel_pos + bblock_dimensions; // if we had coords we would need to subtract one
 
-    // normalize block voxel positions
-    bblock_min_voxel_pos *= u_volume.spacing;
-    bblock_max_voxel_pos *= u_volume.spacing;
-    
+    // normalize and camp block voxel positions
+    bblock_min_voxel_pos = min(bblock_min_voxel_pos * u_volume.spacing, u_volume.size);
+    bblock_max_voxel_pos = min(bblock_max_voxel_pos * u_volume.spacing, u_volume.size);
+      
     // intersect ray with block
     float distance = intersect_box_max(bblock_min_voxel_pos, bblock_max_voxel_pos, trace.position, ray.step); 
     skip_steps = max(int(ceil(distance)), 1); 

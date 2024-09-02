@@ -29,7 +29,7 @@ bool raymarch_skip
         // traverse space if block is occupied
         bool occupied = check_occupancy(u_sampler.occumap, u_occupancy, u_volume, ray, trace, skip_steps);
         if (occupied) 
-        {
+        {            
             // Raymarch loop to traverse through the volume
             for (int n = 0; n < skip_steps && trace.depth < ray.bounds.y; n++) 
             {
@@ -42,7 +42,7 @@ bool raymarch_skip
                 trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
                 trace.steepness = gradient_data.a * u_gradient.length_range + u_gradient.min_length;
                 trace.gradient = trace.normal * trace.steepness;
-
+                
                 // Check if the sampled intensity exceeds the threshold
                 if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
                 {

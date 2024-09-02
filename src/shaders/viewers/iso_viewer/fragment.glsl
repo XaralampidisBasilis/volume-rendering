@@ -57,7 +57,7 @@ void main()
 
     // hit detected
     if (hit) 
-    {        
+    {                
         vec3 view_position = ray.origin;  
         vec3 light_position = v_camera + u_lighting.position * u_volume.size;
 

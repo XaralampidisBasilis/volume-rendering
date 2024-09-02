@@ -194,8 +194,6 @@ export default class ISOGui
                 this.viewer.occupancy.compute()
                 this.viewer.occupancy.update()
                 this.viewer.material.uniforms.u_sampler.value.occumap = this.viewer.occupancy.occumap
-                this.viewer.material.uniforms.u_occupancy.value.occumap_dimensions.copy(this.viewer.occupancy.parameters.occumapDimensions)
-                this.viewer.material.uniforms.u_occupancy.value.block_dimensions.copy(this.viewer.occupancy.parameters.blockDimensions)
                 this.viewer.material.uniforms.u_occupancy.value.box_min.copy(this.viewer.occupancy.occubox.min)
                 this.viewer.material.uniforms.u_occupancy.value.box_max.copy(this.viewer.occupancy.occubox.max)            
             }

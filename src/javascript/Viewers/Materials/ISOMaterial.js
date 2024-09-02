@@ -29,7 +29,7 @@ export default function(viewer)
 
         u_raycast: new THREE.Uniform
         ({
-            threshold:        0.2,   
+            threshold:        3,   
             refinements:      0,   
             stepping_min:     1,
             stepping_max:     1,

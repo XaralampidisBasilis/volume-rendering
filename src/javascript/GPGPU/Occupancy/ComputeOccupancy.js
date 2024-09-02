@@ -154,6 +154,8 @@ export default class ComputeOccupancy extends EventEmitter
     // IS NOT CORRECT
     updateOccupancyMap()
     {
+        this.occumap.image.data.fill(0)
+
         for (let lod = 0; lod < 4; lod++)
         {
             const size = 2 ** lod
@@ -175,6 +177,7 @@ export default class ComputeOccupancy extends EventEmitter
 
         this.occumap.needsUpdate = true
 
+        console.log(this.occumap.image.data)
     }
 
     getComputationTexture()
@@ -192,7 +195,7 @@ export default class ComputeOccupancy extends EventEmitter
         this.setOccumapHelper()
         this.helpers.computation.visible = false
         this.helpers.occubox.visible = false
-        this.helpers.occumap.visible = false
+        this.helpers.occumap.visible = true
     }
 
     setComputationHelper()
@@ -262,8 +265,8 @@ export default class ComputeOccupancy extends EventEmitter
         occumap.minFilter = THREE.NearestFilter
         occumap.magFilter = THREE.NearestFilter
         occumap.unpackAlignment = 8
-        occumap.needsUpdate = true   
 
         this.helpers.occumap.material.map = occumap
+        this.helpers.occumap.material.map.needsUpdate = true;
     }
 }
