@@ -31,7 +31,12 @@ export default class ISOGui
         this.subfolders.gradient = this.folders.viewer.addFolder('gradient').close()
         this.subfolders.colormap = this.folders.viewer.addFolder('colormap').close()
         this.subfolders.lighting = this.folders.viewer.addFolder('lighting').close()
-        this.subfolders.occupancy = this.folders.viewer.addFolder('occupancy').close()   
+        this.subfolders.occupancy = this.folders.viewer.addFolder('occupancy').close()
+
+        if (this.viewer.material.uniforms.u_debug)
+            this.subfolders.debug = this.folders.viewer.addFolder('debug').close()
+
+
         this.addSubfolderToggles()            
     }
 
@@ -69,6 +74,9 @@ export default class ISOGui
 
         if (this.viewer.occupancy)
             this.addControllersOccupancy() 
+
+        if (this.viewer.material.uniforms.u_debug)
+            this.addControllersDebug() 
 
         this.setControllersBindings()  
     }
@@ -166,10 +174,22 @@ export default class ISOGui
             divisions: occupancy.add(u_occupancy, 'divisions').min(2).max(20).step(1),
             occubox: occupancy.add(this.viewer.occupancy.helpers.occubox, 'visible').name('occubox'),
             computation: occupancy.add(this.viewer.occupancy.helpers.computation, 'visible').name('computation'),
+            occumap: occupancy.add(this.viewer.occupancy.helpers.occumap, 'visible').name('occumap'),
             // occumaps: occupancy.add(this.viewer.occupancy.helpers.occumaps, 'visible').name('occumaps'),
             levels: occupancy.add(object, 'options').options({ all: 0, level0: 1, level1: 2, level2: 3}).name('levels'),
         }
 
+    }
+
+    addControllersDebug()
+    {
+        const { debug } = this.subfolders
+        const u_debug = this.viewer.material.uniforms.u_debug.value
+
+        this.controllers.debug = 
+        {
+            iterations: debug.add(u_debug, 'iterations').min(0).max(100).step(1),
+        }
     }
     
     // controllers bindings

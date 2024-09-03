@@ -16,6 +16,7 @@ vec2 compute_bounds
     in vec3 ray_direction
 )
 {
+    // to model coordinates
     box_min *= volume_size;
     box_max *= volume_size;
 

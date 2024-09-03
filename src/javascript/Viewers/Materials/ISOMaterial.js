@@ -37,7 +37,7 @@ export default function(viewer)
             stepping_method:  5,
             dithering_method: 1,
             has_dithering:    true, 
-            has_skipping:     false,
+            has_skipping:     true,
         }),
 
         u_gradient: new THREE.Uniform
@@ -45,7 +45,7 @@ export default function(viewer)
             threshold:       0,
             min_length:      0,
             max_length:      0,
-            length_range:    0,
+            range_length:    0,
             method:          3,        
         }),
             
@@ -82,8 +82,13 @@ export default function(viewer)
             block_dimensions:   new THREE.Vector3(),
             box_min:            new THREE.Vector3(0, 0, 0),
             box_max:            new THREE.Vector3(1, 1, 1),
-            divisions:          10, 
+            divisions:          4, 
             method:             1,
+        }),
+
+        u_debug: new THREE.Uniform
+        ({
+            iterations:         100,
         })
 
     }
@@ -95,7 +100,7 @@ export default function(viewer)
     const material = new THREE.ShaderMaterial({
         
         side: THREE.BackSide,
-        transparent: false,
+        transparent: true,
         depthTest: true,
         depthWrite: true,
 

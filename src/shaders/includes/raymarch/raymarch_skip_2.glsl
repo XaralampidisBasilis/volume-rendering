@@ -10,9 +10,9 @@
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
 
-#include ./modules/compute_skipping.glsl;
+#include ./modules/compute_skipping_2.glsl;
 
-bool raymarch_skip
+bool raymarch_skip_2
 (
     in uniforms_gradient u_gradient, 
     in uniforms_raycast u_raycast, 
@@ -23,21 +23,25 @@ bool raymarch_skip
     inout parameters_trace trace
 ) 
 { 
-    int skip_steps;
+    float skip_depth;
     int debug_iter = 0;
 
-    for ( 
+    for (
         trace.i_step = 0; 
         trace.i_step < ray.max_steps && trace.depth < ray.bounds.y && debug_iter < u_debug.iterations; 
-        trace.i_step++, debug_iter
+        trace.i_step++, debug_iter++
     ) 
     {
         // traverse space if block is occupied
-        bool occupied = compute_skipping(u_sampler.occumap, u_occupancy, u_volume, ray, trace, skip_steps);
+        bool occupied = compute_skipping_2(u_sampler.occumap, u_occupancy, u_volume, ray, trace, skip_depth);
+        float max_depth = min(skip_depth + trace.depth, ray.bounds.y);
+
         if (occupied) 
         {            
+            int max_steps = max(int(ceil(skip_depth / (ray.spacing * u_raycast.stepping_min))), 1);
+
             // Raymarch loop to traverse through the volume
-            for (int n = 0; n < skip_steps && trace.depth < ray.bounds.y; n++) 
+            for(int i = 0; i < max_steps && trace.depth < max_depth; i++) 
             {
                 // Calculate texel position once and reuse
                 trace.texel = trace.position * u_volume.inv_size;
@@ -48,27 +52,28 @@ bool raymarch_skip
                 trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
                 trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
                 trace.gradient = trace.normal * trace.steepness;
-                                
+                  
                 // Check if the sampled intensity exceeds the threshold
                 if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
                 {
                     // Compute refinement
-                    // compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
+                    compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
                     return true;
                 }
 
-                // Update ray trace
+                // Compute adaptive resolution based on gradient
+                trace.spacing = ray.spacing * compute_stepping(u_raycast, ray, trace);
+
+                // Update ray position for the next step
+                trace.depth += trace.spacing;
+                trace.position += ray.direction * trace.spacing;
                 trace.i_step++;
-                trace.position += ray.step;
-                trace.depth += ray.spacing;
-            }    
+            }       
         }
-        else 
-        {
-            // skip space
-            trace.position += ray.step * float(skip_steps);
-            trace.depth += ray.spacing * float(skip_steps);
-        }
+
+        // skip space
+        trace.depth = max_depth + ray.dithering;
+        trace.position = ray.origin + ray.direction * trace.depth;
     }   
 
     return false;

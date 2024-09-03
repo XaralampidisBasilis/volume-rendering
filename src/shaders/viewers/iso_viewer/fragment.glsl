@@ -22,6 +22,7 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/uniforms/uniforms_gradient"
 #include "../../includes/uniforms/uniforms_colormap"
 #include "../../includes/uniforms/uniforms_lighting"
+#include "../../includes/uniforms/uniforms_debug"
 
 //param
 #include "../../includes/parameters/parameters_ray"
@@ -54,6 +55,9 @@ void main()
     
     // compute raycast
     bool hit = compute_raycasting(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace); 
+    // gl_FragColor = vec4(vec3(trace.i_step) / vec3(1000.0), 1.0); return;
+    // gl_FragColor = vec4(vec3(trace.texel), 1.0); return;
+    // return;
 
     // hit detected
     if (hit) 

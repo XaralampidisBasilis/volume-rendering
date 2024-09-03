@@ -93,7 +93,7 @@ export default class ComputeGradients
             this.minLength = Math.min(this.minLength, value)
             this.maxLength = Math.max(this.maxLength, value)
         }
-        this.lengthRange = this.maxLength - this.minLength
+        this.rangeLength = this.maxLength - this.minLength
 
         // create a data view to manipulate the buffer directly
         let dataView = new DataView(this.computation.data.buffer)
@@ -103,7 +103,7 @@ export default class ComputeGradients
             dataView.setUint8(i4 + 0, Math.round((this.computation.data[i4 + 0] * 0.5 + 0.5) * 255))
             dataView.setUint8(i4 + 1, Math.round((this.computation.data[i4 + 1] * 0.5 + 0.5) * 255))
             dataView.setUint8(i4 + 2, Math.round((this.computation.data[i4 + 2] * 0.5 + 0.5) * 255))
-            dataView.setUint8(i4 + 3, Math.round((this.computation.data[i4 + 3] - this.minLength) / this.lengthRange * 255))
+            dataView.setUint8(i4 + 3, Math.round((this.computation.data[i4 + 3] - this.minLength) / this.rangeLength * 255))
         }
         this.data = new Uint8Array(this.computation.data.buffer).subarray(0, dataCount)
     }

@@ -121,7 +121,7 @@ export default class ComputeOccupancy extends EventEmitter
 
         if (this.viewer.debug.active)
         {
-            // this.updateHelpers()
+            this.updateHelpers()
         }
     }
     
@@ -175,7 +175,7 @@ export default class ComputeOccupancy extends EventEmitter
                 const occupied = indices4.some(i4 => this.computation.data[i4 + 0] > 0) // check if any value at those indices is occupied
                 
                 if (occupied) 
-                    indices4.forEach(i4 => this.occumap.image.data[i4 + lod] = occupied) // update occumap texture data at the specific level
+                    indices4.forEach(i4 => this.occumap.image.data[i4 + lod] = 255) // update occumap texture data at the specific level
             }
         }
 

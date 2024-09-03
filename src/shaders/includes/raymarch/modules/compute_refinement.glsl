@@ -41,7 +41,7 @@ void compute_refinement
         // Extract gradient and value from texture data
         vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
         trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-        trace.steepness = gradient_data.a * u_gradient.length_range + u_gradient.min_length;
+        trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
         trace.gradient = trace.normal * trace.steepness;
 
         // If the sampled value exceeds the threshold, return early

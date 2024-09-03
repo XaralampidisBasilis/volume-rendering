@@ -208,7 +208,7 @@ export default class ISOViewer
         this.textures.gradients.needsUpdate = true
         this.material.uniforms.u_gradient.value.min_length = this.gradients.minLength
         this.material.uniforms.u_gradient.value.max_length = this.gradients.maxLength
-        this.material.uniforms.u_gradient.value.length_range = this.gradients.lengthRange
+        this.material.uniforms.u_gradient.value.range_length = this.gradients.rangeLength
     }
 
     computeSmoothing()

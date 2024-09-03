@@ -7,7 +7,7 @@ struct uniforms_gradient
     float threshold;
     float min_length;
     float max_length;
-    float length_range;
+    float range_length;
     int method;
 };
 

@@ -1,8 +1,7 @@
 #include "../stepping/compute_stepping"
-#include "./modules/adaptive_spacing"
 #include "./modules/compute_refinement"
 #include "./raymarch_full"
-#include "./raymarch_skip"
+#include "./raymarch_skip_2"
 
 /**
  * Determines if a ray intersects with the volume and optionally skips empty space.
@@ -34,6 +33,6 @@ bool compute_raymarch
         case 0:
             return raymarch_full(u_gradient, u_raycast, u_volume, u_sampler, ray, trace);
         default:
-            return raymarch_skip(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace);
+            return raymarch_skip_2(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace);
     }  
 }

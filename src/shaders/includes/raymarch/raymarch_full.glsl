@@ -19,7 +19,11 @@ bool raymarch_full
 ) 
 { 
     // Raymarch loop to traverse through the volume
-    for (trace.i_step = 0; trace.i_step < ray.max_steps && trace.depth < ray.bounds.y; trace.i_step++) 
+    for (
+        trace.i_step = 0; 
+        trace.i_step < ray.max_steps && trace.depth < ray.bounds.y; 
+        trace.i_step++
+    ) 
     {
         // Sample the intensity of the volume at the current ray position
         trace.texel = trace.position * u_volume.inv_size;
@@ -28,7 +32,7 @@ bool raymarch_full
         // Extract gradient and value from texture data
         trace.gradial_data = texture(u_sampler.gradients, trace.texel);
         trace.normal = normalize(1.0 - 2.0 * trace.gradial_data.rgb);
-        trace.steepness = trace.gradial_data.a * u_gradient.length_range + u_gradient.min_length;
+        trace.steepness = trace.gradial_data.a * u_gradient.range_length + u_gradient.min_length;
         trace.gradient = - trace.normal * trace.steepness;
 
         // Check if the sampled intensity exceeds the threshold
@@ -40,10 +44,9 @@ bool raymarch_full
         }
 
         // Compute adaptive resolution based on gradient
-        float stepping = compute_stepping(u_raycast, ray, trace);
+        trace.spacing = ray.spacing * compute_stepping(u_raycast, ray, trace);
 
         // Update ray position for the next step
-        trace.spacing = ray.spacing * stepping;
         trace.position += ray.direction * trace.spacing;
         trace.depth += trace.spacing;
     }   
