@@ -24,12 +24,11 @@ bool raymarch_skip_2
 ) 
 { 
     float skip_depth;
-    int debug_iter = 0;
 
     for (
         trace.i_step = 0; 
-        trace.i_step < ray.max_steps && trace.depth < ray.bounds.y && debug_iter < u_debug.iterations; 
-        trace.i_step++, debug_iter++
+        trace.i_step < ray.max_steps && trace.depth < ray.bounds.y && debug.iterations < u_debug.max_iterations; 
+        trace.i_step++, debug.iterations++
     ) 
     {
         // traverse space if block is occupied
@@ -57,17 +56,16 @@ bool raymarch_skip_2
                 if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
                 {
                     // Compute refinement
-                    compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
+                    // compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
                     return true;
                 }
 
-                // Compute adaptive resolution based on gradient
-                trace.spacing = ray.spacing * compute_stepping(u_raycast, ray, trace);
-
                 // Update ray position for the next step
+                trace.spacing = ray.spacing * compute_stepping(u_raycast, ray, trace);
                 trace.depth += trace.spacing;
                 trace.position += ray.direction * trace.spacing;
                 trace.i_step++;
+                debug.iterations++;
             }       
         }
 

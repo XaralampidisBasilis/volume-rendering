@@ -10,31 +10,28 @@ bool compute_skipping
 ) 
 {
     vec3 voxel_coords = trace.position * u_volume.inv_spacing;
-    vec3 block_coords = floor(voxel_coords / u_occupancy.block_dimensions);
-    vec3 block_texel = (block_coords + 0.5) / u_occupancy.occumap_dimensions;
+    ivec3 block_coords = ivec3(voxel_coords / u_occupancy.block_dimensions);
     // gl_FragColor = vec4(voxel_coords * u_volume.inv_dimensions, 1.0);
     // gl_FragColor = vec4(block_texel, 1.0);
 
     // Sample the occupancy map to get occupancy data
-    vec4 multi_ocupancy = step(0.5, texture(occumap, block_texel));
-    float occupancy_resolution = 3.0 - multi_ocupancy.g - multi_ocupancy.b - multi_ocupancy.a;
+    vec4 multi_ocupancy = step(0.5, texelFetch(occumap, block_coords, 0));
+    float occupancy_resolution = 3.0 - dot(multi_ocupancy.gba, vec3(1.0));
     float block_scaling = exp2(occupancy_resolution); 
     // gl_FragColor = vec4(multi_ocupancy);
     // gl_FragColor = vec4(vec3(occupancy_resolution / 3.0), 1.0);
 
     // compute block0 min and max voxel coordinates
-    vec3 bblock_dimensions = u_occupancy.block_dimensions * block_scaling;
-    vec3 bblock_min_voxel_pos = floor(voxel_coords / bblock_dimensions) * bblock_dimensions;
-    vec3 bblock_max_voxel_pos = bblock_min_voxel_pos + bblock_dimensions; // if we had coords we would need to subtract one
-    // gl_FragColor = vec4(bblock_min_voxel_pos / u_volume.size, 1.0);
-    // gl_FragColor = vec4(bblock_max_voxel_pos / u_volume.size, 1.0);
-
-    // normalize and camp block voxel positions
-    bblock_min_voxel_pos = min(bblock_min_voxel_pos * u_volume.spacing, u_volume.size);
-    bblock_max_voxel_pos = min(bblock_max_voxel_pos * u_volume.spacing, u_volume.size);
+    vec3 block_size = u_occupancy.block_dimensions * u_volume.spacing * block_scaling;
+    vec3 block_min_voxel_pos = floor(trace.position / block_size) * block_size;
+    vec3 block_max_voxel_pos = block_min_voxel_pos + block_size; // if we had coords we would need to subtract one
+    block_min_voxel_pos = min(block_min_voxel_pos, u_volume.size);
+    block_max_voxel_pos = min(block_max_voxel_pos, u_volume.size);
+    // gl_FragColor = vec4(block_min_voxel_pos / u_volume.size, 1.0);
+    // gl_FragColor = vec4(block_max_voxel_pos / u_volume.size, 1.0);  
       
     // intersect ray with block
-    float distance = intersect_box_max(bblock_min_voxel_pos, bblock_max_voxel_pos, trace.position, ray.step); 
+    float distance = intersect_box_max(block_min_voxel_pos, block_max_voxel_pos, trace.position, ray.step); 
     skip_steps = max(int(ceil(distance)), 1); 
     // gl_FragColor = vec4(vec3(skip_steps)/vec3(ray.max_steps), 1.0);
 

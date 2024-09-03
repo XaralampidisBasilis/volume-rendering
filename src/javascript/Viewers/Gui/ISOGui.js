@@ -188,7 +188,7 @@ export default class ISOGui
 
         this.controllers.debug = 
         {
-            iterations: debug.add(u_debug, 'iterations').min(0).max(100).step(1),
+            max_iterations: debug.add(u_debug, 'max_iterations').min(0).max(1000).step(1),
         }
     }
     

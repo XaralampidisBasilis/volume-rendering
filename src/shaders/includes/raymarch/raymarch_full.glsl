@@ -21,8 +21,8 @@ bool raymarch_full
     // Raymarch loop to traverse through the volume
     for (
         trace.i_step = 0; 
-        trace.i_step < ray.max_steps && trace.depth < ray.bounds.y; 
-        trace.i_step++
+        trace.i_step < ray.max_steps && trace.depth < ray.bounds.y && debug.iterations < u_debug.max_iterations; 
+        trace.i_step++, debug.iterations++
     ) 
     {
         // Sample the intensity of the volume at the current ray position
@@ -43,10 +43,8 @@ bool raymarch_full
             return true;
         }
 
-        // Compute adaptive resolution based on gradient
-        trace.spacing = ray.spacing * compute_stepping(u_raycast, ray, trace);
-
         // Update ray position for the next step
+        trace.spacing = ray.spacing * compute_stepping(u_raycast, ray, trace);
         trace.position += ray.direction * trace.spacing;
         trace.depth += trace.spacing;
     }   

@@ -27,6 +27,7 @@ varying mat4 v_model_view_matrix;
 //param
 #include "../../includes/parameters/parameters_ray"
 #include "../../includes/parameters/parameters_trace"
+#include "../../includes/parameters/parameters_debug"
 
 // utils
 #include "../../includes/utils/inside_texture"
@@ -50,6 +51,7 @@ void main()
     // set parameters
     set_ray();
     set_trace();
+    set_debug();
     ray.origin = v_camera;
     ray.direction = normalize(v_direction);
     

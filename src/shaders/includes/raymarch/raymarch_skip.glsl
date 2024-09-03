@@ -24,12 +24,11 @@ bool raymarch_skip
 ) 
 { 
     int skip_steps;
-    int debug_iter = 0;
 
     for ( 
         trace.i_step = 0; 
-        trace.i_step < ray.max_steps && trace.depth < ray.bounds.y && debug_iter < u_debug.iterations; 
-        trace.i_step++, debug_iter
+        trace.i_step < ray.max_steps && trace.depth < ray.bounds.y && debug.iterations < u_debug.max_iterations; 
+        trace.i_step++, debug.iterations++
     ) 
     {
         // traverse space if block is occupied

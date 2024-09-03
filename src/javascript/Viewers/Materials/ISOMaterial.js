@@ -37,7 +37,7 @@ export default function(viewer)
             stepping_method:  5,
             dithering_method: 1,
             has_dithering:    true, 
-            has_skipping:     true,
+            has_skipping:     false,
         }),
 
         u_gradient: new THREE.Uniform
@@ -88,7 +88,7 @@ export default function(viewer)
 
         u_debug: new THREE.Uniform
         ({
-            iterations:         100,
+            max_iterations:     1000,
         })
 
     }
