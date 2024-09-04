@@ -28,15 +28,16 @@ bool raymarch_full
         // Sample the intensity of the volume at the current ray position
         trace.texel = trace.position * u_volume.inv_size;
         trace.value = texture(u_sampler.volume, trace.texel).r;
+        trace.error = trace.value - u_raycast.threshold;
 
         // Extract gradient and value from texture data
-        trace.gradial_data = texture(u_sampler.gradients, trace.texel);
-        trace.normal = normalize(1.0 - 2.0 * trace.gradial_data.rgb);
-        trace.steepness = trace.gradial_data.a * u_gradient.range_length + u_gradient.min_length;
+        vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
+        trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
+        trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
         trace.gradient = - trace.normal * trace.steepness;
 
         // Check if the sampled intensity exceeds the threshold
-        if (trace.value > u_raycast.threshold && trace.gradial_data.a > u_gradient.threshold) 
+        if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold) 
         {   
             // Compute refinement
             compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
@@ -44,7 +45,7 @@ bool raymarch_full
         }
 
         // Update ray position for the next step
-        trace.spacing = ray.spacing * compute_stepping(u_raycast, ray, trace);
+        trace.spacing = ray.spacing * compute_stepping(u_raycast, u_gradient, ray, trace);
         trace.position += ray.direction * trace.spacing;
         trace.depth += trace.spacing;
     }   

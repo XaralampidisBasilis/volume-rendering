@@ -29,17 +29,18 @@ export default function(viewer)
 
         u_raycast: new THREE.Uniform
         ({
-            threshold:        0.3,   
-            refinements:      0,   
-            min_stepping:     1,
-            max_stepping:     1,
-            max_steps:        1000,
-            spacing_method:   1,
-            stepping_method:  5,
-            dithering_method: 1,
-            has_dithering:    true,
-            has_skipping:     false,
-            has_bbox:         true, 
+            threshold:          0.3,   
+            refinements:        0,   
+            min_stepping:       1,
+            max_stepping:       1,
+            max_steps:          1000,
+            spacing_method:     1,
+            stepping_method:    5,
+            dithering_method:   1,
+            refinement_method:  1, 
+            has_dithering:      true,
+            has_skipping:       false,
+            has_bbox:           true, 
         }),
 
         u_gradient: new THREE.Uniform

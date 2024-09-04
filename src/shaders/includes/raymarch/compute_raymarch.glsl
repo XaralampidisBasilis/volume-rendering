@@ -1,5 +1,5 @@
 #include "../stepping/compute_stepping"
-#include "./modules/compute_refinement"
+#include "../refinement/compute_refinement"
 #include "./raymarch_full"
 #include "./raymarch_skip_2"
 

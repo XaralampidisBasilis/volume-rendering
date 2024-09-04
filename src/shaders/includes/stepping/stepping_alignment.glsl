@@ -16,7 +16,7 @@ float stepping_alignment
 {
     // Compute the alignment between the gradient and the ray direction.
     // This represents how much the ray is moving in the direction of the gradient.
-    float alignment = max(dot(- trace.normal, ray.direction), 0.0);
+    float alignment = max(dot(-trace.normal, ray.direction), 0.0);
 
     // Interpolate the resolution based on the alignment.
     // when alignment is high, use higher resolution, when low, use lower resolution.

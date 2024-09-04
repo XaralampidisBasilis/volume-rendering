@@ -1,4 +1,4 @@
-#include "./stepping_approximation"
+#include "./stepping_adaptive"
 #include "./stepping_gradial"
 #include "./stepping_alignment"
 #include "./stepping_steepness"
@@ -16,6 +16,7 @@
 float compute_stepping
 (
     in uniforms_raycast u_raycast,
+    in uniforms_gradient u_gradient,
     in parameters_ray ray,
     in parameters_trace trace
 ) 
@@ -23,13 +24,13 @@ float compute_stepping
     switch(u_raycast.stepping_method)
     {
         case 1: 
-            return stepping_approximation(u_raycast, ray, trace);
+            return stepping_adaptive(u_raycast, ray, trace);
         case 2: 
-            return stepping_gradial(u_raycast, ray, trace);
+            return stepping_gradial(u_raycast, u_gradient, ray, trace);
         case 3: 
             return stepping_alignment(u_raycast, ray, trace);
         case 4: 
-            return stepping_steepness(u_raycast, ray, trace);
+            return stepping_steepness(u_raycast, u_gradient, ray, trace);
         case 5: 
             return stepping_uniform(u_raycast, ray, trace);
     }

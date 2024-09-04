@@ -12,6 +12,7 @@ struct uniforms_raycast
     int spacing_method;
     int stepping_method;
     int dithering_method;
+    int refinement_method;
     float has_dithering; 
     int has_skipping; 
     float has_bbox;

@@ -9,7 +9,7 @@
  * @param hit_sample: output float where the refined value at the intersection will be stored.
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
-void compute_refinement
+void refinement_uniform
 (
     in uniforms_volume u_volume, 
     in uniforms_raycast u_raycast, 
@@ -19,20 +19,19 @@ void compute_refinement
     inout parameters_trace trace
 )
 {
+    // Calculate the refined substep based on the number of refinements
+    float subspacing = trace.spacing / float(u_raycast.refinements + 1);  
+
     // Step back to refine the hit point
     trace.position -= ray.direction * trace.spacing;
     trace.depth -= trace.spacing;
 
-    // Calculate the refined substep based on the number of refinements
-    float subspacing = trace.spacing / float(u_raycast.refinements + 1);  
-      
     // Perform additional sampling steps to refine the hit point
-    for (int i = 0; i <= u_raycast.refinements; i++) 
+    for (int i = 0; i <= u_raycast.refinements; i++, trace.i_step++) 
     {
         // Move position forward by substep
         trace.position += ray.direction * subspacing;  
         trace.depth += subspacing;
-        trace.i_step++;
         
        // Sample the intensity of the volume at the current ray position
         trace.texel = trace.position * u_volume.inv_size;

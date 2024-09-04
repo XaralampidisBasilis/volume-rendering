@@ -41,6 +41,7 @@ bool raymarch_skip
                 // Calculate texel position once and reuse
                 trace.texel = trace.position * u_volume.inv_size;
                 trace.value = texture(u_sampler.volume, trace.texel).r;
+                trace.error = trace.value - u_raycast.threshold;
 
                 // Extract gradient and value from texture data
                 vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
@@ -49,7 +50,7 @@ bool raymarch_skip
                 trace.gradient = trace.normal * trace.steepness;
                                 
                 // Check if the sampled intensity exceeds the threshold
-                if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
+                if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold) 
                 {
                     // Compute refinement
                     // compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);

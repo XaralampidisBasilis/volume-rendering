@@ -27,60 +27,64 @@ vec4 compute_debug
         case 3:
             return vec4(vec3(trace.value), 1.0);
 
+        // trace_error
+        case 4:
+            return vec4(vec3(trace.error, 0.0, 0.0), 1.0);
+
         // trace_steepness
-        case 4: 
+        case 5: 
             return vec4(vec3(trace.steepness / u_gradient.max_length), 1.0);
 
         // trace_normal
-        case 5: 
+        case 6: 
             return vec4(trace.normal * 0.5 + 0.5, 1.0);
 
         // trace_gradient
-        case 6: 
+        case 7: 
             return vec4((trace.gradient / u_gradient.max_length) * 0.5 + 0.5, 1.0);
 
         // trace_depth
-        case 7: 
+        case 8: 
             return vec4(vec3((trace.depth - box_bounds.x) / length(u_volume.size)), 1.0);
 
         // trace_penetration
-        case 8: 
+        case 9: 
             return vec4(vec3((trace.depth - ray.bounds.x) / length(u_volume.size)), 1.0);
 
         // trace_color
-        case 9: 
+        case 10: 
             return vec4(trace.color, 1.0);
 
         // trace_luminance
-        case 10: 
+        case 11: 
             return vec4(vec3(dot(trace.lighting, vec3(0.2126, 0.7152, 0.0722))), 1.0);
 
         // ray_dithering
-        case 11: 
-            return vec4(vec3(ray.dithering / (ray.spacing * u_raycast.min_stepping)), 1.0);
+        case 12: 
+            return vec4(vec3(ray.dithering / (ray.spacing * u_raycast.max_stepping)), 1.0);
 
         // ray_min_bound
-        case 12: 
+        case 13: 
             return  vec4(vec3((ray.bounds.x - box_bounds.x) / length(u_volume.size)), 1.0);
 
         // ray_max_bound
-        case 13: 
+        case 14: 
             return  vec4(vec3((ray.bounds.y - box_bounds.x) / length(u_volume.size)), 1.0);
 
         // ray_span
-        case 14: 
+        case 15: 
             return vec4(vec3(ray.span / length(u_volume.size)), 1.0);
             
         // ray_spacing
-        case 15: 
+        case 16: 
             return vec4(vec3(ray.spacing / length(u_volume.spacing)), 1.0); 
 
         // ray_direction
-        case 16: 
+        case 17: 
             return vec4(vec3(ray.direction * 0.5 + 0.5), 1.0);
 
         // frag_depth
-        case 17: 
+        case 18: 
             return vec4(vec3(gl_FragDepth), 1.0);
 
         // default
