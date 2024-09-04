@@ -11,27 +11,28 @@ float dithering_texture
 (
         in sampler2D noisemap, 
         in vec3 ray_direction,
+        in vec3 ray_origin,
         in vec2 ray_bounds
 )
 {
     // Calculate the end position of the ray.
-    vec3 end_position = ray_direction * ray_bounds.y;
+    vec3 ray_position = ray_origin + ray_direction * ray_bounds.x;
 
     // Compute a position value based on the end position transformed by the matrix.
-    vec4 position = v_projection_model_view_matrix * vec4(end_position, 1.0);
+    vec4 sample_position = v_projection_model_view_matrix * vec4(ray_position, 1.0);
 
     // Perform perspective division to get NDC space.
-    position /= position.w;
+    sample_position /= sample_position.w;
     
     // Calculate NDC position in the range [0, 1].
-    position = (position + 1.0) * 0.5; 
+    sample_position = (sample_position + 1.0) * 0.5; 
 
     // Subdivide the screen into multiple tilings.
-    position *= 1000.0; 
+    sample_position *= 1000.0; 
 
     // Sample the noise map texture at xy coordinates.
-    float dither_intensity = texture(noisemap, position.xy).r;    
+    float dithering = texture(noisemap, sample_position.xy).r;    
 
     // Return the dithered intensity value in the [0, 1] range.
-    return dither_intensity; 
+    return dithering; 
 }

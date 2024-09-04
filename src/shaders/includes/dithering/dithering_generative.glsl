@@ -9,18 +9,19 @@
 float dithering_generative
 (
     in vec3 ray_direction,
+    in vec3 ray_origin,
     in vec2 ray_bounds
 )
 {
     // Calculate the end position of the ray.
-    vec3 end_position = ray_direction * ray_bounds.y;
+    vec3 sample_position = ray_origin + ray_direction * dot(ray_bounds, vec2(0.5));
 
     // Compute the ray end position in world coordinates.
-    end_position = vec3(v_model_view_matrix * vec4(end_position, 1.0));
+    sample_position = vec3(v_model_view_matrix * vec4(sample_position, 1.0));
 
     // Generate a random number based on position
-    float dither_intensity = random(end_position); 
+    float dithering = random(sample_position); 
 
     // Return the dithered intensity value in the [0, 1] range.
-    return dither_intensity; 
+    return dithering; 
 }

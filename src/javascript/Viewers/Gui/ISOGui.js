@@ -99,14 +99,16 @@ export default class ISOGui
         this.controllers.raycast = 
         {
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
-            steppingMin: raycast.add(u_raycast, 'stepping_min').min(0.1).max(3).step(0.001),
-            steppingMax: raycast.add(u_raycast, 'stepping_max').min(0.1).max(3).step(0.001),
             refinements: raycast.add(u_raycast, 'refinements').min(0).max(5).step(1),
+            steppingMin: raycast.add(u_raycast, 'min_stepping').min(0.1).max(3).step(0.001),
+            steppingMax: raycast.add(u_raycast, 'max_stepping').min(0.1).max(3).step(0.001),
+            maxSteps: raycast.add(u_raycast, 'max_steps').min(0).max(5000).step(1),
             spacingMethod: raycast.add(u_raycast, 'spacing_method').options({ isotropic: 1, directional: 2, traversal: 3 }),
             steppingMethod: raycast.add(u_raycast, 'stepping_method').options({ approximation: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5 }),
             ditheringMethod: raycast.add(u_raycast, 'dithering_method').options({ generative: 1, texture: 2, }),
             hasDithering: raycast.add(u_raycast, 'has_dithering'),
-            hasSkipping: raycast.add(u_raycast, 'has_skipping')
+            hasSkipping: raycast.add(u_raycast, 'has_skipping'),
+            hasBbox: raycast.add(u_raycast, 'has_bbox'),
         }
 
     }
@@ -188,7 +190,26 @@ export default class ISOGui
 
         this.controllers.debug = 
         {
-            max_iterations: debug.add(u_debug, 'max_iterations').min(0).max(1000).step(1),
+            option: debug.add(u_debug, 'option').options({ 
+                default:            0,
+                trace_position:     1, 
+                trace_steps:        2, 
+                trace_value:        3, 
+                trace_steepness:    4,
+                trace_normal:       5,
+                trace_gradient:     6,
+                trace_depth:        7,
+                trace_penetration:  8,
+                trace_color:        9,
+                trace_luminance:    10,
+                ray_dithering:      11,
+                ray_min_bound:      12,
+                ray_max_bound:      13,
+                ray_span:           14,
+                ray_spacing:        15,
+                ray_direction:      16,
+                frag_depth:         17,
+            })
         }
     }
     

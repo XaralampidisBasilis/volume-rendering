@@ -45,6 +45,7 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/colormapping/compute_colormapping"
 #include "../../includes/lighting/compute_lighting"
 #include "../../includes/compute_frag_depth"
+#include "../../includes/compute_debug"
 
 void main() 
 {
@@ -57,9 +58,7 @@ void main()
     
     // compute raycast
     bool hit = compute_raycasting(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace); 
-    // gl_FragColor = vec4(vec3(trace.i_step) / vec3(1000.0), 1.0); return;
-    // gl_FragColor = vec4(vec3(trace.texel), 1.0); return;
-    // return;
+    // gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace); return;
 
     // hit detected
     if (hit) 
@@ -68,26 +67,18 @@ void main()
         vec3 light_position = v_camera + u_lighting.position * u_volume.size;
 
         // compute color and lighting
-        vec3 color_sample = compute_colormapping(u_colormap, u_sampler.colormap, trace.value);       
-        vec3 color_lighting = compute_lighting(u_lighting, color_sample, trace.normal, trace.position, view_position, light_position);
+        trace.color = compute_colormapping(u_colormap, u_sampler.colormap, trace.value);
+        trace.lighting = compute_lighting(u_lighting, trace.color, trace.normal, trace.position, view_position, light_position);
 
         // set fragment depth
         gl_FragDepth = compute_frag_depth(trace.position);
 
         // set fragment color
-        gl_FragColor = vec4(color_lighting, 1.0);
+        gl_FragColor = vec4(trace.lighting, 1.0);
        
-        // gl_FragColor = vec4(vec3(trace.texel), 1.0);
-        // gl_FragColor = vec4(vec3(trace.i_step) / vec3(ray.max_steps), 1.0);
-        // gl_FragColor = vec4(vec3(trace.i_step) / vec3(1000.0), 1.0);
-        // gl_FragColor = vec4(vec3(trace.value), 1.0);
-        // gl_FragColor = vec4(trace.normal * 0.5 + 0.5, 1.0);
-        // gl_FragColor = vec4(vec3(u_gradient.length_range / 1000.0), 1.0);
-        // gl_FragColor = vec4(vec3(trace.steepness / u_gradient.max_length), 1.0);
-        // gl_FragColor = vec4((trace.gradient / u_gradient.max_length) * 0.5 + 0.5, 1.0);
-        // gl_FragColor = vec4(abs(trace.gradient / u_gradient.max_length), 1.0);
-        // gl_FragColor = vec4(vec3(trace.depth / length(2.0 * u_volume.size)), 1.0);
-        // gl_FragColor = vec4(vec3((trace.depth - ray.bounds.x) / length(u_volume.size)), 1.0);
+        // debug
+        gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace);
+
         return;
     }   
     // discard fragment if there is no intersection

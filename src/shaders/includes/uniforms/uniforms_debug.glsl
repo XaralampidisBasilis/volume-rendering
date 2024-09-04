@@ -4,6 +4,7 @@
 // struct to hold colormap uniforms
 struct uniforms_debug 
 {
+    int option;
     int max_iterations;
 };
 

@@ -21,8 +21,8 @@ float stepping_approximation
 
     // compute the stepping factor
     float stepping = spacing / ray.spacing;
-    stepping = clamp(stepping, u_raycast.stepping_min, u_raycast.stepping_max);
-    stepping = (stepping <= 0.0) ? u_raycast.stepping_max : stepping;
+    stepping = clamp(stepping, u_raycast.min_stepping, u_raycast.max_stepping);
+    stepping = (stepping <= 0.0) ? u_raycast.max_stepping : stepping;
     // stepping = mix(u_raycast.stepping_max, stepping, step(0.0, stepping));
 
     return stepping;

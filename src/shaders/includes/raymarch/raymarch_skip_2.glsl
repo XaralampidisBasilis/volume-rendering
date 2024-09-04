@@ -27,8 +27,8 @@ bool raymarch_skip_2
 
     for (
         trace.i_step = 0; 
-        trace.i_step < ray.max_steps && trace.depth < ray.bounds.y && debug.iterations < u_debug.max_iterations; 
-        trace.i_step++, debug.iterations++
+        trace.i_step < u_raycast.max_steps && trace.depth < ray.bounds.y; 
+        trace.i_step++
     ) 
     {
         // traverse space if block is occupied
@@ -37,7 +37,7 @@ bool raymarch_skip_2
 
         if (occupied) 
         {            
-            int max_steps = max(int(ceil(skip_depth / (ray.spacing * u_raycast.stepping_min))), 1);
+            int max_steps = max(int(ceil(skip_depth / (ray.spacing * u_raycast.min_stepping))), 1);
 
             // Raymarch loop to traverse through the volume
             for(int i = 0; i < max_steps && trace.depth < max_depth; i++) 

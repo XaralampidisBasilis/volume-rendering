@@ -45,7 +45,7 @@ void compute_refinement
         trace.gradient = trace.normal * trace.steepness;
 
         // If the sampled value exceeds the threshold, return early
-        if (trace.value > u_raycast.threshold) 
+        if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
         {
             return;   
         }

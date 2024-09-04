@@ -16,8 +16,8 @@ float stepping_uniform
 {
     // Interpolate the resolution based on the alignment.
     // when alignment is high, use higher resolution, when low, use lower resolution.
-    // float stepping = mix(u_raycast.stepping_max, u_raycast.stepping_min, 0.5);
-    float stepping = u_raycast.stepping_min;
+    // float stepping = mix(u_raycast.max_stepping, u_raycast.min_stepping, 0.5);
+    float stepping = u_raycast.min_stepping;
 
     return stepping;
 }

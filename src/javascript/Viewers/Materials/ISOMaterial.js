@@ -31,13 +31,15 @@ export default function(viewer)
         ({
             threshold:        0.3,   
             refinements:      0,   
-            stepping_min:     1,
-            stepping_max:     1,
+            min_stepping:     1,
+            max_stepping:     1,
+            max_steps:        1000,
             spacing_method:   1,
             stepping_method:  5,
             dithering_method: 1,
-            has_dithering:    true, 
+            has_dithering:    true,
             has_skipping:     false,
+            has_bbox:         true, 
         }),
 
         u_gradient: new THREE.Uniform
@@ -88,6 +90,7 @@ export default function(viewer)
 
         u_debug: new THREE.Uniform
         ({
+            option:            0,
             max_iterations:     1000,
         })
 

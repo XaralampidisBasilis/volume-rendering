@@ -17,7 +17,7 @@ float stepping_steepness
     // Interpolate the resolution based on the alignment.
     // when alignment is high, use higher resolution, when low, use lower resolution.
     float gradial_steepness = trace.gradial_data.a;
-    float stepping = mix(u_raycast.stepping_max, u_raycast.stepping_min, gradial_steepness);
+    float stepping = mix(u_raycast.max_stepping, u_raycast.min_stepping, gradial_steepness);
 
     return stepping;
 }

@@ -21,8 +21,8 @@ bool raymarch_full
     // Raymarch loop to traverse through the volume
     for (
         trace.i_step = 0; 
-        trace.i_step < ray.max_steps && trace.depth < ray.bounds.y && debug.iterations < u_debug.max_iterations; 
-        trace.i_step++, debug.iterations++
+        trace.i_step < u_raycast.max_steps && trace.depth < ray.bounds.y; 
+        trace.i_step++
     ) 
     {
         // Sample the intensity of the volume at the current ray position

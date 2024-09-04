@@ -151,8 +151,8 @@ export default class ComputeOccupancy extends EventEmitter
             this.occubox.max.max(blockVoxelMax)
         }
         
-        this.occubox.max.addScalar(1).divide(this.parameters.volumeDimensions)
-        this.occubox.min.subScalar(0).divide(this.parameters.volumeDimensions)
+        this.occubox.max.addScalar(1).divide(this.parameters.volumeDimensions).multiply(this.viewer.parameters.volume.size)
+        this.occubox.min.subScalar(0).divide(this.parameters.volumeDimensions).multiply(this.viewer.parameters.volume.size)
     }
 
     // IS NOT CORRECT
@@ -218,8 +218,8 @@ export default class ComputeOccupancy extends EventEmitter
         const size = new THREE.Vector3()
         const box = new THREE.Box3()
 
-        this.occubox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.center)
-        this.occubox.getSize(size).multiply(this.viewer.parameters.volume.size)  
+        this.occubox.getCenter(center).sub(this.viewer.parameters.geometry.center)
+        this.occubox.getSize(size)  
         this.helpers.occubox = new THREE.Box3Helper(box.setFromCenterAndSize(center, size), 0xFFFFFF) 
         this.viewer.scene.add(this.helpers.occubox)
     }
@@ -251,8 +251,8 @@ export default class ComputeOccupancy extends EventEmitter
     {
         const center = new THREE.Vector3()
         const size = new THREE.Vector3()
-        this.occubox.getCenter(center).multiply(this.viewer.parameters.volume.size).sub(this.viewer.parameters.geometry.center)
-        this.occubox.getSize(size).multiply(this.viewer.parameters.volume.size)  
+        this.occubox.getCenter(center).sub(this.viewer.parameters.geometry.center)
+        this.occubox.getSize(size)  
         this.helpers.occubox.box.setFromCenterAndSize(center, size)
     }
 
