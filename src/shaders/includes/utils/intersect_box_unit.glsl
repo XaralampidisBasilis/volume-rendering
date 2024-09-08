@@ -10,10 +10,8 @@ vec2 intersect_box_unit(vec3 orig, vec3 dir)
     
     vec3 t_min_tmp = (0.0 - orig) * inv_dir;
     vec3 t_max_tmp = (1.0 - orig) * inv_dir;
-
     vec3 t_min = min(t_min_tmp, t_max_tmp);
     vec3 t_max = max(t_min_tmp, t_max_tmp);
-
     float t_0 = max(t_min.x, max(t_min.y, t_min.z));
     float t_1 = min(t_max.x, min(t_max.y, t_max.z));
 

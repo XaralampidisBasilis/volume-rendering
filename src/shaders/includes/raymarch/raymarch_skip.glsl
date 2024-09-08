@@ -20,7 +20,8 @@ bool raymarch_skip
     in uniforms_occupancy u_occupancy, 
     in uniforms_sampler u_sampler,
     inout parameters_ray ray,
-    inout parameters_trace trace
+    inout parameters_trace trace,
+    inout parameters_trace prev_trace
 ) 
 { 
     int skip_steps;

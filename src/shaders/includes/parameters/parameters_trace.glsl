@@ -20,9 +20,7 @@ struct parameters_trace
     int i_step;
 };
 
-parameters_trace trace;
-
-void set_trace()
+void set_trace(inout parameters_trace trace)
 {
     trace.gradial_data = vec4(0.0);
     trace.position = vec3(0.0);

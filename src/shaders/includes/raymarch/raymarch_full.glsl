@@ -15,7 +15,8 @@ bool raymarch_full
     in uniforms_volume u_volume, 
     in uniforms_sampler u_sampler,
     inout parameters_ray ray,
-    inout parameters_trace trace
+    inout parameters_trace trace,
+    inout parameters_trace prev_trace
 ) 
 { 
     // Raymarch loop to traverse through the volume
@@ -40,9 +41,16 @@ bool raymarch_full
         if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold) 
         {   
             // Compute refinement
-            compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace);
+            compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);            
             return true;
         }
+
+        // Same previous trace
+        prev_trace.value = trace.value;
+        prev_trace.gradient = trace.gradient;
+        prev_trace.depth = trace.depth;
+        prev_trace.position = trace.position;
+        prev_trace.texel = trace.texel;
 
         // Update ray position for the next step
         trace.spacing = ray.spacing * compute_stepping(u_raycast, u_gradient, ray, trace);

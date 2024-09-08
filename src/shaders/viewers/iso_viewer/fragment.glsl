@@ -35,7 +35,7 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/utils/intersect_box_max"
 #include "../../includes/utils/intersect_box_min"
 #include "../../includes/utils/reshape_coordinates"
-#include "../../includes/utils/product"
+#include "../../includes/utils/prod"
 #include "../../includes/utils/sum"
 #include "../../includes/utils/rampstep"
 #include "../../includes/utils/posterize"
@@ -50,14 +50,22 @@ varying mat4 v_model_view_matrix;
 void main() 
 {
     // set parameters
-    set_ray();
-    set_trace();
-    set_debug();
+    parameters_ray ray;
+    parameters_trace trace;
+    parameters_trace prev_trace;
+    parameters_debug debug;
+
+    // initialize parameters
+    set_ray(ray);
+    set_trace(trace);
+    set_trace(prev_trace);
+    set_debug(debug);
+   
+    // compute raycast
     ray.origin = v_camera;
     ray.direction = normalize(v_direction);
-    
-    // compute raycast
-    bool hit = compute_raycasting(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace); 
+
+    bool hit = compute_raycasting(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace, prev_trace); 
     // gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace); return;
 
     // hit detected

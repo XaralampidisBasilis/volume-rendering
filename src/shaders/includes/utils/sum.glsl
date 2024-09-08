@@ -1,40 +1,12 @@
 #ifndef UTILS_SUM
 #define UTILS_SUM
 
-// vec
-
-float sum(in vec2 vector)
-{
-    return vector.x + vector.y;
-}
-
-float sum(in vec3 vector)
-{
-    return vector.x + vector.y + vector.z;
-}
-
-float sum(in vec4 vector)
-{
-    return vector.x + vector.y + vector.z + vector.w;
-}
-
-// ivec
-
-int sum(in ivec2 vector)
-{
-    return int(sum(vec2(vector)));
-}
-
-int sum(in ivec3 vector)
-{
-    return int(sum(vec3(vector)));
-}
-
-int sum(in ivec4 vector)
-{
-    return int(sum(vec4(vector)));
-}
-
-// bvec
+// vec and ivec sum using dot product for compactness and efficiency
+float sum(in vec2 v) { return dot(v, vec2(1.0)); }
+float sum(in vec3 v) { return dot(v, vec3(1.0)); }
+float sum(in vec4 v) { return dot(v, vec4(1.0)); }
+int sum(in ivec2 v) { return int(dot(vec2(v), vec2(1.0))); }
+int sum(in ivec3 v) { return int(dot(vec3(v), vec3(1.0))); }
+int sum(in ivec4 v) { return int(dot(vec4(v), vec4(1.0))); }
 
 #endif // UTILS_SUM

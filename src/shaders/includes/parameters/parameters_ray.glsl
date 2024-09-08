@@ -14,9 +14,7 @@ struct parameters_ray
     int max_steps;
 };
 
-parameters_ray ray;
-
-void set_ray()
+void set_ray(inout parameters_ray ray)
 {
     ray.origin = vec3(0.0);
     ray.direction = vec3(0.0);

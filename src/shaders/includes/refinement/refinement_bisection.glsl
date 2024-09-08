@@ -13,10 +13,11 @@ void refinement_bisection
 (
     in uniforms_volume u_volume, 
     in uniforms_raycast u_raycast, 
-    in uniforms_gradient u_gradient, 
+    in uniforms_gradient u_gradient,
     in uniforms_sampler u_sampler, 
     in parameters_ray ray,
-    inout parameters_trace trace
+    inout parameters_trace trace,
+    inout parameters_trace prev_trace
 )
 {
     // Initialize the positions and values, reducing the use of arrays

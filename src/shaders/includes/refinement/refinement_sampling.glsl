@@ -9,18 +9,19 @@
  * @param hit_sample: output float where the refined value at the intersection will be stored.
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
-void refinement_uniform
+void refinement_sampling
 (
     in uniforms_volume u_volume, 
     in uniforms_raycast u_raycast, 
-    in uniforms_gradient u_gradient, 
+    in uniforms_gradient u_gradient,
     in uniforms_sampler u_sampler, 
     in parameters_ray ray,
-    inout parameters_trace trace
+    inout parameters_trace trace,
+    inout parameters_trace prev_trace
 )
 {
     // Calculate the refined substep based on the number of refinements
-    float subspacing = trace.spacing / float(u_raycast.refinements + 1);  
+    float spacing = trace.spacing / float(u_raycast.refinements + 1);  
 
     // Step back to refine the hit point
     trace.position -= ray.direction * trace.spacing;
@@ -30,12 +31,13 @@ void refinement_uniform
     for (int i = 0; i <= u_raycast.refinements; i++, trace.i_step++) 
     {
         // Move position forward by substep
-        trace.position += ray.direction * subspacing;  
-        trace.depth += subspacing;
+        trace.position += ray.direction * spacing;  
+        trace.depth += spacing;
         
        // Sample the intensity of the volume at the current ray position
         trace.texel = trace.position * u_volume.inv_size;
         trace.value = texture(u_sampler.volume, trace.texel).r;
+        trace.error = trace.value - u_raycast.threshold;
 
         // Extract gradient and value from texture data
         vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
@@ -44,9 +46,6 @@ void refinement_uniform
         trace.gradient = trace.normal * trace.steepness;
 
         // If the sampled value exceeds the threshold, return early
-        if (trace.value > u_raycast.threshold && gradient_data.a > u_gradient.threshold) 
-        {
-            return;   
-        }
+        if (trace.error > 0.0) return;   
     }
 }

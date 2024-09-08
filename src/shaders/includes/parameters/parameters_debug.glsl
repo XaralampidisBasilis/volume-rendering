@@ -7,9 +7,7 @@ struct parameters_debug
     int iterations;
 };
 
-parameters_debug debug;
-
-void set_debug()
+void set_debug(inout parameters_debug debug)
 {
     debug.iterations = 0;
 }

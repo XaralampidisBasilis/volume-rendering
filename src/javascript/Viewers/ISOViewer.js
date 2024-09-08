@@ -151,7 +151,7 @@ export default class ISOViewer
         this.textures.gradients.minFilter = THREE.LinearFilter
         this.textures.gradients.magFilter = THREE.LinearFilter
         this.textures.gradients.needsUpdate = true   
-        this.textures.gradients.unpackAlignment = 1 
+        this.textures.gradients.unpackAlignment = 4 
     }
 
     setMaskTexture()

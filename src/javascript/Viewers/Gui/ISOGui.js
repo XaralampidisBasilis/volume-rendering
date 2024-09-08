@@ -106,7 +106,7 @@ export default class ISOGui
             spacingMethod: raycast.add(u_raycast, 'spacing_method').options({ isotropic: 1, directional: 2, traversal: 3 }),
             steppingMethod: raycast.add(u_raycast, 'stepping_method').options({ adaptive: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5 }),
             ditheringMethod: raycast.add(u_raycast, 'dithering_method').options({ generative: 1, texture: 2, }),
-            refinementMethod: raycast.add(u_raycast, 'refinement_method').options({ uniform: 1, bisection: 2, adaptive: 3 }),
+            refinementMethod: raycast.add(u_raycast, 'refinement_method').options({ sampling: 1, bisection: 2, linear: 3, lagrange: 4, hermitian: 5 }),
             hasDithering: raycast.add(u_raycast, 'has_dithering'),
             hasSkipping: raycast.add(u_raycast, 'has_skipping'),
             hasBbox: raycast.add(u_raycast, 'has_bbox'),

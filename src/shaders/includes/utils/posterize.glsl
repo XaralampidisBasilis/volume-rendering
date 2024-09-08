@@ -20,7 +20,6 @@ float posterize(in float grayscale, in float levels)
 vec3 posterize(vec3 color, float levels) {
 
     float grayscale = max(color.r, max(color.g, color.b));
-
     float level = posterize(grayscale, levels);
     float adjustment = level / grayscale;
 

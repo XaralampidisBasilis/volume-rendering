@@ -25,14 +25,15 @@ bool compute_raymarch
     in uniforms_occupancy u_occupancy, 
     in uniforms_sampler u_sampler,
     inout parameters_ray ray,
-    inout parameters_trace trace
+    inout parameters_trace trace,
+    inout parameters_trace prev_trace
 ) 
 {
     switch(u_raycast.has_skipping)  
     {
         case 0:
-            return raymarch_full(u_gradient, u_raycast, u_volume, u_sampler, ray, trace);
+            return raymarch_full(u_gradient, u_raycast, u_volume, u_sampler, ray, trace, prev_trace);
         default:
-            return raymarch_skip_2(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace);
+            return raymarch_skip_2(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace, prev_trace);
     }  
 }
