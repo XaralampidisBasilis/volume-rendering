@@ -1,5 +1,4 @@
-#include "../utils/lagrange_coefficients"
-#include "../utils/quadratic_roots"
+
 
 /**
  * Refines the hit point by performing additional sampling steps.
@@ -46,7 +45,7 @@ void refinement_lagrange
     // Filter normalized roots outside of the s interval 
     highp vec2 s_filter = step(s.xx, s_roots) * step(s_roots, s.zz);
     s_roots = mix(s.zz, s_roots, s_filter);
-    s_roots = clamp(s_roots, s.xx, s.yy); // this is needed. Filtering for some reason does not make the values inside [0, 1]
+    s_roots = clamp(s_roots, s.xx, s.zz);
 
     // Denormalize result
     highp vec2 t_roots = mix(t.xx, t.zz, s_roots);

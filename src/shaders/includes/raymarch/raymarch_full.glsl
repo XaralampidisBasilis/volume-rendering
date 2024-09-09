@@ -45,7 +45,7 @@ bool raymarch_full
             return true;
         }
 
-        // Same previous trace
+        // Save previous trace
         prev_trace.value = trace.value;
         prev_trace.gradient = trace.gradient;
         prev_trace.depth = trace.depth;

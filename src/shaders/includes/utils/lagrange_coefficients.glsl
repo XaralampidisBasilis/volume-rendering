@@ -21,6 +21,9 @@ vec3 lagrange_coefficients(in highp vec3 t, in highp vec3 f)
         dot(vec3(1.0), tf)
     );
 
+    // gl_FragColor = vec4(vec3(any(isinf(coeff))), 1.0);
+    // gl_FragColor = vec4(vec3(any(isnan(coeff))), 1.0);
+
     return coeff;
 }
 

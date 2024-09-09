@@ -1,6 +1,3 @@
-#include "../utils/hermite_coefficients"
-#include "../utils/cubic_roots"
-
 /**
  * Refines the hit point by performing additional sampling steps.
  *
@@ -12,6 +9,9 @@
  * @param hit_sample: output float where the refined value at the intersection will be stored.
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
+
+highp float epsilon = 1e-5;  // Small tolerance to handle precision issues
+
 void refinement_hermitian
 (
     in uniforms_volume u_volume, 
@@ -40,7 +40,7 @@ void refinement_hermitian
     // Filter normalized roots outside of the interval [0, 1] and set them to 1.0
     highp vec3 s_filter = step(s.xxx, s_roots) * step(s_roots, s.yyy);
     s_roots = mix(s.yyy, s_roots, s_filter);
-    s_roots = clamp(s_roots, s.xxx, s.yyy); // this is needed. Filtering for some reason does not make the values inside [0, 1]
+    s_roots = clamp(s_roots, s.xxx, s.yyy);
 
     // Denormalize result
     highp vec3 t_roots = mix(t.xxx, t.yyy, s_roots);

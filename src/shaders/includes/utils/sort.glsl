@@ -18,19 +18,3 @@ vec4 sort(in vec4 v)
     v.zw = mix(v.zw, v.wz, step(v.w, v.z)); // Final check for z and w
     return v;
 }
-void sort(inout float array[], int length) // Function to sort an array of any given length using bubble sort
-{
-    for (int i = 0; i < length - 1; i++) 
-    {
-        for (int j = 0; j < length - i - 1; j++) 
-        {
-            // Swap elements if the current element is greater than the next
-            if (array[j] > array[j + 1]) 
-            {
-                float temp = array[j];
-                array[j] = array[j + 1];
-                array[j + 1] = temp;
-            }
-        }
-    }
-}

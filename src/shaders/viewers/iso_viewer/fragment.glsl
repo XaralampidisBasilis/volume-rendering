@@ -39,6 +39,12 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/utils/sum"
 #include "../../includes/utils/rampstep"
 #include "../../includes/utils/posterize"
+#include "../../includes/utils/sort"
+#include "../../includes/utils/lagrange_coefficients"
+#include "../../includes/utils/hermite_coefficients"
+#include "../../includes/utils/linear_roots"
+#include "../../includes/utils/quadratic_roots"
+#include "../../includes/utils/cubic_roots"
 
 // func
 #include "../../includes/raycasting/compute_raycasting"
@@ -49,7 +55,6 @@ varying mat4 v_model_view_matrix;
 
 void main() 
 {
-    // set parameters
     parameters_ray ray;
     parameters_trace trace;
     parameters_trace prev_trace;
@@ -68,7 +73,7 @@ void main()
 
     // hit detected
     if (hit) 
-    {                
+    {                      
         vec3 view_position = ray.origin;  
         vec3 light_position = v_camera + u_lighting.position * u_volume.size;
 

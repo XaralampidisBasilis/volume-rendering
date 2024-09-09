@@ -7,8 +7,8 @@ vec4 compute_debug
     in uniforms_raycast u_raycast, 
     in uniforms_volume u_volume, 
     in uniforms_occupancy u_occupancy, 
-    inout parameters_ray ray,
-    inout parameters_trace trace
+    in parameters_ray ray,
+    in parameters_trace trace
 )
 {
     vec2 box_bounds = sdf_box(ray.origin, u_occupancy.box_min, u_occupancy.box_max);
@@ -29,9 +29,11 @@ vec4 compute_debug
 
         // trace_error
         case 4:
-            return vec4(abs(trace.error / 0.1) * mix(vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), step(0.0, trace.error)), 1.0);
-            // return vec4(abs(trace.error / 0.1) * vec3(1.0, 0.0, 0.0), 1.0);
-
+            return vec4(abs(trace.error / 0.01) * mix(
+                        vec3(0.0, 0.43137254901960786, 1.0), // https://www.hsluv.org/
+                        vec3(0.9372549019607843, 0.0, 0.0), // https://www.hsluv.org/
+                        step(0.0, trace.error)), 1.0);
+                        
         // trace_steepness
         case 5: 
             return vec4(vec3(trace.steepness / u_gradient.max_length), 1.0);

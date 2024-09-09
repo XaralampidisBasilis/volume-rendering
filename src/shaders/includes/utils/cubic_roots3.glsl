@@ -8,7 +8,8 @@ vec3 cubic_roots3(vec4 coefficient)
 {
     // Normalize the polynomial
     coefficient.xyz /= coefficient.w;
-    
+    // gl_FragColor = vec4(vec3(any(isinf(coefficient))), 1.0);
+
     // Divide middle coefficients by three eq(0.1)
     coefficient.yz /= 3.0;
     

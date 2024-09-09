@@ -1,22 +1,35 @@
-#define MAX_FLOAT 1e+38
-
 // coeff[0] + coeff[1] * t + coeff[2] * t^2
-vec2 quadratic_roots(in highp vec3 coefficient) 
+vec2 quadratic_roots(in vec3 coeff) 
 {
-    // Step 1: Normalize quadratic equation (coefficient[2] must be 1)
-    coefficient = coefficient / coefficient.z;
+    const float degenerate = -1.0;
+    const float epsilon = 1e-6;
 
-    // Step 2: Divide the middle coefficient by 2 for further simplification
-    coefficient.y /= 2.0;
+    // check if quadratic
+    float is_quadratic = step(epsilon, abs(coeff.z));  
     
-    // Step 2: Calculate discriminant
-    highp float discriminant = coefficient.y * coefficient.y - coefficient.x;
+    // linear case
+    vec2 roots1 = vec2(linear_roots(coeff.xy), degenerate);
+
+    // normalize coefficients
+    coeff.xy /= mix(1.0, coeff.z, is_quadratic); // gl_FragColor = vec4(vec3(any(isinf(coeff))), 1.0);
+    coeff.y /= 2.0;
     
-    // Step 3: Compute two real roots, applying quadratic formula
-    highp vec2 roots2 = vec2(-1.0, 1.0) * sqrt(abs(discriminant)) - coefficient.y; 
+    // calculate discriminant
+    float discriminant = coeff.y * coeff.y - coeff.x;
+    float is_positive = step(0.0, discriminant);
 
-    // Step 4: Combine roots depending on discriminant
-    highp vec2 roots = mix(vec2(MAX_FLOAT), roots2, step(0.0, discriminant));
+    // degenerate case
+    vec2 roots0 = vec2(degenerate);
 
+    // quadratic case
+    vec2 roots2 = sqrt(max(epsilon, discriminant)) * vec2(-1.0, 1.0) - coeff.y; 
+    roots2 = sort(roots2);
+
+    // combine cases
+    vec2 roots;
+    roots = mix(roots1, roots2, is_positive);
+    roots = mix(roots0, roots,  is_quadratic);
+    // gl_FragColor = vec4(vec3(any(isinf(roots)), 0.0, any(isnan(roots))), 1.0);
+    
     return roots;
 }
