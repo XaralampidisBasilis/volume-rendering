@@ -24,27 +24,32 @@ void refinement_lagrange
 )
 {
     // Define linear interpolation
-    float t_linear = rampstep(prev_trace.value, trace.value, u_raycast.threshold);
-
-    vec3 texel = mix(prev_trace.texel, trace.texel, t_linear);
-    float depth = mix(prev_trace.depth, trace.depth, t_linear);
-    float value = texture(u_sampler.volume, texel).r;
+    // float s_linear = rampstep(prev_trace.value, trace.value, u_raycast.threshold);
+    highp float s_linear = 0.5;
+    
+    highp vec3 texel = mix(prev_trace.texel, trace.texel, s_linear);
+    highp float depth = mix(prev_trace.depth, trace.depth, s_linear);
+    highp float value = texture(u_sampler.volume, texel).r;
 
     // Define symbolic vectors
-    vec3 t = vec3(prev_trace.depth, depth, trace.depth);
-    vec3 f = vec3(prev_trace.value, value, trace.value);
+    highp vec3 t = vec3(prev_trace.depth, depth, trace.depth);
+    highp vec3 f = vec3(prev_trace.value, value, trace.value);
+    highp vec3 s = vec3(0.0, s_linear, 1.0); // for some reason if i include u_debug.scale the result changes dramatically event if it is 1
 
-    // Compute cubic hermite coefficients
-    vec3 coeff = lagrange_coefficients(vec3(0.0, t_linear, 1.0), f); 
+    // Compute cubic lagrange coefficients
+    highp vec3 coeff = lagrange_coefficients(s, f); 
+
+    // Compute the roots of the equation L(s) - threshold = 0
     coeff.x -= u_raycast.threshold;
+    highp vec2 s_roots = quadratic_roots(coeff);
 
-    // Solve the equation H(t) = threshold for t in [0, 1]
-    vec2 t_roots = quadratic_roots(coeff);
-    t_roots = mix(vec2(t.x), vec2(t.z), t_roots);
+    // Filter normalized roots outside of the s interval 
+    highp vec2 s_filter = step(s.xx, s_roots) * step(s_roots, s.zz);
+    s_roots = mix(s.zz, s_roots, s_filter);
+    s_roots = clamp(s_roots, s.xx, s.yy); // this is needed. Filtering for some reason does not make the values inside [0, 1]
 
-    // Filter the roots outside of interval
-    vec2 roots_filter = step(vec2(t.x), t_roots) * step(t_roots, vec2(t.z));
-    t_roots = (t_roots - t.z) * roots_filter + t.z;
+    // Denormalize result
+    highp vec2 t_roots = mix(t.xx, t.zz, s_roots);
     t_roots = clamp(t_roots, ray.bounds.x, ray.bounds.y);
 
     // Compute depth and position in solution

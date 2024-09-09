@@ -14,7 +14,7 @@ vec3 sort(in vec3 v)
 // coefficient[0] * x^0 + coefficient[1] * x^1 + coefficient[2] * x^2 + coefficient[3] * x^3
 // Based on Blinn's paper (https://courses.cs.washington.edu/courses/cse590b/13au/lecture_notes/solvecubic_p5.pdf)
 // Article by Christoph Peters (https://momentsingraphics.de/CubicRoots.html#_Blinn07b)
-vec3 cubic_roots(vec4 coefficient)
+vec3 cubic_roots(in highp vec4 coefficient)
 {
     // Step 1: Normalize the cubic equation (coefficient[3] must be 1)
     coefficient.xyz /= coefficient.w;
@@ -23,33 +23,33 @@ vec3 cubic_roots(vec4 coefficient)
     coefficient.yz /= 3.0;
 
     // Step 3: Compute the Hessian coeeficents of the quadratic eq(0.4)
-    vec3 delta = vec3(
+    highp vec3 delta = vec3(
         coefficient.y - coefficient.z * coefficient.z,                          // δ1 = Coefficient.w * Coefficient.y - Coefficient.z^2
         coefficient.x - coefficient.y * coefficient.z,                          // δ2 = Coefficient.w * Coefficient.x - Coefficient.y * Coefficient.z
         dot(vec2(coefficient.z, -coefficient.y), coefficient.xy)    // δ3 = Coefficient.z * Coefficient.x - Coefficient.y * Coefficient.x
     );
     
     // Step 4: Calculate discriminant and its square root eq(0.7)
-    float discriminant = dot(vec2(4.0 * delta.x, -delta.y), delta.zy); // Δ = δ1 * δ3 - δ2^2
-    float sqrt_discriminant = sqrt(abs(discriminant));
+    highp float discriminant = dot(vec2(4.0 * delta.x, -delta.y), delta.zy); // Δ = δ1 * δ3 - δ2^2
+    highp float sqrt_discriminant = sqrt(abs(discriminant));
 
     // Step 5: Compute coefficients of the depressed cubic eq(0.16),
     // depressed[0] + depressed[1] * x + x^3 (third coefficient is zero, fourth is one)
-    vec2 depressed = vec2(
+    highp vec2 depressed = vec2(
         delta.y - 2.0 * coefficient.z * delta.x, // Depressed cubic coefficient calculation
         delta.x
     );
     
     // Step 6: Calculate cubic roots using complex number formula eq(0.14)  
-    float theta = atan(sqrt_discriminant, -depressed.x) / 3.0;
-    vec2 cubic_root = vec2(cos(theta), sin(theta));
+    highp float theta = atan(sqrt_discriminant, -depressed.x) / 3.0;
+    highp vec2 cubic_root = vec2(cos(theta), sin(theta));
 
     // Step 7: Compute real root using cubic root formula for one real and two complex roots eq(0.15)
-    float root21 = cbrt((-depressed.x + sqrt_discriminant) * 0.5) 
-                 + cbrt((-depressed.x - sqrt_discriminant) * 0.5);
+    highp float root21 = cbrt((-depressed.x + sqrt_discriminant) * 0.5) 
+                       + cbrt((-depressed.x - sqrt_discriminant) * 0.5);
     
     // Step 8: Compute three roots via rotation, applying complex root formula eq(0.14)
-    vec3 roots3 = vec3(
+    highp vec3 roots3 = vec3(
         cubic_root.x,                                                   // First root
         dot(vec2(-0.5, -0.5 * sqrt(3.0)), cubic_root),   // Second root (rotated by 120 degrees)
         dot(vec2(-0.5, 0.5 * sqrt(3.0)), cubic_root)     // Third root (rotated by -120 degrees)
@@ -60,7 +60,7 @@ vec3 cubic_roots(vec4 coefficient)
     roots3 = sort(roots3);     
 
     // Step 10: Combine real and complex roots depending on discriminant, and revert transformation eq(0.2) and eq(0.16)
-    vec3 roots = -coefficient.z + mix(vec3(root21), roots3, step(0.0, discriminant));
+    highp vec3 roots = -coefficient.z + mix(vec3(root21), roots3, step(0.0, discriminant));
 
     return roots;
 }

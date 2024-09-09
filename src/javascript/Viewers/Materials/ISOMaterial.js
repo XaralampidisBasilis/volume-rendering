@@ -92,7 +92,9 @@ export default function(viewer)
         u_debug: new THREE.Uniform
         ({
             option:            0,
-            max_iterations:     1000,
+            scale:             1,
+            constant:          0,
+            probability:     0.5,
         })
 
     }

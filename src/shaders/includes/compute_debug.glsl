@@ -29,8 +29,8 @@ vec4 compute_debug
 
         // trace_error
         case 4:
-            // return vec4(abs(trace.error / 0.1) * mix(vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), step(0.0, trace.error)), 1.0);
-            return vec4(abs(trace.error / 0.1) * vec3(1.0, 0.0, 0.0), 1.0);
+            return vec4(abs(trace.error / 0.1) * mix(vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), step(0.0, trace.error)), 1.0);
+            // return vec4(abs(trace.error / 0.1) * vec3(1.0, 0.0, 0.0), 1.0);
 
         // trace_steepness
         case 5: 

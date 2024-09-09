@@ -5,7 +5,9 @@
 struct uniforms_debug 
 {
     int option;
-    int max_iterations;
+    float scale;
+    float probability;
+    float constant;
 };
 
 uniform uniforms_debug u_debug;

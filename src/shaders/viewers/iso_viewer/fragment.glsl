@@ -4,9 +4,10 @@
 */
 
 // precision
-precision lowp sampler3D;
-precision lowp sampler2D;
-precision lowp float;
+precision highp sampler3D;
+precision highp sampler2D;
+precision highp float;
+precision highp int;
 
 // varying
 varying vec3 v_camera;
@@ -27,7 +28,6 @@ varying mat4 v_model_view_matrix;
 //param
 #include "../../includes/parameters/parameters_ray"
 #include "../../includes/parameters/parameters_trace"
-#include "../../includes/parameters/parameters_debug"
 
 // utils
 #include "../../includes/utils/inside_texture"
@@ -53,13 +53,11 @@ void main()
     parameters_ray ray;
     parameters_trace trace;
     parameters_trace prev_trace;
-    parameters_debug debug;
 
     // initialize parameters
     set_ray(ray);
     set_trace(trace);
     set_trace(prev_trace);
-    set_debug(debug);
    
     // compute raycast
     ray.origin = v_camera;

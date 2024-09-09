@@ -24,21 +24,26 @@ void refinement_hermitian
 )
 {
     // Define symbolic vectors
-    vec2 t = vec2(prev_trace.depth, trace.depth);
-    vec2 f = vec2(prev_trace.value, trace.value);
-    vec2 f_prime = vec2(dot(prev_trace.gradient, ray.direction), dot(trace.gradient, ray.direction));
+    highp vec2 s = vec2(0.0, 1.0);
+    highp vec2 t = vec2(prev_trace.depth, trace.depth);
+    highp vec2 f = vec2(prev_trace.value, trace.value);
+    highp vec2 f_prime = vec2(dot(prev_trace.gradient, ray.direction), dot(trace.gradient, ray.direction));
+    f_prime *= t.y - t.x;
 
     // Compute cubic hermite coefficients
-    vec4 coeff = hermite_coefficients(vec2(0.0, 1.0), f, f_prime); // for some reason the hermite_coefficients(t, f, f_prime); does not produce correct results
+    highp vec4 coeff = hermite_coefficients(s, f, f_prime);
+
+    // Compute the roots of the equation H(t) - threshold = 0
     coeff.x -= u_raycast.threshold;
+    highp vec3 s_roots = cubic_roots(coeff);
 
-    // Solve the equation H(t) = threshold for t in [0, 1]
-    vec3 t_roots = cubic_roots(coeff);
-    t_roots = mix(vec3(t.x), vec3(t.y), t_roots);
+    // Filter normalized roots outside of the interval [0, 1] and set them to 1.0
+    highp vec3 s_filter = step(s.xxx, s_roots) * step(s_roots, s.yyy);
+    s_roots = mix(s.yyy, s_roots, s_filter);
+    s_roots = clamp(s_roots, s.xxx, s.yyy); // this is needed. Filtering for some reason does not make the values inside [0, 1]
 
-    // Filter the roots outside of interval
-    vec3 roots_filter = step(vec3(t.x), t_roots) * step(t_roots, vec3(t.y));
-    t_roots = (t_roots - t.y) * roots_filter + t.y;
+    // Denormalize result
+    highp vec3 t_roots = mix(t.xxx, t.yyy, s_roots);
     t_roots = clamp(t_roots, ray.bounds.x, ray.bounds.y);
 
     // Compute depth and position in solution

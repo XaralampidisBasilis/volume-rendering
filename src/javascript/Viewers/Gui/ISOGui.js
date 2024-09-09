@@ -211,7 +211,10 @@ export default class ISOGui
                 ray_spacing:        16,
                 ray_direction:      17,
                 frag_depth:         18,
-            })
+            }),
+            scale: debug.add(u_debug, 'scale').min(0).max(10).step(0.001),
+            constant: debug.add(u_debug, 'constant').min(-10).max(10).step(0.001),
+            probability: debug.add(u_debug, 'probability').min(0).max(1).step(0.001),
         }
     }
     
