@@ -1,8 +1,9 @@
 #include "./refinement_sampling"
 #include "./refinement_bisection"
-#include "./refinement_linear"
-#include "./refinement_lagrange"
-#include "./refinement_hermitian"
+#include "./refinement_linear2"
+#include "./refinement_lagrange3"
+#include "./refinement_lagrange4"
+#include "./refinement_hermitian2"
 
 void compute_refinement
 (
@@ -24,13 +25,16 @@ void compute_refinement
             refinement_bisection(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
             return;
         case 3: 
-            refinement_linear(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+            refinement_linear2(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
             return;
         case 4: 
-            refinement_lagrange(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+            refinement_lagrange3(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
             return;
-        case 5:
-            refinement_hermitian(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+        case 5: 
+            refinement_lagrange4(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+            return;
+        case 6:
+            refinement_hermitian2(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
             return;
     }
 }

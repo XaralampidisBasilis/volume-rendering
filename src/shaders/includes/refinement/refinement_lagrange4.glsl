@@ -1,5 +1,3 @@
-
-
 /**
  * Refines the hit point by performing additional sampling steps.
  *
@@ -11,7 +9,7 @@
  * @param hit_sample: output float where the refined value at the intersection will be stored.
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
-void refinement_lagrange
+void refinement_lagrange4
 (
     in uniforms_volume u_volume, 
     in uniforms_raycast u_raycast, 
@@ -23,36 +21,38 @@ void refinement_lagrange
 )
 {
     // Define linear interpolation
-    // float s_linear = rampstep(prev_trace.value, trace.value, u_raycast.threshold);
-    highp float s_linear = 0.5;
-    
-    highp vec3 texel = mix(prev_trace.texel, trace.texel, s_linear);
-    highp float depth = mix(prev_trace.depth, trace.depth, s_linear);
-    highp float value = texture(u_sampler.volume, texel).r;
+    float s_linear = rampstep(prev_trace.value, trace.value, u_raycast.threshold);
+    vec2 s_sample = mix(vec2(0.25, s_linear), vec2(s_linear, 0.75), 0.5);
+
+    // sample depths and values at samples
+    vec3 texel_x = mix(prev_trace.texel, trace.texel, s_sample.x);
+    vec3 texel_y = mix(prev_trace.texel, trace.texel, s_sample.y);
+    vec2 depths = mix(vec2(prev_trace.depth), vec2(trace.depth), s_sample);
+    vec2 values = vec2(texture(u_sampler.volume, texel_x).r, texture(u_sampler.volume, texel_y).r);
 
     // Define symbolic vectors
-    highp vec3 t = vec3(prev_trace.depth, depth, trace.depth);
-    highp vec3 f = vec3(prev_trace.value, value, trace.value);
-    highp vec3 s = vec3(0.0, s_linear, 1.0); // for some reason if i include u_debug.scale the result changes dramatically event if it is 1
+    vec4 f = vec4(prev_trace.value, values, trace.value);
+    vec4 t = vec4(prev_trace.depth, depths, trace.depth);
+    vec4 s = vec4(0.0, s_sample, 1.0);
 
-    // Compute cubic lagrange coefficients
-    highp vec3 coeff = lagrange_coefficients(s, f); 
+    // Compute cubic hermite coefficients
+    vec4 coeff = lagrange4_coefficients(s, f);
 
-    // Compute the roots of the equation L(s) - threshold = 0
+    // Compute the roots of the equation L(s) = threshold
     coeff.x -= u_raycast.threshold;
-    highp vec2 s_roots = quadratic_roots(coeff);
+    vec3 s_roots = cubic_roots(coeff);
 
-    // Filter normalized roots outside of the s interval 
-    highp vec2 s_filter = step(s.xx, s_roots) * step(s_roots, s.zz);
-    s_roots = mix(s.zz, s_roots, s_filter);
-    s_roots = clamp(s_roots, s.xx, s.zz);
+    // Filter normalized roots outside of the interval [0, 1] and set them to 1.0
+    vec3 s_filter = step(s.xxx, s_roots) * step(s_roots, s.www);
+    s_roots = mix(s.www, s_roots, s_filter);
+    s_roots = clamp(s_roots, s.xxx, s.www);
 
     // Denormalize result
-    highp vec2 t_roots = mix(t.xx, t.zz, s_roots);
+    vec3 t_roots = mix(t.xxx, t.www, s_roots);
     t_roots = clamp(t_roots, ray.bounds.x, ray.bounds.y);
 
     // Compute depth and position in solution
-    trace.depth = min(t_roots.x, t_roots.y);
+    trace.depth = mmin(t_roots);
     trace.position = ray.origin + ray.direction * trace.depth;
 
     // Compute value and error

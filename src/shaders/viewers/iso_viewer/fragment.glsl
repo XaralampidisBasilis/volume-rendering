@@ -37,12 +37,18 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/utils/reshape_coordinates"
 #include "../../includes/utils/prod"
 #include "../../includes/utils/sum"
+#include "../../includes/utils/diff"
 #include "../../includes/utils/rampstep"
 #include "../../includes/utils/posterize"
 #include "../../includes/utils/sort"
-#include "../../includes/utils/lagrange_coefficients"
-#include "../../includes/utils/hermite_coefficients"
-#include "../../includes/utils/linear_roots"
+#include "../../includes/utils/ssign"
+#include "../../includes/utils/mmin"
+#include "../../includes/utils/mmax"
+#include "../../includes/utils/linear2_coefficients"
+#include "../../includes/utils/lagrange3_coefficients"
+#include "../../includes/utils/lagrange4_coefficients"
+#include "../../includes/utils/hermite2_coefficients"
+#include "../../includes/utils/linear_root"
 #include "../../includes/utils/quadratic_roots"
 #include "../../includes/utils/cubic_roots"
 
@@ -73,7 +79,7 @@ void main()
 
     // hit detected
     if (hit) 
-    {                      
+    {                                      
         vec3 view_position = ray.origin;  
         vec3 light_position = v_camera + u_lighting.position * u_volume.size;
 

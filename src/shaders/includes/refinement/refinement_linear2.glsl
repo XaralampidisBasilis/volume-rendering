@@ -9,7 +9,7 @@
  * @param hit_sample: output float where the refined value at the intersection will be stored.
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
-void refinement_linear
+void refinement_linear2
 (
     in uniforms_volume u_volume, 
     in uniforms_raycast u_raycast, 
@@ -20,14 +20,29 @@ void refinement_linear
     inout parameters_trace prev_trace
 )
 {
-    // Define linear interpolation
-    vec2 t = vec2(prev_trace.depth, trace.depth);
+    // Define symbolic vectors
     vec2 f = vec2(prev_trace.value, trace.value);
-    float inv_lambda = (t.y - t.x) / (f.y - f.x);
-    float t_root = (u_raycast.threshold - f.x) * inv_lambda + t.x;
+    vec2 t = vec2(prev_trace.depth, trace.depth);
+    vec2 s = vec2(0.0, 1.0);
+
+    // Compute cubic lagrange coefficients
+    vec2 coeff = linear2_coefficients(s, f); 
+
+    // Compute the roots of the equation L(s) - threshold = 0
+    coeff.x -= u_raycast.threshold;
+    float s_root = linear_root(coeff);
+
+    // Filter normalized root outside of the s interval 
+    float s_filter = step(s.x, s_root) * step(s_root, s.y);
+    s_root = mix(s.y, s_root, s_filter);
+    s_root = clamp(s_root, s.x, s.y);
+
+    // Denormalize result
+    float t_root = mix(t.x, t.y, s_root);
+    t_root = clamp(t_root, ray.bounds.x, ray.bounds.y);
 
     // Compute depth and position in solution
-    trace.depth = clamp(t_root, ray.bounds.x, ray.bounds.y);
+    trace.depth = t_root;
     trace.position = ray.origin + ray.direction * trace.depth;
 
     // Compute value and error
@@ -41,3 +56,4 @@ void refinement_linear
     trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
     trace.gradient = trace.normal * trace.steepness;
 }
+

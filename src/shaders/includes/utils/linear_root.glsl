@@ -1,6 +1,6 @@
 
 // coeff[0] + coeff[1] * t
-float linear_roots(in vec2 coeff) 
+float linear_root(in vec2 coeff) 
 {
     const float degenerate = -1.0;
     const float epsilon = 1e-6;

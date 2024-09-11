@@ -9,10 +9,7 @@
  * @param hit_sample: output float where the refined value at the intersection will be stored.
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
-
-highp float epsilon = 1e-5;  // Small tolerance to handle precision issues
-
-void refinement_hermitian
+void refinement_hermitian2
 (
     in uniforms_volume u_volume, 
     in uniforms_raycast u_raycast, 
@@ -31,7 +28,7 @@ void refinement_hermitian
     f_prime *= t.y - t.x;
 
     // Compute cubic hermite coefficients
-    highp vec4 coeff = hermite_coefficients(s, f, f_prime);
+    highp vec4 coeff = hermite2_coefficients(s, f, f_prime);
 
     // Compute the roots of the equation H(t) - threshold = 0
     coeff.x -= u_raycast.threshold;
@@ -47,7 +44,7 @@ void refinement_hermitian
     t_roots = clamp(t_roots, ray.bounds.x, ray.bounds.y);
 
     // Compute depth and position in solution
-    trace.depth = min(t_roots.x, min(t_roots.y, t_roots.z));
+    trace.depth = mmin(t_roots);
     trace.position = ray.origin + ray.direction * trace.depth;
 
     // Compute value and error
