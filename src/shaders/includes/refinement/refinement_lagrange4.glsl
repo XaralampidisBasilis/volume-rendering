@@ -21,7 +21,7 @@ void refinement_lagrange4
 )
 {
     // Define linear interpolation
-    float s_linear = rampstep(prev_trace.value, trace.value, u_raycast.threshold);
+    float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
     vec2 s_sample = mix(vec2(0.25, s_linear), vec2(s_linear, 0.75), 0.5);
 
     // sample depths and values at samples

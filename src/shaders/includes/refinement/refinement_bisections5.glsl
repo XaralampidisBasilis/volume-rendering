@@ -9,7 +9,7 @@
  * @param hit_sample: output float where the refined value at the intersection will be stored.
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
-void refinement_bisection
+void refinement_bisections5
 (
     in uniforms_volume u_volume, 
     in uniforms_raycast u_raycast, 
@@ -20,32 +20,31 @@ void refinement_bisection
     inout parameters_trace prev_trace
 )
 {
-    // Initialize the positions and values, reducing the use of arrays
-    vec3 position0 = trace.position - ray.direction * trace.spacing;
-    vec3 position1 = trace.position;
-    float value0 = trace.value - texture(u_sampler.volume, position0 * u_volume.inv_size).r;
-    float value1 = trace.value;
+    // save not refined solution
+    parameters_trace temp_trace;
+    copy_trace(temp_trace, trace);
 
-    // Perform sampling steps for refinement
-    for (int i = 0; i < u_raycast.refinements; i++, trace.i_step++) 
+    // define the bisection intervals
+    vec2 values = vec2(prev_trace.value, trace.value);
+    vec2 depths = vec2(prev_trace.depth, trace.depth);
+
+    for (int i = 0; i < 5; i++) 
     {
-        // Compute interpolation factor
-        float t = rampstep(value0, value1, u_raycast.threshold);
+        // compute interpolation factor
+        float s = map(values.x, values.y, u_raycast.threshold);
 
-        // Interpolate position based on 't'
-        trace.position = mix(position0, position1, t);
+        trace.depth = mix(depths.x, depths.y, s);
+        trace.position = ray.origin + ray.direction * trace.depth;
         trace.texel = trace.position * u_volume.inv_size;
 
-        // Sample the intensity at the interpolated position
+        // sample the intensity at the interpolated position
         trace.value = texture(u_sampler.volume, trace.texel).r;
         trace.error = trace.value - u_raycast.threshold;
 
         // Update position and value based on error
-        float s = step(0.0, trace.error);
-        position0 = mix(trace.position, position0, s);
-        position1 = mix(position1, trace.position, s);
-        value0 = mix(trace.value, value0, s);
-        value1 = mix(value1, trace.value, s);
+        float is_positive = step(0.0, trace.error);
+        values = mix(vec2(trace.value, values.y), vec2(values.x, trace.value), is_positive);
+        depths = mix(vec2(trace.depth, depths.y), vec2(depths.x, trace.depth), is_positive);
     }
 
     // Compute the gradient and additional properties
@@ -54,6 +53,10 @@ void refinement_bisection
     trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
     trace.gradient = trace.normal * trace.steepness;
 
-    // Compute the depth
-    trace.depth = dot(trace.position - ray.origin, ray.direction);
+      // if we do not have any improvement with refinement go to previous solution
+    if (abs(trace.error) > abs(temp_trace.error)) {
+        copy_trace(trace, temp_trace);
+    }
+
+    return;
 }

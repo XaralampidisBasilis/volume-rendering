@@ -23,7 +23,8 @@ bool raymarch_skip
     inout parameters_trace prev_trace
 ) 
 { 
-    const float epsilon = 0.01;
+    float nudge = mmin(u_volume.spacing * u_occupancy.block_dimensions) * 0.001;
+    float backstep = ray.max_spacing + ray.dithering;
     float skip_distance;
 
     for (
@@ -39,9 +40,6 @@ bool raymarch_skip
         // if block occupied traverse
         if (occupied) 
         {            
-            // take a backstep to account for dithering
-            float backstep = ray.max_spacing + ray.dithering;
-
             // adjust the trace depth and position by backstepping
             trace.depth -= backstep;
             trace.position = ray.origin + ray.direction * trace.depth;
@@ -80,7 +78,6 @@ bool raymarch_skip
         }
 
         // Skip the block and adjust depth with a small nudge to avoid precision issues
-        float nudge = skip_distance * epsilon; 
         trace.depth = skip_depth + nudge;
         trace.position = ray.origin + ray.direction * trace.depth;
     }   

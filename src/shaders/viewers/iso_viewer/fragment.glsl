@@ -35,6 +35,7 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/utils/intersect_box_max"
 #include "../../includes/utils/intersect_box_min"
 #include "../../includes/utils/reshape_coordinates"
+#include "../../includes/utils/map"
 #include "../../includes/utils/prod"
 #include "../../includes/utils/sum"
 #include "../../includes/utils/diff"

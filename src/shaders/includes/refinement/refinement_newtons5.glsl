@@ -9,7 +9,7 @@
  * @param hit_sample: output float where the refined value at the intersection will be stored.
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
-void refinement_sampling
+void refinement_newtons5
 (
     in uniforms_volume u_volume, 
     in uniforms_raycast u_raycast, 
@@ -20,32 +20,38 @@ void refinement_sampling
     inout parameters_trace prev_trace
 )
 {
-    // Calculate the refined substep based on the number of refinements
-    float spacing = trace.spacing / float(u_raycast.refinements + 1);  
+    // save not refined solution
+    parameters_trace temp_trace;
+    copy_trace(temp_trace, trace);
 
-    // Step back to refine the hit point
-    trace.position -= ray.direction * trace.spacing;
-    trace.depth -= trace.spacing;
+    // begin at initial guess and iterate from there
+    vec2 bounds = vec2(prev_trace.depth, trace.depth);
+    float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
+    trace.depth = mix(bounds.x, bounds.y, s_linear);
 
-    // Perform additional sampling steps to refine the hit point
-    for (int i = 0; i <= u_raycast.refinements; i++, trace.i_step++) 
+    for (int i = 0; i < 5; i++) 
     {
-        // Move position forward by substep
-        trace.position += ray.direction * spacing;  
-        trace.depth += spacing;
-        
-       // Sample the intensity of the volume at the current ray position
+        // sample intensity at new position
+        trace.position = ray.origin + ray.direction * trace.depth;
         trace.texel = trace.position * u_volume.inv_size;
         trace.value = texture(u_sampler.volume, trace.texel).r;
         trace.error = trace.value - u_raycast.threshold;
 
-        // Extract gradient and value from texture data
+        // compute the gradient and normal
         vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
         trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
         trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
         trace.gradient = trace.normal * trace.steepness;
 
-        // If the sampled value exceeds the threshold, return early
-        if (trace.error > 0.0) return;   
+        // newton–raphson method to approximate next depth
+        trace.depth += trace.error / dot(trace.gradient, ray.direction);
+        trace.depth = clamp(trace.depth, bounds.x, bounds.y);
     }
+
+    // if we do not have any improvement with refinement go to previous solution
+    if (abs(trace.error) > abs(temp_trace.error)) {
+        copy_trace(trace, temp_trace);
+    }
+
+    return;
 }

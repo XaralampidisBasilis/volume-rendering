@@ -30,14 +30,14 @@ export default function(viewer)
         u_raycast: new THREE.Uniform
         ({
             threshold:          0.3,   
-            refinements:        0,   
             min_stepping:       0.1,
             max_stepping:       3,
             max_steps:          1000,
             spacing_method:     2,
             stepping_method:    1,
             dithering_method:   1,
-            refinement_method:  3, 
+            refinement_method:  1, 
+            has_refinement:     true,
             has_dithering:      true,
             has_skipping:       false,
             has_bbox:           true, 

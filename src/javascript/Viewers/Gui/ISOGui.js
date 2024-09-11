@@ -99,14 +99,14 @@ export default class ISOGui
         this.controllers.raycast = 
         {
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
-            refinements: raycast.add(u_raycast, 'refinements').min(0).max(5).step(1),
             steppingMin: raycast.add(u_raycast, 'min_stepping').min(0.1).max(3).step(0.001),
             steppingMax: raycast.add(u_raycast, 'max_stepping').min(0.1).max(3).step(0.001),
-            maxSteps: raycast.add(u_raycast, 'max_steps').min(0).max(5000).step(1),
+            maxSteps: raycast.add(u_raycast, 'max_steps').min(0).max(2000).step(1),
             spacingMethod: raycast.add(u_raycast, 'spacing_method').options({ isotropic: 1, directional: 2, traversal: 3 }),
             steppingMethod: raycast.add(u_raycast, 'stepping_method').options({ adaptive: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5 }),
             ditheringMethod: raycast.add(u_raycast, 'dithering_method').options({ generative: 1, texture: 2, }),
-            refinementMethod: raycast.add(u_raycast, 'refinement_method').options({ sampling: 1, bisection: 2, linear2: 3, lagrange3: 4, lagrange4: 5, hermitian2: 6 }),
+            refinementMethod: raycast.add(u_raycast, 'refinement_method').options({ sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6, hermitian2: 7 }),
+            hasRefinement: raycast.add(u_raycast, 'has_refinement'),
             hasDithering: raycast.add(u_raycast, 'has_dithering'),
             hasSkipping: raycast.add(u_raycast, 'has_skipping'),
             hasBbox: raycast.add(u_raycast, 'has_bbox'),

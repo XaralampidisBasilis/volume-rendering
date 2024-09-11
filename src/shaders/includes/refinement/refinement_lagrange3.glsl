@@ -23,7 +23,7 @@ void refinement_lagrange3
 )
 {
     // Define linear interpolation
-    float s_linear = rampstep(prev_trace.value, trace.value, u_raycast.threshold);
+    float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
     float s_sample = mix(0.5, s_linear, 0.5);
     
     vec3 texel = mix(prev_trace.texel, trace.texel, s_sample);

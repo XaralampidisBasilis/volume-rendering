@@ -5,7 +5,6 @@
 struct uniforms_raycast 
 {
     float threshold;  
-    int refinements;  
     float min_stepping;
     float max_stepping;
     int max_steps;
@@ -13,6 +12,7 @@ struct uniforms_raycast
     int stepping_method;
     int dithering_method;
     int refinement_method;
+    bool has_refinement;
     float has_dithering; 
     int has_skipping; 
     float has_bbox;

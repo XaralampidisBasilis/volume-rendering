@@ -19,6 +19,10 @@ bool raymarch_full
     inout parameters_trace prev_trace
 ) 
 { 
+    // take a backstep in order to compute initial prev_trace
+    trace.depth -= ray.max_spacing;
+    trace.position = ray.origin + ray.direction * trace.depth;
+
     // Raymarch loop to traverse through the volume
     for (
         trace.i_step = 0; 
@@ -38,7 +42,7 @@ bool raymarch_full
         trace.gradient = - trace.normal * trace.steepness;
 
         // Check if the sampled intensity exceeds the threshold
-        if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold) 
+        if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold && trace.i_step > 0) 
         {   
             // Compute refinement
             compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);            
@@ -48,8 +52,8 @@ bool raymarch_full
         // Update ray position for the next step
         copy_trace(prev_trace, trace);
         trace.spacing = ray.spacing * compute_stepping(u_raycast, u_gradient, ray, trace);
-        trace.position += ray.direction * trace.spacing;
         trace.depth += trace.spacing;
+        trace.position += ray.direction * trace.spacing;
     }   
 
     return false;

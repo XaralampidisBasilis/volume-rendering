@@ -1,5 +1,6 @@
-#include "./refinement_sampling"
-#include "./refinement_bisection"
+#include "./refinement_sampling5"
+#include "./refinement_bisections5"
+#include "./refinement_newtons5"
 #include "./refinement_linear2"
 #include "./refinement_lagrange3"
 #include "./refinement_lagrange4"
@@ -16,25 +17,32 @@ void compute_refinement
     inout parameters_trace prev_trace
 ) 
 {
-    switch(u_raycast.refinement_method)
+    if (u_raycast.has_refinement)
     {
-        case 1: 
-            refinement_sampling(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
-            return;
-        case 2: 
-            refinement_bisection(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
-            return;
-        case 3: 
-            refinement_linear2(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
-            return;
-        case 4: 
-            refinement_lagrange3(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
-            return;
-        case 5: 
-            refinement_lagrange4(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
-            return;
-        case 6:
-            refinement_hermitian2(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
-            return;
+        switch(u_raycast.refinement_method)
+        {
+            case 1: 
+                refinement_sampling5(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+                return;
+            case 2: 
+                refinement_bisections5(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+                return;
+            case 3: 
+                refinement_newtons5(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+                return;
+            case 4: 
+                refinement_linear2(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+                return;
+            case 5: 
+                refinement_lagrange3(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+                return;
+            case 6: 
+                refinement_lagrange4(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+                return;
+            case 7:
+                refinement_hermitian2(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);
+                return;
+        }
     }
+    
 }
