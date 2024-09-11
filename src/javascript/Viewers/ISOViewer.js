@@ -83,6 +83,7 @@ export default class ISOViewer
         this.noisemaps.white256.wrapT = THREE.RepeatWrapping
         this.noisemaps.white256.minFilter = THREE.NearestFilter
         this.noisemaps.white256.magFilter = THREE.NearestFilter
+        this.noisemaps.white256.generateMipmaps = false
         this.noisemaps.white256.unpackAlignment = 8   
         this.noisemaps.white256.needsUpdate = true         
     }
@@ -94,6 +95,7 @@ export default class ISOViewer
         this.colormaps.minFilter = THREE.LinearFilter
         this.colormaps.magFilter = THREE.LinearFilter         
         this.colormaps.unpackAlignment = 8
+        this.colormaps.generateMipmaps = false
         this.colormaps.needsUpdate = true 
     }
 
@@ -118,8 +120,9 @@ export default class ISOViewer
         this.textures.source.wrapR = THREE.ClampToEdgeWrapping
         this.textures.source.minFilter = THREE.LinearFilter
         this.textures.source.magFilter = THREE.LinearFilter
-        this.textures.source.needsUpdate = true   
+        this.textures.source.generateMipmaps = false
         this.textures.source.unpackAlignment = 1 
+        this.textures.source.needsUpdate = true   
     }
 
     setVolumeTexture()
@@ -134,8 +137,9 @@ export default class ISOViewer
         this.textures.volume.wrapR = THREE.ClampToEdgeWrapping
         this.textures.volume.minFilter = THREE.LinearFilter
         this.textures.volume.magFilter = THREE.LinearFilter
-        this.textures.volume.needsUpdate = true   
+        this.textures.volume.generateMipmaps = true
         this.textures.volume.unpackAlignment = 1 
+        this.textures.volume.needsUpdate = true   
     }
 
     setGradientsTexture()
@@ -150,8 +154,9 @@ export default class ISOViewer
         this.textures.gradients.wrapR = THREE.ClampToEdgeWrapping
         this.textures.gradients.minFilter = THREE.LinearFilter
         this.textures.gradients.magFilter = THREE.LinearFilter
-        this.textures.gradients.needsUpdate = true   
+        this.textures.gradients.generateMipmaps = true
         this.textures.gradients.unpackAlignment = 4 
+        this.textures.gradients.needsUpdate = true   
     }
 
     setMaskTexture()
@@ -166,8 +171,9 @@ export default class ISOViewer
         this.textures.mask.wrapR = THREE.ClampToEdgeWrapping
         this.textures.mask.minFilter = THREE.LinearFilter
         this.textures.mask.magFilter = THREE.LinearFilter
+        this.textures.mask.generateMipmaps = true
+        this.textures.mask.unpackAlignment = 1   
         this.textures.mask.needsUpdate = true
-        this.textures.volume.unpackAlignment = 1   
     }
 
     setGeometry()
@@ -206,6 +212,7 @@ export default class ISOViewer
         this.gradients = new ComputeGradients(this)  
         this.textures.gradients.image.data.set(this.gradients.data);
         this.textures.gradients.needsUpdate = true
+
         this.material.uniforms.u_gradient.value.min_length = this.gradients.minLength
         this.material.uniforms.u_gradient.value.max_length = this.gradients.maxLength
         this.material.uniforms.u_gradient.value.range_length = this.gradients.rangeLength

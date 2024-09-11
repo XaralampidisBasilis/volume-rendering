@@ -45,14 +45,8 @@ bool raymarch_full
             return true;
         }
 
-        // Save previous trace
-        prev_trace.value = trace.value;
-        prev_trace.gradient = trace.gradient;
-        prev_trace.depth = trace.depth;
-        prev_trace.position = trace.position;
-        prev_trace.texel = trace.texel;
-
         // Update ray position for the next step
+        copy_trace(prev_trace, trace);
         trace.spacing = ray.spacing * compute_stepping(u_raycast, u_gradient, ray, trace);
         trace.position += ray.direction * trace.spacing;
         trace.depth += trace.spacing;

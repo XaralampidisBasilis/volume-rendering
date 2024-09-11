@@ -21,7 +21,9 @@ float stepping_adaptive
 
     // compute the stepping factor
     float stepping = spacing / ray.spacing;
-    stepping = mix(u_raycast.max_stepping, clamp(stepping, u_raycast.min_stepping, u_raycast.max_stepping), step(0.0, stepping));
+    float is_positive = step(0.0, stepping);
+    stepping = clamp(stepping, u_raycast.min_stepping, u_raycast.max_stepping);
+    stepping = mix(u_raycast.max_stepping, stepping, is_positive);
 
     return stepping;
 }

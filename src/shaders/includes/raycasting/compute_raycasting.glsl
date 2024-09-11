@@ -31,12 +31,14 @@ bool compute_raycasting
 
     // Compute the ray step vector based on the raycast and volume parameters.
     ray.spacing = compute_spacing(u_raycast.spacing_method, u_volume, ray); 
-    ray.max_steps = int(ray.span / (ray.spacing * u_raycast.min_stepping));
+    ray.min_spacing = ray.spacing * u_raycast.min_stepping;
+    ray.max_spacing = ray.spacing * u_raycast.max_stepping;
+    ray.max_steps = int(ray.span / ray.min_spacing);
     ray.step = ray.direction * ray.spacing;
 
     // Apply dithering to the initial distance to avoid artifacts.
     ray.dithering = compute_dithering(u_raycast.dithering_method, u_sampler.noisemap, ray); 
-    ray.dithering *= 2.0 * ray.spacing * u_raycast.max_stepping * u_raycast.has_dithering;
+    ray.dithering *= ray.max_spacing * u_raycast.has_dithering;
 
     // Initialize trace starting position along the ray.
     ray.span += ray.dithering;

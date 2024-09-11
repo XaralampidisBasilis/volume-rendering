@@ -10,9 +10,9 @@
  * @return bool: returns true if an intersection is found above the threshold, false otherwise.
  */
 
-#include ./modules/compute_skipping_2.glsl;
+#include ./modules/compute_skipping.glsl;
 
-bool raymarch_skip_2
+bool raymarch_skip
 (
     in uniforms_gradient u_gradient, 
     in uniforms_raycast u_raycast, 
@@ -24,24 +24,20 @@ bool raymarch_skip_2
     inout parameters_trace prev_trace
 ) 
 { 
-    float skip_depth;
+    int skip_steps;
 
-    for (
+    for ( 
         trace.i_step = 0; 
         trace.i_step < u_raycast.max_steps && trace.depth < ray.bounds.y; 
         trace.i_step++
     ) 
     {
         // traverse space if block is occupied
-        bool occupied = compute_skipping_2(u_sampler.occumap, u_occupancy, u_volume, ray, trace, skip_depth);
-        float max_depth = min(skip_depth + trace.depth, ray.bounds.y);
-
+        bool occupied = compute_skipping(u_sampler.occumap, u_occupancy, u_volume, ray, trace, skip_steps);
         if (occupied) 
         {            
-            int max_steps = max(int(ceil(skip_depth / (ray.spacing * u_raycast.min_stepping))), 1);
-
             // Raymarch loop to traverse through the volume
-            for(int i = 0; i < max_steps && trace.depth < max_depth; i++) 
+            for (int n = 0; n < skip_steps && trace.depth < ray.bounds.y; n++) 
             {
                 // Calculate texel position once and reuse
                 trace.texel = trace.position * u_volume.inv_size;
@@ -53,7 +49,7 @@ bool raymarch_skip_2
                 trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
                 trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
                 trace.gradient = trace.normal * trace.steepness;
-                  
+                                
                 // Check if the sampled intensity exceeds the threshold
                 if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold) 
                 {
@@ -62,17 +58,18 @@ bool raymarch_skip_2
                     return true;
                 }
 
-                // Update ray position for the next step
-                trace.spacing = ray.spacing * compute_stepping(u_raycast, u_gradient, ray, trace);
-                trace.depth += trace.spacing;
-                trace.position += ray.direction * trace.spacing;
+                // Update ray trace
                 trace.i_step++;
-            }       
+                trace.position += ray.step;
+                trace.depth += ray.spacing;
+            }    
         }
-
-        // skip space
-        trace.depth = max_depth + ray.dithering;
-        trace.position = ray.origin + ray.direction * trace.depth;
+        else 
+        {
+            // skip space
+            trace.position += ray.step * float(skip_steps);
+            trace.depth += ray.spacing * float(skip_steps);
+        }
     }   
 
     return false;

@@ -11,6 +11,8 @@ struct parameters_ray
     float span;
     float dithering;
     float spacing;
+    float min_spacing;
+    float max_spacing;
     int max_steps;
 };
 
@@ -23,6 +25,8 @@ void set_ray(inout parameters_ray ray)
     ray.span = 0.0;
     ray.dithering = 0.0;
     ray.spacing = 0.0;
+    ray.min_spacing = 0.0;
+    ray.max_spacing = 0.0;
     ray.max_steps = 0;
 }
 

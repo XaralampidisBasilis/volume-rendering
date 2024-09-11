@@ -1,12 +1,12 @@
     
-bool compute_skipping_2
+bool compute_skipping
 (
     in sampler3D occumap,
     in uniforms_occupancy u_occupancy,
     in uniforms_volume u_volume,  
     in parameters_ray ray,
     in parameters_trace trace,
-    out float skip_depth
+    out int skip_steps
 ) 
 {
     vec3 voxel_coords = trace.position * u_volume.inv_spacing;
@@ -24,11 +24,16 @@ bool compute_skipping_2
     // compute block0 min and max voxel coordinates
     vec3 block_size = u_occupancy.block_dimensions * u_volume.spacing * block_scaling;
     vec3 block_min_voxel_pos = floor(trace.position / block_size) * block_size;
-    vec3 block_max_voxel_pos = block_min_voxel_pos + block_size;
+    vec3 block_max_voxel_pos = block_min_voxel_pos + block_size; // if we had coords we would need to subtract one
+    block_min_voxel_pos = min(block_min_voxel_pos, u_volume.size);
+    block_max_voxel_pos = min(block_max_voxel_pos, u_volume.size);
+    // gl_FragColor = vec4(block_min_voxel_pos / u_volume.size, 1.0);
+    // gl_FragColor = vec4(block_max_voxel_pos / u_volume.size, 1.0);  
       
     // intersect ray with block
-    skip_depth = intersect_box_max(block_min_voxel_pos, block_max_voxel_pos, trace.position, ray.direction); 
-    // gl_FragColor = vec4(vec3(skip_depth / ray.span), 1.0);
+    float distance = intersect_box_max(block_min_voxel_pos, block_max_voxel_pos, trace.position, ray.step); 
+    skip_steps = max(int(ceil(distance)), 1); 
+    // gl_FragColor = vec4(vec3(skip_steps)/vec3(ray.max_steps), 1.0);
 
     // check if block is occupied
     return multi_ocupancy.r > 0.5;

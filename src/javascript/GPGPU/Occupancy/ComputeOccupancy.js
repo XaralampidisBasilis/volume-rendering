@@ -65,6 +65,7 @@ export default class ComputeOccupancy extends EventEmitter
         this.occumap.wrapR = THREE.ClampToEdgeWrapping
         this.occumap.minFilter = THREE.NearestFilter
         this.occumap.magFilter = THREE.NearestFilter
+        this.occumap.generateMipmaps = false;
         this.occumap.unpackAlignment = 4
         this.occumap.needsUpdate = true   
     }
