@@ -40,7 +40,7 @@ vec4 gradient_tetrahedron4
     {
         vec3 sample_pos = voxel_pos + substep * samples_offset[i];
         samples[i] = texture(volume_data, sample_pos).r;
-        samples[i] *= inside_box(vec3(0.0), vec3(1.0), sample_pos);
+        samples[i] *= inside_box(substep * 0.5, 1.0 - substep * 0.5, sample_pos); 
     }
 
     // Calculate the gradient based on the sampled values using the Sobel operator
