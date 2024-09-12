@@ -83,7 +83,7 @@ vec4 gradient_prewitt27
     {
         vec3 sample_pos = voxel_pos + voxel_step * samples_offset[i];
         samples[i] = texture(volume_data, sample_pos).r;
-        samples[i] *= inside_unibox(sample_pos);
+        samples[i] *= inside_box(0.0, 1.0, sample_pos);
     }
 
     // Calculate the gradient based on the sampled values using the Sobel operator

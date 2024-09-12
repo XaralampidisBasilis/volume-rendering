@@ -14,14 +14,9 @@
  * @return The computed ramp value, clamped to the range [0.0, 1.0].
  */
 
-float map
-(
-    float edge0, 
-    float edge1, 
-    float x
-) 
-{
-    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-}
+float map(float a, float b, float x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
+vec2  map(float a, float b, vec2  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
+vec3  map(float a, float b, vec3  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
+vec4  map(float a, float b, vec4  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
 
 #endif // UTILS_MAP

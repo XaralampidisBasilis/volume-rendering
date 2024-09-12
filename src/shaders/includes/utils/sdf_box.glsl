@@ -8,25 +8,33 @@
  *                  - x is the maximum distance from the point to the box.
  *                  - y is the minimum distance from the point to the box.
  */
-vec2 sdf_box(vec3 point, vec3 box_min, vec3 box_max)
-{
+
+vec2 sdf_box(vec2 b_min, vec2 b_max, vec2 p) {
     // Calculate the center and half-size of the box
-    vec3 box_center = (box_max + box_min) * 0.5;
-    vec3 box_halfsize = (box_max - box_min) * 0.5;
-
     // Calculate the absolute difference between the point and the box center
-    vec3 q = abs(point - box_center);
-    vec3 diff = q - box_halfsize;
-
     // Calculate the maximum and minimum distances
-    vec2 dist = vec2
-    (
-        // Minimum distance of point to box 
-        length(max(diff, 0.0) + min(max(diff.x,max(diff.y,diff.z)),0.0)),
+    vec2 c = (b_max + b_min) / 2.0;
+    vec2 s = (b_max - b_min) / 2.0;
+    vec2 b = abs(p - c);
+    return vec2(length(max(b - s, 0.0) + min(mmax(b - s), 0.0)), length(b + s));
+}
 
-        // Maximum distance of point to box 
-        length(q + box_halfsize)
-    );
+vec2 sdf_box(vec3 b_min, vec3 b_max, vec3 p) {
+    // Calculate the center and half-size of the box
+    // Calculate the absolute difference between the point and the box center
+    // Calculate the maximum and minimum distances
+    vec3 c = (b_max + b_min) / 2.0;
+    vec3 s = (b_max - b_min) / 2.0;
+    vec3 b = abs(p - c);
+    return vec2(length(max(b - s, 0.0) + min(mmax(b - s), 0.0)), length(b + s));
+}
 
-    return dist;
+vec2 sdf_box(vec3 b_min, vec3 b_max, vec3 p) {
+    // Calculate the center and half-size of the box
+    // Calculate the absolute difference between the point and the box center
+    // Calculate the maximum and minimum distances
+    vec3 c = (b_max + b_min) / 2.0;
+    vec3 s = (b_max - b_min) / 2.0;
+    vec3 b = abs(p - c);
+    return vec2(length(max(b - s, 0.0) + min(mmax(b - s), 0.0)), length(b + s));
 }

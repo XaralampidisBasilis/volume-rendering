@@ -30,6 +30,8 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/parameters/parameters_trace"
 
 // utils
+#include "../../includes/utils/mmin"
+#include "../../includes/utils/mmax"
 #include "../../includes/utils/inside"
 #include "../../includes/utils/random"
 #include "../../includes/utils/reshape"
@@ -43,8 +45,6 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/utils/sort"
 #include "../../includes/utils/ssign"
 #include "../../includes/utils/stabilize"
-#include "../../includes/utils/mmin"
-#include "../../includes/utils/mmax"
 #include "../../includes/utils/linear2_coefficients"
 #include "../../includes/utils/hermite2_coefficients"
 #include "../../includes/utils/lagrange3_coefficients"
@@ -52,7 +52,7 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/utils/linear_root"
 #include "../../includes/utils/quadratic_roots"
 #include "../../includes/utils/cubic_roots"
-#include "../../includes/utils/inside_unibox"
+#include "../../includes/utils/bounds_box"
 #include "../../includes/utils/intersect_box"
 #include "../../includes/utils/intersect_box_max"
 #include "../../includes/utils/intersect_box_min"

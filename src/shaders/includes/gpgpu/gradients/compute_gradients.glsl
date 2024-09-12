@@ -7,7 +7,6 @@ precision highp sampler3D;
 #include "../../utils/prod"
 #include "../../utils/inside"
 #include "../../utils/inside_box"
-#include "../../utils/inside_unibox"
 #include "./modules/compute_gradient"
 
 uniform sampler3D volume_data;
