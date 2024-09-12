@@ -192,26 +192,28 @@ export default class ISOGui
         this.controllers.debug = 
         {
             option: debug.add(u_debug, 'option').options({ 
-                default:            0,
-                trace_position:     1, 
-                trace_steps:        2, 
-                trace_value:        3, 
-                trace_error:        4, 
-                trace_abs_error:    5, 
-                trace_steepness:    6,
-                trace_normal:       7,
-                trace_gradient:     8,
-                trace_depth:        9,
-                trace_penetration:  10,
-                trace_color:        11,
-                trace_luminance:    12,
-                ray_dithering:      13,
-                ray_min_bound:      14,
-                ray_max_bound:      15,
-                ray_span:           16,
-                ray_spacing:        17,
-                ray_direction:      18,
-                frag_depth:         19,
+                default:                0,
+                trace_position:         1, 
+                trace_steps:            2, 
+                trace_value:            3, 
+                trace_error:            4, 
+                trace_abs_error:        5, 
+                trace_gradient_norm:    6,
+                trace_derivative:       7,
+                trace_normal:           8,
+                trace_gradient:         9,
+                trace_distance:         10,
+                trace_depth:            11,
+                trace_color:            12,
+                trace_shading:          13,
+                trace_luminance:        14,
+                ray_dithering:          15,
+                ray_min_distance:       16,
+                ray_max_distance:       17,
+                ray_max_depth:          18,
+                ray_spacing:            19,
+                ray_direction:          20,
+                frag_depth:             21,
             }),
             scale: debug.add(u_debug, 'scale').min(0).max(10).step(0.001),
             constant: debug.add(u_debug, 'constant').min(-10).max(10).step(0.001),
@@ -253,9 +255,6 @@ export default class ISOGui
             this.viewer.computeGradients()
         })
 
-
-
-     
         // flip colormap colors
         this.controllers.colormap.flip.onChange(() => this.flipColormapRange())
 
@@ -362,15 +361,15 @@ export default class ISOGui
 
     flipColormapRange()
     {
-        [this.viewer.material.uniforms.u_colormap.value.texture_range.y, this.viewer.material.uniforms.u_colormap.value.texture_range.x] = 
-        [this.viewer.material.uniforms.u_colormap.value.texture_range.x, this.viewer.material.uniforms.u_colormap.value.texture_range.y]      
+        [this.viewer.material.uniforms.u_colormap.value.texture_columns.y, this.viewer.material.uniforms.u_colormap.value.texture_columns.x] = 
+        [this.viewer.material.uniforms.u_colormap.value.texture_columns.x, this.viewer.material.uniforms.u_colormap.value.texture_columns.y]      
     }
 
     locateColormapTexture()
     {
         let { v, u_start, u_end } = colormapLocations[this.controllers.colormap.name.getValue()]
-        this.viewer.material.uniforms.u_colormap.value.texture_id = v
-        this.viewer.material.uniforms.u_colormap.value.texture_range.set(u_start, u_end)      
+        this.viewer.material.uniforms.u_colormap.value.texture_row = v
+        this.viewer.material.uniforms.u_colormap.value.texture_columns.set(u_start, u_end)      
     }
 
     adjustLightingPower()

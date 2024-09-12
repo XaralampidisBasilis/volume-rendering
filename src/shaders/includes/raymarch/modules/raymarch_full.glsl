@@ -20,14 +20,14 @@ bool raymarch_full
 ) 
 { 
     // take a backstep in order to compute initial prev_trace
-    trace.depth -= ray.max_spacing;
-    trace.position = ray.origin + ray.direction * trace.depth;
+    trace.distance -= ray.max_spacing;
+    trace.position = ray.origin + ray.direction * trace.distance;
 
     // Raymarch loop to traverse through the volume
     for (
-        trace.i_step = 0; 
-        trace.i_step < u_raycast.max_steps && trace.depth < ray.bounds.y; 
-        trace.i_step++
+        trace.steps = 0; 
+        trace.steps < u_raycast.max_steps && trace.distance < ray.max_distance; 
+        trace.steps++
     ) 
     {
         // Sample the intensity of the volume at the current ray position
@@ -38,11 +38,12 @@ bool raymarch_full
         // Extract gradient and value from texture data
         vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
         trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-        trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
-        trace.gradient = - trace.normal * trace.steepness;
+        trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_norm;
+        trace.gradient = - trace.normal * trace.gradient_norm;
+        trace.derivative = dot(trace.gradient, ray.direction);
 
         // Check if the sampled intensity exceeds the threshold
-        if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold && trace.i_step > 0) 
+        if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold && trace.steps > 0) 
         {   
             // Compute refinement
             compute_refinement(u_volume, u_raycast, u_gradient, u_sampler, ray, trace, prev_trace);            
@@ -52,7 +53,7 @@ bool raymarch_full
         // Update ray position for the next step
         copy_trace(prev_trace, trace);
         trace.spacing = ray.spacing * compute_stepping(u_raycast, u_gradient, ray, trace);
-        trace.depth += trace.spacing;
+        trace.distance += trace.spacing;
         trace.position += ray.direction * trace.spacing;
     }   
 

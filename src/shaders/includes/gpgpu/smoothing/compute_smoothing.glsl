@@ -3,7 +3,7 @@ precision highp int;
 precision highp float;
 precision highp sampler3D; 
 
-#include "../../utils/reshape_coordinates"
+#include "../../utils/reshape"
 #include "./modules/smoothing_trilinear8"
 
 uniform sampler3D volume_data;

@@ -7,18 +7,19 @@
  *
  * @return The computed resolution based on the gradient alignment.
  */
-float stepping_steepness
+float stepping_adaptive
 (
     in uniforms_raycast u_raycast,
-    in uniforms_gradient u_gradient,
     in parameters_ray ray,
     in parameters_trace trace
 )
 {
-    // Interpolate the resolution based on the alignment.
-    // when alignment is high, use higher resolution, when low, use lower resolution.
-    float steepness = rampstep(u_gradient.min_length, u_gradient.max_length, length(trace.gradient));
-    float stepping = mix(u_raycast.max_stepping, u_raycast.min_stepping, steepness);
+    float spacing = - trace.error / trace.derivative;
+    float stepping = spacing / ray.spacing;
+    float is_positive = step(0.0, stepping);
+    
+    stepping = clamp(stepping, u_raycast.min_stepping, u_raycast.max_stepping);
+    stepping = mix(u_raycast.max_stepping, stepping, is_positive);
 
     return stepping;
 }

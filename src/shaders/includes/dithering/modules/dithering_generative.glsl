@@ -10,11 +10,13 @@ float dithering_generative
 (
     in vec3 ray_direction,
     in vec3 ray_origin,
-    in vec2 ray_bounds
+    in float ray_min_distance,
+    in float ray_max_distance
 )
 {
     // Calculate the end position of the ray.
-    vec3 sample_position = ray_origin + ray_direction * dot(ray_bounds, vec2(0.5));
+    float ray_mid_distance = (ray_min_distance + ray_max_distance) * 0.5;
+    vec3 sample_position = ray_origin + ray_direction * ray_mid_distance;
 
     // Compute the ray end position in world coordinates.
     sample_position = vec3(v_model_view_matrix * vec4(sample_position, 1.0));

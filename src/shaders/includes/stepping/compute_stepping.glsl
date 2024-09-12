@@ -1,8 +1,8 @@
-#include "./stepping_adaptive"
-#include "./stepping_gradial"
-#include "./stepping_alignment"
-#include "./stepping_steepness"
-#include "./stepping_uniform"
+#include "./modules/stepping_adaptive"
+#include "./modules/stepping_gradial"
+#include "./modules/stepping_alignment"
+#include "./modules/stepping_steepness"
+#include "./modules/stepping_uniform"
 
 /**
  * Calculates the march (spacing vector) for raycasting with 4 different methods

@@ -26,24 +26,25 @@ bool compute_raycasting
     inout parameters_trace prev_trace
 ) {    
     // Compute the intersection bounds of a ray with the occupancy axis-aligned bounding box.
-    ray.bounds = compute_bounds(u_raycast.has_bbox, u_volume.size, u_occupancy.box_min, u_occupancy.box_max, ray.origin, ray.direction); 
-    ray.span = ray.bounds.y - ray.bounds.x;
+    vec2 distance_bounds = compute_bounds(u_raycast.has_bbox, u_volume.size, u_occupancy.box_min, u_occupancy.box_max, ray.origin, ray.direction); 
+    ray.min_distance = distance_bounds.x;
+    ray.max_distance = distance_bounds.y;
+    ray.max_depth = ray.max_distance - ray.min_distance;
 
     // Compute the ray step vector based on the raycast and volume parameters.
     ray.spacing = compute_spacing(u_raycast.spacing_method, u_volume, ray); 
     ray.min_spacing = ray.spacing * u_raycast.min_stepping;
     ray.max_spacing = ray.spacing * u_raycast.max_stepping;
-    ray.max_steps = int(ray.span / ray.min_spacing);
-    ray.step = ray.direction * ray.spacing;
+    ray.max_steps = int(ray.max_depth / ray.min_spacing);
 
     // Apply dithering to the initial distance to avoid artifacts.
     ray.dithering = compute_dithering(u_raycast.dithering_method, u_sampler.noisemap, ray); 
     ray.dithering *= ray.max_spacing * u_raycast.has_dithering;
 
     // Initialize trace starting position along the ray.
-    ray.span += ray.dithering;
-    trace.depth = ray.bounds.x - ray.dithering;
-    trace.position = ray.origin + ray.direction * trace.depth;
+    ray.max_depth += ray.dithering;
+    trace.distance = ray.min_distance - ray.dithering;
+    trace.position = ray.origin + ray.direction * trace.distance;
     trace.spacing = ray.spacing;
     
     // Raycasting loop to traverse through the volume and find intersections.

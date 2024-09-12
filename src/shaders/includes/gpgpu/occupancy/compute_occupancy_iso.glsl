@@ -10,7 +10,7 @@ uniform ivec3 block_dimensions;
 uniform ivec3 occumap_dimensions;
 uniform ivec2 computation_dimensions;
 
-#include "../../utils/reshape_coordinates"
+#include "../../utils/reshape"
 
 void main()
 {

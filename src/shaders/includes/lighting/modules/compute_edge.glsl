@@ -10,7 +10,7 @@ float compute_edge
     float edge_factor = pow(1.0 - viewing_angle, 0.3);
 
     if (edge_factor > u_lighting.edge_threshold) 
-        return pow(rampstep(u_lighting.edge_threshold, 1.0, edge_factor), 6.0);
+        return pow(map(u_lighting.edge_threshold, 1.0, edge_factor), 6.0);
 
     return 0.0;
 }

@@ -1,4 +1,4 @@
-#include ./modules/compute_skipping.glsl;
+#include "./compute_skipping"
 
 /**
  * @param u_raycast: struct containing raycast-related uniforms.
@@ -28,27 +28,27 @@ bool raymarch_skip
     float skip_distance;
 
     for (
-        trace.i_step = 0; 
-        trace.i_step < u_raycast.max_steps && trace.depth < ray.bounds.y; 
-        trace.i_step++
+        trace.steps = 0; 
+        trace.steps < u_raycast.max_steps && trace.distance < ray.max_distance; 
+        trace.steps++
     ) 
     {
         // check if the current block is occupied and compute skip depth
         bool occupied = compute_skipping(u_sampler.occumap, u_occupancy, u_volume, ray, trace, skip_distance);
-        float skip_depth = min(trace.depth + skip_distance, ray.bounds.y);
+        float max_distance = min(trace.distance + skip_distance, ray.max_distance);
 
         // if block occupied traverse
         if (occupied) 
         {            
             // adjust the trace depth and position by backstepping
-            trace.depth -= backstep;
-            trace.position = ray.origin + ray.direction * trace.depth;
+            trace.distance -= backstep;
+            trace.position = ray.origin + ray.direction * trace.distance;
 
             skip_distance += backstep;
             int max_steps = int(ceil(skip_distance / ray.min_spacing));
 
             // traverse through occupied block
-            for(int i = 0; i < max_steps && trace.depth < skip_depth; i++, trace.i_step++) 
+            for(int i = 0; i < max_steps && trace.distance < max_distance; i++, trace.steps++) 
             {
                 // sample the volume and compute intensity at the current position
                 trace.texel = trace.position * u_volume.inv_size;
@@ -58,8 +58,9 @@ bool raymarch_skip
                 // sample the gradients and compute normal and gradient vectors
                 vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
                 trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-                trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
-                trace.gradient = - trace.normal * trace.steepness;
+                trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_norm;
+                trace.gradient = - trace.normal * trace.gradient_norm;
+                trace.derivative = dot(trace.gradient, ray.direction);
 
                 // if intensity exceeds threshold and gradient is strong enough, refine the hit
                 // first iteration is skipped in order to compute previous trace and we are outside of occupied block
@@ -73,13 +74,13 @@ bool raymarch_skip
                 copy_trace(prev_trace, trace);
                 trace.spacing = ray.spacing * compute_stepping(u_raycast, u_gradient, ray, trace);
                 trace.position += ray.direction * trace.spacing;
-                trace.depth += trace.spacing;
+                trace.distance += trace.spacing;
             }       
         }
 
         // Skip the block and adjust depth with a small nudge to avoid precision issues
-        trace.depth = skip_depth + nudge;
-        trace.position = ray.origin + ray.direction * trace.depth;
+        trace.distance = max_distance + nudge;
+        trace.position = ray.origin + ray.direction * trace.distance;
     }   
 
     return false;

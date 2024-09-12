@@ -39,7 +39,7 @@ vec4 gradient_sobel8
     {
         vec3 sample_pos = voxel_pos + substep * samples_offset[i];
         samples[i] = texture(volume_data, sample_pos).r;
-        samples[i] *= inside_box(voxel_step, 1.0 - voxel_step, sample_pos); 
+        samples[i] *= inside_box(substep * 0.5, 1.0 - substep * 0.5, sample_pos); 
     }
 
     // Calculate the gradient based on the sampled values using the Sobel operator

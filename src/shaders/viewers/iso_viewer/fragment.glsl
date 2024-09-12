@@ -30,16 +30,15 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/parameters/parameters_trace"
 
 // utils
-#include "../../includes/utils/inside_texture"
+#include "../../includes/utils/inside_unibox"
 #include "../../includes/utils/intersect_box"
 #include "../../includes/utils/intersect_box_max"
 #include "../../includes/utils/intersect_box_min"
-#include "../../includes/utils/reshape_coordinates"
+#include "../../includes/utils/reshape"
 #include "../../includes/utils/map"
 #include "../../includes/utils/prod"
 #include "../../includes/utils/sum"
 #include "../../includes/utils/diff"
-#include "../../includes/utils/rampstep"
 #include "../../includes/utils/posterize"
 #include "../../includes/utils/sort"
 #include "../../includes/utils/ssign"
@@ -86,13 +85,13 @@ void main()
 
         // compute color and lighting
         trace.color = compute_colormapping(u_colormap, u_sampler.colormap, trace.value);
-        trace.lighting = compute_lighting(u_lighting, trace.color, trace.normal, trace.position, view_position, light_position);
+        trace.shading = compute_lighting(u_lighting, trace.color, trace.normal, trace.position, view_position, light_position);
 
         // set fragment depth
         gl_FragDepth = compute_frag_depth(trace.position);
 
         // set fragment color
-        gl_FragColor = vec4(trace.lighting, 1.0);
+        gl_FragColor = vec4(trace.shading, 1.0);
        
         // debug
         gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace);

@@ -22,9 +22,9 @@ void refinement_hermitian2
 {
     // Define symbolic vectors
     highp vec2 s = vec2(0.0, 1.0);
-    highp vec2 t = vec2(prev_trace.depth, trace.depth);
+    highp vec2 t = vec2(prev_trace.distance, trace.distance);
     highp vec2 f = vec2(prev_trace.value, trace.value);
-    highp vec2 f_prime = vec2(dot(prev_trace.gradient, ray.direction), dot(trace.gradient, ray.direction));
+    highp vec2 f_prime = vec2(prev_trace.derivative, trace.derivative);
     f_prime *= t.y - t.x;
 
     // Compute cubic hermite coefficients
@@ -41,11 +41,11 @@ void refinement_hermitian2
 
     // Denormalize result
     highp vec3 t_roots = mix(t.xxx, t.yyy, s_roots);
-    t_roots = clamp(t_roots, ray.bounds.x, ray.bounds.y);
+    t_roots = clamp(t_roots, ray.min_distance, ray.max_distance);
 
-    // Compute depth and position in solution
-    trace.depth = mmin(t_roots);
-    trace.position = ray.origin + ray.direction * trace.depth;
+    // Compute distance and position in solution
+    trace.distance = mmin(t_roots);
+    trace.position = ray.origin + ray.direction * trace.distance;
 
     // Compute value and error
     trace.texel = trace.position * u_volume.inv_size;
@@ -55,6 +55,7 @@ void refinement_hermitian2
     // Compute gradient, and normal
     vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
     trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-    trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
-    trace.gradient = trace.normal * trace.steepness;
+    trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_norm;
+    trace.gradient = trace.normal * trace.gradient_norm;
+    trace.derivative = dot(trace.gradient, ray.direction);
 }

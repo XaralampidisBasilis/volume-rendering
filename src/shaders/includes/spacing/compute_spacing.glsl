@@ -1,6 +1,6 @@
-#include ./spacing_isotropic;
-#include ./spacing_directional;
-#include ./spacing_traversal;
+#include "./modules/spacing_isotropic"
+#include "./modules/spacing_directional"
+#include "./modules/spacing_traversal"
 
 /**
  * Calculates the march (spacing vector) for raycasting with 4 different methods
@@ -25,6 +25,6 @@ float compute_spacing
         case 2: 
             return spacing_directional(u_volume.spacing, ray.direction);
         case 3: 
-            return spacing_traversal(u_volume.spacing, u_volume.dimensions, ray.span);
+            return spacing_traversal(u_volume.spacing, u_volume.dimensions, ray.max_depth);
     }
 }

@@ -1,5 +1,5 @@
-#ifndef UTILS_RESHAPE_COORDINATES
-#define UTILS_RESHAPE_COORDINATES
+#ifndef UTILS_RESHAPE
+#define UTILS_RESHAPE
 
 int reshape_2d_to_1d(in ivec2 pos2, in ivec2 size)
 {
@@ -121,4 +121,4 @@ uvec3 reshape_2d_to_3d(in uvec2 pos2, in uvec3 size)
     return pos3;
 }
 
-#endif // UTILS_RESHAPE_COORDINATES
+#endif // UTILS_RESHAPE

@@ -4,9 +4,8 @@
 #include "./modules/compute_diffuse"
 #include "./modules/compute_specular_phong"
 #include "./modules/compute_specular_blinn"
-
-#include "./lighting_phong"
-#include "./lighting_blinn"
+#include "./modules/lighting_phong"
+#include "./modules/lighting_blinn"
 
 /**
  * Calculates the final color using the Phong or Phong-Blin reflection model.

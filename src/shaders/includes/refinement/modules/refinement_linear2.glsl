@@ -1,5 +1,3 @@
-
-
 /**
  * Refines the hit point by performing additional sampling steps.
  *
@@ -11,7 +9,7 @@
  * @param hit_sample: output float where the refined value at the intersection will be stored.
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
-void refinement_lagrange3
+void refinement_linear2
 (
     in uniforms_volume u_volume, 
     in uniforms_raycast u_raycast, 
@@ -22,38 +20,30 @@ void refinement_lagrange3
     inout parameters_trace prev_trace
 )
 {
-    // Define linear interpolation
-    float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
-    float s_sample = mix(0.5, s_linear, 0.5);
-    
-    vec3 texel = mix(prev_trace.texel, trace.texel, s_sample);
-    float depth = mix(prev_trace.depth, trace.depth, s_sample);
-    float value = texture(u_sampler.volume, texel).r;
-
     // Define symbolic vectors
-    vec3 f = vec3(prev_trace.value, value, trace.value);
-    vec3 t = vec3(prev_trace.depth, depth, trace.depth);
-    vec3 s = vec3(0.0, s_sample, 1.0);
+    vec2 f = vec2(prev_trace.value, trace.value);
+    vec2 t = vec2(prev_trace.distance, trace.distance);
+    vec2 s = vec2(0.0, 1.0);
 
     // Compute cubic lagrange coefficients
-    vec3 coeff = lagrange3_coefficients(s, f); 
+    vec2 coeff = linear2_coefficients(s, f); 
 
     // Compute the roots of the equation L(s) - threshold = 0
     coeff.x -= u_raycast.threshold;
-    vec2 s_roots = quadratic_roots(coeff);
+    float s_root = linear_root(coeff);
 
-    // Filter normalized roots outside of the s interval 
-    vec2 s_filter = step(s.xx, s_roots) * step(s_roots, s.zz);
-    s_roots = mix(s.zz, s_roots, s_filter);
-    s_roots = clamp(s_roots, s.xx, s.zz);
+    // Filter normalized root outside of the s interval 
+    float s_filter = step(s.x, s_root) * step(s_root, s.y);
+    s_root = mix(s.y, s_root, s_filter);
+    s_root = clamp(s_root, s.x, s.y);
 
     // Denormalize result
-    vec2 t_roots = mix(t.xx, t.zz, s_roots);
-    t_roots = clamp(t_roots, ray.bounds.x, ray.bounds.y);
+    float t_root = mix(t.x, t.y, s_root);
+    t_root = clamp(t_root, ray.min_distance, ray.max_distance);
 
-    // Compute depth and position in solution
-    trace.depth = mmin(t_roots);
-    trace.position = ray.origin + ray.direction * trace.depth;
+    // Compute distance and position in solution
+    trace.distance = t_root;
+    trace.position = ray.origin + ray.direction * trace.distance;
 
     // Compute value and error
     trace.texel = trace.position * u_volume.inv_size;
@@ -63,6 +53,8 @@ void refinement_lagrange3
     // Compute gradient, and normal
     vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
     trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-    trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
-    trace.gradient = trace.normal * trace.steepness;
+    trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_norm;
+    trace.gradient = trace.normal * trace.gradient_norm;
+    trace.derivative = dot(trace.gradient, ray.direction);
 }
+

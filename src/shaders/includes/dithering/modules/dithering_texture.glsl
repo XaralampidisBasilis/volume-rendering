@@ -12,11 +12,11 @@ float dithering_texture
         in sampler2D noisemap, 
         in vec3 ray_direction,
         in vec3 ray_origin,
-        in vec2 ray_bounds
+        in float ray_min_distance
 )
 {
     // Calculate the end position of the ray.
-    vec3 ray_position = ray_origin + ray_direction * ray_bounds.x;
+    vec3 ray_position = ray_origin + ray_direction * ray_min_distance;
 
     // Compute a position value based on the end position transformed by the matrix.
     vec4 sample_position = v_projection_model_view_matrix * vec4(ray_position, 1.0);

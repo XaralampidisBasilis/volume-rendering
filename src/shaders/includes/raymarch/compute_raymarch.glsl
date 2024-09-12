@@ -1,7 +1,7 @@
 #include "../stepping/compute_stepping"
 #include "../refinement/compute_refinement"
-#include "./raymarch_full"
-#include "./raymarch_skip"
+#include "./modules/raymarch_full"
+#include "./modules/raymarch_skip"
 
 /**
  * Determines if a ray intersects with the volume and optionally skips empty space.

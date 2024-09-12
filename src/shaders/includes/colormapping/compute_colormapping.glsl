@@ -14,16 +14,16 @@ vec3 compute_colormapping
 ) 
 {
     // Scale the input value 'ray_value' using the provided limits
-    value = rampstep(u_colormap.low, u_colormap.high, value);
+    value = map(u_colormap.low, u_colormap.high, value);
 
     // Posterize the scaled ray sample to discrete levels
     value = posterize(value, u_colormap.levels);
     
     // Interpolate the u-coordinate within the colormap texture range
-    value = mix(u_colormap.texture_range.x, u_colormap.texture_range.y, value);
+    value = mix(u_colormap.texture_columns.x, u_colormap.texture_columns.y, value);
 
     // Create the UV coordinates for the texture lookup
-    vec2 uv = vec2(value, u_colormap.texture_id);
+    vec2 uv = vec2(value, u_colormap.texture_row);
     
     // Sample the colormap texture at the calculated UV coordinates and return the RGB color
     return texture(colormap, uv).rgb;

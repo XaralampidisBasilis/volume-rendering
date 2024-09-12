@@ -5,8 +5,8 @@
 struct uniforms_colormap 
 {
     int name;
-    float texture_id;     
-    vec2 texture_range;
+    float texture_row;     
+    vec2 texture_columns;
     float low;  
     float high;  
     float levels;

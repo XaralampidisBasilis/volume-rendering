@@ -26,15 +26,15 @@ void refinement_bisections5
 
     // define the bisection intervals
     vec2 values = vec2(prev_trace.value, trace.value);
-    vec2 depths = vec2(prev_trace.depth, trace.depth);
+    vec2 distances = vec2(prev_trace.distance, trace.distance);
 
     for (int i = 0; i < 5; i++) 
     {
         // compute interpolation factor
         float s = map(values.x, values.y, u_raycast.threshold);
 
-        trace.depth = mix(depths.x, depths.y, s);
-        trace.position = ray.origin + ray.direction * trace.depth;
+        trace.distance = mix(distances.x, distances.y, s);
+        trace.position = ray.origin + ray.direction * trace.distance;
         trace.texel = trace.position * u_volume.inv_size;
 
         // sample the intensity at the interpolated position
@@ -44,14 +44,15 @@ void refinement_bisections5
         // Update position and value based on error
         float is_positive = step(0.0, trace.error);
         values = mix(vec2(trace.value, values.y), vec2(values.x, trace.value), is_positive);
-        depths = mix(vec2(trace.depth, depths.y), vec2(depths.x, trace.depth), is_positive);
+        distances = mix(vec2(trace.distance, distances.y), vec2(distances.x, trace.distance), is_positive);
     }
 
     // Compute the gradient and additional properties
     vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
     trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-    trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
-    trace.gradient = trace.normal * trace.steepness;
+    trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_norm;
+    trace.gradient = trace.normal * trace.gradient_norm;
+    trace.derivative = dot(trace.gradient, ray.direction);
 
       // if we do not have any improvement with refinement go to previous solution
     if (abs(trace.error) > abs(temp_trace.error)) {

@@ -8,7 +8,7 @@
  */
 float spacing_isotropic(in vec3 volume_spacing)
 {
-    float ray_spacing = min(volume_spacing.x, min(volume_spacing.y, volume_spacing.z));
+    float ray_spacing = mmin(volume_spacing);
 
     return ray_spacing;
 }

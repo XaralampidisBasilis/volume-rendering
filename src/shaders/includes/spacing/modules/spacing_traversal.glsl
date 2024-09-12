@@ -10,15 +10,15 @@ float spacing_traversal
 (
     in vec3 volume_spacing,
     in vec3 volume_dimensions, 
-    in float ray_span
+    in float ray_max_depth
 ) 
 {
     // Find the maximum dimension of the volume to ensure proper scaling.
-    float dimension_max = max(volume_dimensions.x, max(volume_dimensions.y, volume_dimensions.z));
-    float spacing_min = min(volume_spacing.x, min(volume_spacing.y, volume_spacing.z));
+    float dimension_max = mmax(volume_dimensions);
+    float spacing_min = mmin(volume_spacing);
 
     // Calculate the distance covered in each step.
-    float ray_spacing = max(ray_span / dimension_max, spacing_min);
+    float ray_spacing = max(ray_max_depth / dimension_max, spacing_min);
     
     return ray_spacing;
 }

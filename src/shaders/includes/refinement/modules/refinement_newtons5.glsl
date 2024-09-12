@@ -25,14 +25,14 @@ void refinement_newtons5
     copy_trace(temp_trace, trace);
 
     // begin at initial guess and iterate from there
-    vec2 bounds = vec2(prev_trace.depth, trace.depth);
+    vec2 distance_bounds = vec2(prev_trace.distance, trace.distance);
     float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
-    trace.depth = mix(bounds.x, bounds.y, s_linear);
+    trace.distance = mix(distance_bounds.x, distance_bounds.y, s_linear);
 
     for (int i = 0; i < 5; i++) 
     {
         // sample intensity at new position
-        trace.position = ray.origin + ray.direction * trace.depth;
+        trace.position = ray.origin + ray.direction * trace.distance;
         trace.texel = trace.position * u_volume.inv_size;
         trace.value = texture(u_sampler.volume, trace.texel).r;
         trace.error = trace.value - u_raycast.threshold;
@@ -40,12 +40,13 @@ void refinement_newtons5
         // compute the gradient and normal
         vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
         trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-        trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
-        trace.gradient = trace.normal * trace.steepness;
+        trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_norm;
+        trace.gradient = trace.normal * trace.gradient_norm;
+        trace.derivative = dot(trace.gradient, ray.direction);
 
-        // newton–raphson method to approximate next depth
-        trace.depth += trace.error / dot(trace.gradient, ray.direction);
-        trace.depth = clamp(trace.depth, bounds.x, bounds.y);
+        // newton–raphson method to approximate next distance
+        trace.distance += trace.error / trace.derivative;
+        trace.distance = clamp(trace.distance, distance_bounds.x, distance_bounds.y);
     }
 
     // if we do not have any improvement with refinement go to previous solution

@@ -46,20 +46,20 @@ export default function(viewer)
         u_gradient: new THREE.Uniform
         ({
             threshold:       0,
-            min_length:      0,
-            max_length:      0,
-            range_length:    0,
+            min_norm:        0,
+            max_norm:        0,
+            norm_range:      0,
             method:          3,        
         }),
             
         u_colormap: new THREE.Uniform
         ({
             name:            'cet_d9',
-            texture_id:      colormapLocations['cet_d9'].v,
-            texture_range:   new THREE.Vector2(colormapLocations['cet_d9'].u_start, colormapLocations['cet_d9'].u_end),
-            low:             0,
-            high:            1,
-            levels:          255,
+            texture_row:      colormapLocations['cet_d9'].v,
+            texture_columns:  new THREE.Vector2(colormapLocations['cet_d9'].u_start, colormapLocations['cet_d9'].u_end),
+            low:              0,
+            high:             1,
+            levels:           255,
         }),
 
         u_lighting: new THREE.Uniform

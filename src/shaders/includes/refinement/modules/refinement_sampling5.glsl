@@ -40,12 +40,13 @@ void refinement_sampling5
         // if the sampled value exceeds the threshold, return early
         if (trace.error > 0.0) 
         {
-            // extract gradient and depth
+            // extract gradient and distance
             vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
             trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-            trace.steepness = gradient_data.a * u_gradient.range_length + u_gradient.min_length;
-            trace.gradient = trace.normal * trace.steepness;
-            trace.depth = dot(trace.position - ray.origin, ray.direction);
+            trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_norm;
+            trace.gradient = trace.normal * trace.gradient_norm;
+            trace.derivative = dot(trace.gradient, ray.direction);
+            trace.distance = dot(trace.position - ray.origin, ray.direction);
             return;
         }
     }

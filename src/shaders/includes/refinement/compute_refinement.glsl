@@ -1,10 +1,10 @@
-#include "./refinement_sampling5"
-#include "./refinement_bisections5"
-#include "./refinement_newtons5"
-#include "./refinement_linear2"
-#include "./refinement_lagrange3"
-#include "./refinement_lagrange4"
-#include "./refinement_hermitian2"
+#include "./modules/refinement_sampling5"
+#include "./modules/refinement_bisections5"
+#include "./modules/refinement_newtons5"
+#include "./modules/refinement_linear2"
+#include "./modules/refinement_lagrange3"
+#include "./modules/refinement_lagrange4"
+#include "./modules/refinement_hermitian2"
 
 void compute_refinement
 (

@@ -17,12 +17,12 @@ float stepping_gradial
 {
     // Compute the alignment between the gradient and the ray direction.
     // This represents how much the ray is moving in the direction of the gradient.
-    float gradial_alignment = max(dot(trace.gradient, ray.direction), 0.0);
-    gradial_alignment = rampstep(u_gradient.min_length, u_gradient.max_length, gradial_alignment);
+    float derivative = max(trace.derivative, 0.0);
+    derivative = map(u_gradient.min_norm, u_gradient.max_norm, derivative);
 
     // Interpolate the resolution based on the alignment.
     // when alignment is high, use higher resolution, when low, use lower resolution.
-    float spacing = mix(u_raycast.max_stepping, u_raycast.min_stepping, gradial_alignment);
+    float spacing = mix(u_raycast.max_stepping, u_raycast.min_stepping, derivative);
 
     return spacing;
 }

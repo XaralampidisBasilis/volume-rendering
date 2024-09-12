@@ -1,6 +1,6 @@
 #include "../../libraries/lygia/generative/random"
-#include "./dithering_generative"
-#include "./dithering_texture"
+#include "./modules/dithering_generative"
+#include "./modules/dithering_texture"
 
 float compute_dithering
 (
@@ -12,9 +12,9 @@ float compute_dithering
     switch (dithering_method)
     {
         case 1: 
-            return dithering_generative(ray.direction, ray.origin, ray.bounds);
+            return dithering_generative(ray.direction, ray.origin, ray.min_distance, ray.max_distance);
         case 2: 
-            return dithering_texture(noisemap, ray.direction, ray.origin, ray.bounds);
+            return dithering_texture(noisemap, ray.direction, ray.origin, ray.min_distance);
         default: 
             return 0.0; 
     }
