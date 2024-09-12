@@ -30,13 +30,13 @@ export default function(viewer)
         u_raycast: new THREE.Uniform
         ({
             threshold:          0.3,   
-            min_stepping:       0.1,
-            max_stepping:       3,
+            min_stepping:       0.3,
+            max_stepping:       2,
             max_steps:          1000,
             spacing_method:     2,
             stepping_method:    1,
             dithering_method:   1,
-            refinement_method:  1, 
+            refinement_method:  2, 
             has_refinement:     true,
             has_dithering:      true,
             has_skipping:       false,
@@ -85,8 +85,7 @@ export default function(viewer)
             block_dimensions:   new THREE.Vector3(),
             box_min:            new THREE.Vector3(0, 0, 0),
             box_max:            new THREE.Vector3(1, 1, 1),
-            divisions:          4, 
-            method:             1,
+            divisions:          10, 
         }),
 
         u_debug: new THREE.Uniform

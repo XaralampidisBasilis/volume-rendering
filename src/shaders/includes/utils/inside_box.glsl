@@ -1,10 +1,8 @@
 #ifndef UTILS_INSIDE_BOX
 #define UTILS_INSIDE_BOX
 
-float inside_box(in vec3 box_min, vec3 box_max, in vec3 position) 
-{
-    vec3 s = step(box_min - 1e-6, position) * step(position, box_max + 1e-6);
-    return s.x * s.y * s.z; 
-}
+float inside_box(in vec2 b_min, vec2 b_max, in vec2 p) {return prod(inside(b_min, b_max, p)); }
+float inside_box(in vec3 b_min, vec3 b_max, in vec3 p) {return prod(inside(b_min, b_max, p)); }
+float inside_box(in vec4 b_min, vec4 b_max, in vec4 p) {return prod(inside(b_min, b_max, p)); }
 
 #endif

@@ -29,7 +29,7 @@ void refinement_newtons5
     float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
     trace.distance = mix(distance_bounds.x, distance_bounds.y, s_linear);
 
-    for (int i = 0; i < 5; i++) 
+    for (int i = 0; i < 5; i++, trace.steps++) 
     {
         // sample intensity at new position
         trace.position = ray.origin + ray.direction * trace.distance;
@@ -45,7 +45,7 @@ void refinement_newtons5
         trace.derivative = dot(trace.gradient, ray.direction);
 
         // newton–raphson method to approximate next distance
-        trace.distance += trace.error / trace.derivative;
+        trace.distance -= trace.error / stabilize(trace.derivative);
         trace.distance = clamp(trace.distance, distance_bounds.x, distance_bounds.y);
     }
 

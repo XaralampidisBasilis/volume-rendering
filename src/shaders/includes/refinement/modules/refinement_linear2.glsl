@@ -33,7 +33,7 @@ void refinement_linear2
     float s_root = linear_root(coeff);
 
     // Filter normalized root outside of the s interval 
-    float s_filter = step(s.x, s_root) * step(s_root, s.y);
+    float s_filter = inside(s.x, s.y, s_root);
     s_root = mix(s.y, s_root, s_filter);
     s_root = clamp(s_root, s.x, s.y);
 

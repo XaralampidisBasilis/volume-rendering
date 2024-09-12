@@ -11,7 +11,7 @@ vec4 compute_debug
     in parameters_trace trace
 )
 {
-    vec2 box_bounds = sdf_box(ray.origin, u_occupancy.box_min, u_occupancy.box_max);
+    vec2 box_bounds = sdf_box(ray.origin, ray.box_min, ray.box_max);
     const vec3 red = vec3(0.9372549019607843, 0.0, 0.0); // https://www.hsluv.org
     const vec3 blue = vec3(0.0, 0.43137254901960786, 1.0);
 
@@ -55,11 +55,11 @@ vec4 compute_debug
 
         // trace_distance
         case 10: 
-            return vec4(vec3((trace.distance - box_bounds.x) / length(u_volume.size)), 1.0);
+            return vec4(vec3((trace.distance - box_bounds.x) / length(ray.box_max - ray.box_min)), 1.0);
 
         // trace_depth
         case 11: 
-            return vec4(vec3((trace.distance - ray.min_distance) / length(u_volume.size)), 1.0);
+            return vec4(vec3((trace.distance - ray.min_distance) / length(ray.box_max - ray.box_min)), 1.0);
 
         // trace_color
         case 12: 
@@ -79,27 +79,47 @@ vec4 compute_debug
 
         // ray_min_distance
         case 16: 
-            return  vec4(vec3((ray.min_distance - box_bounds.x) / length(u_volume.size)), 1.0);
+            return  vec4(vec3((ray.min_distance - box_bounds.x) / length(ray.box_max - ray.box_min)), 1.0);
 
         // ray_max_distance
         case 17: 
-            return  vec4(vec3((ray.max_distance - box_bounds.x) / length(u_volume.size)), 1.0);
+            return  vec4(vec3((ray.max_distance - box_bounds.x) / length(ray.box_max - ray.box_min)), 1.0);
 
         // ray_max_depth
         case 18: 
-            return vec4(vec3(ray.max_depth / length(u_volume.size)), 1.0);
+            return vec4(vec3(ray.max_depth / length(ray.box_max - ray.box_min)), 1.0);
+
+        // ray_max_steps
+        case 19: 
+            return vec4(vec3(ray.max_steps) / vec3(u_raycast.max_steps), 1.0);
             
         // ray_spacing
-        case 19: 
+        case 20: 
             return vec4(vec3(ray.spacing / length(u_volume.spacing)), 1.0); 
 
         // ray_direction
-        case 20: 
+        case 21: 
             return vec4(vec3(ray.direction * 0.5 + 0.5), 1.0);
 
         // frag_depth
-        case 21: 
+        case 22: 
             return vec4(vec3(gl_FragDepth), 1.0);
+
+        // trace_skipped
+        case 23: 
+            return vec4(vec3(trace.skipped / length(ray.box_max - ray.box_min)), 1.0);
+
+        // trace_traversed
+        case 24: 
+            return vec4(vec3(trace.traversed / length(ray.box_max - ray.box_min)), 1.0);
+            
+        // trace_spacing
+        case 25: 
+            return vec4(vec3(trace.spacing / ray.max_spacing), 1.0);
+
+        // trace_mean_spacing
+        case 26:
+            return vec4(vec3(trace.depth / float(trace.steps)) / ray.max_spacing, 1.0);
 
         // default
         default:

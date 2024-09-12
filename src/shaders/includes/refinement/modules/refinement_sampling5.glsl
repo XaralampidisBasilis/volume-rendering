@@ -29,7 +29,7 @@ void refinement_sampling5
     float sub_spacing = trace.spacing / 6.0;  
 
     // perform additional sampling steps to refine the hit point    
-    for (int i = 0; i < 5; i++) 
+    for (int i = 0; i < 5; i++, trace.steps++) 
     {
         // move position forward by substep and sample the volume
         trace.position += sub_spacing * ray.direction;  

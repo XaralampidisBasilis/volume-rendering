@@ -14,8 +14,8 @@ float stepping_adaptive
     in parameters_trace trace
 )
 {
-    float spacing = - trace.error / trace.derivative;
-    float stepping = spacing / ray.spacing;
+    float spacing = - trace.error / stabilize(trace.derivative);
+    float stepping = spacing / stabilize(ray.spacing);
     float is_positive = step(0.0, stepping);
     
     stepping = clamp(stepping, u_raycast.min_stepping, u_raycast.max_stepping);

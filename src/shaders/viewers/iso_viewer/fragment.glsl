@@ -30,29 +30,32 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/parameters/parameters_trace"
 
 // utils
-#include "../../includes/utils/inside_unibox"
-#include "../../includes/utils/intersect_box"
-#include "../../includes/utils/intersect_box_max"
-#include "../../includes/utils/intersect_box_min"
+#include "../../includes/utils/inside"
 #include "../../includes/utils/random"
 #include "../../includes/utils/reshape"
 #include "../../includes/utils/rand"
 #include "../../includes/utils/map"
 #include "../../includes/utils/prod"
 #include "../../includes/utils/sum"
+#include "../../includes/utils/mean"
 #include "../../includes/utils/diff"
 #include "../../includes/utils/posterize"
 #include "../../includes/utils/sort"
 #include "../../includes/utils/ssign"
+#include "../../includes/utils/stabilize"
 #include "../../includes/utils/mmin"
 #include "../../includes/utils/mmax"
 #include "../../includes/utils/linear2_coefficients"
+#include "../../includes/utils/hermite2_coefficients"
 #include "../../includes/utils/lagrange3_coefficients"
 #include "../../includes/utils/lagrange4_coefficients"
-#include "../../includes/utils/hermite2_coefficients"
 #include "../../includes/utils/linear_root"
 #include "../../includes/utils/quadratic_roots"
 #include "../../includes/utils/cubic_roots"
+#include "../../includes/utils/inside_unibox"
+#include "../../includes/utils/intersect_box"
+#include "../../includes/utils/intersect_box_max"
+#include "../../includes/utils/intersect_box_min"
 
 // func
 #include "../../includes/raycasting/compute_raycasting"
@@ -75,31 +78,30 @@ void main()
     // compute raycast
     ray.origin = v_camera;
     ray.direction = normalize(v_direction);
+    ray.box_max = u_volume.size;
 
-    bool hit = compute_raycasting(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace, prev_trace); 
+    bool has_intersected = compute_raycasting(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace, prev_trace); 
+    trace.depth = trace.distance - ray.min_distance;
+    trace.traversed = trace.depth - trace.skipped;
     // gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace); return;
+   
+    // compute color and lighting
+    vec3 view_position = ray.origin;  
+    vec3 light_position = v_camera + u_lighting.position * u_volume.size;
+    trace.color = compute_colormapping(u_colormap, u_sampler.colormap, trace.value);
+    trace.shading = compute_lighting(u_lighting, trace.color, trace.normal, trace.position, view_position, light_position);
 
-    // hit detected
-    if (hit) 
-    {                                      
-        vec3 view_position = ray.origin;  
-        vec3 light_position = v_camera + u_lighting.position * u_volume.size;
+    // set fragment color
+    gl_FragColor = vec4(trace.shading, 1.0);
+    gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace);
 
-        // compute color and lighting
-        trace.color = compute_colormapping(u_colormap, u_sampler.colormap, trace.value);
-        trace.shading = compute_lighting(u_lighting, trace.color, trace.normal, trace.position, view_position, light_position);
+    // set fragment depth
+    gl_FragDepth = compute_frag_depth(trace.position);
 
-        // set fragment depth
-        gl_FragDepth = compute_frag_depth(trace.position);
-
-        // set fragment color
-        gl_FragColor = vec4(trace.shading, 1.0);
-       
-        // debug
-        gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace);
-
-        return;
-    }   
-    // discard fragment if there is no intersection
-    else discard;  
+    // include tone mapping and color space correction
+    // #include <tonemapping_fragment>
+    // #include <colorspace_fragment>
+    
+    // discard fragment if there is no intersection or  ray does not intersect the box.
+    if (!has_intersected) discard;  
 }

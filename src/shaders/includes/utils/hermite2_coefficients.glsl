@@ -5,25 +5,18 @@
 // https://www.wikiwand.com/en/articles/Hermite_interpolation
 vec4 hermite2_coefficients(in vec2 t, in  vec2 f, in  vec2 g)
 {
-    // Small epsilon to prevent division by near-zero values, ensuring numerical stability
-    float epsilon = 1e-6;
-
     // Compute the difference between the two time values (t0 - t1)
     float dt = t.x - t.y;
     float dt2 = dt * dt;
     float dt3 = dt2 * dt;
-    
-    // avoid division by small values by enforcing a minimum threshold
-    dt2 = max(abs(dt2), epsilon) * ssign(dt2);
-    dt3 = max(abs(dt3), epsilon) * ssign(dt3);
- 
+     
     // Combine function values and gradients into a 4D vector 
-    vec4 fg_weighted = vec4(f / dt3, g / dt2);
+    vec4 fg_weighted = vec4(f / stabilize(dt3), g / stabilize(dt2));
 
     // Predefined vectors for the Hermite basis functions
-    vec4 u0 = vec4(-1.0, 1.0, 0.0, 0.0); 
-    vec4 u1 = vec4(0.0, 0.0, 1.0, 1.0);  
-    vec4 u2 = u0 * 3.0 + u1;
+    const vec4 u0 = vec4(-1.0, 1.0, 0.0, 0.0); 
+    const vec4 u1 = vec4(0.0, 0.0, 1.0, 1.0);  
+    const vec4 u2 = u0 * 3.0 + u1;
 
     // Calculate the Hermite coefficients using dot products between fg and transformed basis vectors
     vec4 coeff = vec4(

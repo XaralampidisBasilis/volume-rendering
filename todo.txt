@@ -4,7 +4,3 @@ Modularize XRGestures function
 Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2ikVUXKBw&ab_channel=Rafadante
 
 Add typescript
-
-Use hermitian interpolation to avoid refinement with texture lookup
-
-For some reason sobel8 and sobel27 are not equal in mangitude, when they should be equal

@@ -43,7 +43,7 @@ void refinement_lagrange3
     vec2 s_roots = quadratic_roots(coeff);
 
     // Filter normalized roots outside of the s interval 
-    vec2 s_filter = step(s.xx, s_roots) * step(s_roots, s.zz);
+    vec2 s_filter = inside(s.xx, s.zz, s_roots);
     s_roots = mix(s.zz, s_roots, s_filter);
     s_roots = clamp(s_roots, s.xx, s.zz);
 

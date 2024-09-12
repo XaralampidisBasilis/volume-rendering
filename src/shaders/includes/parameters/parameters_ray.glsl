@@ -4,8 +4,10 @@
 // struct to hold gradient uniforms
 struct parameters_ray 
 {
-    vec3 origin;
+    vec3  origin;
     vec3  direction;
+    vec3  box_min;
+    vec3  box_max;
     float spacing;
     float dithering;
     float min_distance;
@@ -20,6 +22,8 @@ void set_ray(inout parameters_ray ray)
 {
     ray.origin       = vec3(0.0);
     ray.direction    = vec3(0.0);
+    ray.box_min      = vec3(0.0);
+    ray.box_max      = vec3(0.0);
     ray.spacing      = 0.0;
     ray.dithering    = 0.0;
     ray.min_distance = 0.0;

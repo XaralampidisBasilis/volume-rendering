@@ -9,25 +9,17 @@
  */
 vec2 compute_bounds
 (
-    in float has_bbox,
-    in vec3 volume_size,
-    in vec3 box_min, 
-    in vec3 box_max, 
+    in vec3 ray_box_min, 
+    in vec3 ray_box_max, 
     in vec3 ray_origin, 
     in vec3 ray_direction
 )
 {
-    box_min = mix(vec3(0.0), box_min, has_bbox);
-    box_max = mix(volume_size, box_max, has_bbox);
-
     // Intersect the box with the ray and compute the bounds.
-    vec2 ray_bounds = intersect_box(box_min, box_max, ray_origin, ray_direction);
+    vec2 ray_bounds = intersect_box(ray_box_min, ray_box_max, ray_origin, ray_direction);
 
     // Ensure the bounds are non-negative; if the camera is inside the bounding box, start from zero.
     ray_bounds = max(ray_bounds, 0.0); 
-
-    // Discard fragments if the ray does not intersect the box.
-    if (ray_bounds.x > ray_bounds.y) discard;
 
     return ray_bounds;
 }

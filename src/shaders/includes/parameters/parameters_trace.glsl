@@ -13,6 +13,9 @@ struct parameters_trace
     float value;     // Scalar value at the intersection
     float error;
     float distance;  // Distance the ray has traveled to the intersection
+    float depth;  
+    float skipped;  
+    float traversed;  
     float spacing;
     float gradient_norm;
     float derivative;
@@ -30,6 +33,9 @@ void set_trace(inout parameters_trace trace)
     trace.value          = 0.0;  
     trace.error          = 0.0;  
     trace.distance       = 0.0;
+    trace.depth          = 0.0;
+    trace.skipped        = 0.0;
+    trace.traversed      = 0.0;
     trace.spacing        = 0.0;
     trace.gradient_norm  = 0.0;
     trace.derivative     = 0.0;
@@ -47,6 +53,9 @@ void copy_trace(inout parameters_trace trace, in parameters_trace copy)
     trace.value         = copy.value;
     trace.error         = copy.error;
     trace.distance      = copy.distance;
+    trace.depth         = copy.depth;
+    trace.skipped       = copy.skipped;
+    trace.traversed     = copy.traversed;
     trace.spacing       = copy.spacing;
     trace.gradient_norm = copy.gradient_norm;
     trace.derivative    = copy.derivative;

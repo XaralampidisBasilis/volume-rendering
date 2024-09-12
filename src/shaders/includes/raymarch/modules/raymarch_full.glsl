@@ -26,7 +26,7 @@ bool raymarch_full
     // Raymarch loop to traverse through the volume
     for (
         trace.steps = 0; 
-        trace.steps < u_raycast.max_steps && trace.distance < ray.max_distance; 
+        trace.steps < ray.max_steps && trace.distance < ray.max_distance; 
         trace.steps++
     ) 
     {

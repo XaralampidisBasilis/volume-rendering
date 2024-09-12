@@ -28,7 +28,7 @@ void refinement_bisections5
     vec2 values = vec2(prev_trace.value, trace.value);
     vec2 distances = vec2(prev_trace.distance, trace.distance);
 
-    for (int i = 0; i < 5; i++) 
+    for (int i = 0; i < 5; i++, trace.steps++) 
     {
         // compute interpolation factor
         float s = map(values.x, values.y, u_raycast.threshold);

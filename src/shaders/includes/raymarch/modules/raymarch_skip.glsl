@@ -29,7 +29,7 @@ bool raymarch_skip
 
     for (
         trace.steps = 0; 
-        trace.steps < u_raycast.max_steps && trace.distance < ray.max_distance; 
+        trace.steps < ray.max_steps && trace.distance < ray.max_distance; 
         trace.steps++
     ) 
     {
@@ -79,6 +79,7 @@ bool raymarch_skip
         }
 
         // Skip the block and adjust depth with a small nudge to avoid precision issues
+        trace.skipped += mix(skip_distance, 0.0, occupied);
         trace.distance = max_distance + nudge;
         trace.position = ray.origin + ray.direction * trace.distance;
     }   

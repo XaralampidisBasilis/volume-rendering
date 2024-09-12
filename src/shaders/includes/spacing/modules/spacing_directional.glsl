@@ -23,7 +23,7 @@
     float voxel_volume = prod(volume_spacing); 
 
     // Average spacing of the ray-voxel cube intersection
-    float ray_spacing = voxel_volume / projected_voxel_area;
+    float ray_spacing = voxel_volume / stabilize(projected_voxel_area);
 
     return ray_spacing;
 }

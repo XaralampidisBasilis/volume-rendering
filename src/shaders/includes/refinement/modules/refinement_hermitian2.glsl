@@ -21,26 +21,26 @@ void refinement_hermitian2
 )
 {
     // Define symbolic vectors
-    highp vec2 s = vec2(0.0, 1.0);
-    highp vec2 t = vec2(prev_trace.distance, trace.distance);
-    highp vec2 f = vec2(prev_trace.value, trace.value);
-    highp vec2 f_prime = vec2(prev_trace.derivative, trace.derivative);
+    vec2 s = vec2(0.0, 1.0);
+    vec2 t = vec2(prev_trace.distance, trace.distance);
+    vec2 f = vec2(prev_trace.value, trace.value);
+    vec2 f_prime = vec2(prev_trace.derivative, trace.derivative);
     f_prime *= t.y - t.x;
 
     // Compute cubic hermite coefficients
-    highp vec4 coeff = hermite2_coefficients(s, f, f_prime);
+    vec4 coeff = hermite2_coefficients(s, f, f_prime);
 
     // Compute the roots of the equation H(t) - threshold = 0
     coeff.x -= u_raycast.threshold;
-    highp vec3 s_roots = cubic_roots(coeff);
+    vec3 s_roots = cubic_roots(coeff);
 
     // Filter normalized roots outside of the interval [0, 1] and set them to 1.0
-    highp vec3 s_filter = step(s.xxx, s_roots) * step(s_roots, s.yyy);
+    vec3 s_filter = inside(s.xxx, s.yyy, s_roots);
     s_roots = mix(s.yyy, s_roots, s_filter);
     s_roots = clamp(s_roots, s.xxx, s.yyy);
 
     // Denormalize result
-    highp vec3 t_roots = mix(t.xxx, t.yyy, s_roots);
+    vec3 t_roots = mix(t.xxx, t.yyy, s_roots);
     t_roots = clamp(t_roots, ray.min_distance, ray.max_distance);
 
     // Compute distance and position in solution

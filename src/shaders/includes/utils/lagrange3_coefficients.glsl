@@ -4,9 +4,6 @@
 // numerically stable solution
 vec3 lagrange3_coefficients(in vec3 t, in vec3 f)
 {
-    // small epsilon to avoid division by near-zero
-    const float epsilon = 1e-6;
-
     // cross differences products
     vec3 t_cross_prod = vec3(
         prod(t.xx - t.yz),
@@ -28,12 +25,9 @@ vec3 lagrange3_coefficients(in vec3 t, in vec3 f)
         sum(t.xy)
     );
 
-    // avoid division by small values by enforcing a minimum threshold
-    t_cross_prod = max(abs(t_cross_prod), epsilon) * ssign(t_cross_prod);
-
     // matrix-vector multiplication with f_weighted
     mat3 t_matrix = mat3(t_part_prod, - t_comp_sum, vec3(1.0));
-    vec3 f_weighted = f / t_cross_prod; 
+    vec3 f_weighted = f / stabilize(t_cross_prod); 
     
     // compute and return coefficients
     vec3 coeff = f_weighted * t_matrix; 

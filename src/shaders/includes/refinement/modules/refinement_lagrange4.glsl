@@ -43,7 +43,7 @@ void refinement_lagrange4
     vec3 s_roots = cubic_roots(coeff);
 
     // Filter normalized roots outside of the interval [0, 1] and set them to 1.0
-    vec3 s_filter = step(s.xxx, s_roots) * step(s_roots, s.www);
+    vec3 s_filter = inside(s.xxx, s.www, s_roots);
     s_roots = mix(s.www, s_roots, s_filter);
     s_roots = clamp(s_roots, s.xxx, s.www);
 
