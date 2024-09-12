@@ -43,7 +43,7 @@ vec4 compute_debug
 
         // trace_derivative
         case 7: 
-            return vec4(vec3(trace.derivative / u_gradient.max_norm), 1.0);
+            return vec4(abs(trace.derivative  / u_gradient.max_norm) * mix(blue, red, step(0.0, trace.derivative)), 1.0);
 
         // trace_normal
         case 8: 

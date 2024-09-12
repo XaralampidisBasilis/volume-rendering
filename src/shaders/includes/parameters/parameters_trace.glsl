@@ -38,7 +38,7 @@ void set_trace(inout parameters_trace trace)
 
 void copy_trace(inout parameters_trace trace, in parameters_trace copy)
 {
-    trace.position      = copy.position ;
+    trace.position      = copy.position;
     trace.texel         = copy.texel;
     trace.normal        = copy.normal;
     trace.gradient      = copy.gradient;

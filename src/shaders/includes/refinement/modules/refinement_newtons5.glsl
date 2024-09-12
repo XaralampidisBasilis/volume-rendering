@@ -39,9 +39,9 @@ void refinement_newtons5
 
         // compute the gradient and normal
         vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
-        trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
         trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_norm;
-        trace.gradient = trace.normal * trace.gradient_norm;
+        trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
+        trace.gradient = - trace.normal * trace.gradient_norm;
         trace.derivative = dot(trace.gradient, ray.direction);
 
         // newton–raphson method to approximate next distance
