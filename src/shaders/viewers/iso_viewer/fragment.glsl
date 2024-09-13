@@ -12,6 +12,7 @@ varying mat4 v_projection_model_view_matrix;
 
 // uniforms, parameters, utils
 #include "./chunks/uniforms/uniforms"
+#include "./chunks/defines/defines"
 #include "./chunks/parameters/parameters"
 #include "./chunks/utils/utils"
 
@@ -31,13 +32,7 @@ void main()
     #include "./chunks/lighting/compute_lighting"
 
     gl_FragColor = vec4(trace.shading, 1.0);
-    #include "./chunks/compute_debug"
     #include "./chunks/compute_frag_depth"
-
-    // include tone mapping and color space correction
-    // #include <tonemapping_fragment>
-    // #include <colorspace_fragment>
-    
-    // discard fragment if there is no intersection 
+    #include "./chunks/compute_debug"
     if (!ray.intersected) discard;  
 }

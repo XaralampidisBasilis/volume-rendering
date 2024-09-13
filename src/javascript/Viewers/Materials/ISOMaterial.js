@@ -100,7 +100,7 @@ export default function(viewer)
 
     const defines = 
     {
-        STEPPING_METHOD : 1,
+        // STEPPING_METHOD : 1,
     }
 
     const material = new THREE.ShaderMaterial({

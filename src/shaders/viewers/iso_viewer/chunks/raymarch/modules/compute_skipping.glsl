@@ -2,7 +2,7 @@ trace.coords = floor(trace.position * u_volume.inv_spacing);
 block.coords = ivec3(trace.coords / u_occupancy.block_dimensions);
 
 // Sample the occupancy map to get occupancy data
-vec4 occupancy = step(0.5, texelFetch(occumap, block.coords, 0));
+vec4 occupancy = step(0.5, texelFetch(u_sampler.occumap, block.coords, 0));
 block.resolution = 3.0 - dot(occupancy.gba, vec3(1.0));
 
 // compute block0 min and max voxel coordinates

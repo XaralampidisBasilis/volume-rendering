@@ -40,7 +40,6 @@ for (
             // first iteration is skipped in order to compute previous trace and we are outside of occupied block
             if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold && i > 0)
             {   
-                #include "../../refinement/compute_refinement"
                 ray.intersected = true;                    
                 break;
             }

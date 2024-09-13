@@ -27,7 +27,6 @@ for (
     if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold && trace.steps > 0) 
     {   
         // Compute refinement
-        #include "../../refinement/compute_refinement"
         ray.intersected = true;         
         break;
     }

@@ -21,6 +21,8 @@ export default ({
         glsl({
             include: '**/*.glsl',  // Include all .glsl files
             root: '**/src/shaders', // Directory for root imports
+            warnDuplicatedImports: false, // Warn if the same chunk was imported multiple times
+            compress: true,             // Compress output shader code
         })
     ],      
 })
