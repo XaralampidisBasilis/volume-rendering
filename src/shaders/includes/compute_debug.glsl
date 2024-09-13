@@ -20,6 +20,7 @@ vec4 compute_debug
     float max_depth = max_distance - min_distance;
 
     debug.trace_position      = vec4(vec3(trace.texel), 1.0);
+    debug.trace_coords        = vec4(vec3(trace.coords / (u_volume.dimensions - 1.0)), 1.0);
     debug.trace_distance      = vec4(vec3((trace.distance - min_distance) / max_depth), 1.0);
     debug.trace_depth         = vec4(vec3((trace.distance - ray.min_distance) / max_depth), 1.0);
     debug.trace_traversed     = vec4(vec3(trace.traversed / max_depth), 1.0);
@@ -35,7 +36,7 @@ vec4 compute_debug
     debug.trace_gradient      = vec4((trace.gradient / u_gradient.max_norm) * 0.5 + 0.5, 1.0);
     debug.trace_gradient_norm = vec4(vec3(trace.gradient_norm / u_gradient.max_norm), 1.0);
     debug.trace_derivative    = vec4(abs(trace.derivative  / u_gradient.max_norm) * mix(blue, red, step(0.0, trace.derivative)), 1.0);
-    debug.trace_stepping      = vec4(vec3(map(u_raycast.min_stepping, u_raycast.max_stepping, trace.spacing / ray.spacing)), 1.0);
+    debug.trace_stepping      = vec4(vec3(map(u_raycast.min_stepping, u_raycast.max_stepping, trace.stepping)), 1.0);
     debug.trace_mean_stepping = vec4(vec3(map(u_raycast.min_stepping, u_raycast.max_stepping, trace.depth / ray.spacing / float(trace.steps))), 1.0);
     debug.ray_direction       = vec4(vec3(ray.direction * 0.5 + 0.5), 1.0);
     debug.ray_spacing         = vec4(vec3(ray.spacing / length(u_volume.spacing)), 1.0);
@@ -49,31 +50,32 @@ vec4 compute_debug
     switch (u_debug.option)
     {
         case  1: return debug.trace_position;      
-        case  2: return debug.trace_distance;      
-        case  3: return debug.trace_depth;         
-        case  4: return debug.trace_traversed;     
-        case  5: return debug.trace_skipped;       
-        case  6: return debug.trace_steps;         
-        case  7: return debug.trace_error;         
-        case  8: return debug.trace_abs_error;     
-        case  9: return debug.trace_value;         
-        case 10: return debug.trace_color;         
-        case 11: return debug.trace_shading;       
-        case 12: return debug.trace_luminance;     
-        case 13: return debug.trace_normal;        
-        case 14: return debug.trace_gradient;      
-        case 15: return debug.trace_gradient_norm; 
-        case 16: return debug.trace_derivative;    
-        case 17: return debug.trace_stepping;      
-        case 18: return debug.trace_mean_stepping; 
-        case 19: return debug.ray_direction;       
-        case 20: return debug.ray_spacing;         
-        case 21: return debug.ray_dithering;       
-        case 22: return debug.ray_min_distance;    
-        case 23: return debug.ray_max_distance;    
-        case 24: return debug.ray_max_depth;       
-        case 25: return debug.ray_max_steps;       
-        case 26: return debug.frag_depth;          
+        case  2: return debug.trace_coords;      
+        case  3: return debug.trace_distance;      
+        case  4: return debug.trace_depth;         
+        case  5: return debug.trace_traversed;     
+        case  6: return debug.trace_skipped;       
+        case  7: return debug.trace_steps;         
+        case  8: return debug.trace_error;         
+        case  9: return debug.trace_abs_error;     
+        case 10: return debug.trace_value;         
+        case 11: return debug.trace_color;         
+        case 12: return debug.trace_shading;       
+        case 13: return debug.trace_luminance;     
+        case 14: return debug.trace_normal;        
+        case 15: return debug.trace_gradient;      
+        case 16: return debug.trace_gradient_norm; 
+        case 17: return debug.trace_derivative;    
+        case 18: return debug.trace_stepping;      
+        case 19: return debug.trace_mean_stepping; 
+        case 20: return debug.ray_direction;       
+        case 21: return debug.ray_spacing;         
+        case 22: return debug.ray_dithering;       
+        case 23: return debug.ray_min_distance;    
+        case 24: return debug.ray_max_distance;    
+        case 25: return debug.ray_max_depth;       
+        case 26: return debug.ray_max_steps;       
+        case 27: return debug.frag_depth;          
         default: return gl_FragColor;
     }
 }

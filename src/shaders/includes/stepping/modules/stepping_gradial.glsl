@@ -22,7 +22,7 @@ float stepping_gradial
 
     // Interpolate the resolution based on the alignment.
     // when alignment is high, use higher resolution, when low, use lower resolution.
-    float spacing = mix(u_raycast.max_stepping, u_raycast.min_stepping, derivative);
+    float stepping = mix(u_raycast.max_stepping, u_raycast.min_stepping, derivative);
 
-    return spacing;
+    return stepping;
 }

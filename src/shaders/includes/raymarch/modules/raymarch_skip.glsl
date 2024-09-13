@@ -72,7 +72,8 @@ bool raymarch_skip
 
                 // prepare for the next step, update trace and ray position
                 copy_trace(prev_trace, trace);
-                trace.spacing = ray.spacing * compute_stepping(u_raycast, u_gradient, ray, trace);
+                trace.stepping = compute_stepping(u_raycast, u_gradient, ray, trace);
+                trace.spacing = trace.stepping * ray.spacing;
                 trace.position += ray.direction * trace.spacing;
                 trace.distance += trace.spacing;
             }       

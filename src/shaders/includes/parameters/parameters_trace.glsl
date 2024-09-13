@@ -6,6 +6,7 @@ struct parameters_trace
 {
     vec3  position;   // position in model space
     vec3  texel;      // normalized texture coordinates
+    vec3  coords;      
     vec3  normal;     // normal in model space
     vec3  gradient;   // gradient in model space
     vec3  color;
@@ -16,6 +17,7 @@ struct parameters_trace
     float depth;  
     float skipped;  
     float traversed;  
+    float stepping;  
     float spacing;
     float gradient_norm;
     float derivative;
@@ -26,6 +28,7 @@ void set_trace(inout parameters_trace trace)
 {
     trace.position       = vec3(0.0);
     trace.texel          = vec3(0.0);
+    trace.coords         = vec3(0.0);
     trace.normal         = vec3(0.0); 
     trace.gradient       = vec3(0.0); 
     trace.color          = vec3(0.0);
@@ -36,6 +39,7 @@ void set_trace(inout parameters_trace trace)
     trace.depth          = 0.0;
     trace.skipped        = 0.0;
     trace.traversed      = 0.0;
+    trace.stepping       = 0.0;
     trace.spacing        = 0.0;
     trace.gradient_norm  = 0.0;
     trace.derivative     = 0.0;
@@ -46,6 +50,7 @@ void copy_trace(inout parameters_trace trace, in parameters_trace copy)
 {
     trace.position      = copy.position;
     trace.texel         = copy.texel;
+    trace.coords        = copy.coords;
     trace.normal        = copy.normal;
     trace.gradient      = copy.gradient;
     trace.color         = copy.color;
@@ -54,6 +59,7 @@ void copy_trace(inout parameters_trace trace, in parameters_trace copy)
     trace.error         = copy.error;
     trace.distance      = copy.distance;
     trace.depth         = copy.depth;
+    trace.stepping      = copy.skipped;
     trace.skipped       = copy.skipped;
     trace.traversed     = copy.traversed;
     trace.spacing       = copy.spacing;

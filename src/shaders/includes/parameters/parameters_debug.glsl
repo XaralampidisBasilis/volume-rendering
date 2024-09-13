@@ -5,6 +5,7 @@
 struct parameters_debug 
 {
     vec4 trace_position;  
+    vec4 trace_coords;  
     vec4 trace_distance;      
     vec4 trace_depth;         
     vec4 trace_traversed;     
@@ -35,6 +36,7 @@ struct parameters_debug
 void set_debug(inout parameters_debug debug)
 {
     debug.trace_position      = vec4(0.0);
+    debug.trace_coords        = vec4(0.0);
     debug.trace_distance      = vec4(0.0);
     debug.trace_depth         = vec4(0.0);
     debug.trace_traversed     = vec4(0.0);
