@@ -75,7 +75,7 @@ vec4 gradient_prewitt27
 
     // Calculate the position and step sizes within the 3D texture
     vec3 voxel_step = 1.0 / vec3(volume_dimensions);
-    vec3 voxel_pos = voxel_step * (vec3(voxel_coords) + 0.5);
+    vec3 voxel_pos = (vec3(voxel_coords) + 0.5) * voxel_step;
     
     // Sample values at the neighboring points
     float samples[27];

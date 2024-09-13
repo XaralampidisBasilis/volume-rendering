@@ -30,7 +30,7 @@ vec4 gradient_central6
     
     // Calculate the position and step sizes within the 3D texture
     vec3 voxel_step = 1.0 / vec3(volume_dimensions);
-    vec3 voxel_pos = voxel_step * (vec3(voxel_coords) + 0.5); // we need 0.5 to go to voxel centers
+    vec3 voxel_pos = (vec3(voxel_coords) + 0.5) * voxel_step; // we need 0.5 to go to voxel centers
    
     // Sample values at the neighboring points
     float samples[6];

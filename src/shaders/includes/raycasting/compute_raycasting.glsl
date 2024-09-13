@@ -31,9 +31,9 @@ bool compute_raycasting
     ray.box_max = mix(ray.box_max, u_occupancy.box_max, u_raycast.has_bbox);
 
     // compute the intersection bounds of a ray with the occupancy axis-aligned bounding box.
-    vec2 distance_bounds = compute_bounds(ray.box_min, ray.box_max, ray.origin, ray.direction); 
-    ray.min_distance = distance_bounds.x;
-    ray.max_distance = distance_bounds.y;
+    vec2 ray_bounds = compute_bounds(ray.box_min, ray.box_max, ray.origin, ray.direction); 
+    ray.min_distance = ray_bounds.x;
+    ray.max_distance = ray_bounds.y;
     ray.max_depth = max(ray.max_distance - ray.min_distance, 0.0);
     // if (ray.max_depth < 0.0) discard;
 

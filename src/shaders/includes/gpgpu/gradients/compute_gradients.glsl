@@ -3,10 +3,7 @@ precision highp int;
 precision highp float;
 precision highp sampler3D; 
 
-#include "../../utils/reshape"
-#include "../../utils/prod"
-#include "../../utils/inside"
-#include "../../utils/inside_box"
+#include "../../utils/utils"
 #include "./modules/compute_gradient"
 
 uniform sampler3D volume_data;

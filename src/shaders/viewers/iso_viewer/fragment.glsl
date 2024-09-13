@@ -15,47 +15,10 @@ varying vec3 v_direction;
 varying mat4 v_projection_model_view_matrix;
 varying mat4 v_model_view_matrix;
 
-// uniforms
-#include "../../includes/uniforms/uniforms_sampler"
-#include "../../includes/uniforms/uniforms_volume"
-#include "../../includes/uniforms/uniforms_occupancy"
-#include "../../includes/uniforms/uniforms_raycast"
-#include "../../includes/uniforms/uniforms_gradient"
-#include "../../includes/uniforms/uniforms_colormap"
-#include "../../includes/uniforms/uniforms_lighting"
-#include "../../includes/uniforms/uniforms_debug"
-
-//param
-#include "../../includes/parameters/parameters_ray"
-#include "../../includes/parameters/parameters_trace"
-
-// utils
-#include "../../includes/utils/mmin"
-#include "../../includes/utils/mmax"
-#include "../../includes/utils/inside"
-#include "../../includes/utils/random"
-#include "../../includes/utils/reshape"
-#include "../../includes/utils/rand"
-#include "../../includes/utils/map"
-#include "../../includes/utils/prod"
-#include "../../includes/utils/sum"
-#include "../../includes/utils/mean"
-#include "../../includes/utils/diff"
-#include "../../includes/utils/posterize"
-#include "../../includes/utils/sort"
-#include "../../includes/utils/ssign"
-#include "../../includes/utils/stabilize"
-#include "../../includes/utils/linear2_coefficients"
-#include "../../includes/utils/hermite2_coefficients"
-#include "../../includes/utils/lagrange3_coefficients"
-#include "../../includes/utils/lagrange4_coefficients"
-#include "../../includes/utils/linear_root"
-#include "../../includes/utils/quadratic_roots"
-#include "../../includes/utils/cubic_roots"
-#include "../../includes/utils/bounds_box"
-#include "../../includes/utils/intersect_box"
-#include "../../includes/utils/intersect_box_max"
-#include "../../includes/utils/intersect_box_min"
+// uniforms, parameters, utils
+#include "../../includes/uniforms/uniforms"
+#include "../../includes/parameters/parameters"
+#include "../../includes/utils/utils"
 
 // func
 #include "../../includes/raycasting/compute_raycasting"
@@ -69,11 +32,13 @@ void main()
     parameters_ray ray;
     parameters_trace trace;
     parameters_trace prev_trace;
+    parameters_debug debug;
 
     // initialize parameters
     set_ray(ray);
     set_trace(trace);
     set_trace(prev_trace);
+    set_debug(debug);
    
     // compute raycast
     ray.origin = v_camera;
@@ -83,7 +48,7 @@ void main()
     bool has_intersected = compute_raycasting(u_gradient, u_raycast, u_volume, u_occupancy, u_sampler, ray, trace, prev_trace); 
     trace.depth = trace.distance - ray.min_distance;
     trace.traversed = trace.depth - trace.skipped;
-    // gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace); return;
+    // gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace, debug); return;
    
     // compute color and lighting
     vec3 view_position = ray.origin;  
@@ -93,7 +58,7 @@ void main()
 
     // set fragment color
     gl_FragColor = vec4(trace.shading, 1.0);
-    gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace);
+    gl_FragColor = compute_debug(u_debug, u_gradient, u_raycast, u_volume, u_occupancy, ray, trace, debug);
 
     // set fragment depth
     gl_FragDepth = compute_frag_depth(trace.position);
