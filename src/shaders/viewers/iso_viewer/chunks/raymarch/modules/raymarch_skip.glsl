@@ -56,7 +56,7 @@ for (
     }
 
     // Skip the block and adjust depth with a small nudge to avoid precision issues
-    trace.skipped += mix(block.max_depth, 0.0, occupied);
+    trace.skipped += mix(block.max_depth, 0.0, block.occupied);
     trace.distance = max_distance + nudge;
     trace.position = ray.origin + ray.direction * trace.distance;
 }   

@@ -1,8 +1,8 @@
 // precision
-precision highp sampler3D;
-precision highp sampler2D;
-precision highp float;
-precision highp int;
+precision lowp sampler3D;
+precision lowp sampler2D;
+precision lowp float;
+precision lowp int;
 
 // varying
 varying vec3 v_camera;
@@ -33,6 +33,6 @@ void main()
 
     gl_FragColor = vec4(trace.shading, 1.0);
     #include "./chunks/compute_frag_depth"
-    #include "./chunks/compute_debug"
+    #include "./chunks/debug/compute_debug"
     if (!ray.intersected) discard;  
 }

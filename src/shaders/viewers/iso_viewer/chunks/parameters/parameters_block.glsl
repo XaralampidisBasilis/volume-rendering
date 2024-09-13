@@ -8,7 +8,7 @@ struct parameters_block
     vec3 min_position;
     vec3 max_position;
     vec3 size;
-    float resolutuon;
+    float resolution;
     float max_depth;
     int max_steps;
     bool occupied; 
@@ -20,7 +20,7 @@ void set_block(inout parameters_block block)
     block.min_position = vec3(0.0);
     block.max_position = vec3(0.0);
     block.size         = vec3(0.0);
-    block.resolutuon   = 0.0;
+    block.resolution   = 0.0;
     block.max_depth    = 0.0;
     block.max_steps    = 0;
     block.occupied     = false;

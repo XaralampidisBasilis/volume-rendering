@@ -161,7 +161,7 @@ export default class ISOGui
             position_x: lighting.add(u_lighting.position, 'x').min(-2).max(2).step(0.01).name('position_x'),
             position_y: lighting.add(u_lighting.position, 'y').min(-2).max(2).step(0.01).name('position_y'),
             position_z: lighting.add(u_lighting.position, 'z').min(-2).max(2).step(0.01).name('position_z'),
-            model: lighting.add(u_lighting, 'model').options({ phong: 1, blinn: 2}),
+            model: lighting.add(u_lighting, 'model').options({ blinn : 1, phong : 2}),
             attenuation: lighting.add(u_lighting, 'attenuation'),
         }
     }

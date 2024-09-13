@@ -19,6 +19,7 @@ copy_trace(trace, prev_trace);
 float sub_spacing = trace.spacing / 6.0;  
 
 // perform additional sampling steps to refine the hit point    
+#pragma unroll_loop_start
 for (int i = 0; i < 5; i++, trace.steps++) 
 {
     // move position forward by substep and sample the volume
@@ -40,6 +41,7 @@ for (int i = 0; i < 5; i++, trace.steps++)
         break;
     }
 }
+#pragma unroll_loop_end
 
 // if there was not any refinement copy the final trace
 copy_trace(trace, final_trace);

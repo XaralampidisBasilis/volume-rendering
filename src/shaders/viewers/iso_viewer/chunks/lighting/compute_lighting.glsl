@@ -1,12 +1,13 @@
 
-
-#if LIGHTING_METHOD == 0  
+// lighting_blinn
+#if LIGHTING_METHOD == 1  
 #include "./modules/lighting_blinn"
 
-#elif LIGHTING_METHOD == 1
+// lighting_phong
+#elif LIGHTING_METHOD == 2 
 #include "./modules/lighting_phong"
 
 #else  
 #error "unknown: LIGHTING_METHOD"
 
-#endif
+#endif // LIGHTING_METHOD

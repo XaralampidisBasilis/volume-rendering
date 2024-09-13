@@ -24,8 +24,8 @@ varying mat4 v_model_view_matrix;
 #include "../../includes/raycasting/compute_raycasting"
 #include "../../includes/colormapping/compute_colormapping"
 #include "../../includes/lighting/compute_lighting"
+#include "../../includes/debug/compute_debug"
 #include "../../includes/compute_frag_depth"
-#include "../../includes/compute_debug"
     
 void main() 
 {

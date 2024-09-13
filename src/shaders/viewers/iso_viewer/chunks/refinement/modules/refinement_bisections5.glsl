@@ -18,6 +18,7 @@ copy_trace(temp_trace, trace);
 vec2 values = vec2(prev_trace.value, trace.value);
 vec2 distances = vec2(prev_trace.distance, trace.distance);
 
+#pragma unroll_loop_start
 for (int i = 0; i < 5; i++, trace.steps++) 
 {
     // compute interpolation factor
@@ -36,6 +37,7 @@ for (int i = 0; i < 5; i++, trace.steps++)
     values = mix(vec2(trace.value, values.y), vec2(values.x, trace.value), is_positive);
     distances = mix(vec2(trace.distance, distances.y), vec2(distances.x, trace.distance), is_positive);
 }
+#pragma unroll_loop_end
 
 // Compute the gradient and additional properties
 vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
@@ -44,8 +46,9 @@ trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
 trace.gradient = - trace.normal * trace.gradient_norm;
 trace.derivative = dot(trace.gradient, ray.direction);
 
-    // if we do not have any improvement with refinement go to previous solution
-if (abs(trace.error) > abs(temp_trace.error)) {
+// if we do not have any improvement with refinement go to previous solution
+if (abs(trace.error) > abs(temp_trace.error)) 
+{
     copy_trace(trace, temp_trace);
 }
 

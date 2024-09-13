@@ -19,6 +19,7 @@ vec2 distance_bounds = vec2(prev_trace.distance, trace.distance);
 float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
 trace.distance = mix(distance_bounds.x, distance_bounds.y, s_linear);
 
+#pragma unroll_loop_start
 for (int i = 0; i < 5; i++, trace.steps++) 
 {
     // sample intensity at new position
@@ -38,9 +39,11 @@ for (int i = 0; i < 5; i++, trace.steps++)
     trace.distance -= trace.error / stabilize(trace.derivative);
     trace.distance = clamp(trace.distance, distance_bounds.x, distance_bounds.y);
 }
+#pragma unroll_loop_end
 
 // if we do not have any improvement with refinement go to previous solution
-if (abs(trace.error) > abs(temp_trace.error)) {
+if (abs(trace.error) > abs(temp_trace.error)) 
+{
     copy_trace(trace, temp_trace);
 }
 
