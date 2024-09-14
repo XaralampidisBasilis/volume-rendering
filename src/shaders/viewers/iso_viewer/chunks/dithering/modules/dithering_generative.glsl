@@ -1,6 +1,6 @@
 // Calculate the end position of the ray.
-float mean_distance = mean(ray.min_distance, ray.max_distance);
-vec3 sample_position = ray.origin + ray.direction * mean_distance;
+float ray_mean_distance = mean(ray.min_distance, ray.max_distance);
+vec3 sample_position = ray.origin + ray.direction * ray_mean_distance;
 
 // Compute the ray end position in world coordinates.
 sample_position = vec3(v_model_view_matrix * vec4(sample_position, 1.0));

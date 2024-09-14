@@ -65,17 +65,16 @@ const vec3[27] sample_offset = vec3[27]
 );
 
 // Sample values at the neighboring points
-float sample_value[27];
 vec3 voxel_step = u_volume.inv_dimensions;
-vec3 voxel_texel = (trace.coords + 0.5) * voxel_step;
+float sample_value[27];
 vec3 sample_texel;
 
 #pragma unroll_loop_start
 for (int i = 0; i < 27; i++)
 {
-    sample_texel = voxel_texel + voxel_step * sample_offset[i];
+    sample_texel = trace.texel + voxel_step * sample_offset[i];
     sample_value[i] = texture(u_sampler.volume, sample_texel).r;
-    sample_value[i] *= inside_box(0.0, 1.0, sample_texel);
+    sample_value[i] *= inside_box(EPSILON3, 1.0 - EPSILON3, sample_texel);
 }
 #pragma unroll_loop_end
 

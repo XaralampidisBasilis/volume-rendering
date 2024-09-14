@@ -25,18 +25,16 @@ const vec3 sample_offset[4] = vec3[4]
 );
 
 // Sample values at the neighboring points
+vec3 sub_step = u_volume.inv_dimensions * 0.5;
 float sample_value[4];
-vec3 voxel_step = u_volume.inv_dimensions;
-vec3 voxel_texel = (trace.coords + 0.5) * voxel_step;
-vec3 sub_step = voxel_step * 0.5;
 vec3 sample_texel;
 
 #pragma unroll_loop_start
 for (int i = 0; i < 4; i++)
 {
-    sample_texel = voxel_texel + sub_step * sample_offset[i];
+    sample_texel = trace.texel + sub_step * sample_offset[i];
     sample_value[i] = texture(u_sampler.volume, sample_texel).r;
-    sample_value[i] /= exp2(sum(outside(sub_step, 1.0 - sub_step, sample_texel))); // correct edge cases due to trillinear interpolation and clamp to edge wrapping   
+    sample_value[i] /= exp2(sum(outside(EPSILON3, 1.0 - EPSILON3, sample_texel))); // correct edge cases due to trillinear interpolation and clamp to edge wrapping   
 }
 #pragma unroll_loop_end
 
