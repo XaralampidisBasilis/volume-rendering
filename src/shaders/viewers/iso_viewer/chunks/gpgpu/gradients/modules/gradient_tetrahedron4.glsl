@@ -1,6 +1,7 @@
 /**
- * Calculates the gradient and the smoothed sample at a given position in 
- * a 3D texture using trilinear interpolation sobel operator and smoothing
+ * Calculates the gradient at a given position in 
+ * a 3D texture using tetrachedron method and trilinear interpolation
+ * https://iquilezles.org/articles/normalsSDF/
  *
  * @param volume_data: 3D texture sampler containing intensity data.
  * @param volume_dimensions: Dimensions of the 3D texture.
@@ -18,8 +19,7 @@ vec4 gradient_tetrahedron4
     in ivec3 voxel_coords
 )
 {
-
-    // Define offsets for the 8 neighboring points
+    // Define offsets for the 4 neighboring points
     const vec2 k = vec2(-1.0, +1.0);
     const vec3 samples_offset[4] = vec3[4]
     (
@@ -32,15 +32,18 @@ vec4 gradient_tetrahedron4
     // Calculate the position and step sizes within the 3D texture
     vec3 voxel_step = 1.0 / vec3(volume_dimensions);
     vec3 voxel_pos = (vec3(voxel_coords) + 0.5) * voxel_step;
-    vec3 substep = voxel_step * 0.5;
+    vec3 sub_step = voxel_step * 0.5;
    
     // Sample values at the neighboring points
     float samples[4];
     for (int i = 0; i < 4; i++)
     {
-        vec3 sample_pos = voxel_pos + substep * samples_offset[i];
+        vec3 sample_pos = voxel_pos + sub_step * samples_offset[i];
         samples[i] = texture(volume_data, sample_pos).r;
-        samples[i] *= inside_box(substep*0.5, 1.0 - substep*0.5, sample_pos);  // there is an edge case problem doe to trillinear interpolation
+
+        // handle edge case problems due to trillinear interpolation and clamp to edge wrapping
+        vec3 is_outside = outside(sub_step, 1.0 - sub_step, sample_pos);
+        samples[i] /= exp2(sum(is_outside));  
     }
 
     // Calculate the gradient based on the sampled values using the Sobel operator
@@ -51,11 +54,11 @@ vec4 gradient_tetrahedron4
         samples[1] + samples[2] - samples[0] - samples[3]
     );
 
-    // Get sobel kernel values from trilinear sampling
+    // Get integer kernel values from trilinear sampling
     gradient *= 8.0;
 
     // Normalize the kernel values
-    gradient /= 16.0;
+    gradient /= 10.0;
   
     // Adjust gradient to physical space 
     gradient /= 2.0 * volume_spacing;

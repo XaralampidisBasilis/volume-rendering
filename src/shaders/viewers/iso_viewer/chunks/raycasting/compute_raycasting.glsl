@@ -1,6 +1,7 @@
 // compute the intersection bounds of a ray with the occupancy axis-aligned bounding box.
-#include "./modules/compute_bounds"
+#include "./modules/compute_distances"
 ray.max_depth = max(ray.max_distance - ray.min_distance, 0.0);
+ray.max_box_depth = max(ray.max_box_distance - ray.min_box_distance, 0.0);
 
 // compute the ray step vector based on the raycast and volume parameters.
 #include "../spacing/compute_spacing"
@@ -18,6 +19,7 @@ trace.spacing = ray.spacing;
 
 // raycasting loop to traverse through the volume and find intersections.
 #include "../raymarch/compute_raymarch"
+#include "../gradient/compute_gradient"
 #include "../refinement/compute_refinement"
 
 trace.coords = floor(trace.position * u_volume.inv_spacing);

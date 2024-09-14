@@ -8,19 +8,23 @@
 #include "./modules/gradient_central6"
 
 // gradient_sobel8
-#elif GRADIENT_METHOD == 2
+#elif GRADIENT_METHOD == 3
 #include "./modules/gradient_sobel8"
 
+// gradient_tetrahedron27
+#elif GRADIENT_METHOD == 4
+#include "./modules/gradient_tetrahedron27"
+
 // gradient_prewitt27
-#elif GRADIENT_METHOD == 3
+#elif GRADIENT_METHOD == 5
 #include "./modules/gradient_prewitt27"
 
 // gradient_sobel27
-#elif GRADIENT_METHOD == 4
+#elif GRADIENT_METHOD == 6
 #include "./modules/gradient_sobel27"
 
 // gradient_scharr27
-#elif GRADIENT_METHOD == 5
+#elif GRADIENT_METHOD == 7
 #include "./modules/gradient_scharr27"
 
 #else  

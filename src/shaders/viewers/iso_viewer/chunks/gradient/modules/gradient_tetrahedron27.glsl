@@ -1,41 +1,53 @@
-// gradient_prewitt27
+//gradient_tetrahedron27
 
-// compute prewitt 27 kernels 
+/**
+ * Calculates the gradient at a given position in 
+ * a 3D texture using tetrachedron method
+ * https://iquilezles.org/articles/normalsSDF/
+ *
+ * @param volume_data: 3D texture sampler containing intensity data.
+ * @param volume_dimensions: Dimensions of the 3D texture.
+ * @param voxel_coords: Coordinates of the voxel in the 3D texture.
+ *
+ * @return vec4: Gradient vector at the given position as rgb and smoothed sample as alpha
+ */
+
+// compute tetrahedron 27 kernels 
 const float[27] kernel_x = float[27]
 (
-     -1.0,  -1.0,   -1.0,
-     -1.0,  -1.0,   -1.0,
-     -1.0,  -1.0,   -1.0,
-      0.0,  0.0,   0.0,
-     0.0,  0.0,   0.0,
-     0.0,  0.0,   0.0,
-    +1.0, +1.0,  +1.0,
-    +1.0, +1.0,  +1.0,
-    +1.0, +1.0,  +1.0
+     -1.0,   -1.0,    0.0,
+     -1.0,   -2.0,   -1.0,
+      0.0,   -1.0,   -1.0,
+     -1.0,   0.0,  +1.0,
+     0.0,   0.0,   0.0,
+    +1.0,   0.0,  -1.0,
+     0.0,  +1.0,  +1.0,
+    +1.0,  +2.0,  +1.0,
+    +1.0,  +1.0,   0.0
 );
 const float[27] kernel_y = float[27]
 (
-    -1.0,  -1.0,  -1.0,
+     -1.0,   -1.0,    0.0,
+     -1.0,    0.0,   +1.0,
+      0.0,   +1.0,   +1.0,
+     -1.0,  -2.0,  -1.0,
      0.0,   0.0,   0.0,
-    +1.0,  +1.0,  +1.0,
-    -1.0, -1.0, -1.0,
-    0.0,  0.0,  0.0,
-   +1.0, +1.0, +1.0,
-   -1.0, -1.0, -1.0,
-    0.0,  0.0,  0.0,
-   +1.0, +1.0, +1.0
+    +1.0,  +2.0,  +1.0,
+     0.0,  -1.0,  -1.0,
+    +1.0,   0.0,  -1.0,
+    +1.0,  +1.0,   0.0
 );
 const float[27] kernel_z = float[27]
 (
-     -1.0,   0.0,   +1.0,
-     -1.0,   0.0,   +1.0,
-     -1.0,   0.0,   +1.0,
-     -1.0,  0.0,  +1.0,
-    -1.0,  0.0,  +1.0,
-    -1.0,  0.0,  +1.0,
-    -1.0,  0.0,  +1.0,
-    -1.0,  0.0,  +1.0,
-    -1.0,  0.0,  +1.0
+     -1.0,   +1.0,    0.0,
+     -1.0,    0.0,   +1.0,
+      0.0,   -1.0,   +1.0,
+     -1.0,   0.0,  +1.0,
+    -2.0,   0.0,  +2.0,
+    -1.0,   0.0,  +1.0,
+     0.0,  -1.0,  +1.0,
+    -1.0,   0.0,  +1.0,
+    -1.0,  +1.0,   0.0
 );
 
 // define offsets for 26 neighboring samples
@@ -67,7 +79,7 @@ for (int i = 0; i < 27; i++)
 }
 #pragma unroll_loop_end
 
-// calculate the gradient based on sampled values
+// calculate gradient based on the sampled values 
 #pragma unroll_loop_start
 for (int i = 0; i < 27; i++)
 {
@@ -77,7 +89,7 @@ for (int i = 0; i < 27; i++)
 }
 #pragma unroll_loop_end
 trace.gradient *= 0.5 * u_volume.inv_spacing; // // adjust gradient to physical space 
-trace.gradient /= 9.0; // normalize the kernel values
+trace.gradient /= 10.0; // normalize the kernel values
 
 trace.gradient_norm = length(trace.gradient);
 trace.normal = normalize(trace.gradient);

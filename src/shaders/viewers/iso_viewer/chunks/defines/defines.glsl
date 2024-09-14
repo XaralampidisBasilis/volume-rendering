@@ -20,12 +20,12 @@
 
 // { sobel8: 1, sobel27: 2, scharr27: 3, prewitt27: 4, central6: 5, tetrahedron4: 6 }
 #ifndef GRADIENT_METHOD
-#define GRADIENT_METHOD 0 
+#define GRADIENT_METHOD 1 
 #endif
 
 // { generative: 1, texture: 2, }
 #ifndef DITHERING_METHOD
-#define DITHERING_METHOD 0
+#define DITHERING_METHOD 1
 #endif
 
 // { isotropic: 1, directional: 2, traversal: 3 }

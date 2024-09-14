@@ -1,3 +1,5 @@
+// source: https://datoviz.org/colormaps/
+
 const colormapLocations = {
     "binary":              {u_start:   0.5/256, u_end: 255.5/256, v:   0.5/256},
     "hsv":                 {u_start:   0.5/256, u_end: 255.5/256, v:   1.5/256},

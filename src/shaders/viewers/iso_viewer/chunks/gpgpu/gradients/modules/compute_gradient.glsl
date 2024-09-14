@@ -4,6 +4,7 @@
 #include "./gradient_prewitt27"
 #include "./gradient_central6"
 #include "./gradient_tetrahedron4"
+#include "./gradient_tetrahedron27"
 
 /**
  * Calculates the gradient and maximum value at a given position in a 3D texture using either the 3 following methods.
@@ -39,5 +40,7 @@ vec4 compute_gradient
             return gradient_central6(volume_data, volume_spacing, volume_dimensions, voxel_coords);
         case 6: 
             return gradient_tetrahedron4(volume_data, volume_spacing, volume_dimensions, voxel_coords);
+        case 7: 
+            return gradient_tetrahedron27(volume_data, volume_spacing, volume_dimensions, voxel_coords);
     }
 }

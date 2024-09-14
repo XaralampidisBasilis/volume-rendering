@@ -18,7 +18,6 @@ vec4 gradient_central6
     in ivec3 voxel_coords
 )
 {
-
     // Define offsets for the 8 neighboring points
     const vec3 k = vec3(-1.0, 0.0, +1.0);
     const vec3 samples_offset[6] = vec3[6]

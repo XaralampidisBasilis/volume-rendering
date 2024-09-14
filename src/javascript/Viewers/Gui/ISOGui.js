@@ -122,7 +122,7 @@ export default class ISOGui
         this.controllers.gradient = 
         {
             threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
-            method: gradient.add(u_gradient, 'method').options({ sobel8: 1, sobel27: 2, scharr27: 3, prewitt27: 4, central6: 5, tetrahedron4: 6 }),
+            method: gradient.add(u_gradient, 'method').options({ sobel8: 1, sobel27: 2, scharr27: 3, prewitt27: 4, central6: 5, tetrahedron4: 6, tetrahedron27: 7 }),
         }
 
     }

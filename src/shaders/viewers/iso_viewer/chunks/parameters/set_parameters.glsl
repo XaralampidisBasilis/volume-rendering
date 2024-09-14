@@ -1,17 +1,20 @@
 // ray
-ray.origin       = v_camera;
-ray.direction    = normalize(v_direction);
-ray.box_min      = vec3(0.0);
-ray.box_max      = u_volume.size;
-ray.spacing      = 0.0;
-ray.dithering    = 0.0;
-ray.min_distance = 0.0;
-ray.max_distance = 0.0;
-ray.max_depth    = 0.0;
-ray.min_spacing  = 0.0;
-ray.max_spacing  = 0.0;
-ray.max_steps    = 0;
-ray.intersected  = false;
+ray.origin           = v_camera;
+ray.direction        = normalize(v_direction);
+ray.box_min          = vec3(0.0);
+ray.box_max          = u_volume.size;
+ray.spacing          = 0.0;
+ray.dithering        = 0.0;
+ray.min_distance     = 0.0;
+ray.max_distance     = 0.0;
+ray.max_depth        = 0.0;
+ray.min_box_distance = 0.0;
+ray.max_box_distance = 0.0;
+ray.max_box_depth    = 0.0;
+ray.min_spacing      = 0.0;
+ray.max_spacing      = 0.0;
+ray.max_steps        = 0;
+ray.intersected      = false;
 
 // trace 
 trace.position       = ray.origin;

@@ -9,7 +9,7 @@
  *                  - y is the minimum distance from the point to the box.
  */
 
- vec2 bounds_box(vec2 b_min, vec2 b_max, vec2 p) {
+ vec2 reach_box(vec2 b_min, vec2 b_max, vec2 p) {
     // compute the center and half-size of the box
     // compute the absolute difference between the point and the box center
     // compute the maximum and minimum bounding distances
@@ -19,7 +19,7 @@
     return  vec2(length(max(b - s, 0.0)), length(b + s));
 }
 
-vec2 bounds_box(vec3 b_min, vec3 b_max, vec3 p) {
+vec2 reach_box(vec3 b_min, vec3 b_max, vec3 p) {
     // compute the center and half-size of the box
     // compute the absolute difference between the point and the box center
     // compute the maximum and minimum bounding distances
@@ -29,7 +29,7 @@ vec2 bounds_box(vec3 b_min, vec3 b_max, vec3 p) {
     return  vec2(length(max(b - s, 0.0)), length(b + s));
 }
 
-vec2 bounds_box(vec4 b_min, vec4 b_max, vec4 p) {
+vec2 reach_box(vec4 b_min, vec4 b_max, vec4 p) {
     // compute the center and half-size of the box
     // compute the absolute difference between the point and the box center
     // compute the maximum and minimum bounding distances

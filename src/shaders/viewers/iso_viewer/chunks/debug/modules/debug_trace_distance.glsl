@@ -1,5 +1,5 @@
 
-vec2 b_bounds = bounds_box(ray.box_min, ray.box_max, ray.origin);
-float b_max_depth = b_bounds.y - b_bounds.x;
+// normalize trace distance to the range [0, 1]
+float trace_distance_norm = trace.distance / ray.max_box_distance;
 
-vec4(vec3((trace.distance - b_bounds.x) / b_max_depth), 1.0);
+debug.trace_distance = vec4(vec3(trace_distance_norm), 1.0);
