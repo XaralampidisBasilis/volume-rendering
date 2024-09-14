@@ -10,48 +10,39 @@
  */
 
 
-vec4 gradient_central6
+// Define offsets for the 8 neighboring points
+const vec3 k = vec3(-1.0, 0.0, +1.0);
+const vec3 samples_offset[6] = vec3[6]
 (
-    in sampler3D volume_data, // assumes LinearFilter & ClampToEdgeWrapping
-    in vec3 volume_spacing,
-    in ivec3 volume_dimensions,
-    in ivec3 voxel_coords
-)
+    k.xyy, k.zyy, 
+    k.yxy, k.yzy, 
+    k.yyx, k.yyz
+);
+
+// Calculate the position and step sizes within the 3D texture
+vec3 voxel_step = vec3(u_volume.inv_dimensions);
+vec3 voxel_pos = (vec3(voxel_coords) + 0.5) * voxel_step; // we need 0.5 to go to voxel centers
+
+// Sample values at the neighboring points
+float samples[6];
+for (int i = 0; i < 6; i++)
 {
-
-    // Define offsets for the 8 neighboring points
-    const vec3 k = vec3(-1.0, 0.0, +1.0);
-    const vec3 samples_offset[6] = vec3[6]
-    (
-        k.xyy, k.zyy, 
-        k.yxy, k.yzy, 
-        k.yyx, k.yyz
-    );
-    
-    // Calculate the position and step sizes within the 3D texture
-    vec3 voxel_step = 1.0 / vec3(volume_dimensions);
-    vec3 voxel_pos = (vec3(voxel_coords) + 0.5) * voxel_step; // we need 0.5 to go to voxel centers
-   
-    // Sample values at the neighboring points
-    float samples[6];
-    for (int i = 0; i < 6; i++)
-    {
-        vec3 sample_pos = voxel_pos + voxel_step * samples_offset[i];
-        samples[i] = texture(volume_data, sample_pos).r;
-        samples[i] *= inside_box(0.0, 1.0, sample_pos);
-    }
-
-    // Calculate the gradient based on the sampled values using the Sobel operator
-    vec3 gradient = vec3
-    (
-        samples[1] - samples[0],
-        samples[3] - samples[2],
-        samples[5] - samples[4]
-    );
-  
-    // Adjust gradient to physical space 
-    gradient /= 2.0 * volume_spacing;
-
-    // Combine results
-    return vec4(normalize(gradient), length(gradient));
+    vec3 sample_pos = voxel_pos + voxel_step * samples_offset[i];
+    samples[i] = texture(volume_data, sample_pos).r;
+    samples[i] *= inside_box(0.0, 1.0, sample_pos);
 }
+
+// Calculate the gradient based on the sampled values using the Sobel operator
+vec3 gradient = vec3
+(
+    samples[1] - samples[0],
+    samples[3] - samples[2],
+    samples[5] - samples[4]
+);
+
+// Adjust gradient to physical space 
+gradient /= 2.0 * volume_spacing;
+
+// Combine results
+return vec4(normalize(gradient), length(gradient));
+

@@ -45,6 +45,6 @@
 
 // { blinn: 1, phong: 2}
 #ifndef LIGHTING_METHOD
-#define LIGHTING_METHOD 0
+#define LIGHTING_METHOD 1
 #endif
 

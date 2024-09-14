@@ -16,11 +16,11 @@
 #include "./modules/gradient_prewitt27"
 
 // gradient_sobel27
-#elif GRADIENT_METHOD == 2
+#elif GRADIENT_METHOD == 4
 #include "./modules/gradient_sobel27"
 
 // gradient_scharr27
-#elif GRADIENT_METHOD == 4
+#elif GRADIENT_METHOD == 5
 #include "./modules/gradient_scharr27"
 
 #else  

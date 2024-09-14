@@ -54,6 +54,7 @@ for (
             trace.distance += trace.spacing;
         }       
     }
+    if(ray.intersected) break;
 
     // Skip the block and adjust depth with a small nudge to avoid precision issues
     trace.skipped += mix(block.max_depth, 0.0, block.occupied);

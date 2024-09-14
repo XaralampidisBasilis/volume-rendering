@@ -25,14 +25,15 @@ parameters_debug debug;
 
 void main() 
 {
-    // set parameters
     #include "./chunks/parameters/set_parameters"
     #include "./chunks/raycasting/compute_raycasting"
     #include "./chunks/colormapping/compute_colormapping"
     #include "./chunks/lighting/compute_lighting"
 
     gl_FragColor = vec4(trace.shading, 1.0);
+
     #include "./chunks/compute_frag_depth"
     #include "./chunks/debug/compute_debug"
+
     if (!ray.intersected) discard;  
 }
