@@ -33,8 +33,11 @@ license:
 #ifndef PHI
 #define PHI 1.618033988749894848204586834
 #endif
-#ifndef EPSILON
-#define EPSILON 0.0000001
+#ifndef EPSILON3
+#define EPSILON3 0.0001
+#endif
+#ifndef EPSILON6
+#define EPSILON6 0.0000001
 #endif
 #ifndef GOLDEN_RATIO
 #define GOLDEN_RATIO 1.6180339887

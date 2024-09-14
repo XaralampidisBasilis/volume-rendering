@@ -15,14 +15,14 @@ float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
 vec2 s_sample = mix(vec2(0.25, s_linear), vec2(s_linear, 0.75), 0.5);
 
 // sample distances and values at samples
-vec3 texel_x = mix(prev_trace.texel, trace.texel, s_sample.x);
-vec3 texel_y = mix(prev_trace.texel, trace.texel, s_sample.y);
-vec2 distances = mix(vec2(prev_trace.distance), vec2(trace.distance), s_sample);
-vec2 values = vec2(texture(u_sampler.volume, texel_x).r, texture(u_sampler.volume, texel_y).r);
+vec3 mix_texel_x = mix(prev_trace.texel, trace.texel, s_sample.x);
+vec3 mix_texel_y = mix(prev_trace.texel, trace.texel, s_sample.y);
+vec2 mix_distances = mix(vec2(prev_trace.distance), vec2(trace.distance), s_sample);
+vec2 mix_values = vec2(texture(u_sampler.volume, mix_texel_x).r, texture(u_sampler.volume, mix_texel_y).r);
 
 // Define symbolic vectors
-vec4 f = vec4(prev_trace.value, values, trace.value);
-vec4 t = vec4(prev_trace.distance, distances, trace.distance);
+vec4 f = vec4(prev_trace.value, mix_values, trace.value);
+vec4 t = vec4(prev_trace.distance, mix_distances, trace.distance);
 vec4 s = vec4(0.0, s_sample, 1.0);
 
 // Compute cubic hermite coefficients
@@ -56,3 +56,6 @@ trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_n
 trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
 trace.gradient = - trace.normal * trace.gradient_norm;
 trace.derivative = dot(trace.gradient, ray.direction);
+trace.coords = floor(trace.position * u_volume.inv_spacing);
+trace.depth = trace.distance - ray.min_distance;
+trace.traversed = trace.depth - trace.skipped;

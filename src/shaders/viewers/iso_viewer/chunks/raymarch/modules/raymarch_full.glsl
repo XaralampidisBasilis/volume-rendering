@@ -12,6 +12,8 @@ for (
 ) 
 {
     // Sample the intensity of the volume at the current ray position
+    trace.depth = trace.distance - ray.min_distance;
+    trace.coords = floor(trace.position * u_volume.inv_spacing);
     trace.texel = trace.position * u_volume.inv_size;
     trace.value = texture(u_sampler.volume, trace.texel).r;
     trace.error = trace.value - u_raycast.threshold;
@@ -26,7 +28,6 @@ for (
     // Check if the sampled intensity exceeds the threshold
     if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold && trace.steps > 0) 
     {   
-        // Compute refinement
         ray.intersected = true;         
         break;
     }
@@ -40,4 +41,3 @@ for (
     trace.distance += trace.spacing;
     trace.position += ray.direction * trace.spacing;
 }   
-

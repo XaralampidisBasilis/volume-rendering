@@ -29,18 +29,18 @@ vec4 compute_gradient
     switch (gradient_method)
     {
         case 1: 
-            return gradient_sobel8(volume_data, volume_spacing, volume_dimensions, voxel_coords);
-        case 2: 
-            return gradient_sobel27(volume_data, volume_spacing, volume_dimensions, voxel_coords);
-        case 3: 
-            return gradient_scharr27(volume_data, volume_spacing, volume_dimensions, voxel_coords);
-        case 4: 
-            return gradient_prewitt27(volume_data, volume_spacing, volume_dimensions, voxel_coords);
-        case 5: 
-            return gradient_central6(volume_data, volume_spacing, volume_dimensions, voxel_coords);
-        case 6: 
             return gradient_tetrahedron4(volume_data, volume_spacing, volume_dimensions, voxel_coords);
-        case 7: 
+        case 2: 
+            return gradient_central6(volume_data, volume_spacing, volume_dimensions, voxel_coords);
+        case 3: 
+            return gradient_sobel8(volume_data, volume_spacing, volume_dimensions, voxel_coords);
+        case 4: 
             return gradient_tetrahedron27(volume_data, volume_spacing, volume_dimensions, voxel_coords);
+        case 5: 
+            return gradient_prewitt27(volume_data, volume_spacing, volume_dimensions, voxel_coords);
+        case 6: 
+            return gradient_sobel27(volume_data, volume_spacing, volume_dimensions, voxel_coords);
+        case 7: 
+            return gradient_scharr27(volume_data, volume_spacing, volume_dimensions, voxel_coords);
     }
 }

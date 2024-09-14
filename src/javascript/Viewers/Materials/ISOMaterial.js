@@ -100,7 +100,16 @@ export default function(viewer)
 
     const defines = 
     {
-        // STEPPING_METHOD : 1,
+        HAS_DITHERING     : 1,
+        HAS_REFINEMENT    : 1,
+        HAS_BBOX          : 1,
+        HAS_SKIPPING      : 0,
+        GRADIENT_METHOD   : 3,
+        DITHERING_METHOD  : 1,
+        SPACING_METHOD    : 2,
+        STEPPING_METHOD   : 1,
+        REFINEMENT_METHOD : 7,
+        LIGHTING_METHOD   : 1,
     }
 
     const material = new THREE.ShaderMaterial({

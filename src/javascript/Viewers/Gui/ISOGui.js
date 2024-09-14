@@ -95,21 +95,57 @@ export default class ISOGui
     {
         const { raycast } = this.subfolders
         const u_raycast = this.viewer.material.uniforms.u_raycast.value
+        const defines = this.viewer.material.defines
 
         this.controllers.raycast = 
         {
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
+            
             steppingMin: raycast.add(u_raycast, 'min_stepping').min(0.1).max(10).step(0.001),
+
             steppingMax: raycast.add(u_raycast, 'max_stepping').min(0.1).max(10).step(0.001),
+
             maxSteps: raycast.add(u_raycast, 'max_steps').min(0).max(2000).step(1),
-            spacingMethod: raycast.add(u_raycast, 'spacing_method').options({ isotropic: 1, directional: 2, traversal: 3 }),
-            steppingMethod: raycast.add(u_raycast, 'stepping_method').options({ adaptive: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5 }),
-            ditheringMethod: raycast.add(u_raycast, 'dithering_method').options({ generative: 1, texture: 2, }),
-            refinementMethod: raycast.add(u_raycast, 'refinement_method').options({ sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6, hermitian2: 7 }),
-            hasRefinement: raycast.add(u_raycast, 'has_refinement'),
-            hasDithering: raycast.add(u_raycast, 'has_dithering'),
-            hasSkipping: raycast.add(u_raycast, 'has_skipping'),
-            hasBbox: raycast.add(u_raycast, 'has_bbox'),
+
+            spacingMethod: raycast.add(defines, 'SPACING_METHOD').name('spacing_method')
+                .options({ isotropic: 1, directional: 2, traversal: 3 })
+                .onChange(() => { this.viewer.material.needsUpdate = true }),
+                
+            steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')
+                .options({ adaptive: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5 })
+                .onChange(() => { this.viewer.material.needsUpdate = true }),
+
+            ditheringMethod: raycast.add(defines, 'DITHERING_METHOD').name('dithering_method')
+                .options({ generative: 1, texture: 2, })
+                .onChange(() => { this.viewer.material.needsUpdate = true }),
+
+            refinementMethod: raycast.add(defines, 'REFINEMENT_METHOD').name('refinement_method')
+                .options({ sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6, hermitian2: 7 })
+                .onChange(() => { this.viewer.material.needsUpdate = true }),
+
+            hasRefinement: raycast.add(u_raycast, 'has_refinement')
+                .onChange((value) => { 
+                    this.viewer.material.defines.HAS_REFINEMENT = value ? 1 : 0;
+                    this.viewer.material.needsUpdate = true 
+                }),
+
+            hasDithering: raycast.add(u_raycast, 'has_dithering')
+                .onChange((value) => { 
+                    this.viewer.material.defines.HAS_DITHERING = value ? 1 : 0;
+                    this.viewer.material.needsUpdate = true 
+                }),
+
+            hasBbox: raycast.add(u_raycast, 'has_bbox')
+                .onChange((value) => { 
+                    this.viewer.material.defines.HAS_BBOX = value ? 1 : 0;
+                    this.viewer.material.needsUpdate = true 
+                }),
+
+            hasSkipping: raycast.add(u_raycast, 'has_skipping')
+                .onChange((value) => { 
+                    this.viewer.material.defines.HAS_SKIPPING = value ? 1 : 0;
+                    this.viewer.material.needsUpdate = true 
+                }),
         }
 
     }
@@ -118,11 +154,14 @@ export default class ISOGui
     {
         const { gradient } = this.subfolders
         const u_gradient = this.viewer.material.uniforms.u_gradient.value
+        const defines = this.viewer.material.defines
     
         this.controllers.gradient = 
         {
             threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
-            method: gradient.add(u_gradient, 'method').options({ sobel8: 1, sobel27: 2, scharr27: 3, prewitt27: 4, central6: 5, tetrahedron4: 6, tetrahedron27: 7 }),
+            method: gradient.add(defines, 'GRADIENT_METHOD').name('gradient_method')
+                .options({ tetrahedron4: 1, central6: 2, sobel8: 3, tetrahedron27: 4, prewitt27: 5, sobel27: 6, scharr27: 7 })
+                .onChange(() => { this.viewer.material.needsUpdate = true }),
         }
 
     }
@@ -256,8 +295,7 @@ export default class ISOGui
 
         // gradient method controller
         this.controllers.gradient.method
-        .onFinishChange(() => 
-        {
+        .onFinishChange(() => {
             this.viewer.computeGradients()
         })
 

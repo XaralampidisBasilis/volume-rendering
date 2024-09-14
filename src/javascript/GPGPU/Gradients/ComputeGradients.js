@@ -59,7 +59,7 @@ export default class ComputeGradients
             volume_spacing:         new THREE.Uniform(this.parameters.volume.spacing),
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
             computation_dimensions: new THREE.Uniform(this.computation.dimensions),     
-            gradient_method:        new THREE.Uniform(this.viewer.material.uniforms.u_gradient.value.method)   
+            gradient_method:        new THREE.Uniform(this.viewer.material.defines.GRADIENT_METHOD)   
         }
     }
     

@@ -18,9 +18,9 @@
 #define HAS_SKIPPING 0
 #endif
 
-// { sobel8: 1, sobel27: 2, scharr27: 3, prewitt27: 4, central6: 5, tetrahedron4: 6 }
+// { tetrahedron4: 1, central6: 2, sobel8: 3, tetrahedron27: 4, prewitt27: 5, sobel27: 6, scharr27: 7 }
 #ifndef GRADIENT_METHOD
-#define GRADIENT_METHOD 1 
+#define GRADIENT_METHOD 3 
 #endif
 
 // { generative: 1, texture: 2, }

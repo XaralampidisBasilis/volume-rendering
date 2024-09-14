@@ -16,13 +16,13 @@
 float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
 float s_sample = mix(0.5, s_linear, 0.5);
 
-vec3 texel = mix(prev_trace.texel, trace.texel, s_sample);
-float distance = mix(prev_trace.distance, trace.distance, s_sample);
-float value = texture(u_sampler.volume, texel).r;
+vec3 mix_texel = mix(prev_trace.texel, trace.texel, s_sample);
+float mix_distance = mix(prev_trace.distance, trace.distance, s_sample);
+float mix_value = texture(u_sampler.volume, mix_texel).r;
 
 // Define symbolic vectors
-vec3 f = vec3(prev_trace.value, value, trace.value);
-vec3 t = vec3(prev_trace.distance, distance, trace.distance);
+vec3 f = vec3(prev_trace.value, mix_value, trace.value);
+vec3 t = vec3(prev_trace.distance, mix_distance, trace.distance);
 vec3 s = vec3(0.0, s_sample, 1.0);
 
 // Compute cubic lagrange coefficients
@@ -56,4 +56,7 @@ trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_n
 trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
 trace.gradient = - trace.normal * trace.gradient_norm;
 trace.derivative = dot(trace.gradient, ray.direction);
+trace.coords = floor(trace.position * u_volume.inv_spacing);
+trace.depth = trace.distance - ray.min_distance;
+trace.traversed = trace.depth - trace.skipped;
 

@@ -19,12 +19,8 @@ trace.spacing = ray.spacing;
 
 // raycasting loop to traverse through the volume and find intersections.
 #include "../raymarch/compute_raymarch"
-#include "../gradient/compute_gradient"
 #include "../refinement/compute_refinement"
-
-trace.coords = floor(trace.position * u_volume.inv_spacing);
-trace.depth = trace.distance - ray.min_distance;
-trace.traversed = trace.depth - trace.skipped;
+// #include "../gradient/compute_gradient"
 
 
 

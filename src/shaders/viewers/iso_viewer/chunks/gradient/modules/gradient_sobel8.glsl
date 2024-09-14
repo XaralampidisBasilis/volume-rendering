@@ -24,13 +24,15 @@ const vec3 sample_offset[8] = vec3[8]
 
 // Sample values at the neighboring points
 float sample_value[8];
+vec3 voxel_step = u_volume.inv_dimensions;
+vec3 voxel_texel = (trace.coords + 0.5) * voxel_step;
+vec3 sub_step = voxel_step * 0.5;
 vec3 sample_texel;
-vec3 sub_step = u_volume.inv_dimensions * 0.5;
 
 #pragma unroll_loop_start
 for (int i = 0; i < 8; i++)
 {
-    sample_texel = trace.texel + sub_step * sample_offset[i];
+    sample_texel = voxel_texel + sub_step * sample_offset[i];
     sample_value[i] = texture(u_sampler.volume, sample_texel).r;
     sample_value[i] /= exp2(sum(outside(sub_step, 1.0 - sub_step, sample_texel))); // correct edge cases due to trillinear interpolation and clamp to edge wrapping   
 }
@@ -40,12 +42,12 @@ for (int i = 0; i < 8; i++)
 trace.gradient.x = sample_value[4] + sample_value[5] + sample_value[6] + sample_value[7] - sample_value[0] - sample_value[1] - sample_value[2] - sample_value[3];
 trace.gradient.y = sample_value[2] + sample_value[3] + sample_value[6] + sample_value[7] - sample_value[0] - sample_value[1] - sample_value[4] - sample_value[5];
 trace.gradient.z = sample_value[1] + sample_value[3] + sample_value[5] + sample_value[7] - sample_value[0] - sample_value[2] - sample_value[4] - sample_value[6];
-trace.gradient *= 0.5 * u_volume.inv_spacing; // // adjust gradient to physical space 
+trace.gradient *= u_volume.inv_spacing * 0.5; // // adjust gradient to physical space 
 trace.gradient *= 8.0; // get integer kernel values from trilinear sampling
 trace.gradient /= 16.0; // normalize the kernel values
 
 trace.gradient_norm = length(trace.gradient);
-trace.normal = normalize(trace.gradient);
+trace.normal = - normalize(trace.gradient);
 trace.derivative = dot(trace.gradient, ray.direction);
 
 

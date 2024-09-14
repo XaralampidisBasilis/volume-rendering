@@ -42,7 +42,13 @@ for (int i = 0; i < 5; i++, trace.steps++)
     }
 }
 #pragma unroll_loop_end
+trace.coords = floor(trace.position * u_volume.inv_spacing);
+trace.depth = trace.distance - ray.min_distance;
+trace.traversed = trace.depth - trace.skipped;
 
 // if there was not any refinement copy the final trace
-copy_trace(trace, final_trace);
+if (abs(trace.error) > abs(final_trace.error)) {
+    copy_trace(trace, final_trace);
+}
+
 

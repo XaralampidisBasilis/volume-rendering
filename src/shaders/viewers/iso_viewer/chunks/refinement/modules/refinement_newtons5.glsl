@@ -40,10 +40,12 @@ for (int i = 0; i < 5; i++, trace.steps++)
     trace.distance = clamp(trace.distance, distance_bounds.x, distance_bounds.y);
 }
 #pragma unroll_loop_end
+trace.coords = floor(trace.position * u_volume.inv_spacing);
+trace.depth = trace.distance - ray.min_distance;
+trace.traversed = trace.depth - trace.skipped;
 
 // if we do not have any improvement with refinement go to previous solution
-if (abs(trace.error) > abs(temp_trace.error)) 
-{
+if (abs(trace.error) > abs(temp_trace.error)) {
     copy_trace(trace, temp_trace);
 }
 
