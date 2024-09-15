@@ -29,6 +29,10 @@ vec2  mmix(const in vec2 a, const in float b, const in float pct) { return mix(a
 vec3  mmix(const in vec3 a, const in float b, const in float pct) { return mix(a, vec3(b), pct); }
 vec4  mmix(const in vec4 a, const in float b, const in float pct) { return mix(a, vec4(b), pct); }
 
+vec2  mmix(const in float a, const in float b, const in vec2 pct) { return mix(vec2(a), vec2(b), pct); }
+vec3  mmix(const in float a, const in float b, const in vec3 pct) { return mix(vec3(a), vec3(b), pct); }
+vec4  mmix(const in float a, const in float b, const in vec4 pct) { return mix(vec4(a), vec4(b), pct); }
+
 float mmix(const in float a, const in float b, const in float c, const in float pct) {
     return mix(
         mix(a, b, 2. * pct),

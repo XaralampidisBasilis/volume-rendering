@@ -22,7 +22,7 @@ struct parameters_ray
     bool  intersected;
 };
 
-void set_ray(inout parameters_ray ray)
+void set_ray(out parameters_ray ray)
 {
     ray.origin           = vec3(0.0);
     ray.direction        = vec3(0.0);

@@ -16,7 +16,7 @@ struct parameters_debug
     vec4 trace_abs_error;     
     vec4 trace_color;         
     vec4 trace_shading;       
-    vec4 trace_luminance;     
+    vec4 trace_luminance;
     vec4 trace_normal;        
     vec4 trace_gradient;      
     vec4 trace_gradient_norm; 
@@ -30,10 +30,13 @@ struct parameters_debug
     vec4 ray_max_distance;    
     vec4 ray_max_depth;       
     vec4 ray_max_steps;       
-    vec4 frag_depth;          
+    vec4 frag_depth;        
+    vec4 variable1;  
+    vec4 variable2;  
+    vec4 variable3;  
 };
 
-void set_debug(inout parameters_debug debug)
+void set_debug(out parameters_debug debug)
 {
     debug.trace_position      = vec4(0.0);
     debug.trace_coords        = vec4(0.0);
@@ -62,6 +65,9 @@ void set_debug(inout parameters_debug debug)
     debug.ray_max_depth       = vec4(0.0);
     debug.ray_max_steps       = vec4(0.0);
     debug.frag_depth          = vec4(0.0);
+    debug.variable1           = vec4(0.0);
+    debug.variable2           = vec4(0.0);
+    debug.variable3           = vec4(0.0);
 }
 
 #endif

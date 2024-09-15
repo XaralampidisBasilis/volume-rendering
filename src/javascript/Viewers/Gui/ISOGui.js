@@ -120,7 +120,7 @@ export default class ISOGui
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
 
             refinementMethod: raycast.add(defines, 'REFINEMENT_METHOD').name('refinement_method')
-                .options({ sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6, hermitian2: 7 })
+                .options({ sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6 })
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
 
             hasRefinement: raycast.add(u_raycast, 'has_refinement')
@@ -261,6 +261,9 @@ export default class ISOGui
                 ray_max_depth        :   25,
                 ray_max_steps        :   26,
                 frag_depth           :   27,
+                variable1            :   28,
+                variable2            :   29,
+                variable3            :   30,
             }),
             scale: debug.add(u_debug, 'scale').min(0).max(10).step(0.001),
             constant: debug.add(u_debug, 'constant').min(-10).max(10).step(0.001),

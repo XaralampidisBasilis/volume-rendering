@@ -14,7 +14,7 @@ struct parameters_block
     bool occupied; 
 };
 
-void set_block(inout parameters_block block)
+void set_block(out parameters_block block)
 {
     block.coords       = ivec3(0);
     block.min_position = vec3(0.0);

@@ -25,8 +25,6 @@ for (
         for(int i = 0; i < block.max_steps && trace.distance < max_distance; i++, trace.steps++) 
         {
             // sample the volume and compute intensity at the current position
-            trace.depth = trace.distance - ray.min_distance;
-            trace.coords = floor(trace.position * u_volume.inv_spacing);
             trace.texel = trace.position * u_volume.inv_size;
             trace.value = texture(u_sampler.volume, trace.texel).r;
             trace.error = trace.value - u_raycast.threshold;
@@ -63,3 +61,8 @@ for (
     trace.distance = max_distance + nudge;
     trace.position = ray.origin + ray.direction * trace.distance;
 }   
+
+trace.depth = trace.distance - ray.min_distance;
+trace.coords = floor(trace.position * u_volume.inv_spacing);
+prev_trace.depth = prev_trace.distance - ray.min_distance;
+prev_trace.coords = floor(prev_trace.position * u_volume.inv_spacing);

@@ -12,8 +12,6 @@ for (
 ) 
 {
     // Sample the intensity of the volume at the current ray position
-    trace.depth = trace.distance - ray.min_distance;
-    trace.coords = floor(trace.position * u_volume.inv_spacing);
     trace.texel = trace.position * u_volume.inv_size;
     trace.value = texture(u_sampler.volume, trace.texel).r;
     trace.error = trace.value - u_raycast.threshold;
@@ -41,3 +39,8 @@ for (
     trace.distance += trace.spacing;
     trace.position += ray.direction * trace.spacing;
 }   
+
+trace.depth = trace.distance - ray.min_distance;
+trace.coords = floor(trace.position * u_volume.inv_spacing);
+prev_trace.depth = prev_trace.distance - ray.min_distance;
+prev_trace.coords = floor(prev_trace.position * u_volume.inv_spacing);
