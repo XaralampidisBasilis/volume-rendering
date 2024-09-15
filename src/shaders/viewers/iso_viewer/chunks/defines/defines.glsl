@@ -1,3 +1,5 @@
+// DEFINES
+
 // { has_dithering : 0, 1}
 #ifndef HAS_DITHERING
 #define HAS_DITHERING 1

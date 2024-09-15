@@ -100,10 +100,10 @@ export default class ISOGui
         this.controllers.raycast = 
         {
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
-            
-            steppingMin: raycast.add(u_raycast, 'min_stepping').min(0.1).max(10).step(0.001),
 
-            steppingMax: raycast.add(u_raycast, 'max_stepping').min(0.1).max(10).step(0.001),
+            steppingMin: raycast.add(u_raycast, 'min_stepping').min(0.1).max(5).step(0.001),
+
+            steppingMax: raycast.add(u_raycast, 'max_stepping').min(0.1).max(5).step(0.001),
 
             maxSteps: raycast.add(u_raycast, 'max_steps').min(0).max(2000).step(1),
 
@@ -112,7 +112,7 @@ export default class ISOGui
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
                 
             steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')
-                .options({ adaptive: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5 })
+                .options({ adaptive: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5, hermitian: 6 })
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
 
             ditheringMethod: raycast.add(defines, 'DITHERING_METHOD').name('dithering_method')
@@ -159,9 +159,11 @@ export default class ISOGui
         this.controllers.gradient = 
         {
             threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
+            
             method: gradient.add(defines, 'GRADIENT_METHOD').name('gradient_method')
                 .options({ tetrahedron4: 1, central6: 2, sobel8: 3, tetrahedron27: 4, prewitt27: 5, sobel27: 6, scharr27: 7 })
-                .onChange(() => { this.viewer.material.needsUpdate = true }),
+                .onChange(() => { this.viewer.material.needsUpdate = true })
+                .onFinishChange(() => { this.viewer.computeGradients() }),
         }
 
     }
@@ -291,12 +293,6 @@ export default class ISOGui
                 this.viewer.material.uniforms.u_occupancy.value.box_min.copy(this.viewer.occupancy.occubox.min)
                 this.viewer.material.uniforms.u_occupancy.value.box_max.copy(this.viewer.occupancy.occubox.max)            
             }
-        })
-
-        // gradient method controller
-        this.controllers.gradient.method
-        .onFinishChange(() => {
-            this.viewer.computeGradients()
         })
 
         // flip colormap colors

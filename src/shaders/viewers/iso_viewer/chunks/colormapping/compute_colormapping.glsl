@@ -15,10 +15,10 @@ float trace_color_value = map(u_colormap.low, u_colormap.high, trace.value);
 trace_color_value = posterize(trace_color_value, u_colormap.levels);
 
 // interpolate the u-coordinate within the colormap texture columns
-float trace_color_u = mix(u_colormap.texture_columns.x, u_colormap.texture_columns.y, trace_color_value);
+float trace_color_column = mix(u_colormap.texture_columns.x, u_colormap.texture_columns.y, trace_color_value);
 
 // Create the UV coordinates for the texture lookup
-vec2 trace_color_uv = vec2(trace_color_u, u_colormap.texture_row);
+vec2 trace_color_uv = vec2(trace_color_column, u_colormap.texture_row);
 
 // Sample the colormap texture at the calculated UV coordinates and return the RGB color
 trace.color = texture(u_sampler.colormap, trace_color_uv).rgb;

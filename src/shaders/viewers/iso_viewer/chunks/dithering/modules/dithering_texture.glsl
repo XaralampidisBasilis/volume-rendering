@@ -1,3 +1,4 @@
+// DITHERING_TEXTURE
 
 // calculate the end position of the ray.
 vec3 ray_min_position = ray.origin + ray.direction * ray.min_distance;

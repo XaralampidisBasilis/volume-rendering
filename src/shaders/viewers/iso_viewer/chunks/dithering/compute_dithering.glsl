@@ -1,3 +1,4 @@
+// COMPUTE_DITHERING
 
 #if HAS_DITHERING == 1
 

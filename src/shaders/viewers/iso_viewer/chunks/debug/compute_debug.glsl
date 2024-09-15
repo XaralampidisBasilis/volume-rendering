@@ -1,4 +1,4 @@
-// compute_debug
+// COMPUTE_DEBUG
 
 #include "./modules/debug"      
 

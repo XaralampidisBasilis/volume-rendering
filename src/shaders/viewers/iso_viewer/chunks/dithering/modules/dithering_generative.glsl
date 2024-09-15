@@ -1,3 +1,5 @@
+// DITHERING GENERATIVE
+
 // Calculate the end position of the ray.
 float ray_mean_distance = mean(ray.min_distance, ray.max_distance);
 vec3 sample_position = ray.origin + ray.direction * ray_mean_distance;
