@@ -1,29 +1,30 @@
 
-// stepping_taylor1
+// COMPUTE_STEPPING
+/**
+ * Includes the appropriate stepping module based on the `STEPPING_METHOD` macro.
+ *
+ * @macro STEPPING_METHOD : The method used to compute the stepping size
+ */
+
 #if STEPPING_METHOD == 1  
-#include "./modules/stepping_taylor1"
+    #include "./modules/stepping_taylor1"    // Taylor-based stepping (first-order)
 
-// stepping_taylor2
 #elif STEPPING_METHOD == 2  
-#include "./modules/stepping_taylor2"
+    #include "./modules/stepping_taylor2"    // Taylor-based stepping (second-order)
 
-// stepping_gradial
 #elif STEPPING_METHOD == 3
-#include "./modules/stepping_gradial"
+    #include "./modules/stepping_derivative" // Stepping based on trace derivatives
 
-// stepping_alignment
 #elif STEPPING_METHOD == 4
-#include "./modules/stepping_alignment"
+    #include "./modules/stepping_normal"     // Stepping based on trace normal alignment
 
-// stepping_steepness
 #elif STEPPING_METHOD == 5
-#include "./modules/stepping_steepness"
+    #include "./modules/stepping_gradient_norm" // Stepping based on trace gradient norm
 
-// stepping_uniform
 #elif STEPPING_METHOD == 6
-#include "./modules/stepping_uniform"
+    #include "./modules/stepping_uniform"    // Uniform stepping
 
 #else  
-#error "unknown: STEPPING_METHOD"
+    #error "Unknown STEPPING_METHOD: Valid values are 1 to 6."
 
 #endif // STEPPING_METHOD

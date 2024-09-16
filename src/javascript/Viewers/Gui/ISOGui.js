@@ -112,7 +112,7 @@ export default class ISOGui
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
                 
             steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')
-                .options({ taylor1: 1, taylor2: 2, gradial: 3, alignment: 4, steepness: 5, uniform: 6 })
+                .options({ taylor1: 1, taylor2: 2, derivative: 3, normal: 4, gradient_norm: 5, uniform: 6 })
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
 
             ditheringMethod: raycast.add(defines, 'DITHERING_METHOD').name('dithering_method')
