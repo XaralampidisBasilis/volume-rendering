@@ -15,9 +15,13 @@ parameters_trace temp_trace;
 copy_trace(temp_trace, trace);
 
 // begin at initial guess and iterate from there
-vec2 distance_bounds = vec2(prev_trace.distance, trace.distance);
+vec2 distances = vec2(prev_trace.distance, trace.distance);
+distances = clamp(distances, ray.min_distance, ray.max_distance);
+
 float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
-trace.distance = mix(distance_bounds.x, distance_bounds.y, s_linear);
+trace.distance = mix(distances.x, distances.y, s_linear);
+
+vec4 gradient_data;
 
 #pragma unroll_loop_start
 for (int i = 0; i < 5; i++, trace.steps++) 
@@ -29,7 +33,7 @@ for (int i = 0; i < 5; i++, trace.steps++)
     trace.error = trace.value - u_raycast.threshold;
 
     // compute the gradient and normal
-    vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
+    gradient_data = texture(u_sampler.gradients, trace.texel);
     trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_norm;
     trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
     trace.gradient = - trace.normal * trace.gradient_norm;
@@ -37,9 +41,10 @@ for (int i = 0; i < 5; i++, trace.steps++)
 
     // newton–raphson method to approximate next distance
     trace.distance -= trace.error / stabilize(trace.derivative);
-    trace.distance = clamp(trace.distance, distance_bounds.x, distance_bounds.y);
+    trace.distance = clamp(trace.distance, distances.x, distances.y);
 }
 #pragma unroll_loop_end
+
 trace.coords = floor(trace.position * u_volume.inv_spacing);
 trace.depth = trace.distance - ray.min_distance;
 trace.traversed = trace.depth - trace.skipped;

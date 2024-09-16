@@ -9,7 +9,7 @@ vec3 cubic_roots(in vec4 coeff, out float is_solvable)
 {
     // check if cubic
     float is_cubic = step(EPSILON6, abs(coeff.w));  
-    coeff.w = maxabs(EPSILON6, coeff.w);
+    coeff.w = mix(1.0, coeff.w, is_cubic); // if not quadratic, set coeff w = 1 to avoid numerical erros in mix(roots2.xyy, roots, is_cubic)
 
     // quadratic case
     vec2 roots2 = quadratic_roots(coeff.xyz, is_solvable);
@@ -65,13 +65,13 @@ vec3 cubic_roots(in vec4 coeff)
 {
     // check if cubic
     float is_cubic = step(EPSILON6, abs(coeff.w));  
-    coeff.w = maxabs(EPSILON6, coeff.w);
+    coeff.w = mix(1.0, coeff.w, is_cubic); // if not quadratic, set coeff w = 1 to avoid numerical erros in mix(roots2.xyy, roots, is_cubic)
 
     // quadratic case
     vec2 roots2 = quadratic_roots(coeff.xyz);
 
     // normalize coefficients
-    coeff.xyz /=  coeff.w;
+    coeff.xyz /= coeff.w;
     coeff.yz /= 3.0;
 
     // compute hessian coeeficents eq(0.4)

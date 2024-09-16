@@ -18,8 +18,7 @@ copy_trace(trace, prev_trace);
 // calculate the refined substep
 float sub_spacing = trace.spacing / 6.0;  
 
-// perform additional sampling steps to refine the hit point    
-#pragma unroll_loop_start
+// perform additional sampling steps to refine the hit point 
 for (int i = 0; i < 5; i++, trace.steps++) 
 {
     // move position forward by substep and sample the volume
@@ -41,7 +40,6 @@ for (int i = 0; i < 5; i++, trace.steps++)
         break;
     }
 }
-#pragma unroll_loop_end
 trace.coords = floor(trace.position * u_volume.inv_spacing);
 trace.depth = trace.distance - ray.min_distance;
 trace.traversed = trace.depth - trace.skipped;

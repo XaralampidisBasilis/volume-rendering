@@ -17,14 +17,18 @@ copy_trace(temp_trace, trace);
 // define the bisection intervals
 vec2 values = vec2(prev_trace.value, trace.value);
 vec2 distances = vec2(prev_trace.distance, trace.distance);
+distances = clamp(distances, ray.min_distance, ray.max_distance);
+
+float mix_error;
+float is_positive;
 
 #pragma unroll_loop_start
 for (int i = 0; i < 5; i++, trace.steps++) 
 {
     // compute interpolation factor
-    float s = map(values.x, values.y, u_raycast.threshold);
+    mix_error = map(values.x, values.y, u_raycast.threshold);
 
-    trace.distance = mix(distances.x, distances.y, s);
+    trace.distance = mix(distances.x, distances.y, mix_error);
     trace.position = ray.origin + ray.direction * trace.distance;
     trace.texel = trace.position * u_volume.inv_size;
 
@@ -33,9 +37,10 @@ for (int i = 0; i < 5; i++, trace.steps++)
     trace.error = trace.value - u_raycast.threshold;
 
     // Update position and value based on error
-    float is_positive = step(0.0, trace.error);
+    is_positive = step(0.0, trace.error);
     values = mix(vec2(trace.value, values.y), vec2(values.x, trace.value), is_positive);
     distances = mix(vec2(trace.distance, distances.y), vec2(distances.x, trace.distance), is_positive);
+    trace.steps++;
 }
 #pragma unroll_loop_end
 
