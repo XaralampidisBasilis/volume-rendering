@@ -1,6 +1,4 @@
 
-tetrachedron27 should be equivalent to tetrachedron4, but it is not
-
 Modularize XRGestures function
 
 Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2ikVUXKBw&ab_channel=Rafadante

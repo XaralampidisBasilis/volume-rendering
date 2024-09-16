@@ -4,14 +4,11 @@
 // numerically stable solution
 vec2 linear2_coefficients(in vec2 t, in vec2 f)
 {
-    // small epsilon to avoid division by near-zero
-    const float epsilon = 1e-6;
-
     // cross differences
     vec2 t_diff = t.xy - t.yx;
 
     // avoid division by small values by enforcing a minimum threshold
-    t_diff = max(abs(t_diff), epsilon) * ssign(t_diff);
+    t_diff = maxabs(t_diff, EPSILON6);
 
     // matrix-vector multiplication with f_weighted
     mat2 t_matrix = mat2(-t.yx, vec2(1.0));

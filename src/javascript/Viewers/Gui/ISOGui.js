@@ -112,7 +112,7 @@ export default class ISOGui
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
                 
             steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')
-                .options({ adaptive: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5, hermitian: 6 })
+                .options({ taylor1: 1, taylor2: 2, gradial: 3, alignment: 4, steepness: 5, uniform: 6 })
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
 
             ditheringMethod: raycast.add(defines, 'DITHERING_METHOD').name('dithering_method')
@@ -120,7 +120,7 @@ export default class ISOGui
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
 
             refinementMethod: raycast.add(defines, 'REFINEMENT_METHOD').name('refinement_method')
-                .options({ sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6 })
+                .options({ sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6, hermitian2: 7 })
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
 
             hasRefinement: raycast.add(u_raycast, 'has_refinement')

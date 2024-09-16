@@ -1,21 +1,29 @@
 
 // coeff[0] + coeff[1] * t
-float linear_root(in vec2 coeff) 
+float linear_root(in vec2 coeff, out float is_solvable) 
 {
-    const float degenerate = -1.0;
-    const float epsilon = 1e-6;
-
     // check if linear
-    float is_linear = step(epsilon, abs(coeff.y));
+    float is_linear = step(EPSILON6, abs(coeff.y));
+    coeff.y = maxabs(EPSILON6, coeff.y);
 
-    // degenerate case
-    float root0 = degenerate;
+    // check if identity
+    float is_identity = step(abs(coeff.x), EPSILON6) * (1.0 - is_linear); // if both coefficients are zero then equation is identity
+    is_solvable = mix(is_identity, 1.0, is_linear); 
+        
+    float root = -coeff.x / coeff.y;
+    // gl_FragColor = vec4(vec3(isinf(root), 0.0, isnan(root)), 1.0);
 
-    // linear case
-    float root1 = mix(degenerate, -coeff.x / coeff.y, is_linear);
+    return root;
+}
 
-    // combine cases
-    float root = mix(root0,  root1, is_linear);
+// use when sure there is a real solution
+// coeff[0] + coeff[1] * t
+float linear_root(in vec2 coeff) 
+{    
+    // avoid division by zero
+    coeff.y = maxabs(EPSILON6, coeff.y);
+
+    float root = -coeff.x / coeff.y;
     // gl_FragColor = vec4(vec3(isinf(root), 0.0, isnan(root)), 1.0);
 
     return root;

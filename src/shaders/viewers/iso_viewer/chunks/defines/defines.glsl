@@ -35,7 +35,7 @@
 #define SPACING_METHOD 2
 #endif
 
-// { adaptive: 1, gradial: 2, alignment: 3, steepness: 4, uniform: 5 }
+// { taylor1: 1, taylor2: 2, gradial: 3, alignment: 4, steepness: 5, uniform: 6 }
 #ifndef STEPPING_METHOD
 #define STEPPING_METHOD 1
 #endif
