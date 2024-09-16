@@ -30,7 +30,7 @@
 #define DITHERING_METHOD 1
 #endif
 
-// { isotropic: 1, directional: 2, traversal: 3 }
+// { isotropic: 1, directional: 2, equalized: 3 }
 #ifndef SPACING_METHOD
 #define SPACING_METHOD 2
 #endif

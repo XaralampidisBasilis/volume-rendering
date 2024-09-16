@@ -12,11 +12,11 @@
 
     // dithering_generative
     #if DITHERING_METHOD == 1  
-        #include "./modules/dithering_generative"    // Dithering based on random generation
+        #include "./modules/dithering_generative"  
 
     // dithering_texture
     #elif DITHERING_METHOD == 2
-        #include "./modules/dithering_texture"       // Dithering based on a noise texture
+        #include "./modules/dithering_texture"  
 
     // unknown dithering method
     #else  

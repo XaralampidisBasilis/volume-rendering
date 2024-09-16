@@ -108,7 +108,7 @@ export default class ISOGui
             maxSteps: raycast.add(u_raycast, 'max_steps').min(0).max(2000).step(1),
 
             spacingMethod: raycast.add(defines, 'SPACING_METHOD').name('spacing_method')
-                .options({ isotropic: 1, directional: 2, traversal: 3 })
+                .options({ isotropic: 1, directional: 2, equalized: 3 })
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
                 
             steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')

@@ -3,9 +3,9 @@
 /**
  * Maps the trace value to a color using a colormap texture.
  *
- * @input u_colormap : uniform containing colormap parameters (uniform_colormap)
- * @input u_sampler.colormap : 2d texture containing the different the colormaps (sampler2D)
- * @input trace.value : input trace value to be mapped to a color. trace value is in range [0, 1] (float)
+ * @input u_colormap        : uniform containing colormap parameters (uniform_colormap)
+ * @input u_sampler.colormap: 2d texture containing the different the colormaps (sampler2D)
+ * @input trace.value       : input trace value to be mapped to a color. trace value is in range [0, 1] (float)
  *
  * @output trace.color: the mapped rgb color vector corresponding to the input trace value (vec3)
  */
