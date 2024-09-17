@@ -42,7 +42,6 @@ for (int i = 0; i < 5; i++, trace.steps++)
 }
 trace.coords = floor(trace.position * u_volume.inv_spacing);
 trace.depth = trace.distance - ray.min_distance;
-trace.traversed = trace.depth - trace.skipped;
 
 // if there was not any refinement copy the final trace
 if (abs(trace.error) > abs(final_trace.error)) {

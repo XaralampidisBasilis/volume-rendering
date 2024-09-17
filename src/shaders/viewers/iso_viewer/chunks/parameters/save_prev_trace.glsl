@@ -11,7 +11,6 @@ prev_trace.distance      = trace.distance;
 prev_trace.depth         = trace.depth;
 prev_trace.stepping      = trace.skipped;
 prev_trace.skipped       = trace.skipped;
-prev_trace.traversed     = trace.traversed;
 prev_trace.spacing       = trace.spacing;
 prev_trace.gradient_norm = trace.gradient_norm;
 prev_trace.derivative    = trace.derivative;

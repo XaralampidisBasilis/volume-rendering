@@ -26,11 +26,12 @@ export default class ISOGui
 
     addSubfolders()
     {
-        this.subfolders = {}
-        this.subfolders.raycast = this.folders.viewer.addFolder('raycast').close()
-        this.subfolders.gradient = this.folders.viewer.addFolder('gradient').close()
-        this.subfolders.colormap = this.folders.viewer.addFolder('colormap').close()
-        this.subfolders.lighting = this.folders.viewer.addFolder('lighting').close()
+        this.subfolders           = {}
+        this.subfolders.raycast   = this.folders.viewer.addFolder('raycast').close()
+        this.subfolders.gradient  = this.folders.viewer.addFolder('gradient').close()
+        this.subfolders.colormap  = this.folders.viewer.addFolder('colormap').close()
+        this.subfolders.shading   = this.folders.viewer.addFolder('shading').close()
+        this.subfolders.lighting  = this.folders.viewer.addFolder('lighting').close()
         this.subfolders.occupancy = this.folders.viewer.addFolder('occupancy').close()
 
         if (this.viewer.material.uniforms.u_debug)
@@ -70,6 +71,7 @@ export default class ISOGui
         this.addControllersRaycast() 
         this.addControllersGradient() 
         this.addControllersColormap() 
+        this.addControllersShading() 
         this.addControllersLighting() 
 
         if (this.viewer.occupancy)
@@ -176,15 +178,33 @@ export default class ISOGui
     
         this.controllers.colormap = 
         {
-            low: colormap.add(u_colormap, 'low').min(0).max(1).step(0.001),
-            high: colormap.add(u_colormap, 'high').min(0).max(1).step(0.001),
+            low   : colormap.add(u_colormap, 'low').min(0).max(1).step(0.001),
+            high  : colormap.add(u_colormap, 'high').min(0).max(1).step(0.001),
             levels: colormap.add(u_colormap, 'levels').min(1).max(255).step(1),
-            name: colormap.add(u_colormap, 'name').options(Object.keys(colormapLocations)),
-            flip: colormap.add(object, 'flip')
+            name  : colormap.add(u_colormap, 'name').options(Object.keys(colormapLocations)),
+            flip  : colormap.add(object, 'flip')
         }
 
     }
     
+    addControllersShading() 
+    {
+        const { shading } = this.subfolders
+        const u_shading = this.viewer.material.uniforms.u_shading.value
+    
+        this.controllers.shading = 
+        {
+            reflectanceA   : shading.add(u_shading, 'reflectance_a').min(0).max(1).step(0.001),
+            reflectanceD   : shading.add(u_shading, 'reflectance_d').min(0).max(1).step(0.001),
+            reflectanceS   : shading.add(u_shading, 'reflectance_s').min(0).max(1).step(0.001),
+            shininess      : shading.add(u_shading, 'shininess').min(0).max(40.0).step(0.2),
+            shadowThreshold: shading.add(u_shading, 'shadow_threshold').min(0).max(1).step(0.001),
+            edgeThreshold  : shading.add(u_shading, 'edge_threshold').min(0).max(1).step(0.001),
+            method         : shading.add(u_shading, 'model').options({ blinn : 1, phong : 2}),
+            attenuation    : shading.add(u_shading, 'attenuation'),
+        }
+    }
+
     addControllersLighting() 
     {
         const { lighting } = this.subfolders
@@ -192,18 +212,13 @@ export default class ISOGui
     
         this.controllers.lighting = 
         {
-            ka: lighting.add(u_lighting, 'ka').min(0).max(10).step(0.001),
-            kd: lighting.add(u_lighting, 'kd').min(0).max(1).step(0.001),
-            ks: lighting.add(u_lighting, 'ks').min(0).max(1).step(0.001),
-            shadows: lighting.add(u_lighting, 'shadows').min(0).max(1.0).step(0.01),
-            shininess: lighting.add(u_lighting, 'shininess').min(0).max(40.0).step(0.2),
-            edge_threshold: lighting.add(u_lighting, 'edge_threshold').min(0).max(1).step(0.001),
-            power: lighting.add(u_lighting, 'power').min(0).max(2.0).step(0.1),
-            position_x: lighting.add(u_lighting.position, 'x').min(-2).max(2).step(0.01).name('position_x'),
-            position_y: lighting.add(u_lighting.position, 'y').min(-2).max(2).step(0.01).name('position_y'),
-            position_z: lighting.add(u_lighting.position, 'z').min(-2).max(2).step(0.01).name('position_z'),
-            model: lighting.add(u_lighting, 'model').options({ blinn : 1, phong : 2}),
-            attenuation: lighting.add(u_lighting, 'attenuation'),
+            colorA         : lighting.addColor(u_lighting, 'color_a'),
+            colorD         : lighting.addColor(u_lighting, 'color_d'),
+            colorS         : lighting.addColor(u_lighting, 'color_s'),
+            offsetPositionX: lighting.add(u_lighting.offset_position, 'x').min(-5).max(5).step(0.01).name('offset_position_x'),
+            offsetPositionY: lighting.add(u_lighting.offset_position, 'y').min(-5).max(5).step(0.01).name('offset_position_y'),
+            offsetPositionZ: lighting.add(u_lighting.offset_position, 'z').min(-5).max(5).step(0.01).name('offset_position_z'),
+            power          : lighting.add(u_lighting, 'power').min(0).max(2.0).step(0.1),
         }
     }
     
@@ -215,10 +230,10 @@ export default class ISOGui
 
         this.controllers.occupancy = 
         {
-            divisions: occupancy.add(u_occupancy, 'divisions').min(2).max(20).step(1),
-            occubox: occupancy.add(this.viewer.occupancy.helpers.occubox, 'visible').name('occubox'),
+            divisions  : occupancy.add(u_occupancy, 'divisions').min(2).max(20).step(1),
+            occubox    : occupancy.add(this.viewer.occupancy.helpers.occubox, 'visible').name('occubox'),
             computation: occupancy.add(this.viewer.occupancy.helpers.computation, 'visible').name('computation'),
-            occumap: occupancy.add(this.viewer.occupancy.helpers.occumap, 'visible').name('occumap'),
+            occumap    : occupancy.add(this.viewer.occupancy.helpers.occumap, 'visible').name('occumap'),
             // occumaps: occupancy.add(this.viewer.occupancy.helpers.occumaps, 'visible').name('occumaps'),
             levels: occupancy.add(object, 'options').options({ all: 0, level0: 1, level1: 2, level2: 3}).name('levels'),
         }
@@ -316,9 +331,6 @@ export default class ISOGui
         // cap raycast spacing max based on spacing min
         this.controllers.raycast.steppingMax.onChange(() => this.capRaycastSpacingMax())
     
-        // adjust lighting power based on lighting attenuations being on or off
-        // this.controllers.lighting.attenuation.onChange(() => this.adjustLightingPower())
-
         if (this.viewer.occupancy)
         {
             this.controllers.occupancy.levels.onChange(() => this.occumapsVisible())
@@ -413,23 +425,6 @@ export default class ISOGui
         let { v, u_start, u_end } = colormapLocations[this.controllers.colormap.name.getValue()]
         this.viewer.material.uniforms.u_colormap.value.texture_row = v
         this.viewer.material.uniforms.u_colormap.value.texture_columns.set(u_start, u_end)      
-    }
-
-    adjustLightingPower()
-    {
-        if (this.controllers.lighting.attenuation.getValue())
-
-            this.controllers.lighting.power
-                .min(0)
-                .max(20)
-                .setValue(7)
-                .updateDisplay()
-        else
-                this.controllers.lighting.power
-                .min(0)
-                .max(2)
-                .setValue(1)
-                .updateDisplay()
     }
 
     occumapsVisible()

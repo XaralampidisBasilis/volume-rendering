@@ -1,24 +1,16 @@
-#ifndef LIGHTING_UNIFORMS
-#define LIGHTING_UNIFORMS
+#ifndef UNIFORMS_LIGHTING
+#define UNIFORMS_LIGHTING
 
 // struct to hold lighting uniforms
 struct uniforms_lighting 
 {
-    vec3 a_color;
-    vec3 d_color;
-    vec3 s_color;
-    float ka;
-    float kd;
-    float ks;
-    float shadows;
-    float shininess;
     float power;
-    int model;
-    bool attenuation;
-    float edge_threshold;
-    vec3 position;
+    vec3  color_a;
+    vec3  color_d;
+    vec3  color_s;
+    vec3  offset_position;
 };
 
 uniform uniforms_lighting u_lighting;
 
-#endif
+#endif // UNIFORMS_LIGHTING

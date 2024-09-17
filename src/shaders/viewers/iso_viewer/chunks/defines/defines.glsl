@@ -46,7 +46,14 @@
 #endif
 
 // { blinn: 1, phong: 2}
-#ifndef LIGHTING_METHOD
-#define LIGHTING_METHOD 1
+#ifndef SHADING_METHOD
+#define SHADING_METHOD 1
 #endif
+
+// { smoothstep: 1, physical: 2}
+#ifndef ATTENUATION_METHOD
+#define ATTENUATION_METHOD 1
+#endif
+
+
 

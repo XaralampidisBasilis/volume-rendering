@@ -48,6 +48,5 @@ trace.gradient = - trace.normal * trace.gradient_norm;
 trace.derivative = dot(trace.gradient, ray.direction);
 trace.coords = floor(trace.position * u_volume.inv_spacing);
 trace.depth = trace.distance - ray.min_distance;
-trace.traversed = trace.depth - trace.skipped;
 
 

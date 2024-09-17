@@ -22,7 +22,7 @@ void main()
     
     #include "./chunks/raycasting/compute_raycasting"
     #include "./chunks/colormapping/compute_colormapping"
-    #include "./chunks/lighting/compute_lighting"
+    #include "./chunks/shading/compute_shading"
 
     gl_FragColor = vec4(trace.shading, 1.0);
 

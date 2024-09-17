@@ -16,7 +16,6 @@ struct parameters_trace
     float distance;  // Distance the ray has traveled to the intersection
     float depth;  
     float skipped;  
-    float traversed;  
     float stepping;  
     float spacing;
     float gradient_norm;
@@ -38,7 +37,6 @@ void set_trace(out parameters_trace trace)
     trace.distance       = 0.0;
     trace.depth          = 0.0;
     trace.skipped        = 0.0;
-    trace.traversed      = 0.0;
     trace.stepping       = 0.0;
     trace.spacing        = 0.0;
     trace.gradient_norm  = 0.0;
@@ -61,7 +59,6 @@ void copy_trace(out parameters_trace trace, in parameters_trace copy)
     trace.depth         = copy.depth;
     trace.stepping      = copy.skipped;
     trace.skipped       = copy.skipped;
-    trace.traversed     = copy.traversed;
     trace.spacing       = copy.spacing;
     trace.gradient_norm = copy.gradient_norm;
     trace.derivative    = copy.derivative;

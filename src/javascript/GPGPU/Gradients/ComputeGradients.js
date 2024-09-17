@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import computeShader from '../../../shaders/viewers/iso_viewer/chunks/gpgpu/gradients/compute_gradients.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
+import percentile from 'percentile'
 
 // assumes intensity data 3D, and data3DTexture
 export default class ComputeGradients
@@ -95,6 +96,9 @@ export default class ComputeGradients
         }
         this.rangeLength = this.maxLength - this.minLength
 
+        console.log([this.minLength, this.maxLength])
+        console.log(this.computation.data)
+
         // create a data view to manipulate the buffer directly
         let dataView = new DataView(this.computation.data.buffer)
         
@@ -104,6 +108,12 @@ export default class ComputeGradients
             dataView.setUint8(i4 + 1, Math.round((this.computation.data[i4 + 1] * 0.5 + 0.5) * 255))
             dataView.setUint8(i4 + 2, Math.round((this.computation.data[i4 + 2] * 0.5 + 0.5) * 255))
             dataView.setUint8(i4 + 3, Math.round((this.computation.data[i4 + 3] - this.minLength) / this.rangeLength * 255))
+
+            // const gradNorm = this.computation.data[i4 + 3] / this.maxLength;
+            // dataView.setUint8(i4 + 0, Math.round((this.computation.data[i4 + 0] * gradNorm * 0.5 + 0.5) * 255))
+            // dataView.setUint8(i4 + 1, Math.round((this.computation.data[i4 + 1] * gradNorm * 0.5 + 0.5) * 255))
+            // dataView.setUint8(i4 + 2, Math.round((this.computation.data[i4 + 2] * gradNorm * 0.5 + 0.5) * 255))
+            // dataView.setUint8(i4 + 3, Math.round((this.computation.data[i4 + 3] - this.minLength) / this.rangeLength * 255))
         }
         this.data = new Uint8Array(this.computation.data.buffer).subarray(0, dataCount)
     }
