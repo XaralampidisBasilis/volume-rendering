@@ -88,17 +88,17 @@ export default class ComputeGradients
     compressData()
     {
         const count = this.parameters.volume.count * 4
-
-        let stats = new Stats()
-        // let threshold = 0.00001 * this.parameters.volume.invSpacing.length()
+        const maxNorm = this.parameters.volume.invSpacing.length();
+        let stats = new Stats({ store_data: false, bucket_precision : maxNorm / 256})
         for (let i4 = 3; i4 < count; i4 += 4) 
         {
-            // if (this.computation.data[i4] > threshold)
             stats.push(this.computation.data[i4])
         }
 
-        // this.maxNorm = stats.percentile(99)
-        [this.minNorm, this.maxNorm] = stats.range()
+        // [this.minNorm, this.maxNorm] = stats.range() 
+        this.maxNorm = stats.percentile(99)
+        stats.reset();
+
         const scale = 255 / 2 / this.maxNorm;  
         const offset = 255 / 2; 
 
@@ -106,15 +106,14 @@ export default class ComputeGradients
         let dataView = new DataView(this.computation.data.buffer)
         for (let i4 = 0; i4 < count; i4 += 4)
         {
-            dataView.setUint8(i4 + 0, Math.round(this.computation.data[i4 + 0] * scale + offset))
-            dataView.setUint8(i4 + 1, Math.round(this.computation.data[i4 + 1] * scale + offset))
-            dataView.setUint8(i4 + 2, Math.round(this.computation.data[i4 + 2] * scale + offset))
-            dataView.setUint8(i4 + 3, Math.round(this.computation.data[i4 + 3] * scale * 2))
+            dataView.setUint8(i4 + 0, Math.min(Math.max(Math.round(this.computation.data[i4 + 0] * scale + offset), 0), 255))
+            dataView.setUint8(i4 + 1, Math.min(Math.max(Math.round(this.computation.data[i4 + 1] * scale + offset), 0), 255))
+            dataView.setUint8(i4 + 2, Math.min(Math.max(Math.round(this.computation.data[i4 + 2] * scale + offset), 0), 255))
+            dataView.setUint8(i4 + 3, Math.min(Math.max(Math.round(this.computation.data[i4 + 3] * scale * 2     ), 0), 255))
         }
         
         this.data = new Uint8ClampedArray(this.computation.data.buffer).subarray(0, count)
-
-        console.log([this.minNorm, this.maxNorm])
+        console.log(this.maxNorm)
     }
 
     getComputationTexture()

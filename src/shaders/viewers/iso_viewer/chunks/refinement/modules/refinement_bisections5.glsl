@@ -21,6 +21,7 @@ distances = clamp(distances, ray.min_distance, ray.max_distance);
 
 float mix_error;
 float is_positive;
+vec4 volume_data;
 
 #pragma unroll_loop_start
 for (int i = 0; i < 5; i++, trace.steps++) 
@@ -28,12 +29,14 @@ for (int i = 0; i < 5; i++, trace.steps++)
     // compute interpolation factor
     mix_error = map(values.x, values.y, u_raycast.threshold);
 
+    // compute position
     trace.distance = mix(distances.x, distances.y, mix_error);
     trace.position = ray.origin + ray.direction * trace.distance;
     trace.texel = trace.position * u_volume.inv_size;
 
     // sample the intensity at the interpolated position
-    trace.value = texture(u_sampler.volume, trace.texel).r;
+    volume_data = texture(u_sampler.volume, trace.texel);
+    trace.value = volume_data.r;
     trace.error = trace.value - u_raycast.threshold;
 
     // Update position and value based on error
@@ -45,11 +48,11 @@ for (int i = 0; i < 5; i++, trace.steps++)
 #pragma unroll_loop_end
 
 // Compute the gradient and additional properties
-vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
-trace.gradient = (2.0 * gradient_data.rgb - 1.0) * u_gradient.max_norm;
+trace.gradient = (2.0 * volume_data.gba - 1.0) * u_gradient.max_norm;
 trace.gradient_norm = length(trace.gradient);
-trace.derivative = dot(trace.gradient, ray.direction);
 trace.normal = - normalize(trace.gradient);
+trace.derivative = dot(trace.gradient, ray.direction);
+
 trace.coords = floor(trace.position * u_volume.inv_spacing);
 trace.depth = trace.distance - ray.min_distance;
 

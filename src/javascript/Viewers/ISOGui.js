@@ -1,6 +1,6 @@
 
-import { colormapLocations } from '../../../../static/textures/colormaps/colormaps'
-import { throttleByCalls, throttleByDelay } from '../../Utils/Throttle'
+import { colormapLocations } from '../../../static/textures/colormaps/colormaps'
+import { throttleByCalls, throttleByDelay } from '../Utils/Throttle'
 
 export default class ISOGui
 {

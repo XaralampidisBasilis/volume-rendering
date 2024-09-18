@@ -17,6 +17,7 @@ copy_trace(trace, prev_trace);
 
 // calculate the refined substep
 float sub_spacing = trace.spacing / 6.0;  
+vec4 volume_data;
 
 // perform additional sampling steps to refine the hit point 
 for (int i = 0; i < 5; i++, trace.steps++) 
@@ -24,22 +25,23 @@ for (int i = 0; i < 5; i++, trace.steps++)
     // move position forward by substep and sample the volume
     trace.position += sub_spacing * ray.direction;  
     trace.texel = trace.position * u_volume.inv_size;
-    trace.value = texture(u_sampler.volume, trace.texel).r;
+
+    // Extract intensity value from volume data
+    volume_data = texture(u_sampler.volume, trace.texel);
+    trace.value = volume_data.r;
     trace.error = trace.value - u_raycast.threshold;
 
     // if the sampled value exceeds the threshold, return early
-    if (trace.error > 0.0) 
-    {
-        // extract gradient and distance
-        vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
-        trace.gradient = (2.0 * gradient_data.rgb - 1.0) * u_gradient.max_norm;
-        trace.gradient_norm = length(trace.gradient);
-        trace.derivative = dot(trace.gradient, ray.direction);
-        trace.normal = - normalize(trace.gradient);
-        trace.distance = dot(trace.position - ray.origin, ray.direction);
-        break;
-    }
+    if (trace.error > 0.0) break;
 }
+
+// extract gradient and distance
+trace.gradient = (2.0 * volume_data.gba - 1.0) * u_gradient.max_norm;
+trace.gradient_norm = length(trace.gradient);
+trace.normal = - normalize(trace.gradient);
+trace.derivative = dot(trace.gradient, ray.direction);
+
+trace.distance = dot(trace.position - ray.origin, ray.direction);
 trace.coords = floor(trace.position * u_volume.inv_spacing);
 trace.depth = trace.distance - ray.min_distance;
 

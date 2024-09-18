@@ -11,20 +11,20 @@ for (
     trace.steps++
 ) 
 {
-    // Sample the intensity of the volume at the current ray position
-    trace.texel = trace.position * u_volume.inv_size;
-    trace.value = texture(u_sampler.volume, trace.texel).r;
+    // Extract intensity value from volume data
+    vec4 volume_data = texture(u_sampler.volume, trace.texel);
+    trace.value = volume_data.r;
     trace.error = trace.value - u_raycast.threshold;
 
-    // Extract gradient and value from texture data
-    vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
-    trace.gradient = (2.0 * gradient_data.rgb - 1.0) * u_gradient.max_norm;
+    // Extract gradient from volume data
+    trace.gradient = (2.0 * volume_data.gba - 1.0) * u_gradient.max_norm;
     trace.gradient_norm = length(trace.gradient);
-    trace.derivative = dot(trace.gradient, ray.direction);
     trace.normal = - normalize(trace.gradient);
+    trace.derivative = dot(trace.gradient, ray.direction);
+    float gradient_slope = trace.gradient_norm / u_gradient.max_norm;
 
     // Check if the sampled intensity exceeds the threshold
-    if (trace.error > 0.0 && gradient_data.a > u_gradient.threshold && trace.steps > 0) 
+    if (trace.error > 0.0 && gradient_slope > u_gradient.threshold && trace.steps > 0) 
     {   
         ray.intersected = true;         
         break;
@@ -38,6 +38,7 @@ for (
     trace.spacing = trace.stepping * ray.spacing;
     trace.distance += trace.spacing;
     trace.position += ray.direction * trace.spacing;
+    trace.texel = trace.position * u_volume.inv_size;
 }   
 
 trace.depth = trace.distance - ray.min_distance;

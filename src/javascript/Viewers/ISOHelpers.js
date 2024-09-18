@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import * as CoordUtils from '../../Utils/CoordUtils'
+import * as CoordUtils from '../Utils/CoordUtils'
 
 export default class ISOHelpers
 {

@@ -34,19 +34,18 @@ t_root = clamp(t_root, ray.min_distance, ray.max_distance);
 // Compute distance and position in solution
 trace.distance = t_root;
 trace.position = ray.origin + ray.direction * trace.distance;
-
-// Compute value and error
 trace.texel = trace.position * u_volume.inv_size;
-trace.value = texture(u_sampler.volume, trace.texel).r;
+
+// Extract intensity value from volume data
+vec4 volume_data = texture(u_sampler.volume, trace.texel);
+trace.value = volume_data.r;
 trace.error = trace.value - u_raycast.threshold;
 
-// Compute gradient, and normal
-vec4 gradient_data = texture(u_sampler.gradients, trace.texel);
-trace.gradient = (2.0 * gradient_data.rgb - 1.0) * u_gradient.max_norm;
+// Extract gradient from volume data
+trace.gradient = (2.0 * volume_data.gba - 1.0) * u_gradient.max_norm;
 trace.gradient_norm = length(trace.gradient);
-trace.derivative = dot(trace.gradient, ray.direction);
 trace.normal = - normalize(trace.gradient);
+trace.derivative = dot(trace.gradient, ray.direction);
+
 trace.coords = floor(trace.position * u_volume.inv_spacing);
 trace.depth = trace.distance - ray.min_distance;
-
-

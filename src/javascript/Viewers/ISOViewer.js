@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import Experience from '../Experience'
-import ISOMaterial from './Materials/ISOMaterial'
-import ISOGui from './GUI/ISOGui'
-import ISOHelpers from './Helpers/ISOHelpers'
+import ISOMaterial from './ISOMaterial'
+import ISOGui from './ISOGui'
+import ISOHelpers from './ISOHelpers'
 import ComputeSmoothing from '../GPGPU/Smoothing/ComputeSmoothing'
 import ComputeGradients from '../GPGPU/Gradients/ComputeGradients'
 import ComputeOccupancy from '../GPGPU/Occupancy/ComputeOccupancy'
@@ -34,7 +34,7 @@ export default class ISOViewer
 
         this.computeGradients()
         // this.computeSmoothing()
-        this.computeOccupancy()
+        // this.computeOccupancy()
 
         if (this.debug.active) 
         {
@@ -108,8 +108,8 @@ export default class ISOViewer
         this.textures = {}
         this.setSourceTexture()
         this.setVolumeTexture()
-        this.setGradientsTexture()
         this.setMaskTexture()
+        // this.setGradientsTexture()
     }
 
     setSourceTexture()
@@ -131,10 +131,18 @@ export default class ISOViewer
 
     setVolumeTexture()
     {
-        const volumeDimensions = this.parameters.volume.dimensions.toArray()
+
         const volumeData = this.resource.volume.getDataUint8()
-        this.textures.volume = new THREE.Data3DTexture(volumeData, ...volumeDimensions)
-        this.textures.volume.format = THREE.RedFormat
+        const volumeData4 = new Uint8ClampedArray(this.parameters.volume.count * 4)
+        for (let i = 0; i < this.parameters.volume.count; i++)
+        {
+            const i4 = i * 4
+            volumeData4[i4 + 0] = volumeData[i]
+        }
+
+        const volumeDimensions = this.parameters.volume.dimensions.toArray()
+        this.textures.volume = new THREE.Data3DTexture(volumeData4, ...volumeDimensions)
+        this.textures.volume.format = THREE.RGBAFormat
         this.textures.volume.type = THREE.UnsignedByteType     
         this.textures.volume.wrapS = THREE.ClampToEdgeWrapping
         this.textures.volume.wrapT = THREE.ClampToEdgeWrapping
@@ -148,9 +156,9 @@ export default class ISOViewer
 
     setGradientsTexture()
     {
-        const volumeDimensions = this.parameters.volume.dimensions.toArray()
         const gradientsData = new Uint8ClampedArray(this.parameters.volume.count * 4)
-        this.textures.gradients = new THREE.Data3DTexture(gradientsData, ...volumeDimensions)
+        const gradientsDimensions = this.parameters.volume.dimensions.toArray()
+        this.textures.gradients = new THREE.Data3DTexture(gradientsData, ...gradientsDimensions)
         this.textures.gradients.format = THREE.RGBAFormat
         this.textures.gradients.type = THREE.UnsignedByteType     
         this.textures.gradients.wrapS = THREE.ClampToEdgeWrapping
@@ -165,8 +173,8 @@ export default class ISOViewer
 
     setMaskTexture()
     {
-        const maskDimensions = this.parameters.mask.dimensions.toArray()
         const maskData = this.resource.volume.getDataUint8()
+        const maskDimensions = this.parameters.mask.dimensions.toArray()
         this.textures.mask = new THREE.Data3DTexture(maskData, ...maskDimensions)
         this.textures.mask.format = THREE.RedFormat
         this.textures.mask.type = THREE.UnsignedByteType     
@@ -197,11 +205,13 @@ export default class ISOViewer
         this.material.uniforms.u_volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
         this.material.uniforms.u_volume.value.inv_size.copy(this.parameters.volume.invSize)
         this.material.uniforms.u_volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
+        this.material.uniforms.u_occupancy.value.box_max.copy(this.parameters.volume.size)
         this.material.uniforms.u_sampler.value.volume = this.textures.volume
         this.material.uniforms.u_sampler.value.gradients = this.textures.gradients
         this.material.uniforms.u_sampler.value.mask = this.textures.mask
         this.material.uniforms.u_sampler.value.colormap = this.colormaps    
         this.material.uniforms.u_sampler.value.noisemap = this.noisemaps.white256
+
     }
 
     setMesh()
@@ -214,15 +224,27 @@ export default class ISOViewer
     computeGradients()
     {
         this.gradients = new ComputeGradients(this)  
-        this.textures.gradients.image.data.set(this.gradients.data);
-        this.textures.gradients.needsUpdate = true
+
+        for (let i = 0; i < this.parameters.volume.count; i++)
+        {
+            const i4 = i * 4
+            this.textures.volume.image.data[i4 + 1] = this.gradients.data[i4 + 0]
+            this.textures.volume.image.data[i4 + 2] = this.gradients.data[i4 + 1]
+            this.textures.volume.image.data[i4 + 3] = this.gradients.data[i4 + 2]
+        }
+        this.textures.volume.needsUpdate = true
         this.material.uniforms.u_gradient.value.max_norm = this.gradients.maxNorm
     }
 
     computeSmoothing()
     {
         this.smoothing = new ComputeSmoothing(this)
-        this.textures.volume.image.data.set(this.smoothing.data);
+
+        for (let i = 0; i < this.parameters.volume.count; i++)
+        {
+            const i4 = i * 4
+            this.textures.volume.image.data[i4 + 0] = this.smoothing.data[i4 + 0]
+        }
         this.textures.volume.needsUpdate = true
     }
 

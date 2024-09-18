@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { colormapLocations } from '../../../../static/textures/colormaps/colormaps.js'
-import vertexShader from '../../../shaders/viewers/iso_viewer/vertex.glsl'
-import fragmentShader from '../../../shaders/viewers/iso_viewer/fragment.glsl'
+import { colormapLocations } from '../../../static/textures/colormaps/colormaps.js'
+import vertexShader from '../../shaders/viewers/iso_viewer/vertex.glsl'
+import fragmentShader from '../../shaders/viewers/iso_viewer/fragment.glsl'
 
 export default function(viewer)
 {
@@ -10,7 +10,6 @@ export default function(viewer)
         u_sampler: new THREE.Uniform
         ({
             volume   : null,
-            gradients: null,
             mask     : null,
             colormap : null,
             noisemap : null,
