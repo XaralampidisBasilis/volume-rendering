@@ -4,15 +4,14 @@ precision highp float;
 precision highp sampler3D; 
 
 #include "../../utils/utils"
-#include "./modules/compute_gradient"
 
 uniform sampler3D volume_data;
 uniform int volume_count;
 uniform vec3 volume_size;
-uniform vec3 volume_spacing;
 uniform ivec3 volume_dimensions;  
+uniform vec3 volume_inv_dimensions;  
+uniform vec3 volume_inv_spacing;  
 uniform ivec2 computation_dimensions; 
-uniform int gradient_method;
 
 void main()
 {
@@ -24,8 +23,8 @@ void main()
     ivec3 voxel_coords = reshape_1d_to_3d(pixel_index, volume_dimensions); 
     // float is_volume = float(pixel_index < volume_count);
 
-    // compute gradients, smoothing and assign color data
-    gl_FragColor = compute_gradient(volume_data, volume_spacing, volume_dimensions, voxel_coords, gradient_method);
+    // compute gradients and assign color data
+    #include "./compute_gradient"
 
     // include tone mapping and color space correction
     #include <tonemapping_fragment>

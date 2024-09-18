@@ -11,10 +11,10 @@
     "vite": "^4.5.0"
   },
   "dependencies": {
+    "fast-stats": "^0.0.7",
     "lil-gui": "^0.19.0",
     "mathjs": "^13.1.1",
     "nifti-reader-js": "^0.6.8",
-    "percentile": "^1.6.0",
     "postprocessing": "^6.35.6",
     "stats.js": "^0.17.0",
     "three": "^0.158.0",

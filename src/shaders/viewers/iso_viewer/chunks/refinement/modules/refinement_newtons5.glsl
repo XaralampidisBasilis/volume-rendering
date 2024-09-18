@@ -34,10 +34,10 @@ for (int i = 0; i < 5; i++, trace.steps++)
 
     // compute the gradient and normal
     gradient_data = texture(u_sampler.gradients, trace.texel);
-    trace.gradient_norm = gradient_data.a * u_gradient.range_norm + u_gradient.min_norm;
-    trace.normal = normalize(1.0 - 2.0 * gradient_data.rgb);
-    trace.gradient = - trace.normal * trace.gradient_norm;
+    trace.gradient = (2.0 * gradient_data.rgb - 1.0) * u_gradient.max_norm;
+    trace.gradient_norm = length(trace.gradient);
     trace.derivative = dot(trace.gradient, ray.direction);
+    trace.normal = - normalize(trace.gradient);
 
     // newton–raphson method to approximate next distance
     trace.distance -= trace.error / stabilize(trace.derivative);

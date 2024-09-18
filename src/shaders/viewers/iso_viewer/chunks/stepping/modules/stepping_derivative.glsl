@@ -18,7 +18,7 @@
 float mapped_derivative = max(trace.derivative, 0.0);
 
 // map the derivative value into the range defined by the gradient norms to get a value between 0 and 1
-mapped_derivative = map(u_gradient.min_norm, u_gradient.max_norm, mapped_derivative);
+mapped_derivative = map(0.0, u_gradient.max_norm, mapped_derivative);
 
 // interpolate between max_stepping and min_stepping based on the mapped derivative.
 trace.stepping = mix(u_raycast.max_stepping, u_raycast.min_stepping, mapped_derivative);

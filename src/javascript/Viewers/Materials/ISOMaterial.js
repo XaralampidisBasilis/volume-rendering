@@ -46,9 +46,7 @@ export default function(viewer)
         u_gradient: new THREE.Uniform
         ({
             threshold : 0,
-            min_norm  : 0,
             max_norm  : 0,
-            norm_range: 0,
             method    : 3,
         }),
             
@@ -108,7 +106,7 @@ export default function(viewer)
         HAS_REFINEMENT     : 1,
         HAS_BBOX           : 1,
         HAS_SKIPPING       : 0,
-        GRADIENT_METHOD    : 3,
+        GRADIENT_METHOD    : 7,
         DITHERING_METHOD   : 1,
         SPACING_METHOD     : 2,
         STEPPING_METHOD    : 1,

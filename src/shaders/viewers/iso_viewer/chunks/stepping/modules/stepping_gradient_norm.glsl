@@ -15,7 +15,7 @@
  */
 
 // map the gradient norm into the range defined by the gradient norms to get a value between 0 and 1
-float mapped_gradient_norm = map(u_gradient.min_norm, u_gradient.max_norm, trace.gradient_norm);
+float mapped_gradient_norm = map(0.0, u_gradient.max_norm, trace.gradient_norm);
 
 // interpolate between max_stepping and min_stepping based on the mapped gradient norm.
 trace.stepping = mix(u_raycast.max_stepping, u_raycast.min_stepping, mapped_gradient_norm);

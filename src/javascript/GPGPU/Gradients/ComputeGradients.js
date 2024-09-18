@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import computeShader from '../../../shaders/viewers/iso_viewer/chunks/gpgpu/gradients/compute_gradients.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
-import percentile from 'percentile'
+import { Stats } from 'fast-stats'
 
 // assumes intensity data 3D, and data3DTexture
 export default class ComputeGradients
@@ -56,11 +56,15 @@ export default class ComputeGradients
         {
             volume_data:            new THREE.Uniform(this.viewer.textures.source),
             volume_count:           new THREE.Uniform(this.parameters.volume.count),
-            volume_sizes:           new THREE.Uniform(this.parameters.volume.size),
-            volume_spacing:         new THREE.Uniform(this.parameters.volume.spacing),
+            volume_size:            new THREE.Uniform(this.parameters.volume.size),
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
+            volume_inv_dimensions:  new THREE.Uniform(this.parameters.volume.invDimensions),
+            volume_inv_spacing:     new THREE.Uniform(this.parameters.volume.invSpacing),
             computation_dimensions: new THREE.Uniform(this.computation.dimensions),     
-            gradient_method:        new THREE.Uniform(this.viewer.material.defines.GRADIENT_METHOD)   
+        }
+        this.computation.variable.material.defines = 
+        {
+            GRADIENT_METHOD: this.viewer.material.defines.GRADIENT_METHOD
         }
     }
     
@@ -83,39 +87,34 @@ export default class ComputeGradients
 
     compressData()
     {
+        const count = this.parameters.volume.count * 4
 
-        this.minLength = Infinity
-        this.maxLength = 0
-        const dataCount = this.parameters.volume.count * 4
-
-        for (let i4 = 3; i4 < dataCount; i4 += 4) 
+        let stats = new Stats()
+        // let threshold = 0.00001 * this.parameters.volume.invSpacing.length()
+        for (let i4 = 3; i4 < count; i4 += 4) 
         {
-            const value = this.computation.data[i4]
-            this.minLength = Math.min(this.minLength, value)
-            this.maxLength = Math.max(this.maxLength, value)
+            // if (this.computation.data[i4] > threshold)
+            stats.push(this.computation.data[i4])
         }
-        this.rangeLength = this.maxLength - this.minLength
 
-        console.log([this.minLength, this.maxLength])
-        console.log(this.computation.data)
+        // this.maxNorm = stats.percentile(99)
+        [this.minNorm, this.maxNorm] = stats.range()
+        const scale = 255 / 2 / this.maxNorm;  
+        const offset = 255 / 2; 
 
         // create a data view to manipulate the buffer directly
         let dataView = new DataView(this.computation.data.buffer)
-        
-        for (let i4 = 0; i4 < dataCount; i4 += 4)
+        for (let i4 = 0; i4 < count; i4 += 4)
         {
-            dataView.setUint8(i4 + 0, Math.round((this.computation.data[i4 + 0] * 0.5 + 0.5) * 255))
-            dataView.setUint8(i4 + 1, Math.round((this.computation.data[i4 + 1] * 0.5 + 0.5) * 255))
-            dataView.setUint8(i4 + 2, Math.round((this.computation.data[i4 + 2] * 0.5 + 0.5) * 255))
-            dataView.setUint8(i4 + 3, Math.round((this.computation.data[i4 + 3] - this.minLength) / this.rangeLength * 255))
-
-            // const gradNorm = this.computation.data[i4 + 3] / this.maxLength;
-            // dataView.setUint8(i4 + 0, Math.round((this.computation.data[i4 + 0] * gradNorm * 0.5 + 0.5) * 255))
-            // dataView.setUint8(i4 + 1, Math.round((this.computation.data[i4 + 1] * gradNorm * 0.5 + 0.5) * 255))
-            // dataView.setUint8(i4 + 2, Math.round((this.computation.data[i4 + 2] * gradNorm * 0.5 + 0.5) * 255))
-            // dataView.setUint8(i4 + 3, Math.round((this.computation.data[i4 + 3] - this.minLength) / this.rangeLength * 255))
+            dataView.setUint8(i4 + 0, Math.round(this.computation.data[i4 + 0] * scale + offset))
+            dataView.setUint8(i4 + 1, Math.round(this.computation.data[i4 + 1] * scale + offset))
+            dataView.setUint8(i4 + 2, Math.round(this.computation.data[i4 + 2] * scale + offset))
+            dataView.setUint8(i4 + 3, Math.round(this.computation.data[i4 + 3] * scale * 2))
         }
-        this.data = new Uint8Array(this.computation.data.buffer).subarray(0, dataCount)
+        
+        this.data = new Uint8ClampedArray(this.computation.data.buffer).subarray(0, count)
+
+        console.log([this.minNorm, this.maxNorm])
     }
 
     getComputationTexture()

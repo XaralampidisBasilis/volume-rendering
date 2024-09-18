@@ -33,7 +33,7 @@ export default class ISOViewer
         this.setMesh()
 
         this.computeGradients()
-        this.computeSmoothing()
+        // this.computeSmoothing()
         this.computeOccupancy()
 
         if (this.debug.active) 
@@ -48,26 +48,30 @@ export default class ISOViewer
         {
             volume: 
             {
-                size:       new THREE.Vector3().fromArray(this.resource.volume.size),
-                dimensions: new THREE.Vector3().fromArray(this.resource.volume.dimensions),
-                spacing:    new THREE.Vector3().fromArray(this.resource.volume.spacing),
-                invSize:       new THREE.Vector3().fromArray(this.resource.volume.size.map((x) => 1 / x)),
+                size         : new THREE.Vector3().fromArray(this.resource.volume.size),
+                dimensions   : new THREE.Vector3().fromArray(this.resource.volume.dimensions),
+                spacing      : new THREE.Vector3().fromArray(this.resource.volume.spacing),
+                spacing      : new THREE.Vector3().fromArray(this.resource.volume.spacing),
+                invSize      : new THREE.Vector3().fromArray(this.resource.volume.size.map((x) => 1 / x)),
                 invDimensions: new THREE.Vector3().fromArray(this.resource.volume.dimensions.map((x) => 1 / x)),
-                invSpacing:    new THREE.Vector3().fromArray(this.resource.volume.spacing.map((x) => 1 / x)),
-                count:      this.resource.volume.dimensions.reduce((product, value) => product * value, 1),
+                invSpacing   : new THREE.Vector3().fromArray(this.resource.volume.spacing.map((x) => 1 / x)),
+                count        : this.resource.volume.dimensions.reduce((product, value) => product * value, 1),
             },
 
             mask:
             {
-                size:       new THREE.Vector3().fromArray(this.resource.mask.size),
-                dimensions: new THREE.Vector3().fromArray(this.resource.mask.dimensions),
-                spacing:    new THREE.Vector3().fromArray(this.resource.mask.spacing),
+                size         : new THREE.Vector3().fromArray(this.resource.mask.size),
+                dimensions   : new THREE.Vector3().fromArray(this.resource.mask.dimensions),
+                spacing      : new THREE.Vector3().fromArray(this.resource.mask.spacing),
+                invSize      : new THREE.Vector3().fromArray(this.resource.mask.size.map((x) => 1 / x)),
+                invDimensions: new THREE.Vector3().fromArray(this.resource.mask.dimensions.map((x) => 1 / x)),
+                invSpacing   : new THREE.Vector3().fromArray(this.resource.mask.spacing.map((x) => 1 / x)),
             },
 
             geometry: 
             {
-                size:       new THREE.Vector3().fromArray(this.resource.volume.size),
-                center:     new THREE.Vector3().fromArray(this.resource.volume.size).divideScalar(2),
+                size  : new THREE.Vector3().fromArray(this.resource.volume.size),
+                center: new THREE.Vector3().fromArray(this.resource.volume.size).divideScalar(2),
             }
         }
     }
@@ -212,10 +216,7 @@ export default class ISOViewer
         this.gradients = new ComputeGradients(this)  
         this.textures.gradients.image.data.set(this.gradients.data);
         this.textures.gradients.needsUpdate = true
-
-        this.material.uniforms.u_gradient.value.min_norm = this.gradients.minLength
-        this.material.uniforms.u_gradient.value.max_norm = this.gradients.maxLength
-        this.material.uniforms.u_gradient.value.range_norm = this.gradients.rangeLength
+        this.material.uniforms.u_gradient.value.max_norm = this.gradients.maxNorm
     }
 
     computeSmoothing()
