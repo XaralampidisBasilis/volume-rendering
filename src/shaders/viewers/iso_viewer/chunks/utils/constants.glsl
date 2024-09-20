@@ -39,6 +39,9 @@ license:
 #ifndef EPSILON6
 #define EPSILON6 0.0000001
 #endif
+#ifndef EPSILON9
+#define EPSILON9 0.0000000001
+#endif
 #ifndef GOLDEN_RATIO
 #define GOLDEN_RATIO 1.6180339887
 #endif
