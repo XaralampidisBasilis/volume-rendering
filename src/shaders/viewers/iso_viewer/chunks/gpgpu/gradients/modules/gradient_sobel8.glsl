@@ -27,6 +27,9 @@ vec3 voxel_texel = (vec3(voxel_coords) + 0.5) * volume_inv_dimensions; // we nee
 // Sample values at the neighboring points
 float sample_value[8];
 vec3 sample_texel;
+
+vec3 box_min = 0.0 + texel_step;
+vec3 box_max = 1.0 - box_min;
 vec3 is_outside;
 
 #pragma unroll_loop_start

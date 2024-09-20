@@ -6,8 +6,9 @@ struct uniforms_debug
 {
     int option;
     float scale;
-    float probability;
     float constant;
+    float mixing;
+    float epsilon;
 };
 
 uniform uniforms_debug u_debug;

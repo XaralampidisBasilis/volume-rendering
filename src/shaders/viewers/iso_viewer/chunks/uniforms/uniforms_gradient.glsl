@@ -6,7 +6,6 @@ struct uniforms_gradient
 {
     float threshold;
     float max_norm;
-    int method;
 };
 
 uniform uniforms_gradient u_gradient;

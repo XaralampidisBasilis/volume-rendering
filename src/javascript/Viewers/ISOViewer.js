@@ -34,7 +34,7 @@ export default class ISOViewer
 
         this.computeGradients()
         // this.computeSmoothing()
-        // this.computeOccupancy()
+        this.computeOccupancy()
 
         if (this.debug.active) 
         {

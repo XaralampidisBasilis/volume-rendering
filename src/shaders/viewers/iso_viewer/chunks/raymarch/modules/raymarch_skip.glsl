@@ -24,7 +24,8 @@ for (
         // traverse through occupied block
         for(int i = 0; i < block.max_steps && trace.distance < max_distance; i++, trace.steps++) 
         {
-             // Extract intensity value from volume data
+            // Extract intensity value from volume data
+            trace.texel = trace.position * u_volume.inv_size;
             vec4 volume_data = texture(u_sampler.volume, trace.texel);
             trace.value = volume_data.r;
             trace.error = trace.value - u_raycast.threshold;
@@ -51,7 +52,6 @@ for (
             #include "../../stepping/compute_stepping"
             trace.spacing = trace.stepping * ray.spacing;
             trace.position += ray.direction * trace.spacing;
-            trace.texel = trace.position * u_volume.inv_size;
             trace.distance += trace.spacing;
         }       
     }

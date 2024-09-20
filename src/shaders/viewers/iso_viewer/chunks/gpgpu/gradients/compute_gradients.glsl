@@ -3,6 +3,7 @@ precision highp int;
 precision highp float;
 precision highp sampler3D; 
 
+#include "../../utils/sum"
 #include "../../utils/prod"
 #include "../../utils/inside"
 #include "../../utils/outside"

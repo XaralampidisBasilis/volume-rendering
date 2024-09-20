@@ -27,6 +27,9 @@ vec3 voxel_texel = (vec3(voxel_coords) + 0.5) * volume_inv_dimensions; // we nee
 // Sample values at the neighboring points
 float sample_value[4];
 vec3 sample_texel;
+
+vec3 box_min = 0.0 + texel_step;
+vec3 box_max = 1.0 - box_min;
 vec3 is_outside;
 
 for (int i = 0; i < 4; i++)
@@ -35,7 +38,7 @@ for (int i = 0; i < 4; i++)
     sample_value[i] = texture(volume_data, sample_texel).r;
 
     // handle edge cases, due to trillinear interpolation and clamp to edge wrapping   
-    is_outside = outside(texel_step, 1.0 - texel_step, sample_texel);
+    is_outside = outside(box_min, box_max, sample_texel);
     sample_value[i] /= exp2(sum(is_outside)); 
 }
 

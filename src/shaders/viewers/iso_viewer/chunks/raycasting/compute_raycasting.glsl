@@ -21,7 +21,7 @@ trace.spacing = ray.spacing;
 // raycasting loop to traverse through the volume and find intersections.
 #include "../raymarch/compute_raymarch"
 #include "../refinement/compute_refinement"
-// #include "../gradient/compute_gradient"
+#include "../gradient/compute_gradient"
 
 
 

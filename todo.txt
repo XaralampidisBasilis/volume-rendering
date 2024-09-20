@@ -5,4 +5,5 @@ Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2i
 
 Add typescript
 
-NEED TO IMPROVE GRADIENTS COMPUTATION AND NUMERICAL STABILITY
+
+weird flickering in refinement gradient computation due to bilinear refinement, need to search it

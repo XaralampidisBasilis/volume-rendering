@@ -13,9 +13,6 @@ uniform ivec2 computation_dimensions;
 
 void main()
 {
-    // CAREFULL USE ONLY INT. FLOATING POINT PRODUCES 
-    // SIGNIFICAL ERRORS (5 days to find this bug)
-
     // compute pixel coordinates and index
     ivec2 pixel_coords = ivec2(gl_FragCoord.xy); 
     int pixel_index = reshape_2d_to_1d(pixel_coords, computation_dimensions); 

@@ -98,6 +98,7 @@ export default class ISOGui
         const { raycast } = this.subfolders
         const u_raycast = this.viewer.material.uniforms.u_raycast.value
         const defines = this.viewer.material.defines
+        const object = { has_refinement: false, has_dithering: true, has_bbox: true, has_skipping: false }
 
         this.controllers.raycast = 
         {
@@ -125,25 +126,25 @@ export default class ISOGui
                 .options({ sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6, hermitian2: 7 })
                 .onChange(() => { this.viewer.material.needsUpdate = true }),
 
-            hasRefinement: raycast.add(u_raycast, 'has_refinement')
+            hasRefinement: raycast.add(object, 'has_refinement')
                 .onChange((value) => { 
                     this.viewer.material.defines.HAS_REFINEMENT = value ? 1 : 0;
                     this.viewer.material.needsUpdate = true 
                 }),
 
-            hasDithering: raycast.add(u_raycast, 'has_dithering')
+            hasDithering: raycast.add(object, 'has_dithering')
                 .onChange((value) => { 
                     this.viewer.material.defines.HAS_DITHERING = value ? 1 : 0;
                     this.viewer.material.needsUpdate = true 
                 }),
 
-            hasBbox: raycast.add(u_raycast, 'has_bbox')
+            hasBbox: raycast.add(object, 'has_bbox')
                 .onChange((value) => { 
                     this.viewer.material.defines.HAS_BBOX = value ? 1 : 0;
                     this.viewer.material.needsUpdate = true 
                 }),
 
-            hasSkipping: raycast.add(u_raycast, 'has_skipping')
+            hasSkipping: raycast.add(object, 'has_skipping')
                 .onChange((value) => { 
                     this.viewer.material.defines.HAS_SKIPPING = value ? 1 : 0;
                     this.viewer.material.needsUpdate = true 
@@ -157,15 +158,26 @@ export default class ISOGui
         const { gradient } = this.subfolders
         const u_gradient = this.viewer.material.uniforms.u_gradient.value
         const defines = this.viewer.material.defines
+        const object = { has_refinement: false }
     
         this.controllers.gradient = 
         {
             threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
             
-            method: gradient.add(defines, 'GRADIENT_METHOD').name('gradient_method')
+            method: gradient.add(defines, 'GRADIENT_METHOD').name('method')
                 .options({ tetrahedron4: 1, central6: 2, sobel8: 3, tetrahedron27: 4, prewitt27: 5, sobel27: 6, scharr27: 7 })
                 .onChange(() => { this.viewer.material.needsUpdate = true })
                 .onFinishChange(() => { this.viewer.computeGradients() }),
+
+            refinementMethod: gradient.add(defines, 'GRADIENT_REFINEMENT_METHOD').name('refinement_method')
+                .options({tetrahedron4: 1, central6: 2, sobel8: 3, tetrahedron27: 4, prewitt27: 5, sobel27: 6, scharr27: 7 })
+                .onChange(() => { this.viewer.material.needsUpdate = true }),
+
+            hasRefinement: gradient.add(object, 'has_refinement')
+                .onChange((value) => { 
+                    this.viewer.material.defines.HAS_GRADIENT_REFINEMENT = value ? 1 : 0;
+                    this.viewer.material.needsUpdate = true 
+                }),
         }
 
     }
@@ -282,7 +294,8 @@ export default class ISOGui
             }),
             scale: debug.add(u_debug, 'scale').min(0).max(10).step(0.001),
             constant: debug.add(u_debug, 'constant').min(-10).max(10).step(0.001),
-            probability: debug.add(u_debug, 'probability').min(0).max(1).step(0.001),
+            mixing: debug.add(u_debug, 'mixing').min(0).max(1).step(0.001),
+            epsilon: debug.add(u_debug, 'epsilon').min(-1).max(1).step(0.0000001),
         }
     }
     

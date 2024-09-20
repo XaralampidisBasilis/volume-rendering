@@ -36,17 +36,12 @@ export default function(viewer)
             stepping_method  : 1,
             dithering_method : 1,
             refinement_method: 2,
-            has_refinement   : true,
-            has_dithering    : true,
-            has_skipping     : false,
-            has_bbox         : true,
         }),
 
         u_gradient: new THREE.Uniform
         ({
             threshold : 0,
             max_norm  : 0,
-            method    : 3,
         }),
             
         u_colormap: new THREE.Uniform
@@ -94,24 +89,27 @@ export default function(viewer)
             option     : 0,
             scale      : 1,
             constant   : 0,
-            probability: 0.5,
+            mixing     : 0.5,
+            epsilon    : 0,
         })
 
     }
 
     const defines = 
     {
-        HAS_DITHERING      : 1,
-        HAS_REFINEMENT     : 1,
-        HAS_BBOX           : 1,
-        HAS_SKIPPING       : 0,
-        GRADIENT_METHOD    : 7,
-        DITHERING_METHOD   : 1,
-        SPACING_METHOD     : 2,
-        STEPPING_METHOD    : 1,
-        REFINEMENT_METHOD  : 2,
-        SHADING_METHOD     : 1,
-        ATTENUATION_METHOD : 1,
+        HAS_DITHERING             : 1,
+        HAS_REFINEMENT            : 1,
+        HAS_GRADIENT_REFINEMENT   : 0,
+        HAS_BBOX                  : 1,
+        HAS_SKIPPING              : 0,
+        GRADIENT_METHOD           : 7,
+        GRADIENT_REFINEMENT_METHOD: 7,
+        DITHERING_METHOD          : 1,
+        SPACING_METHOD            : 2,
+        STEPPING_METHOD           : 1,
+        REFINEMENT_METHOD         : 2,
+        SHADING_METHOD            : 1,
+        ATTENUATION_METHOD        : 1,
     }
 
     const material = new THREE.ShaderMaterial({
