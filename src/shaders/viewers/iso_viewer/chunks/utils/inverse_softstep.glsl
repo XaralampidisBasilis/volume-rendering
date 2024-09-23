@@ -1,3 +1,5 @@
+// https://www.peterstock.co.uk/games/adjustable_smoothstep/
+// https://www.desmos.com/calculator/ovekxhisxy
 
 float inverse_softstep(const in float x, const in float p, const in float q, const in float s)
 {
