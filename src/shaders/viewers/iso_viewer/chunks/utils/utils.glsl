@@ -3,6 +3,7 @@
 #include "./diff"
 #include "./mean"
 #include "./prod"
+#include "./npow"
 #include "./map"
 #include "./flip"
 #include "./sort"
@@ -34,5 +35,8 @@
 #include "./hermite2_coefficients"
 #include "./lagrange3_coefficients"
 #include "./lagrange4_coefficients"
+#include "./softstep"
+#include "./inverse_softstep"
+
 
 

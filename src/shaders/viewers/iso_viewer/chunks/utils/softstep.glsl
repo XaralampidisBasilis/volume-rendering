@@ -5,34 +5,32 @@
 /**
  * Generates a aoft transition from edge0 to edge1 with adjustable inflection point and slope, similar to smoothstep.
  *
- * @param edge0     : The lower edge of the transition (float)
- * @param edge1     : The upper edge of the transition (float)
- * @param x         : The input value to be mapped within the edges (float)
- * @param slope     : The normalized slope to control the smoothness of the transition in the range [0, 1], where 0 and 1 corespond to linear and abrupt transition respectively (float)
- * @param inflection: The inflection point of the curve where the second derivative, curvature, changes sign (vec2)
- * @return : A smooth transition value in the range [0, 1] (float)
+ * @param edge0   : The lower edge of the transition (float)
+ * @param edge1   : The upper edge of the transition (float)
+ * @param x       : The input value to be mapped within the edges (float)
+ * @param slope   : The normalized slope to control the smoothness of the transition in the range [0, 1], where 0 and 1 corespond to linear and abrupt transition respectively (float)
+ * @param p_inflex: The inflection point x of the curve where the second derivative, curvature, changes sign (float)
+ * @param q_inflex: The inflection point y of the curve where the second derivative, curvature, changes sign (float)
+ * @return        : A smooth transition value in the range [0, 1] (float)
  */
 
 float softstep(const in float edge0, const in float edge1, const in float x)
 {
-    const float inflection = vec2(0.5); // best approximation to smoothstep
-    const float slope = 1.0 / 3.0;            // best approximation to smoothstep
-    const float t = map(edge0, edge1, x);
-    const float g = 1.0 / max(1.0 - slope, EPSILON6);
-    const float q_max = inflection.y * g;
-    const float q_min = q_max - g + 1.0 ;
+    float t = map(edge0, edge1, x);
+    float g = 1.5;                      // best approximation to smoothstep
+    vec2 pq = vec2(0.5); // best approximation to smoothstep
+    float q_max = pq.x * g;
+    float q_min = q_max - g + 1.0 ;
 
-    vec3 params = vec3(t, inflection.x, clamp(q_min, q_max, inflection.y));
+    vec3 params = vec3(t, pq.x, clamp(q_min, q_max, pq.y));
     float is_above = step(params.y, t);
     params = mix(params, vec3(1.0) - params, is_above);
-    params.z = clamp(EPSILON6, 1.0 - EPSILON6, params.z);
+    params = clamp(vec3(EPSILON6), vec3(1.0 - EPSILON6), params);
 
-    float g_scaled = (params.y / params.z) * g - 1.0;
-    float c = 1.0 / maxabs(1.0 - g_scaled, EPSILON9);
-    params.x *= (params.z / params.y) * c;
-
-    float c_scaled = params.z  * c * (c - 1.0);
-    float y = params.x * params.x  / (params.x + c_scaled);
+    float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
+    float t_scaled = params.x / params.y;
+    float y = params.z * pow2(t_scaled);
+    y /= (1.0 - t_scaled) * g_scaled * 2.0 + 1.0;
 
     return mix(y, 1.0 - y, is_above);
 }
@@ -40,45 +38,64 @@ float softstep(const in float edge0, const in float edge1, const in float x)
 
 float softstep(const in float edge0, const in float edge1, const in float x, const in float slope)
 {
-    const float inflection = vec2(0.5); // best approximation to smoothstep
-    const float t = map(edge0, edge1, x);
-    const float g = 1.0 / max(1.0 - slope, EPSILON6);
-    const float q_max = inflection.y * g;
-    const float q_min = q_max - g + 1.0 ;
+    float t = map(edge0, edge1, x);
+    float g = 1.0 / max(1.0 - slope, EPSILON6);
+    vec2 pq = vec2(0.5); // best approximation to smoothstep
+    float q_max = pq.x * g;
+    float q_min = q_max - g + 1.0 ;
 
-    vec3 params = vec3(t, inflection.x, clamp(q_min, q_max, inflection.y));
+    vec3 params = vec3(t, pq.x, clamp(q_min, q_max, pq.y));
     float is_above = step(params.y, t);
     params = mix(params, vec3(1.0) - params, is_above);
-    params.z = clamp(EPSILON6, 1.0 - EPSILON6, params.z);
+    params = clamp(vec3(EPSILON6), vec3(1.0 - EPSILON6), params);
 
-    float g_scaled = (params.y / params.z) * g - 1.0;
-    float c = 1.0 / maxabs(1.0 - g_scaled, EPSILON9);
-    params.x *= (params.z / params.y) * c;
-
-    float c_scaled = params.z  * c * (c - 1.0);
-    float y = params.x * params.x  / (params.x + c_scaled);
+    float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
+    float t_scaled = params.x / params.y;
+    float y = params.z * pow2(t_scaled);
+    y /= (1.0 - t_scaled) * g_scaled * 2.0 + 1.0;
 
     return mix(y, 1.0 - y, is_above);
 }
 
-float softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in vec2 inflection,)
-{
-    const float t = map(edge0, edge1, x);
-    const float g = 1.0 / max(1.0 - slope, EPSILON6);
-    const float q_max = inflection.y * g;
-    const float q_min = q_max - g + 1.0 ;
 
-    vec3 params = vec3(t, inflection.x, clamp(q_min, q_max, inflection.y));
+float softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_inflex)
+{
+    float t = map(edge0, edge1, x);
+    float g = 1.0 / max(1.0 - slope, EPSILON6);
+    vec2 pq = vec2(p_inflex);
+    float q_max = pq.x * g;
+    float q_min = q_max - g + 1.0 ;
+
+    vec3 params = vec3(t, pq.x, clamp(q_min, q_max, pq.y));
     float is_above = step(params.y, t);
     params = mix(params, vec3(1.0) - params, is_above);
-    params.z = clamp(EPSILON6, 1.0 - EPSILON6, params.z);
+    params = clamp(vec3(EPSILON6), vec3(1.0 - EPSILON6), params);
 
-    float g_scaled = (params.y / params.z) * g - 1.0;
-    float c = 1.0 / maxabs(1.0 - g_scaled, EPSILON9);
-    params.x *= (params.z / params.y) * c;
+    float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
+    float t_scaled = params.x / params.y;
+    float y = params.z * pow2(t_scaled);
+    y /= (1.0 - t_scaled) * g_scaled * 2.0 + 1.0;
 
-    float c_scaled = params.z  * c * (c - 1.0);
-    float y = params.x * params.x  / (params.x + c_scaled);
+    return mix(y, 1.0 - y, is_above);
+}
+
+float softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_inflex, const in float q_inflex)
+{
+    float t = map(edge0, edge1, x);
+    float g = 1.0 / max(1.0 - slope, EPSILON6);
+    vec2 pq = vec2(p_inflex, q_inflex);
+    float q_max = p_inflex * g;
+    float q_min = q_max - g + 1.0 ;
+
+    vec3 params = vec3(t, pq.x, clamp(q_min, q_max, pq.y));
+    float is_above = step(params.y, t);
+    params = mix(params, vec3(1.0) - params, is_above);
+    params = clamp(vec3(EPSILON6), vec3(1.0 - EPSILON6), params);
+
+    float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
+    float t_scaled = params.x / params.y;
+    float y = params.z * pow2(t_scaled);
+    y /= (1.0 - t_scaled) * g_scaled * 2.0 + 1.0;
 
     return mix(y, 1.0 - y, is_above);
 }
