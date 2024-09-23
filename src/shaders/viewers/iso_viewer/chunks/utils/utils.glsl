@@ -37,6 +37,7 @@
 #include "./lagrange4_coefficients"
 #include "./softstep"
 #include "./inverse_softstep"
+#include "./gaussian"
 
 
 
