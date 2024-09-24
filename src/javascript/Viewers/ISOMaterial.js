@@ -63,7 +63,6 @@ export default function(viewer)
             shadow_threshold: 0,
             edge_threshold  : 0,
             model           : 2,
-            attenuation     : false,
         }),
 
         u_lighting: new THREE.Uniform
@@ -73,6 +72,7 @@ export default function(viewer)
             color_d        : new THREE.Color(0xffffff),
             color_s        : new THREE.Color(0xffffff),
             offset_position: new THREE.Vector3(),
+            has_attenuation     : false,
         }),
 
         u_occupancy: new THREE.Uniform
@@ -97,19 +97,22 @@ export default function(viewer)
 
     const defines = 
     {
-        HAS_DITHERING             : 1,
-        HAS_REFINEMENT            : 1,
-        HAS_GRADIENT_REFINEMENT   : 0,
-        HAS_BBOX                  : 1,
-        HAS_SKIPPING              : 0,
-        GRADIENT_METHOD           : 7,
-        GRADIENT_REFINEMENT_METHOD: 7,
-        DITHERING_METHOD          : 1,
-        SPACING_METHOD            : 2,
-        STEPPING_METHOD           : 1,
-        REFINEMENT_METHOD         : 2,
-        SHADING_METHOD            : 1,
-        ATTENUATION_METHOD        : 1,
+        HAS_DITHERING              : 1,
+        HAS_REFINEMENT             : 1,
+        HAS_GRADIENT_REFINEMENT    : 0,
+        HAS_SMOOTHING_REFINEMENT   : 0,
+        HAS_BBOX                   : 1,
+        HAS_SKIPPING               : 0,
+        GRADIENT_METHOD            : 7,
+        GRADIENT_REFINEMENT_METHOD : 7,
+        SMOOTHING_REFINEMENT_METHOD: 1,
+        DITHERING_METHOD           : 1,
+        SPACING_METHOD             : 2,
+        STEPPING_METHOD            : 1,
+        REFINEMENT_METHOD          : 2,
+        SHADING_METHOD             : 1,
+        ATTENUATION_METHOD         : 1,
+        SMOOTHING_RADIUS           : 1,
     }
 
     const material = new THREE.ShaderMaterial({

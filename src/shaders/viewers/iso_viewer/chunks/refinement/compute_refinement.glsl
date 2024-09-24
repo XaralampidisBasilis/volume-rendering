@@ -32,5 +32,6 @@
     #else  
         #error "unknown: REFINEMENT_METHOD"
 
-#endif // REFINEMENT_METHOD
+    #endif // REFINEMENT_METHOD
+    
 #endif // HAS_REFINEMENT

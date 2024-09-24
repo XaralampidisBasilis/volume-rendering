@@ -1,38 +1,84 @@
-syms x t g s p q a0 a1 a2 a3 b0 b1 
-assume([x t g s p q a0 a1 a2 a3 b0 b1], 'real')
+clear, clc
+syms x t g1 g2 s1 s2 p q a0 a1 a2 a3 b0 b1 
+assume([x t g1 g2 s1 s2 p q a0 a1 a2 a3 b0 b1], 'real')
 
 assume(0 < p & p < 1)
 assume(0 < q & q < 1)
-assume(0 < g)
+assume(1 < g1)
+assume(0 < g2)
 assume(0 < x & x < p)
 assume(0 < t & t < 1)
-assume(0 < s)
+assume(p/q < s1)
+assume(0 < s2)
 
-f_x = (a3*x^3 + a2*x^2 + a1*x + a0) / (x^2 + b1*x + b0);
+f0_x = (a3*x^3 + a2*x^2 + a1*x + a0) / (x^2 + b1*x + b0);
 
 % First and second derivatives
-f1_x = diff(f_x, x);
+f1_x = diff(f0_x, x);
 f2_x = diff(f1_x, x);
 
 % Apply the restrictions
-eq1 = subs(f_x, x, 0) == 0; % f(0) = 0
-eq2 = subs(f_x, x, p) == q; % f(p) = q
+eq1 = subs(f0_x, x, 0) == 0; % f(0) = 0
+eq2 = subs(f0_x, x, p) == q; % f(p) = q
 eq3 = subs(f1_x, x, 0) == 0; % f'(0) = 0
-eq4 = subs(f1_x, x, p) == g; % f'(p) = g
-eq5 = subs(f2_x, x, p) == 0;% f''(p) = 0 
+eq4 = subs(f1_x, x, p) == g1; % f'(p) = g
+eq5 = subs(f2_x, x, p) == g2;% f''(p) = 0 
 
 % Solve the system of equations
-sol = solve([eq1, eq2, eq3, eq4, eq5], [a0 a1 a2 a3 b0], 'ReturnConditions', true);
+vars = [a0 a1 a2 a3];
+sol = solve([eq1, eq2, eq3, eq4], vars, 'ReturnConditions', true);
 
-s_x  = simplify(subs(f_x,  [a0 a1 a2 a3 b0], [sol.a0, sol.a1, sol.a2, sol.a3, sol.b0]));
-s1_x = simplify(subs(f1_x, [a0 a1 a2 a3 b0], [sol.a0, sol.a1, sol.a2, sol.a3, sol.b0]));
-s2_x = simplify(subs(f2_x, [a0 a1 a2 a3 b0], [sol.a0, sol.a1, sol.a2, sol.a3, sol.b0]));
+f0_x = simplify(subs(f0_x, vars, [sol.(char(vars(1))), sol.(char(vars(2))), sol.(char(vars(3))), sol.(char(vars(4)))]));
+f1_x = simplify(subs(f1_x, vars, [sol.(char(vars(1))), sol.(char(vars(2))), sol.(char(vars(3))), sol.(char(vars(4)))]));
+f2_x = simplify(subs(f2_x, vars, [sol.(char(vars(1))), sol.(char(vars(2))), sol.(char(vars(3))), sol.(char(vars(4)))]));
 
-disp(s_x)
-pretty(s_x)
+f0_0 = simplify(subs(f0_x, x, 0));
+f0_p = simplify(subs(f0_x, x, p));
+f1_0 = simplify(subs(f1_x, x, 0));
+f1_p = simplify(subs(f1_x, x, p));
+
+pretty(f0_x)
+
+%% Solve for f''(p) = g2
+
+f2_p = simplify(subs(f2_x, x, p));
+
+sol_b0 = simplify(solve(f2_p == g2, b0, 'ReturnConditions', false));
+sol_b1 = simplify(solve(f2_p == g2, b1, 'ReturnConditions', false));
+
+pretty(sol_b0)
+pretty(sol_b1)
+
+%% Solutions
+
+g0_x = simplify(subs(f0_x, b0, sol_b0));
+g1_x = simplify(diff(g0_x, x));
+g2_x = simplify(diff(g1_x, x));
+
+h0_x = simplify(subs(f0_x, b1, sol_b1));
+h1_x = simplify(diff(h0_x , x));
+h2_x = simplify(diff(h1_x , x));
+
+pretty(g0_x)
+pretty(h0_x)
+
+%% Simplify
+
+g0_t = simplify(subs(g0_x, [x, g1, g2], [p * t, q/p * s1, q/p^2 * s2]));
+g1_t = simplify(subs(g1_x, [x, g1, g2], [p * t, q/p * s1, q/p^2 * s2]));
+g2_t = simplify(subs(g2_x, [x, g1, g2], [p * t, q/p * s1, q/p^2 * s2]));
+
+h0_t = simplify(subs(h0_x, [x, g1, g2], [p * t, q/p * s1, q/p^2 * s2]));
+h1_t = simplify(subs(h1_x, [x, g1, g2], [p * t, q/p * s1, q/p^2 * s2]));
+h2_t = simplify(subs(h2_x, [x, g1, g2], [p * t, q/p * s1, q/p^2 * s2]));
+
+pretty(g0_t)
+pretty(h0_t)
+
+b0_b1 = simplify(solve(g0_t == h0_t, b0));
 
 %% Search Poles and Roots
-[num_x, den_x] = numden(s_x);
+[num_x, den_x] = numden(g0_x);
 [res_x, quo_x] = polynomialReduce(num_x, den_x, x);
 
 [res_param_x, res_term_x] = coeffs(res_x, x);
@@ -42,6 +88,7 @@ pretty(s_x)
 
 zeros = solve(num_x == 0, x,'ReturnConditions', true);
 poles = solve(den_x == 0, x,'ReturnConditions', true);
+pretty(simplify(poles.x))
 
 pole_mean = (poles.x(2) + poles.x(1))/ 2;
 pole_radius = abs(poles.x(2) - poles.x(1))/ 2;
@@ -67,15 +114,6 @@ pretty(p_max)
 assume((b1/2)^2 + (b1/2) * c1 > 0);
 sol_min = solve(p_min < 0, b1, 'ReturnConditions', true);
 sol_max = solve(p < p_max, 'ReturnConditions', true);
-
-
-%% Simplify
-
-s_t  = simplify(subs(s_x,  [x, g], [p * t, q/p * s]));
-s1_t = simplify(subs(s1_x, [x, g], [p * t, q/p * s]));
-s2_t = simplify(subs(s2_x, [x, g], [p * t, q/p * s]));
-
-pretty(s_t)
 
 %% Limit
 

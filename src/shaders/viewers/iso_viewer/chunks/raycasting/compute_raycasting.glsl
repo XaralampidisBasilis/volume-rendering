@@ -22,6 +22,7 @@ trace.spacing = ray.spacing;
 #include "../raymarch/compute_raymarch"
 #include "../refinement/compute_refinement"
 #include "../gradient/compute_gradient"
+#include "../smoothing/compute_smoothing"
 
 
 

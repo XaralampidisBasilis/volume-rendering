@@ -29,6 +29,7 @@ export default class ISOGui
         this.subfolders           = {}
         this.subfolders.raycast   = this.folders.viewer.addFolder('raycast').close()
         this.subfolders.gradient  = this.folders.viewer.addFolder('gradient').close()
+        this.subfolders.smoothing = this.folders.viewer.addFolder('smoothing').close()
         this.subfolders.colormap  = this.folders.viewer.addFolder('colormap').close()
         this.subfolders.shading   = this.folders.viewer.addFolder('shading').close()
         this.subfolders.lighting  = this.folders.viewer.addFolder('lighting').close()
@@ -70,6 +71,7 @@ export default class ISOGui
         this.addControllersViewer()
         this.addControllersRaycast() 
         this.addControllersGradient() 
+        this.addControllersSmoothing() 
         this.addControllersColormap() 
         this.addControllersShading() 
         this.addControllersLighting() 
@@ -98,7 +100,7 @@ export default class ISOGui
         const { raycast } = this.subfolders
         const u_raycast = this.viewer.material.uniforms.u_raycast.value
         const defines = this.viewer.material.defines
-        const object = { has_refinement: false, has_dithering: true, has_bbox: true, has_skipping: false }
+        const object = { has_refinement: true, has_dithering: true, has_bbox: true, has_skipping: false }
 
         this.controllers.raycast = 
         {
@@ -112,40 +114,40 @@ export default class ISOGui
 
             spacingMethod: raycast.add(defines, 'SPACING_METHOD').name('spacing_method')
                 .options({ isotropic: 1, directional: 2, equalized: 3 })
-                .onChange(() => { this.viewer.material.needsUpdate = true }),
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
                 
             steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')
                 .options({ taylor1: 1, taylor2: 2, derivative: 3, normal: 4, gradient_norm: 5, uniform: 6 })
-                .onChange(() => { this.viewer.material.needsUpdate = true }),
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             ditheringMethod: raycast.add(defines, 'DITHERING_METHOD').name('dithering_method')
                 .options({ generative: 1, texture: 2, })
-                .onChange(() => { this.viewer.material.needsUpdate = true }),
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             refinementMethod: raycast.add(defines, 'REFINEMENT_METHOD').name('refinement_method')
                 .options({ sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6, hermitian2: 7 })
-                .onChange(() => { this.viewer.material.needsUpdate = true }),
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             hasRefinement: raycast.add(object, 'has_refinement')
-                .onChange((value) => { 
+                .onFinishChange((value) => { 
                     this.viewer.material.defines.HAS_REFINEMENT = value ? 1 : 0;
                     this.viewer.material.needsUpdate = true 
                 }),
 
             hasDithering: raycast.add(object, 'has_dithering')
-                .onChange((value) => { 
+                .onFinishChange((value) => { 
                     this.viewer.material.defines.HAS_DITHERING = value ? 1 : 0;
                     this.viewer.material.needsUpdate = true 
                 }),
 
             hasBbox: raycast.add(object, 'has_bbox')
-                .onChange((value) => { 
+                .onFinishChange((value) => { 
                     this.viewer.material.defines.HAS_BBOX = value ? 1 : 0;
                     this.viewer.material.needsUpdate = true 
                 }),
 
             hasSkipping: raycast.add(object, 'has_skipping')
-                .onChange((value) => { 
+                .onFinishChange((value) => { 
                     this.viewer.material.defines.HAS_SKIPPING = value ? 1 : 0;
                     this.viewer.material.needsUpdate = true 
                 }),
@@ -166,20 +168,43 @@ export default class ISOGui
             
             method: gradient.add(defines, 'GRADIENT_METHOD').name('method')
                 .options({ tetrahedron4: 1, central6: 2, sobel8: 3, tetrahedron27: 4, prewitt27: 5, sobel27: 6, scharr27: 7 })
-                .onChange(() => { this.viewer.material.needsUpdate = true })
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true })
                 .onFinishChange(() => { this.viewer.computeGradients() }),
 
             refinementMethod: gradient.add(defines, 'GRADIENT_REFINEMENT_METHOD').name('refinement_method')
                 .options({tetrahedron4: 1, central6: 2, sobel8: 3, tetrahedron27: 4, prewitt27: 5, sobel27: 6, scharr27: 7 })
-                .onChange(() => { this.viewer.material.needsUpdate = true }),
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             hasRefinement: gradient.add(object, 'has_refinement')
-                .onChange((value) => { 
+                .onFinishChange((value) => { 
                     this.viewer.material.defines.HAS_GRADIENT_REFINEMENT = value ? 1 : 0;
                     this.viewer.material.needsUpdate = true 
                 }),
         }
 
+    }
+
+    addControllersSmoothing()
+    {
+        const { smoothing } = this.subfolders
+        const defines = this.viewer.material.defines
+        const object = { has_refinement: false }
+
+        this.controllers.smoothing = 
+        {
+            radius: smoothing.add(defines, 'SMOOTHING_RADIUS').min(1).max(5).step(1)
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+        
+            refinementMethod: smoothing.add(defines, 'SMOOTHING_REFINEMENT_METHOD').name('refinement_method')
+                .options({ mean: 1, conservative: 2, gaussian: 3, bessel: 4, trilinear: 5 })
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+
+            hasRefinement: smoothing.add(object, 'has_refinement')
+                .onFinishChange((value) => { 
+                    this.viewer.material.defines.HAS_SMOOTHING_REFINEMENT = value ? 1 : 0;
+                    this.viewer.material.needsUpdate = true 
+                }),
+        }
     }
     
     addControllersColormap() 
@@ -203,6 +228,7 @@ export default class ISOGui
     {
         const { shading } = this.subfolders
         const u_shading = this.viewer.material.uniforms.u_shading.value
+        const defines = this.viewer.material.defines
     
         this.controllers.shading = 
         {
@@ -212,8 +238,10 @@ export default class ISOGui
             shininess      : shading.add(u_shading, 'shininess').min(0).max(40.0).step(0.2),
             shadowThreshold: shading.add(u_shading, 'shadow_threshold').min(0).max(1).step(0.001),
             edgeThreshold  : shading.add(u_shading, 'edge_threshold').min(0).max(1).step(0.001),
-            method         : shading.add(u_shading, 'model').options({ blinn : 1, phong : 2}),
-            attenuation    : shading.add(u_shading, 'attenuation'),
+
+            method: shading.add(defines, 'SHADING_METHOD').name('shading_method')
+                .options({ blinn : 1, phong : 2})
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
         }
     }
 
@@ -221,7 +249,8 @@ export default class ISOGui
     {
         const { lighting } = this.subfolders
         const u_lighting = this.viewer.material.uniforms.u_lighting.value
-    
+        const defines = this.viewer.material.defines
+
         this.controllers.lighting = 
         {
             colorA         : lighting.addColor(u_lighting, 'color_a'),
@@ -231,6 +260,12 @@ export default class ISOGui
             offsetPositionY: lighting.add(u_lighting.offset_position, 'y').min(-5).max(5).step(0.01).name('offset_position_y'),
             offsetPositionZ: lighting.add(u_lighting.offset_position, 'z').min(-5).max(5).step(0.01).name('offset_position_z'),
             power          : lighting.add(u_lighting, 'power').min(0).max(2.0).step(0.1),
+            
+            attenuationMethod: lighting.add(defines, 'ATTENUATION_METHOD').name('attenuation_method')
+                .options({ softstep: 1, physical: 2})
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+
+            hasAttenuation: lighting.add(u_lighting, 'has_attenuation'),
         }
     }
     

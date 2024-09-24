@@ -33,15 +33,6 @@ license:
 #ifndef PHI
 #define PHI 1.618033988749894848204586834
 #endif
-#ifndef EPSILON3
-#define EPSILON3 0.0001
-#endif
-#ifndef EPSILON6
-#define EPSILON6 0.0000001
-#endif
-#ifndef EPSILON9
-#define EPSILON9 0.0000000001
-#endif
 #ifndef GOLDEN_RATIO
 #define GOLDEN_RATIO 1.6180339887
 #endif
@@ -50,4 +41,16 @@ license:
 #endif
 #ifndef GOLDEN_ANGLE // (3.-sqrt(5.0))*PI radians
 #define GOLDEN_ANGLE 2.39996323
+#endif
+#ifndef EULER
+#define EULER 2.718281828459045235360287471352
+#endif
+#ifndef EPSILON3
+#define EPSILON3 0.0001
+#endif
+#ifndef EPSILON6
+#define EPSILON6 0.0000001
+#endif
+#ifndef EPSILON9
+#define EPSILON9 0.0000000001
 #endif

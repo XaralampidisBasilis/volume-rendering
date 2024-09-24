@@ -9,6 +9,7 @@ struct uniforms_lighting
     vec3  color_d;
     vec3  color_s;
     vec3  offset_position;
+    float has_attenuation;
 };
 
 uniform uniforms_lighting u_lighting;

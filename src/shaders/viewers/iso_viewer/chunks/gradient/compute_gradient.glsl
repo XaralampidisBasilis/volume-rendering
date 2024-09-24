@@ -32,5 +32,6 @@
     #else  
         #error "unknown: GRADIENT_REFINEMENT_METHOD"
 
-#endif // GRADIENT_REFINEMENT_METHOD
+    #endif // GRADIENT_REFINEMENT_METHOD
+    
 #endif // HAS_GRADIENT_REFINEMENT
