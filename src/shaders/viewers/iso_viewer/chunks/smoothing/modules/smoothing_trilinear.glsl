@@ -10,42 +10,43 @@
  * @return float: Smoothed intensity value at the given position
  */
 
-int size = 2 * SMOOTHING_RADIUS + 1;   // Size of the grid in each dimension
+vec3 sample_offset, sample_texel;
+float sample_value, sample_kernel, is_inside;
 
-// Define texel step and box boundaries
+// Define the texel step and bounding box
 vec3 texel_step = u_volume.inv_dimensions;
 vec3 box_min = vec3(0.0) - texel_step + EPSILON6;
 vec3 box_max = vec3(1.0) - box_min;
 
-float coeff = 1.0 / pow3(size); 
-float kernel_sum = 0.0; // Initialize kernel sum for normalization
+// Precompute values
+float size = float(2 * SMOOTHING_RADIUS + 1);   // Size of the grid in each dimension
+float sigma = float(SMOOTHING_RADIUS) / 3.0; 
+float coeff = 1.0 / pow3(size);  
+float kernel_sum = 0.0;            
 
-// Main loop through kernel offsets
-trace.value = 0.0;  // Initialize trace value to zero
+trace.value = 0.0;       
 
-for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++) {
-    for (int y = -SMOOTHING_RADIUS; y <= SMOOTHING_RADIUS; y++) {
+for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++)  {
+    for (int y = -SMOOTHING_RADIUS; y <= SMOOTHING_RADIUS; y++)  {
         for (int z = -SMOOTHING_RADIUS; z <= SMOOTHING_RADIUS; z++) {
 
-            // Calculate the sample offset and texel position
-            vec3 sample_offset = vec3(x, y, z);
-            vec3 sample_texel = trace.texel + texel_step * sample_offset;
+            // Compute sample texel position
+            sample_offset = vec3(x, y, z);
+            sample_texel = trace.texel + texel_step * sample_offset;
+            
+            // Check if sample is inside the bounding box
+            is_inside = inside_box(box_min, box_max, sample_texel);
 
-            // Check if the sample is within the bounding box
-            float is_inside = inside_box(box_min, box_max, sample_texel);
-
-            // Sample the value from the texture
-            float sample_value = texture(u_sampler.volume, sample_texel).r * is_inside;
-
-            // Compute the mean smoothing kernel value
-            float kernel_value = coeff;
-
+            // Compute the mean kernel value
             // Apply the boundary check to the kernel value
-            kernel_value *= is_inside;
+            sample_kernel = coeff * is_inside;
+            
+            // Sample value from the texture
+            sample_value = textureLod(u_sampler.volume, sample_texel, 0.0).r;
 
             // Accumulate the weighted sample and kernel sum
-            trace.value += kernel_value * sample_value;
-            kernel_sum += kernel_value;
+            trace.value += sample_kernel * sample_value;
+            kernel_sum += sample_kernel;
         }
     }
 }
@@ -53,8 +54,5 @@ for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++) {
 // Normalize the final trace value
 trace.value /= kernel_sum;
 
-// Normalize the result
-smooth_sample /= 8.0;
-
-// Compute trace error relative to the raycast threshold
+// Compute trace error relative to threshold
 trace.error = trace.value - u_raycast.threshold;

@@ -1,48 +1,50 @@
 // https://www.wikiwand.com/en/articles/Sampled_Gaussian_kernel
 
+vec3 sample_offset, sample_texel;
+float sample_value, sample_kernel, is_inside;
 
 // Define the texel step and bounding box
 vec3 texel_step = u_volume.inv_dimensions;
 vec3 box_min = vec3(0.0) - texel_step + EPSILON6;
 vec3 box_max = vec3(1.0) - box_min;
 
-// Main loop through kernel offsets
-vec3 sample_offset, sample_texel;
-float sample_value, kernel_value, is_inside;
+// Precompute values
+float sigma2 = pow2(float(SMOOTHING_RADIUS) / 3.0); 
+float coeff = exp(-sigma2);  
+float kernel_sum = 0.0;   
 
-float sigma = float(SMOOTHING_RADIUS) / 2.0; // Sigma derived from radius
-float coeff = exp(-3.0 * sigma);  // Pre-compute constant coefficient
-float kernel_sum = 0.0;            // To normalize the kernel values
+// Precompute kernel
+float kernel[SMOOTHING_RADIUS+1];
 
-trace.value = 0.0;              
+for (int i = 0; i <= SMOOTHING_RADIUS; i++) 
+    kernel[i] = coeff * besseli(i, sigma2);
+
+// Initialize loop
+trace.value = 0.0;        
 
 for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++)  {
-    float bessix = besseli(abs(x), sigma);
+    float kernel_x = kernel[abs(x)];
 
     for (int y = -SMOOTHING_RADIUS; y <= SMOOTHING_RADIUS; y++)  {
-        float bessiy = besseli(abs(y), sigma);
+        float kernel_y = kernel[abs(y)];
 
         for (int z = -SMOOTHING_RADIUS; z <= SMOOTHING_RADIUS; z++) {
-            float bessiz = besseli(abs(z), sigma);
+            float kernel_z = kernel[abs(z)];
 
             // Compute sample texel position
-            sample_texel = trace.texel + texel_step * vec3(x, y, z);
+            sample_offset = vec3(x, y, z);
+            sample_texel = trace.texel + texel_step * sample_offset;
             
-            // Check if sample is inside the bounding box
-            is_inside = inside_box(box_min, box_max, sample_texel);
-
-            // Sample value from the texture
-            sample_value = texture(u_sampler.volume, sample_texel).r;
-
-            // Compute the modified bessel of the first kind In kernel value
-            kernel_value = coeff * bessix * bessiy * bessiz;
-
+            // Compute the modified bessel of the first kind kernel value
             // Apply the boundary check to the kernel value
-            kernel_value *= is_inside;
+            sample_kernel = kernel_x * kernel_y * kernel_z;
+            
+            // Sample value from the texture
+            sample_value = textureLod(u_sampler.volume, sample_texel, 0.0).r;
 
             // Accumulate the weighted sample and kernel sum
-            trace.value += kernel_value * sample_value;
-            kernel_sum += kernel_value;
+            trace.value += sample_kernel * sample_value;
+            kernel_sum += sample_kernel;
         }
     }
 }

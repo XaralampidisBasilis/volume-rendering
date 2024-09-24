@@ -1,40 +1,40 @@
 // https://homepages.inf.ed.ac.uk/rbf/HIPR2/mean.htm
 
+vec3 sample_offset, sample_texel;
+float sample_value;
 
-const int size = 2 * SMOOTHING_RADIUS + 1;   // Size of the grid in each dimension
-const int count = size * size * size; 
-
-// Define texel step and box boundaries
+// Define the texel step and bounding box
 vec3 texel_step = u_volume.inv_dimensions;
 vec3 box_min = vec3(0.0) - texel_step + EPSILON6;
 vec3 box_max = vec3(1.0) - box_min;
-float coeff = 1.0 / float(count); 
 
-// Main loop through kernel offsets
-vec4 sample_data[count];
-int index = 0;
+// Precompute values
+float size = float(2 * SMOOTHING_RADIUS + 1);   // Size of the grid in each dimension
+float sample_kernel = 1.0 / pow3(size);  
+float kernel_sum = 0.0;            
 
-for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++) {
-    for (int y = -SMOOTHING_RADIUS; y <= SMOOTHING_RADIUS; y++) {
+trace.value = 0.0;       
+
+for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++)  {
+    for (int y = -SMOOTHING_RADIUS; y <= SMOOTHING_RADIUS; y++)  {
         for (int z = -SMOOTHING_RADIUS; z <= SMOOTHING_RADIUS; z++) {
 
-            sample_data[index].xyz =  trace.texel + texel_step * vec3(x, y, z);
-            sample_data[index].a = coeff * inside_box(box_min, box_max, sample_data[index].xyz);
-            index++;
+            // Compute sample texel position
+            sample_offset = vec3(x, y, z);
+            sample_texel = trace.texel + texel_step * sample_offset;
+            
+            // Sample value from the texture
+            sample_value = textureLod(u_sampler.volume, sample_texel, 0.0).r;
+
+            // Accumulate the weighted sample and kernel sum
+            trace.value += sample_kernel * sample_value;
+            kernel_sum += sample_kernel;
         }
     }
-}
-
-float kernel_sum = 0.0; // Initialize kernel sum for normalization
-trace.value = 0.0;  // Initialize trace value to zero
-for(int i= 0; i < count; i++)
-{
-    trace.value += sample_data[i].a * texture(u_sampler.volume, sample_data[i].xyz).r;
-    kernel_sum += sample_data[i].a;
 }
 
 // Normalize the final trace value
 trace.value /= kernel_sum;
 
-// Compute trace error relative to the raycast threshold
+// Compute trace error relative to threshold
 trace.error = trace.value - u_raycast.threshold;
