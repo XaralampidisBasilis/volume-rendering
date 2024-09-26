@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import computeShader from '../../../shaders/viewers/iso_viewer/chunks/gpgpu/smoothing/compute_smoothing.glsl'
+import computeShader from '../../../shaders/viewers/iso_viewer/chunks/gpgpu/smoothing/gpgpu_smoothing.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 
 // assumes intensity data 3D, and data3DTexture
@@ -56,8 +56,15 @@ export default class ComputeSmoothing
             volume_data:            new THREE.Uniform(this.viewer.textures.source),
             volume_count:           new THREE.Uniform(this.parameters.volume.count),
             volume_dimensions:      new THREE.Uniform(this.parameters.volume.dimensions),
+            volume_inv_dimensions:  new THREE.Uniform(this.parameters.volume.invDimensions),
             computation_dimensions: new THREE.Uniform(this.computation.dimensions),        
         }
+        this.computation.variable.material.defines = 
+        {
+            SMOOTHING_METHOD: this.viewer.material.defines.SMOOTHING_METHOD,
+            SMOOTHING_RADIUS: this.viewer.material.defines.SMOOTHING_RADIUS,
+        }
+
     }
     
     compute()
@@ -79,15 +86,15 @@ export default class ComputeSmoothing
 
     compressData()
     {        
+        const count = this.parameters.volume.count * 4
+
         // create a data view to manipulate the buffer directly
         let dataView = new DataView(this.computation.data.buffer)
-        
-        for (let i = 0; i < this.parameters.volume.count; i++)
+        for (let i4 = 0; i4 < count; i4 += 4)
         {
-            let i4 = i * 4
-            dataView.setUint8(i, Math.round(this.computation.data[i4] * 255))
+            dataView.setUint8(i4, Math.min(Math.max(Math.round(this.computation.data[i4] * 255), 0), 255))
         }
-        this.data = new Uint8Array(this.computation.data.buffer).subarray(0, this.parameters.volume.count)
+        this.data = new Uint8ClampedArray(this.computation.data.buffer).subarray(0, count)
     }
 
     getComputationTexture()

@@ -2,20 +2,17 @@
 // https://www.wikiwand.com/en/articles/Sampled_Gaussian_kernel
 
 vec3 sample_offset, sample_texel;
-float sample_value, sample_kernel, is_inside;
-
-// Define the texel step and bounding box
-vec3 texel_step = u_volume.inv_dimensions;
-vec3 box_min = vec3(0.0) - texel_step + EPSILON6;
-vec3 box_max = vec3(1.0) - box_min;
+float sample_value, sample_kernel;
 
 // Precompute values
+vec3 texel_step = u_volume.inv_dimensions;
 float sigma = float(SMOOTHING_RADIUS) / 3.0; 
 float coeff = 1.0 / sqrt(TWO_PI * pow2(sigma));  
 float kernel_sum = 0.0;          
 
 // Precompute kernel
-float kernel[SMOOTHING_RADIUS+1];
+float kernel[SMOOTHING_RADIUS + 1];
+
 for (int i = 0; i <= SMOOTHING_RADIUS; i++) 
     kernel[i] = coeff * gaussian(float(i), sigma);
 

@@ -64,7 +64,7 @@ vec3 sample_texel;
 for (int i = 0; i < 27; i++)
 {
     sample_texel = voxel_texel + texel_step * sample_offset[i];
-    sample_value[i] = texture(volume_data, sample_texel).r;
+    sample_value[i] = textureLod(volume_data, sample_texel, 0.0).r;
     sample_value[i] *= inside_box(0.0, 1.0, sample_texel);
 }
 #pragma unroll_loop_end

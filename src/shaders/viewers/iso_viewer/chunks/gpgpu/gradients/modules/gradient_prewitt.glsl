@@ -1,54 +1,43 @@
-/**
- * Calculates the gradient and the smoothed sample at a given position in 
- * a 3D texture using trilinear interpolation sobel operator and smoothing
- *
- * @param volume_data: 3D texture sampler containing intensity data.
- * @param volume_dimensions: Dimensions of the 3D texture.
- * @param voxel_coords: Coordinates of the voxel in the 3D texture.
- *
- * @return vec4: Gradient vector at the given position as rgb and smoothed sample as alpha
- */
 
-
-// Compute sobel 27 kernels 
+// Compute prewitt 27 kernels for x,y,z directions
 const float[27] kernel_x = float[27]
 (
-    -1.0,   -2.0,   -1.0,
-    -2.0,   -4.0,   -2.0,
-    -1.0,   -2.0,   -1.0,
-    0.0,   0.0,   0.0,
-    0.0,   0.0,   0.0,
-    0.0,   0.0,   0.0,
-    +1.0,  +2.0,  +1.0,
-    +2.0,  +4.0,  +2.0,
-    +1.0,  +2.0,  +1.0
+    -1.0,  -1.0,   -1.0,
+    -1.0,  -1.0,   -1.0,
+    -1.0,  -1.0,   -1.0,
+    0.0,  0.0,   0.0,
+    0.0,  0.0,   0.0,
+    0.0,  0.0,   0.0,
+    +1.0, +1.0,  +1.0,
+    +1.0, +1.0,  +1.0,
+    +1.0, +1.0,  +1.0
 );
 const float[27] kernel_y = float[27]
 (
-    -1.0,   -2.0,   -1.0,
-    0.0,    0.0,    0.0,
-    +1.0,   +2.0,   +1.0,
-    -2.0,  -4.0,  -2.0,
+    -1.0,  -1.0,  -1.0,
     0.0,   0.0,   0.0,
-    +2.0,  +4.0,  +2.0,
-    -1.0,  -2.0,  -1.0,
-    0.0,   0.0,   0.0,
-    +1.0,  +2.0,  +1.0
+    +1.0,  +1.0,  +1.0,
+    -1.0, -1.0, -1.0,
+    0.0,  0.0,  0.0,
+    +1.0, +1.0, +1.0,
+    -1.0, -1.0, -1.0,
+    0.0,  0.0,  0.0,
+    +1.0, +1.0, +1.0
 );
 const float[27] kernel_z = float[27]
 (
-    -1.0,    0.0,   +1.0,
-    -2.0,    0.0,   +2.0,
-    -1.0,    0.0,   +1.0,
-    -2.0,   0.0,  +2.0,
-    -4.0,   0.0,  +4.0,
-    -2.0,   0.0,  +2.0,
-    -1.0,   0.0,  +1.0,
-    -2.0,   0.0,  +2.0,
-    -1.0,   0.0,  +1.0
+    -1.0,   0.0,   +1.0,
+    -1.0,   0.0,   +1.0,
+    -1.0,   0.0,   +1.0,
+    -1.0,  0.0,  +1.0,
+    -1.0,  0.0,  +1.0,
+    -1.0,  0.0,  +1.0,
+    -1.0,  0.0,  +1.0,
+    -1.0,  0.0,  +1.0,
+    -1.0,  0.0,  +1.0
 );
 
-// Define offsets for the 26 neighboring sample and the center
+// Define offsets for the 26 neighboring samples
 const vec3 k = vec3(-1.0, 0.0, +1.0);
 const vec3[27] sample_offset = vec3[27]
 (
@@ -75,7 +64,7 @@ vec3 sample_texel;
 for (int i = 0; i < 27; i++)
 {
     sample_texel = voxel_texel + texel_step * sample_offset[i];
-    sample_value[i] = texture(volume_data, sample_texel).r;
+    sample_value[i] = textureLod(volume_data, sample_texel, 0.0).r;
     sample_value[i] *= inside_box(0.0, 1.0, sample_texel);
 }
 #pragma unroll_loop_end
@@ -92,13 +81,12 @@ for (int i = 0; i < 27; i++)
 }
 #pragma unroll_loop_end
 
-// Normalize the gradient kernels
-gradient /= 16.0;
-
+// Normalize the kernel values
+gradient /= 9.0;
+  
 // Adjust gradient to physical space 
 gradient *= 0.5 * volume_inv_spacing;
 
 // Combine results
 gl_FragColor = vec4(gradient, length(gradient));
-
 

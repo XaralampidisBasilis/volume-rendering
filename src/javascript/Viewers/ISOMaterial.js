@@ -97,21 +97,27 @@ export default function(viewer)
 
     const defines = 
     {
-        HAS_DITHERING              : 1,
-        HAS_REFINEMENT             : 1,
-        HAS_GRADIENT_REFINEMENT    : 0,
-        HAS_SMOOTHING_REFINEMENT   : 0,
         HAS_BBOX                   : 1,
         HAS_SKIPPING               : 0,
-        GRADIENT_METHOD            : 7,
-        GRADIENT_REFINEMENT_METHOD : 7,
-        SMOOTHING_REFINEMENT_METHOD: 1,
+        HAS_DITHERING              : 1,
+        
+        HAS_REFINEMENT             : 1,
         DITHERING_METHOD           : 1,
         SPACING_METHOD             : 2,
         STEPPING_METHOD            : 1,
         REFINEMENT_METHOD          : 2,
+
         SHADING_METHOD             : 1,
         ATTENUATION_METHOD         : 1,
+
+        HAS_GRADIENT_REFINEMENT    : 0,
+        GRADIENT_REFINEMENT_METHOD : 7,
+        GRADIENT_METHOD            : 7,
+
+
+        HAS_SMOOTHING_REFINEMENT   : 0,
+        SMOOTHING_REFINEMENT_METHOD: 1,
+        SMOOTHING_METHOD           : 1,
         SMOOTHING_RADIUS           : 1,
     }
 

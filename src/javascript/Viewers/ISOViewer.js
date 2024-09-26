@@ -33,7 +33,7 @@ export default class ISOViewer
         this.setMesh()
 
         this.computeGradients()
-        // this.computeSmoothing()
+        this.computeSmoothing()
         this.computeOccupancy()
 
         if (this.debug.active) 
@@ -234,6 +234,7 @@ export default class ISOViewer
         }
         this.textures.volume.needsUpdate = true
         this.material.uniforms.u_gradient.value.max_norm = this.gradients.maxNorm
+        this.gradients.data = null;
     }
 
     computeSmoothing()
@@ -246,6 +247,7 @@ export default class ISOViewer
             this.textures.volume.image.data[i4 + 0] = this.smoothing.data[i4 + 0]
         }
         this.textures.volume.needsUpdate = true
+        this.smoothing.data = null;
     }
 
     computeOccupancy()

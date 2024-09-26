@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import computeShader from '../../../shaders/viewers/iso_viewer/chunks/gpgpu/gradients/compute_gradients.glsl'
+import computeShader from '../../../shaders/viewers/iso_viewer/chunks/gpgpu/gradients/gpgpu_gradients.glsl'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer'
 import { Stats } from 'fast-stats'
 

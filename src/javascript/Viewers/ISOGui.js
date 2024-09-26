@@ -166,13 +166,13 @@ export default class ISOGui
         {
             threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
             
-            method: gradient.add(defines, 'GRADIENT_METHOD').name('method')
-                .options({ tetrahedron4: 1, central6: 2, sobel8: 3, tetrahedron27: 4, prewitt27: 5, sobel27: 6, scharr27: 7 })
+            precomputeMethod: gradient.add(defines, 'GRADIENT_METHOD').name('precompute_method')
+                .options({tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true })
                 .onFinishChange(() => { this.viewer.computeGradients() }),
 
             refinementMethod: gradient.add(defines, 'GRADIENT_REFINEMENT_METHOD').name('refinement_method')
-                .options({tetrahedron4: 1, central6: 2, sobel8: 3, tetrahedron27: 4, prewitt27: 5, sobel27: 6, scharr27: 7 })
+                .options({tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             hasRefinement: gradient.add(object, 'has_refinement')
@@ -192,18 +192,13 @@ export default class ISOGui
 
         this.controllers.smoothing = 
         {
-            radius: smoothing.add(defines, 'SMOOTHING_RADIUS').min(1).max(5).step(1)
+            radius: smoothing.add(defines, 'SMOOTHING_RADIUS').name('radius').min(1).max(5).step(1)
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
         
-            refinementMethod: smoothing.add(defines, 'SMOOTHING_REFINEMENT_METHOD').name('refinement_method')
-                .options({ mean: 1, conservative: 2, gaussian: 3, bessel: 4, trilinear: 5 })
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
-
-            hasRefinement: smoothing.add(object, 'has_refinement')
-                .onFinishChange((value) => { 
-                    this.viewer.material.defines.HAS_SMOOTHING_REFINEMENT = value ? 1 : 0;
-                    this.viewer.material.needsUpdate = true 
-                }),
+            precomputeMethod: smoothing.add(defines, 'SMOOTHING_METHOD').name('precompute_method')
+                .options({ none: 0, mean: 1, mean_trilinear: 2, gaussian: 3, gaussian_trilinear: 4, bessel: 5, conservative: 6 })
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true })
+                .onFinishChange(() => { this.viewer.computeSmoothing() }),
         }
     }
     

@@ -36,7 +36,7 @@ vec3 is_outside;
 for (int i = 0; i < 8; i++)
 {
     sample_texel = voxel_texel + texel_step * sample_offset[i];
-    sample_value[i] = texture(volume_data, sample_texel).r;
+    sample_value[i] = textureLod(volume_data, sample_texel, 0.0).r;
     
     // handle edge cases, due to trillinear interpolation and clamp to edge wrapping   
     is_outside = outside(texel_step, 1.0 - texel_step, sample_texel);

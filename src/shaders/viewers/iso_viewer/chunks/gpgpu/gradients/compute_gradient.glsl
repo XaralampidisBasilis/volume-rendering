@@ -1,31 +1,31 @@
 
-// gradient_tetrahedron4
+// gradient_tetrahedron_trilinear
 #if GRADIENT_METHOD == 1
-    #include "./modules/gradient_tetrahedron4"
+    #include "./modules/gradient_tetrahedron_trilinear"
 
-// gradient_central6
+// gradient_central
 #elif GRADIENT_METHOD == 2
-    #include "./modules/gradient_central6"
+    #include "./modules/gradient_central"
 
-// gradient_sobel8
+// gradient_sobel_trilinear
 #elif GRADIENT_METHOD == 3
-    #include "./modules/gradient_sobel8"
+    #include "./modules/gradient_sobel_trilinear"
 
-// gradient_tetrahedron27
+// gradient_tetrahedron
 #elif GRADIENT_METHOD == 4
-    #include "./modules/gradient_tetrahedron27"
+    #include "./modules/gradient_tetrahedron"
 
-// gradient_prewitt27
+// gradient_prewitt
 #elif GRADIENT_METHOD == 5
-    #include "./modules/gradient_prewitt27"
+    #include "./modules/gradient_prewitt"
 
-// gradient_sobel27
+// gradient_sobel
 #elif GRADIENT_METHOD == 6
-    #include "./modules/gradient_sobel27"
+    #include "./modules/gradient_sobel"
 
-// gradient_scharr27
+// gradient_scharr
 #elif GRADIENT_METHOD == 7
-    #include "./modules/gradient_scharr27"
+    #include "./modules/gradient_scharr"
 
 #else  
     #error "unknown: GRADIENT_METHOD"
