@@ -71,7 +71,7 @@ vec3 texel_step = u_volume.inv_dimensions;
 float sample_value[27];
 vec3 sample_texel;
 
-vec3 box_min = 0.0 - texel_step + EPSILON6 + u_debug.epsilon;
+vec3 box_min = 0.0 - texel_step + EPSILON6;
 vec3 box_max = 1.0 - box_min;
 
 #pragma unroll_loop_start

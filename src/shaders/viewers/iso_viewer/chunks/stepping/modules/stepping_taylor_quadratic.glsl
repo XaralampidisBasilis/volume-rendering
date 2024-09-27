@@ -30,11 +30,11 @@ vec3 coeffs = vec3(
 );
 
 // solve the quadratic polynomial for the stepping value.
-float is_solvable = 1.0;
-vec2 stepping_roots = quadratic_roots(coeffs, is_solvable);
+int num_roots;
+vec2 stepping_roots = quadratic_roots(coeffs, num_roots);
 
 // filter unwanted stepping values (negative or non-solvable) and set them to max stepping.
-vec2 filter_stepping = step(0.0, stepping_roots) * is_solvable;
+vec2 filter_stepping = step(0.0, stepping_roots) * float(num_roots > 0);
 stepping_roots = mmix(u_raycast.max_stepping, stepping_roots, filter_stepping);
 
 // choose the minimum valid solution and clamp the result between the allowable stepping range.

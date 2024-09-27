@@ -10,10 +10,10 @@ ray.max_steps = min(ray.max_steps, u_raycast.max_steps);
 
 // apply dithering to the initial distance to avoid artifacts.
 #include "../dithering/compute_dithering"
-ray.max_depth += ray.dithering;
+ray.max_depth -= ray.dithering;
 
 // initialize trace starting position along the ray.
-trace.distance = ray.min_distance - ray.dithering;
+trace.distance = ray.min_distance + ray.dithering;
 trace.position = ray.origin + ray.direction * trace.distance;
 trace.spacing = ray.spacing;
 #include "../parameters/save_prev_trace"

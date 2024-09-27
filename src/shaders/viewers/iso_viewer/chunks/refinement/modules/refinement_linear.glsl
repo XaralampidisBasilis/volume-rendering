@@ -20,7 +20,7 @@ vec2 coeff = linear_coefficients(s, f);
 
 // Compute the roots of the equation L(s) - threshold = 0
 coeff.x -= u_raycast.threshold;
-float s_root = linear_root(coeff);
+float s_root = linear_roots(coeff);
 
 // Filter normalized root outside of the s interval 
 float s_filter = inside(s.x, s.y, s_root);

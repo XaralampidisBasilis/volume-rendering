@@ -2,67 +2,47 @@
 #define QUADRATIC_ROOTS
 
 // coeff[0] + coeff[1] * t + coeff[2] * t^2
-vec2 quadratic_roots(in vec3 coeff, out float is_solvable) 
+vec2 quadratic_roots(in vec3 coeff, out int num_roots) 
 {
-    const vec2 signs = vec2(-1.0, 1.0);
+    // If linear return early
+    if (abs(coeff.z) < EPSILON9) return vec2(linear_roots(coeff.xy, num_roots));
 
-    // check if quadratic
-    float is_quadratic = step(EPSILON6, abs(coeff.z));  
-    coeff.z = mix(1.0, coeff.z, is_quadratic);  // if not quadratic, set coeff.z = 1 to avoid numerical erros in mix(roots1, roots2, is_quadratic)
-
-    // linear case
-    vec2 roots1 = vec2(linear_root(coeff.xy, is_solvable));
-
-    // normalize coefficients
-    coeff.xy /= coeff.z; // gl_FragColor = vec4(vec3(any(isinf(coeff))), 1.0);
+    // Normalize coefficients (divide x and y by z)
+    coeff.xy /= coeff.z;
     coeff.y /= 2.0;
-    
-    // calculate discriminant
+
+    // Calculate discriminant
     float discriminant = coeff.y * coeff.y - coeff.x;
-    float is_positive = step(EPSILON6, discriminant);
-    is_solvable = mix(is_solvable, is_positive, is_quadratic);
 
-    // quadratic case
-    vec2 roots2 = sqrt(max(EPSILON6, discriminant)) * signs - coeff.y; 
-    roots2 = sort(roots2);
-
-    // combine cases
-    vec2 roots = mix(roots1, roots2, is_quadratic);
-    // gl_FragColor = vec4(vec3(any(isinf(roots)), 0.0, any(isnan(roots))), 1.0);
-    
-    return roots;
+    // If the discriminant is negative, there's no real solution
+    if (discriminant < 0.0) {
+        num_roots = 0; 
+        return vec2(0.0); // Not solvable in the real number system, return a default root (0.0)
+    }
+       
+    // Calculate the roots using the quadratic formula
+    num_roots = 2 - int(discriminant < EPSILON9);
+    return sqrt(discriminant) * vec2(-1.0, 1.0) - coeff.y;;
 }
 
-
-// use when sure there is a real solution
 // coeff[0] + coeff[1] * t + coeff[2] * t^2
 vec2 quadratic_roots(in vec3 coeff) 
 {
-    const vec2 signs = vec2(-1.0, 1.0);
+    // If linear return early
+    if ( abs(coeff.z) < EPSILON9) return vec2(linear_roots(coeff.xy));
 
-    // check if quadratic
-    float is_quadratic = step(EPSILON6, abs(coeff.z));  
-    coeff.z = mix(1.0, coeff.z, is_quadratic);  // if not quadratic, set coeff.z = 1 to avoid numerical erros in mix(roots1, roots2, is_quadratic)
-
-    // linear case
-    vec2 roots1 = vec2(linear_root(coeff.xy));
-
-    // normalize coefficients
-    coeff.xy /= coeff.z; 
+    // Normalize coefficients (divide x and y by z)
+    coeff.xy /= coeff.z;
     coeff.y /= 2.0;
-    
-    // calculate discriminant
+
+    // Calculate discriminant
     float discriminant = coeff.y * coeff.y - coeff.x;
 
-    // quadratic case
-    vec2 roots2 = sqrt(max(EPSILON6, discriminant)) * signs - coeff.y; 
-    roots2 = sort(roots2);
+    // If the discriminant is negative, there's no real solution
+    if (discriminant < EPSILON9)  return vec2(0.0); // Not solvable in the real number system, return a default root (0.0)
 
-    // combine cases
-    vec2 roots = mix(roots1, roots2, is_quadratic);
-    // gl_FragColor = vec4(vec3(any(isinf(roots)), 0.0, any(isnan(roots))), 1.0);
-    
-    return roots;
+    // Return the quadratic roots sorted 
+    return sqrt(discriminant) * vec2(-1.0, 1.0) - coeff.y;
 }
 
 #endif // QUADRATIC_ROOTS
