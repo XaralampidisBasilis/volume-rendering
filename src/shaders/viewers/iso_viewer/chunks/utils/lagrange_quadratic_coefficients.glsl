@@ -1,8 +1,11 @@
+#ifndef LAGRANGE_QUADRATIC_COEFFICIENTS
+#define LAGRANGE_QUADRATIC_COEFFICIENTS
+
 // https://www.wikiwand.com/en/articles/Lagrange_polynomial
 // returns quadratic polynomial coefficients in the form:
 // coeff[0] + coeff[1] * t + coeff[2] * t^2
 // numerically stable solution
-vec3 lagrange3_coefficients(in vec3 t, in vec3 f)
+vec3 lagrange_quadratic_coefficients(in vec3 t, in vec3 f)
 {
     // cross differences products
     vec3 t_cross_prod = vec3(
@@ -40,7 +43,7 @@ vec3 lagrange3_coefficients(in vec3 t, in vec3 f)
 // returns quadratic polynomial coefficients in the form:
 // coeff[0] + coeff[1] * t + coeff[2] * t^2
 // https://www.wikiwand.com/en/articles/Lagrange_polynomial
-// vec3 lagrange3_coefficients(in vec3 t, in vec3 f)
+// vec3 lagrange_quadratic_coefficients(in vec3 t, in vec3 f)
 // {
 //     vec3 t2 = t * t;
 //     mat3 A = mat3(vec3(1.0), t, t2);
@@ -49,4 +52,4 @@ vec3 lagrange3_coefficients(in vec3 t, in vec3 f)
 //     return coeff;
 // }
 
-
+#endif // LAGRANGE_QUADRATIC_COEFFICIENTS

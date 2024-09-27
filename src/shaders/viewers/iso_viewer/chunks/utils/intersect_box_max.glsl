@@ -1,5 +1,5 @@
-#ifndef UTILS_INTERSECT_BOX_MAX
-#define UTILS_INTERSECT_BOX_MAX
+#ifndef INTERSECT_BOX_MAX
+#define INTERSECT_BOX_MAX
 
 float intersect_box_max(vec3 box_min, vec3 box_max, vec3 start, vec3 dir) 
 {
@@ -13,4 +13,4 @@ float intersect_box_max(vec3 box_min, vec3 box_max, vec3 start, vec3 dir)
     return mmin(t_max);
 }
 
-#endif
+#endif // INTERSECT_BOX_MAX

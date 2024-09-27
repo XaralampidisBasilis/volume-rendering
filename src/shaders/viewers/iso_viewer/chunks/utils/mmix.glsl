@@ -7,6 +7,9 @@ license:
     - Copyright (c) 2021 Patricio Gonzalez Vivo under Patron License - https://lygia.xyz/license
 */
 
+#ifndef MMIX
+#define MMIX
+
 float mmix(const in float a, const in float b, const in float pct) { return mix(a, b, pct); }
 vec2  mmix(const in vec2  a, const in vec2  b, const in vec2  pct) { return mix(a, b, pct); }
 vec3  mmix(const in vec3  a, const in vec3  b, const in vec3  pct) { return mix(a, b, pct); }
@@ -179,3 +182,5 @@ vec4 mmix(in vec4 a, in vec4 b, in vec4 c, in vec4 d, in vec4 pct) {
         step(.33, pct)
     );
 }
+
+#endif // MMIX

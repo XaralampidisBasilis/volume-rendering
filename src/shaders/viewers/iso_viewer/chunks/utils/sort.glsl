@@ -1,3 +1,6 @@
+#ifndef SORT
+#define SORT
+
 vec2 sort(in vec2 v)
 {
     return mix(v.xy, v.yx, step(v.y, v.x));
@@ -18,3 +21,6 @@ vec4 sort(in vec4 v)
     v.zw = mix(v.zw, v.wz, step(v.w, v.z)); // Final check for z and w
     return v;
 }
+
+#endif // SORT
+

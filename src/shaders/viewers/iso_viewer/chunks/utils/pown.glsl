@@ -1,3 +1,5 @@
+#ifndef POWN
+#define POWN
 
 int   pow2(const in   int v) { return v * v; }
 float pow2(const in float v) { return v * v; }
@@ -22,3 +24,5 @@ float pow5(const in float v) { return v * v * v * v * v; }
 vec2  pow5(const in  vec2 v) { return v * v * v * v * v; }
 vec3  pow5(const in  vec3 v) { return v * v * v * v * v; }
 vec4  pow5(const in  vec4 v) { return v * v * v * v * v; }
+
+#endif // POWN

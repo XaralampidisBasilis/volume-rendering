@@ -117,7 +117,7 @@ export default class ISOGui
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
                 
             steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')
-                .options({ taylor1: 1, taylor2: 2, derivative: 3, normal: 4, gradient_norm: 5, uniform: 6 })
+                .options({ taylor_linear: 1, taylor_quadratic: 2, derivative: 3, normal: 4, gradient_norm: 5, uniform: 6 })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             ditheringMethod: raycast.add(defines, 'DITHERING_METHOD').name('dithering_method')
@@ -125,7 +125,7 @@ export default class ISOGui
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             refinementMethod: raycast.add(defines, 'REFINEMENT_METHOD').name('refinement_method')
-                .options({ sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6, hermitian2: 7 })
+                .options({ sub_sampling: 1, bisection_iterative: 2, newtons_iterative: 3, linear: 4, lagrange_quadratic: 5, lagrange_cubic: 6, hermite_cubic: 7 })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             hasRefinement: raycast.add(object, 'has_refinement')
@@ -193,7 +193,8 @@ export default class ISOGui
         this.controllers.smoothing = 
         {
             radius: smoothing.add(defines, 'SMOOTHING_RADIUS').name('radius').min(1).max(5).step(1)
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true })
+                .onFinishChange(() => { this.viewer.computeSmoothing() }),
         
             precomputeMethod: smoothing.add(defines, 'SMOOTHING_METHOD').name('precompute_method')
                 .options({ none: 0, mean: 1, mean_trilinear: 2, gaussian: 3, gaussian_trilinear: 4, bessel: 5, conservative: 6 })

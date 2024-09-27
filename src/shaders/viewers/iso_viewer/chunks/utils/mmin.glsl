@@ -9,15 +9,16 @@ license:
     - Copyright (c) 2021 Patricio Gonzalez Vivo under Patron License - https://lygia.xyz/license
 */
 
-#ifndef FNC_MMIN
-#define FNC_MMIN
+#ifndef MMIN
+#define MMIN
 
-float mmin(in float a, in float b) { return min(a, b); }
-float mmin(in float a, in float b, in float c) { return min(a, min(b, c)); }
-float mmin(in float a, in float b, in float c, in float d) { return min(min(a,b), min(c, d)); }
+float mmin(const in float a) { return a; }
+float mmin(const in float a,const in float b) { return min(a, b); }
+float mmin(const in float a,const in float b, const in float c) { return min(a, min(b, c)); }
+float mmin(const in float a,const in float b, const in float c, const in float d) { return min(min(a,b), min(c, d)); }
 
 float mmin(const vec2 v) { return min(v.x, v.y); }
 float mmin(const vec3 v) { return mmin(v.x, v.y, v.z); }
 float mmin(const vec4 v) { return mmin(v.x, v.y, v.z, v.w); }
 
-#endif
+#endif // MMIN

@@ -1,5 +1,5 @@
-#ifndef UTILS_RESHAPE
-#define UTILS_RESHAPE
+#ifndef RESHAPE
+#define RESHAPE
 
 // pos in [0, size]
 int reshape_2d_to_1d(in ivec2 pos2, in ivec2 size) {
@@ -48,4 +48,4 @@ ivec3 reshape_2d_to_3d(in ivec2 pos2, in ivec3 size) {
     return pos3;
 }
 
-#endif // UTILS_RESHAPE
+#endif // RESHAPE

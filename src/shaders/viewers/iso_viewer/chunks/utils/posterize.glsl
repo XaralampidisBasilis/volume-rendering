@@ -1,5 +1,5 @@
-#ifndef UTILS_POSTERIZE
-#define UTILS_POSTERIZE
+#ifndef POSTERIZE
+#define POSTERIZE
 
 float posterize(in float grayscale, in float levels)
 {
@@ -27,4 +27,4 @@ vec3 posterize(vec3 color, float levels) {
 }
 
 
-#endif // UTILS_POSTERIZE
+#endif // POSTERIZE

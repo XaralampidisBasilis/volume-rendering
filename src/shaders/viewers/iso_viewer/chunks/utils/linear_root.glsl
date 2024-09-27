@@ -1,3 +1,5 @@
+#ifndef LINEAR_ROOT
+#define LINEAR_ROOT
 
 // coeff[0] + coeff[1] * t
 float linear_root(in vec2 coeff, out float is_solvable) 
@@ -29,3 +31,5 @@ float linear_root(in vec2 coeff)
 
     return root;
 }
+
+#endif // LINEAR_ROOT

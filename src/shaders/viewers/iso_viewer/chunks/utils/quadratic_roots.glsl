@@ -1,3 +1,6 @@
+#ifndef QUADRATIC_ROOTS
+#define QUADRATIC_ROOTS
+
 // coeff[0] + coeff[1] * t + coeff[2] * t^2
 vec2 quadratic_roots(in vec3 coeff, out float is_solvable) 
 {
@@ -62,3 +65,4 @@ vec2 quadratic_roots(in vec3 coeff)
     return roots;
 }
 
+#endif // QUADRATIC_ROOTS

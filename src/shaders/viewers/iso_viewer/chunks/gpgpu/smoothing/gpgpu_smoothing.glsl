@@ -3,9 +3,9 @@ precision highp int;
 precision highp float;
 precision highp sampler3D; 
 
+#include "../../utils/pown"
 #include "../../utils/reshape"
 #include "../../utils/constants"
-#include "../../utils/npow"
 #include "../../utils/gaussian"
 #include "../../utils/besseli"
 

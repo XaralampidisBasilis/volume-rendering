@@ -1,6 +1,9 @@
-  // source : https://www.peterstock.co.uk/games/adjustable_smoothstep/
-  // formulas in desmos : https://www.desmos.com/calculator/ovekxhisxy
-  // glsl code in desmos : https://www.desmos.com/calculator/4anckbpwml
+#ifndef INVERSE_SOFTSTEP
+#define INVERSE_SOFTSTEP
+
+// source : https://www.peterstock.co.uk/games/adjustable_smoothstep/
+// formulas in desmos : https://www.desmos.com/calculator/ovekxhisxy
+// glsl code in desmos : https://www.desmos.com/calculator/4anckbpwml
 
 float inverse_softstep(const in float edge0, const in float edge1, const in float x)
 {
@@ -85,3 +88,5 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
 
     return mix(y, 1.0 - y, is_above);
 }
+
+#endif // INVERSE_SOFTSTEP

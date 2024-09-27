@@ -9,10 +9,12 @@ license:
     - Copyright (c) 2021 Patricio Gonzalez Vivo under Patron License - https://lygia.xyz/license
 */
 
-#ifndef FNC_GAUSSIAN
-#define FNC_GAUSSIAN
+#ifndef GAUSSIAN
+#define GAUSSIAN
+
 float gaussian(float d, float s) { return exp(-(d*d) / (2.0 * s*s)); }
 float gaussian( vec2 d, float s) { return exp(-( d.x*d.x + d.y*d.y) / (2.0 * s*s)); }
 float gaussian( vec3 d, float s) { return exp(-( d.x*d.x + d.y*d.y + d.z*d.z ) / (2.0 * s*s)); }
 float gaussian( vec4 d, float s) { return exp(-( d.x*d.x + d.y*d.y + d.z*d.z + d.w*d.w ) / (2.0 * s*s)); }
-#endif
+
+#endif // GAUSSIAN

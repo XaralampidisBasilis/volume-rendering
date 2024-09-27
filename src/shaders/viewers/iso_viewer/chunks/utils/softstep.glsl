@@ -13,6 +13,8 @@
  * @param q_inflex: The inflection point y of the curve where the second derivative, curvature, changes sign (float)
  * @return        : A smooth transition value in the range [0, 1] (float)
  */
+#ifndef SOFTSTEP
+#define SOFTSTEP
 
 float softstep(const in float edge0, const in float edge1, const in float x)
 {
@@ -99,3 +101,5 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
 
     return mix(y, 1.0 - y, is_above);
 }
+
+#endif // SOFTSTEP

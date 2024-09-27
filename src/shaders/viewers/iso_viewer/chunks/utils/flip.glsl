@@ -1,5 +1,5 @@
-#ifndef UTILS_FLIP
-#define UTILS_FLIP
+#ifndef FLIP
+#define FLIP
 
 // Flip the components of vec and ivec types
 vec2 flip(in vec2 v) { return v.yx; }
@@ -10,4 +10,4 @@ ivec2 flip(in ivec2 v) { return v.yx; }
 ivec3 flip(in ivec3 v) { return v.zyx; }
 ivec4 flip(in ivec4 v) { return v.wzyx; }
 
-#endif // UTILS_FLIP
+#endif // FLIP

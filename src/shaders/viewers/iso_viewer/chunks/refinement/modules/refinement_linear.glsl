@@ -16,7 +16,7 @@ vec2 t = vec2(prev_trace.distance, trace.distance);
 vec2 s = vec2(0.0, 1.0);
 
 // Compute cubic lagrange coefficients
-vec2 coeff = linear2_coefficients(s, f); 
+vec2 coeff = linear_coefficients(s, f); 
 
 // Compute the roots of the equation L(s) - threshold = 0
 coeff.x -= u_raycast.threshold;

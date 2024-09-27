@@ -29,7 +29,7 @@
 #define STEPPING_METHOD 1
 #endif
 
-// { sampling5: 1, bisections5: 2, newtons5: 3, linear2: 4, lagrange3: 5, lagrange4: 6, hermitian2: 7 }
+// { sub_sampling: 1, bisection_iterative: 2, newtons_iterative: 3, linear: 4, lagrange_quadratic: 5, lagrange_cubic: 6, hermite_cubic: 7 }
 #ifndef REFINEMENT_METHOD
 #define REFINEMENT_METHOD 7 
 #endif

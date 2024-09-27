@@ -1,5 +1,3 @@
-
-
 /**
  * Refines the hit point by performing additional sampling steps.
  *
@@ -14,31 +12,33 @@
 
 // Define linear interpolation
 float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
-float s_sample = mix(0.5, s_linear, 0.5);
+vec2 s_sample = mix(vec2(0.25, s_linear), vec2(s_linear, 0.75), 0.5);
 
-vec3 mix_texel = mix(prev_trace.texel, trace.texel, s_sample);
-float mix_distance = mix(prev_trace.distance, trace.distance, s_sample);
-float mix_value = texture(u_sampler.volume, mix_texel).r;
+// sample distances and values at samples
+vec3 mix_texel_x = mix(prev_trace.texel, trace.texel, s_sample.x);
+vec3 mix_texel_y = mix(prev_trace.texel, trace.texel, s_sample.y);
+vec2 mix_distances = mix(vec2(prev_trace.distance), vec2(trace.distance), s_sample);
+vec2 mix_values = vec2(texture(u_sampler.volume, mix_texel_x).r, texture(u_sampler.volume, mix_texel_y).r);
 
 // Define symbolic vectors
-vec3 f = vec3(prev_trace.value, mix_value, trace.value);
-vec3 t = vec3(prev_trace.distance, mix_distance, trace.distance);
-vec3 s = vec3(0.0, s_sample, 1.0);
+vec4 f = vec4(prev_trace.value, mix_values, trace.value);
+vec4 t = vec4(prev_trace.distance, mix_distances, trace.distance);
+vec4 s = vec4(0.0, s_sample, 1.0);
 
-// Compute cubic lagrange coefficients
-vec3 coeff = lagrange3_coefficients(s, f); 
+// Compute cubic hermite coefficients
+vec4 coeff = lagrange_cubic_coefficients(s, f);
 
-// Compute the roots of the equation L(s) - threshold = 0
+// Compute the roots of the equation L(s) = threshold
 coeff.x -= u_raycast.threshold;
-vec2 s_roots = quadratic_roots(coeff);
+vec3 s_roots = cubic_roots(coeff);
 
-// Filter normalized roots outside of the s interval 
-vec2 s_filter = inside(s.xx, s.zz, s_roots);
-s_roots = mix(s.zz, s_roots, s_filter);
-s_roots = clamp(s_roots, s.xx, s.zz);
+// Filter normalized roots outside of the interval [0, 1] and set them to 1.0
+vec3 s_filter = inside(s.xxx, s.www, s_roots);
+s_roots = mix(s.www, s_roots, s_filter);
+s_roots = clamp(s_roots, s.xxx, s.www);
 
 // Denormalize result
-vec2 t_roots = mix(t.xx, t.zz, s_roots);
+vec3 t_roots = mix(t.xxx, t.www, s_roots);
 t_roots = clamp(t_roots, ray.min_distance, ray.max_distance);
 
 // Compute distance and position in solution

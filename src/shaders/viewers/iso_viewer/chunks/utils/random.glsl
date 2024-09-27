@@ -6,6 +6,9 @@ license:
     - MIT License (MIT) Copyright 2014, David Hoskins
 */
 
+#ifndef RANDOM
+#define RANDOM
+
 #define RANDOM_SCALE vec4(443.897, 441.423, .0973, .1099)
 
 float random(in float x) {
@@ -92,3 +95,5 @@ vec4 random4(vec4 p4) {
     p4 += dot(p4, p4.wzxy + 19.19);
     return fract((p4.xxyz + p4.yzzw) * p4.zywx);
 }
+
+#endif // RANDOM

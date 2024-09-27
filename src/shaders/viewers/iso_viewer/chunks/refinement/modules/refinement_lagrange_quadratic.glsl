@@ -1,3 +1,5 @@
+
+
 /**
  * Refines the hit point by performing additional sampling steps.
  *
@@ -10,27 +12,33 @@
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
 
+// Define linear interpolation
+float s_linear = map(prev_trace.value, trace.value, u_raycast.threshold);
+float s_sample = mix(0.5, s_linear, 0.5);
+
+vec3 mix_texel = mix(prev_trace.texel, trace.texel, s_sample);
+float mix_distance = mix(prev_trace.distance, trace.distance, s_sample);
+float mix_value = texture(u_sampler.volume, mix_texel).r;
+
 // Define symbolic vectors
-vec2 s = vec2(0.0, 1.0);
-vec2 t = vec2(prev_trace.distance, trace.distance);
-vec2 f = vec2(prev_trace.value, trace.value);
-vec2 f_prime = vec2(prev_trace.derivative, trace.derivative);
-f_prime *= t.y - t.x;
+vec3 f = vec3(prev_trace.value, mix_value, trace.value);
+vec3 t = vec3(prev_trace.distance, mix_distance, trace.distance);
+vec3 s = vec3(0.0, s_sample, 1.0);
 
-// Compute cubic hermite coefficients
-vec4 coeff = hermite2_coefficients(s, f, f_prime);
+// Compute cubic lagrange coefficients
+vec3 coeff = lagrange_quadratic_coefficients(s, f); 
 
-// Compute the roots of the equation H(t) - threshold = 0
+// Compute the roots of the equation L(s) - threshold = 0
 coeff.x -= u_raycast.threshold;
-vec3 s_roots = cubic_roots(coeff);
+vec2 s_roots = quadratic_roots(coeff);
 
-// Filter normalized roots outside of the interval [0, 1] and set them to 1.0
-vec3 s_filter = inside(s.xxx, s.yyy, s_roots);
-s_roots = mix(s.yyy, s_roots, s_filter);
-s_roots = clamp(s_roots, s.xxx, s.yyy);
+// Filter normalized roots outside of the s interval 
+vec2 s_filter = inside(s.xx, s.zz, s_roots);
+s_roots = mix(s.zz, s_roots, s_filter);
+s_roots = clamp(s_roots, s.xx, s.zz);
 
 // Denormalize result
-vec3 t_roots = mix(t.xxx, t.yyy, s_roots);
+vec2 t_roots = mix(t.xx, t.zz, s_roots);
 t_roots = clamp(t_roots, ray.min_distance, ray.max_distance);
 
 // Compute distance and position in solution

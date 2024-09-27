@@ -9,6 +9,9 @@
  *                  - y is the minimum distance from the point to the box.
  */
 
+#ifndef SDF_BOX
+#define SDF_BOX
+
 vec2 sdf_box(vec2 b_min, vec2 b_max, vec2 p) {
     // Calculate the center and half-size of the box
     // Calculate the absolute difference between the point and the box center
@@ -38,3 +41,5 @@ vec2 sdf_box(vec3 b_min, vec3 b_max, vec3 p) {
     vec3 b = abs(p - c);
     return vec2(length(max(b - s, 0.0) + min(mmax(b - s), 0.0)), length(b + s));
 }
+
+#endif // SDF_BOX

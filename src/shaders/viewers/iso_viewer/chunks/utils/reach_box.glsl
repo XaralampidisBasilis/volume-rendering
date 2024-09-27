@@ -9,6 +9,9 @@
  *                  - y is the minimum distance from the point to the box.
  */
 
+#ifndef REACH_BOX
+#define REACH_BOX
+
  vec2 reach_box(vec2 b_min, vec2 b_max, vec2 p) {
     // compute the center and half-size of the box
     // compute the absolute difference between the point and the box center
@@ -39,5 +42,5 @@ vec2 reach_box(vec4 b_min, vec4 b_max, vec4 p) {
     return  vec2(length(max(b - s, 0.0)), length(b + s));
 }
 
-
+#endif // REACH_BOX
 

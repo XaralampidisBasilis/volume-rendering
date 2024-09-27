@@ -1,3 +1,6 @@
+#ifndef CUBIC_ROOTS
+#define CUBIC_ROOTS
+
 // Special cube root to fix GLSL's negative pow() bug
 float cbrt(in float x) { return sign(x) * pow(abs(x), 1.0 / 3.0); }
 
@@ -154,3 +157,4 @@ vec3 cubic_roots(in vec4 coeff)
 //     return 3;
 // }
 
+#endif // CUBIC_ROOTS

@@ -1,5 +1,3 @@
-#ifndef UTILS_MAP
-#define UTILS_MAP
 
 /**
  * @brief Computes a linear ramp function.
@@ -14,9 +12,12 @@
  * @return The computed ramp value, clamped to the range [0.0, 1.0].
  */
 
+#ifndef MAP
+#define MAP
+
 float map(const in float a, const in float b, const in float x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
 vec2  map(const in float a, const in float b, const in vec2  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
 vec3  map(const in float a, const in float b, const in vec3  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
 vec4  map(const in float a, const in float b, const in vec4  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
 
-#endif // UTILS_MAP
+#endif // MAP

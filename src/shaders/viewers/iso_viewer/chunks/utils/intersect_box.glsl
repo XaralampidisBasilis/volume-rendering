@@ -1,5 +1,5 @@
-#ifndef UTILS_INTERSECT_BOX
-#define UTILS_INTERSECT_BOX
+#ifndef INTERSECT_BOX
+#define INTERSECT_BOX
 
 vec2 intersect_box(vec3 box_min, vec3 box_max, vec3 start, vec3 dir) 
 {
@@ -14,4 +14,4 @@ vec2 intersect_box(vec3 box_min, vec3 box_max, vec3 start, vec3 dir)
     return vec2(mmax(t_min), mmin(t_max));
 }
 
-#endif
+#endif // INTERSECT_BOX

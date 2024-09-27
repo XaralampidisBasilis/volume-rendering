@@ -1,3 +1,6 @@
+#ifndef BESSELI
+#define BESSELI
+
 //Returns the modified Bessel function I0(x) for any real x.
 // source : http://www.ff.bg.ac.rs/Katedre/Nuklearna/SiteNuklearna/bookcpdf/c6-6.pdf, Chapter 6, Numerical Recipes in C
 
@@ -95,3 +98,5 @@ float besseli(int n, float x)
 
     return mix(ans, -ans, is_negative_x * is_odd_n);
 }
+
+#endif // BESSELI

@@ -1,33 +1,33 @@
 
 #if HAS_REFINEMENT == 1
 
-    // refinement_sampling5
+    // refinement_sub_sampling
     #if REFINEMENT_METHOD == 1  
-        #include "./modules/refinement_sampling5"
+        #include "./modules/refinement_sub_sampling"
 
-    // refinement_bisections5
+    // refinement_bisection_iterative
     #elif REFINEMENT_METHOD == 2
-        #include "./modules/refinement_bisections5"
+        #include "./modules/refinement_bisection_iterative"
 
-    // refinement_newtons5
+    // refinement_newton_iterative
     #elif REFINEMENT_METHOD == 3
-        #include "./modules/refinement_newtons5"
+        #include "./modules/refinement_newton_iterative"
 
-    // refinement_linear2
+    // refinement_linear
     #elif REFINEMENT_METHOD == 4
-        #include "./modules/refinement_linear2"
+        #include "./modules/refinement_linear"
 
-    // refinement_lagrange3
+    // refinement_lagrange_quadratic
     #elif REFINEMENT_METHOD == 5
-        #include "./modules/refinement_lagrange3"
+        #include "./modules/refinement_lagrange_quadratic"
 
-    // refinement_lagrange4
+    // refinement_lagrange_cubic
     #elif REFINEMENT_METHOD == 6
-        #include "./modules/refinement_lagrange4"
+        #include "./modules/refinement_lagrange_cubic"
 
-    // refinement_hermitian2
+    // refinement_hermite_cubic
     #elif REFINEMENT_METHOD == 7
-        #include "./modules/refinement_hermitian2"
+        #include "./modules/refinement_hermite_cubic"
 
     #else  
         #error "unknown: REFINEMENT_METHOD"
