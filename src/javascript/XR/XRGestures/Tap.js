@@ -20,7 +20,6 @@ export default class Tap
 
         this.numTaps = 0
         
-        this.gestures.inventory.tap = this 
         this.gestures.addEventListener( 'tap', (event) => this.onGesture( event ) )        
     }
 
@@ -28,13 +27,13 @@ export default class Tap
 
         if ( ! this.start ) {
 
-            if ( this.detector.numConnected === 1 ) this.startGesture()
+            if ( this.detector.numControllers === 1 ) this.startGesture()
 
         }
 
         if ( this.current ) {
 
-            if ( ! ( this.detector.numConnected === 0 )) return
+            if ( ! ( this.detector.numControllers === 0 )) return
             if ( ! ( this.parameters[0].duration < Tap.MAX_END_DURATION )) return
             if ( ! ( this.parameters[0].distance < Tap.MAX_END_DISTANCE )) return  
 

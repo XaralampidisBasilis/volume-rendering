@@ -18,7 +18,6 @@ export default class Hold
         this.end      = false
         this.userData = {}
         
-        this.gestures.inventory.hold = this 
         this.gestures.addEventListener( 'hold', (event) => this.onGesture( event ) )        
     }
 

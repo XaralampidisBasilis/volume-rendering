@@ -18,7 +18,6 @@ export default class Pan
         this.end      = false
         this.userData = {}
         
-        this.gestures.inventory.pan = this 
         this.gestures.addEventListener( 'pan', (event) => this.onGesture( event ) )        
     }
 

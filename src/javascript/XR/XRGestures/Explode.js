@@ -18,7 +18,6 @@ export default class Explode
         this.end      = false
         this.userData = {}
 
-        this.gestures.inventory.explode = this 
         this.gestures.addEventListener( 'explode', (event) => this.onGesture( event ) )     
     }
 
@@ -27,7 +26,7 @@ export default class Explode
         if ( ! this.start ) {
 
             if ( ! ( this.detector.gesture === undefined )) return
-            if ( ! ( this.detector.numConnected === 2 )) return
+            if ( ! ( this.detector.numControllers === 2 )) return
             if ( ! ( this.parametersDual.distanceOffset > Explode.MIN_START_DISTANCE_OFFSET )) return
             if ( ! ( Math.abs( this.parametersDual.radialSpeed ) > Explode.MIN_START_RADIAL_SPEED)) return
 
@@ -37,7 +36,7 @@ export default class Explode
 
         if ( this.current ) {
 
-            if ( this.detector.numConnected < 2 ) {
+            if ( this.detector.numControllers < 2 ) {
 
                 this.detector.gesture = 'explode'
 
@@ -81,7 +80,7 @@ export default class Explode
 
     onGesture( event ) {
         
-        console.log(`explode`)       
+        console.log( `explode` )       
 
     }
 

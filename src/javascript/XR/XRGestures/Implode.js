@@ -18,7 +18,6 @@ export default class Implode
         this.end      = false
         this.userData = {}
 
-        this.gestures.inventory.implode = this 
         this.gestures.addEventListener( 'implode', (event) => this.onGesture( event ) )     
     }
 
@@ -27,7 +26,7 @@ export default class Implode
         if ( ! this.start ) {
 
             if ( ! ( this.detector.gesture === undefined )) return
-            if ( ! ( this.detector.numConnected === 2 )) return
+            if ( ! ( this.detector.numControllers === 2 )) return
             if ( ! ( this.parametersDual.distanceOffset  < Implode.MAX_START_DISTANCE_OFFSET )) return
             if ( ! ( Math.abs( this.parametersDual.radialSpeed ) > Implode.MIN_START_RADIAL_SPEED )) return
             
@@ -37,7 +36,7 @@ export default class Implode
 
         if ( this.current ) {
 
-            if ( this.detector.numConnected < 2 ) {
+            if ( this.detector.numControllers < 2 ) {
 
                 this.detector.gesture = 'implode'
 

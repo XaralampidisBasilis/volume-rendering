@@ -21,7 +21,6 @@ export default class Polytap
         this.timeoutID = undefined
         this.numTaps = 0
         
-        this.gestures.inventory.polytap = this 
         this.gestures.addEventListener( 'polytap', (event) => this.onGesture( event ) )        
     }
 

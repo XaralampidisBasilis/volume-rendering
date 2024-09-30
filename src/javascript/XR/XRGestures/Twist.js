@@ -18,7 +18,6 @@ export default class Twist
         this.end      = false
         this.userData = {}
 
-        this.gestures.inventory.twist = this 
         this.gestures.addEventListener( 'twist', (event) => this.onGesture( event ) )     
     }
 
@@ -27,7 +26,7 @@ export default class Twist
         if ( ! this.start ) {
 
             if ( ! ( this.detector.gesture === undefined )) return
-            if ( ! ( this.detector.numConnected === 2 ) ) return
+            if ( ! ( this.detector.numControllers === 2 ) ) return
             if ( ! ( this.parametersDual.distance > Twist.MIN_START_DISTANCE ) ) return
             if ( ! ( Math.abs( this.parametersDual.distanceOffset ) < Twist.MAX_START_DISTANCE_OFFSET ) ) return
             if ( ! ( Math.abs( this.parametersDual.angleOffset ) > Twist.MIN_START_ANGLE_OFFSET ) ) return
@@ -44,7 +43,7 @@ export default class Twist
 
             this.gestures.dispatchEvent( { type: 'twist', current: true, userData: this.userData, } )
         
-            if ( this.detector.numConnected < 2 ) this.endGesture()        
+            if ( this.detector.numControllers < 2 ) this.endGesture()        
 
         } 
         

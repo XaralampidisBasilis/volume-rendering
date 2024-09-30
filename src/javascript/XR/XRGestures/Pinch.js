@@ -18,11 +18,10 @@ export default class Pinch
         this.end      = false
         this.userData = {}
 
-        this.gestures.inventory.pinch = this 
         this.gestures.addEventListener( 'pinch', (event) => this.onGesture( event ) )     
     }
 
-    detectPinch() {
+    detectGesture() {
 
         if ( ! this.start ) {
 

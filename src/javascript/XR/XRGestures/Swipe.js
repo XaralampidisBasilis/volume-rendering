@@ -21,7 +21,6 @@ export default class Swipe
         this.direction  = undefined
         this.directions = [ 'RIGHT', 'UP', 'LEFT', 'DOWN'] 
 
-        this.gestures.inventory.swipe = this 
         this.gestures.addEventListener( 'swipe', (event) => this.onGesture( event ) )        
     }
 
