@@ -26,7 +26,7 @@ export default class Pan
         if ( ! this.start ) {
 
             if ( ! ( this.detector.gesture === undefined )) return
-            if ( ! ( this.detector.numConnected === 1 ) ) return
+            if ( ! ( this.detector.numControllers === 1 ) ) return
             if ( ! ( this.parameters[0].pathDistance > Pan.MIN_START_PATH_DISTANCE )) return
             if ( ! ( this.parameters[0].pathSpeed < Pan.MAX_START_PATH_SPEED )) return
 
@@ -42,8 +42,8 @@ export default class Pan
 
             this.gestures.dispatchEvent( { type: 'pan', current: true, userData: this.userData, } ) 
 
-            if ( this.detector.numConnected === 2 ) this.resetGesture()
-            if ( this.detector.numConnected === 0 ) this.endGesture()        
+            if ( this.detector.numControllers === 2 ) this.resetGesture()
+            if ( this.detector.numControllers === 0 ) this.endGesture()        
 
         } 
         

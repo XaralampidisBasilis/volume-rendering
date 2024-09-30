@@ -36,17 +36,17 @@ export default class Polytap
             this.numTaps = this.gestures.inventory.tap.numTaps
             this.timeoutID = setTimeout( () => this.endGesture(), Polytap.MAX_TAP_DURATION )
 
-            this.dispatchEvent( { type: 'polytap', start: true, numTaps: this.numTaps, userData: this.userData } ) 
+            this.gestures.dispatchEvent( { type: 'polytap', start: true, numTaps: this.numTaps, userData: this.userData } ) 
             this.startGesture()
 
         }
 
         if ( this.current ) {          
 
-            this.dispatchEvent( { type: 'polytap', current: true, numTaps: this.numTaps, userData: this.userData } ) 
+            this.gestures.dispatchEvent( { type: 'polytap', current: true, numTaps: this.numTaps, userData: this.userData } ) 
 
             // break condition
-            if ( this.detector.numConnected > 1 ) { 
+            if ( this.detector.numControllers > 1 ) { 
               
                 clearTimeout( this.timeoutID )
                 this.resetGesture()   
@@ -73,7 +73,7 @@ export default class Polytap
             this.gestures.delayDetector( XRGestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures()
 
-            this.detector.tap.numTaps = 0
+            this.gestures.inventory.tap.numTaps = 0
             this.numTaps = 0 
 
         }

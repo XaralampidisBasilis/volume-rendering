@@ -29,7 +29,7 @@ export default class Swipe
         if ( ! this.start ) {
 
             if ( ! ( this.detector.gesture === undefined )) return
-            if ( ! ( this.detector.numConnected === 1 )) return
+            if ( ! ( this.detector.numControllers === 1 )) return
             if ( ! ( this.parameters[0].pathDistance > Swipe.MIN_START_PATH_DISTANCE )) return
             if ( ! ( this.parameters[0].pathSpeed > Swipe.MIN_START_PATH_SPEED )) return
 
@@ -39,7 +39,7 @@ export default class Swipe
 
         if ( this.current ) {
 
-            if ( this.detector.numConnected === 0 ) {
+            if ( this.detector.numControllers === 0 ) {
 
                 this.detector.gesture = 'swipe'
 

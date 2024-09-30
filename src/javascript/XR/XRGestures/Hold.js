@@ -26,7 +26,7 @@ export default class Hold
         if ( ! this.start ) {
 
             if ( ! ( this.detector.gesture === undefined )) return
-            if ( ! ( this.detector.numConnected === 1 ) ) return
+            if ( ! ( this.detector.numControllers === 1 ) ) return
             if ( ! ( this.parameters[0].pathDistance < Hold.MAX_START_PATH_DISTANCE ) ) return
             if ( ! ( this.parameters[0].duration > Hold.MIN_START_DURATION ) ) return
 
@@ -39,10 +39,10 @@ export default class Hold
 
         if ( this.current ) {        
 
-            this.dispatchEvent( { type: 'hold', current: true, userData: this.userData, } ) 
+            this.gestures.dispatchEvent( { type: 'hold', current: true, userData: this.userData, } ) 
 
-            if ( this.detector.numConnected > 1 ) this.resetGesture()
-            if ( this.detector.numConnected === 0 ) this.endGesture()
+            if ( this.detector.numControllers > 1 ) this.resetGesture()
+            if ( this.detector.numControllers === 0 ) this.endGesture()
 
         } 
         

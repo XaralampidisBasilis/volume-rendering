@@ -20,7 +20,6 @@ export default class XRManager
             this.setButton()
             this.setHitTest()
             this.setGestures()          
-
             this.renderer.instance.xr.addEventListener('sessionstart', this.onSessionStart.bind(this))
             this.renderer.instance.xr.addEventListener('sessionend', this.onSessionEnd.bind(this))
         })
@@ -53,7 +52,6 @@ export default class XRManager
     setGestures()
     {
         this.gestures = new XRGestures(this.renderer.instance)
-
         this.gestures.addEventListener('polytap', this.onPolytap.bind(this))
         this.gestures.addEventListener('hold', this.onHold.bind(this))
         this.gestures.addEventListener('pan', this.onPan.bind(this))

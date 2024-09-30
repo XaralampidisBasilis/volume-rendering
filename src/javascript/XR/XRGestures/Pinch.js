@@ -26,7 +26,7 @@ export default class Pinch
         if ( ! this.start ) {
 
             if ( ! ( this.detector.gesture === undefined ) ) return
-            if ( ! ( this.detector.numConnected === 2 ) ) return
+            if ( ! ( this.detector.numControllers === 2 ) ) return
             if ( ! ( Math.abs( this.parametersDual.distanceOffset ) > Pinch.MIN_START_DISTANCE_OFFSET ) ) return
             if ( ! ( Math.abs( this.parametersDual.angleOffset ) < Pinch.MAX_START_ANGLE_OFFSET ) ) return
             if ( ! ( Math.abs( this.parametersDual.radialSpeed ) < Pinch.MAX_START_RADIAL_SPEED )) return   
@@ -40,9 +40,9 @@ export default class Pinch
 
         if ( this.current ) {
            
-            this.dispatchEvent( { type: 'pinch', current: true, userData: this.userData } )
+            this.gestures.dispatchEvent( { type: 'pinch', current: true, userData: this.userData } )
         
-            if ( this.detector.numConnected < 2 ) this.endGesture()
+            if ( this.detector.numControllers < 2 ) this.endGesture()
 
         } 
         
