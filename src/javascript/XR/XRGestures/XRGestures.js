@@ -33,6 +33,8 @@ function formatVector( vector, digits ) {
 
 // class
 
+let instance = null
+
 class XRGestures extends THREE.EventDispatcher {
     
     constructor( renderer ) {
@@ -40,9 +42,13 @@ class XRGestures extends THREE.EventDispatcher {
         if ( ! renderer ) 
             console.error('Gestures must be passed a renderer');
 
-        super();           
-
+        super();      
         
+        // Singleton
+
+        if(instance) return instance
+        instance = this
+
         // controller parameters
         
         this.parameters = [ 0, 1 ].map( (i) => ({
@@ -131,7 +137,7 @@ class XRGestures extends THREE.EventDispatcher {
             ],
         };
 
-        this.detector.gestures.forEach( (gesture) => this.createGesture(gesture) );
+        this.detector.gestures.forEach( (gesture) => this.addGesture(gesture) );
         
         this.detector.tap.numTaps = 0;
 
@@ -182,13 +188,13 @@ class XRGestures extends THREE.EventDispatcher {
     async onConnected( event ) {
         
         const controller = event.target;
-        const i = controller.userData.index;
+        const index = controller.userData.index;
 
-        await delay( XRGestures.CONTROLLER_DELAY ); // need this to avoid some transient phenomenon, without it 
+        await delay( XRGestures.DELAY_CONTROLLER ); // need this to avoid some transient phenomenon, without it 
 
         this.detector.numConnected += 1;                            
 
-        this.startParameters( i );
+        this.startParameters( index );
 
         if ( this.detector.numConnected === 2 ) {
 
@@ -201,13 +207,13 @@ class XRGestures extends THREE.EventDispatcher {
     async onDisconnected( event ) {
 
         const controller = event.target;
-        const i = controller.userData.index;
+        const index = controller.userData.index;
 
-        await delay( XRGestures.CONTROLLER_DELAY );
+        await delay( XRGestures.DELAY_CONTROLLER );
 
         this.detector.numConnected -= 1; 
 
-        this.stopParameters( i );
+        this.stopParameters( index );
 
         if ( this.detector.numConnected < 2 ) {
 
@@ -353,8 +359,8 @@ class XRGestures extends THREE.EventDispatcher {
         if ( this.detector.polytap.end ) {
 
             this.dispatchEvent( { type: 'polytap', end: true, numTaps: this.detector.polytap.numTaps, userData: this.detector.polytap.userData } ); 
-            this.delayDetector( XRGestures.DETECT_DELAY ); 
-            this.resetGestureAll();
+            this.delayDetector( XRGestures.DELAY_DETECTOR ); 
+            this.resetGestures();
 
             this.detector.tap.numTaps = 0;
             this.detector.polytap.numTaps = 0; 
@@ -381,7 +387,7 @@ class XRGestures extends THREE.EventDispatcher {
 
                 this.detector.gesture = 'swipe';
 
-                this.resetGestureExcept('swipe');
+                this.resetGesturesExcept('swipe');
                 this.endGesture('swipe');
 
             }
@@ -390,12 +396,12 @@ class XRGestures extends THREE.EventDispatcher {
 
         if ( this.detector.swipe.end ) { 
 
-            let i = this.sectorIndex( this.parameters[0].angle, 4 );
+            let i = this.sectorFromAngle( this.parameters[0].angle, 4 );
             this.detector.swipe.direction = this.detector.swipe.directions[i];   
 
             this.dispatchEvent( { type: 'swipe', start: true, current: true, end: true, direction: this.detector.swipe.direction, userData: this.detector.swipe.userData } );
-            this.delayDetector( XRGestures.DETECT_DELAY );   
-            this.resetGestureAll();
+            this.delayDetector( XRGestures.DELAY_DETECTOR );   
+            this.resetGestures();
 
         }
         
@@ -413,7 +419,7 @@ class XRGestures extends THREE.EventDispatcher {
             this.detector.gesture = 'hold';
 
             this.dispatchEvent( { type: 'hold', start: true, userData: this.detector.hold.userData, } ); 
-            this.resetGestureExcept('hold');
+            this.resetGesturesExcept('hold');
             this.startGesture('hold');
 
         } 
@@ -430,8 +436,8 @@ class XRGestures extends THREE.EventDispatcher {
         if ( this.detector.hold.end ) {            
 
             this.dispatchEvent( { type: 'hold', end: true, userData: this.detector.hold.userData, } );
-            this.delayDetector( XRGestures.DETECT_DELAY ); 
-            this.resetGestureAll();
+            this.delayDetector( XRGestures.DELAY_DETECTOR ); 
+            this.resetGestures();
 
         }
 
@@ -449,7 +455,7 @@ class XRGestures extends THREE.EventDispatcher {
             this.detector.gesture = 'pan';     
 
             this.dispatchEvent( { type: 'pan', start: true, userData: this.detector.pan.userData, } ); 
-            this.resetGestureExcept('pan');
+            this.resetGesturesExcept('pan');
             this.startGesture('pan');
 
         } 
@@ -467,8 +473,8 @@ class XRGestures extends THREE.EventDispatcher {
         if ( this.detector.pan.end ) {
 
             this.dispatchEvent( { type: 'pan', end: true, userData: this.detector.pan.userData, } ); 
-            this.delayDetector( XRGestures.DETECT_DELAY ); 
-            this.resetGestureAll();
+            this.delayDetector( XRGestures.DELAY_DETECTOR ); 
+            this.resetGestures();
   
         }     
 
@@ -487,7 +493,7 @@ class XRGestures extends THREE.EventDispatcher {
             this.detector.gesture = 'pinch';           
 
             this.dispatchEvent( { type: 'pinch', start: true, userData: this.detector.pinch.userData } );
-            this.resetGestureExcept('pinch');
+            this.resetGesturesExcept('pinch');
             this.startGesture('pinch');
         } 
 
@@ -502,8 +508,8 @@ class XRGestures extends THREE.EventDispatcher {
         if ( this.detector.pinch.end ) {
 
             this.dispatchEvent( { type: 'pinch', end: true, userData: this.detector.pinch.userData } );
-            this.delayDetector( XRGestures.DETECT_DELAY ); 
-            this.resetGestureAll(); 
+            this.delayDetector( XRGestures.DELAY_DETECTOR ); 
+            this.resetGestures(); 
 
         }
 
@@ -522,7 +528,7 @@ class XRGestures extends THREE.EventDispatcher {
             this.detector.gesture = 'twist';         
                
             this.dispatchEvent( { type: 'twist', start: true, userData: this.detector.twist.userData, } );                
-            this.resetGestureExcept('twist');
+            this.resetGesturesExcept('twist');
             this.startGesture('twist');
 
         } 
@@ -538,8 +544,8 @@ class XRGestures extends THREE.EventDispatcher {
         if ( this.detector.twist.end ) {
 
             this.dispatchEvent( { type: 'twist', end: true, userData: this.detector.twist.userData, } );
-            this.delayDetector( XRGestures.DETECT_DELAY ); 
-            this.resetGestureAll();
+            this.delayDetector( XRGestures.DELAY_DETECTOR ); 
+            this.resetGestures();
 
         }
     }
@@ -563,7 +569,7 @@ class XRGestures extends THREE.EventDispatcher {
 
                 this.detector.gesture = 'explode';
 
-                this.resetGestureExcept('explode');
+                this.resetGesturesExcept('explode');
                 this.endGesture('explode');
 
             }
@@ -573,8 +579,8 @@ class XRGestures extends THREE.EventDispatcher {
         if ( this.detector.explode.end ) {  
 
             this.dispatchEvent( { type: 'explode', start: true, current: true, end: true, userData: this.detector.explode.userData, } );
-            this.delayDetector( XRGestures.DETECT_DELAY ); 
-            this.resetGestureAll();
+            this.delayDetector( XRGestures.DELAY_DETECTOR ); 
+            this.resetGestures();
 
         }
     }
@@ -598,7 +604,7 @@ class XRGestures extends THREE.EventDispatcher {
 
                 this.detector.gesture = 'implode';
 
-                this.resetGestureExcept('implode');
+                this.resetGesturesExcept('implode');
                 this.endGesture('implode');
 
             }        
@@ -608,8 +614,8 @@ class XRGestures extends THREE.EventDispatcher {
         if ( this.detector.implode.end ) {  
 
             this.dispatchEvent( { type: 'implode', start: true, current: true, end: true, userData: this.detector.implode.userData, } );
-            this.delayDetector( XRGestures.DETECT_DELAY ); 
-            this.resetGestureAll();
+            this.delayDetector( XRGestures.DELAY_DETECTOR ); 
+            this.resetGestures();
 
         }
     }
@@ -1162,7 +1168,7 @@ class XRGestures extends THREE.EventDispatcher {
 
     // helper functions
 
-    createGesture( name ) {
+    addGesture( name ) {
 
         this.detector[ name ] = {
 
@@ -1211,7 +1217,7 @@ class XRGestures extends THREE.EventDispatcher {
               
     }
 
-    resetGestureExcept( exception ) {
+    resetGesturesExcept( exception ) {
 
         this.detector.gestures.forEach( (gesture) => { 
 
@@ -1221,7 +1227,7 @@ class XRGestures extends THREE.EventDispatcher {
 
     }
 
-    resetGestureAll() {
+    resetGestures() {
 
         this.detector.gestures.forEach( (gesture) => this.resetGesture( gesture ) ); 
                 
@@ -1242,13 +1248,13 @@ class XRGestures extends THREE.EventDispatcher {
 
     }
 
-    angleBrach ( theta ) {
+    branchFromAngle ( theta ) {
 
         return Math.floor((theta + 180) / 360);
         
     }
 
-    sectorIndex ( theta, divisor ) {
+    sectorFromAngle ( theta, divisor ) {
 
         const slice = 360 / divisor; 
         return THREE.MathUtils.euclideanModulo( Math.round( theta / slice ), divisor); // degree
@@ -1259,9 +1265,9 @@ class XRGestures extends THREE.EventDispatcher {
 
 // gesture constants
 
-XRGestures.CONTROLLER_DELAY = 20; // ms    
+XRGestures.DELAY_CONTROLLER = 20; // ms    
 
-XRGestures.DETECT_DELAY = 100; // ms
+XRGestures.DELAY_DETECTOR = 100; // ms
 
 XRGestures.BUFFER_LENGTH = 2; 
 

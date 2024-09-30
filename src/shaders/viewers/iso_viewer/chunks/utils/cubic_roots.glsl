@@ -39,8 +39,8 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
     if (discriminant < 0.0) {
         num_roots = 1;
         root12 = cbrt((-coeff_depressed.x + sqrt_discrim) * 0.5) 
-                     + cbrt((-coeff_depressed.x - sqrt_discrim) * 0.5)
-                     - coeff.z;
+               + cbrt((-coeff_depressed.x - sqrt_discrim) * 0.5)
+               - coeff.z;
         return vec3(root12);
     }
 
@@ -99,8 +99,8 @@ vec3 cubic_roots(in vec4 coeff)
     // compute real root using cubic root formula for one real and two complex roots eq(0.15)
     if (discriminant < EPSILON9) {
         root12 = cbrt((-coeff_depressed.x + sqrt_discrim) * 0.5) 
-                     + cbrt((-coeff_depressed.x - sqrt_discrim) * 0.5)
-                     - coeff.z;
+               + cbrt((-coeff_depressed.x - sqrt_discrim) * 0.5)
+               - coeff.z;
         return vec3(root12);
     }
    
