@@ -6,6 +6,7 @@ import ISOHelpers from './ISOHelpers'
 import ComputeSmoothing from '../Gpgpu/Smoothing/ComputeSmoothing'
 import ComputeGradients from '../Gpgpu/Gradients/ComputeGradients'
 import ComputeOccupancy from '../Gpgpu/Occupancy/ComputeOccupancy'
+import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest'
 
 export default class ISOViewer
 {
@@ -23,6 +24,7 @@ export default class ISOViewer
         this.resource = {}        
         this.resource.volume = this.resources.items.volumeNifti
         this.resource.mask = this.resources.items.maskNifti  
+        // this.processResources()
 
         this.setParameters()
         this.setNoisemaps()
@@ -41,6 +43,21 @@ export default class ISOViewer
             this.gui = new ISOGui(this)
         } 
     }
+
+    processResources()
+    {
+        const volumeData = this.resource.volume.getData()
+        const volumeDimensions = this.resource.volume.dimensions
+        const maxVolumeTexels = this.renderer.instance.capabilities.maxTextureSize ** 2
+        const maxImagePixels = maxVolumeTexels / volumeDimensions[2]
+        const aspectRatio = volumeDimensions[0] / volumeDimensions[1];
+        const imageWidth  = Math.min(Math.floor(Math.sqrt(    aspectRatio * maxImagePixels)), volumeDimensions[0]);
+        const imageHeight = Math.min(Math.floor(Math.sqrt(1 / aspectRatio * maxImagePixels)), volumeDimensions[1]);
+
+        this.volumeTensor = tf.tensor(volumeData, volumeDimensions, 'float32') 
+        this.volumeTensor.resizeBilinear([imageWidth, imageHeight], false, true)
+    }
+
 
     setParameters()
     {
@@ -109,14 +126,13 @@ export default class ISOViewer
         this.setSourceTexture()
         this.setVolumeTexture()
         this.setMaskTexture()
-        // this.setGradientsTexture()
     }
 
     setSourceTexture()
     {
         const volumeDimensions = this.parameters.volume.dimensions.toArray()
-        const sourceData = this.resource.volume.getData()
-        this.textures.source = new THREE.Data3DTexture(sourceData, ...volumeDimensions)
+        const volumeData = this.resource.volume.getData()
+        this.textures.source = new THREE.Data3DTexture(volumeData, ...volumeDimensions)
         this.textures.source.format = THREE.RedFormat
         this.textures.source.type = THREE.FloatType     
         this.textures.source.wrapS = THREE.ClampToEdgeWrapping
@@ -131,7 +147,6 @@ export default class ISOViewer
 
     setVolumeTexture()
     {
-
         const volumeData = this.resource.volume.getDataUint8()
         const volumeData4 = new Uint8ClampedArray(this.parameters.volume.count * 4)
         for (let i = 0; i < this.parameters.volume.count; i++)
@@ -152,23 +167,6 @@ export default class ISOViewer
         this.textures.volume.generateMipmaps = true
         this.textures.volume.unpackAlignment = 1 
         this.textures.volume.needsUpdate = true   
-    }
-
-    setGradientsTexture()
-    {
-        const gradientsData = new Uint8ClampedArray(this.parameters.volume.count * 4)
-        const gradientsDimensions = this.parameters.volume.dimensions.toArray()
-        this.textures.gradients = new THREE.Data3DTexture(gradientsData, ...gradientsDimensions)
-        this.textures.gradients.format = THREE.RGBAFormat
-        this.textures.gradients.type = THREE.UnsignedByteType     
-        this.textures.gradients.wrapS = THREE.ClampToEdgeWrapping
-        this.textures.gradients.wrapT = THREE.ClampToEdgeWrapping
-        this.textures.gradients.wrapR = THREE.ClampToEdgeWrapping
-        this.textures.gradients.minFilter = THREE.LinearFilter
-        this.textures.gradients.magFilter = THREE.LinearFilter
-        this.textures.gradients.generateMipmaps = true
-        this.textures.gradients.unpackAlignment = 4 
-        this.textures.gradients.needsUpdate = true   
     }
 
     setMaskTexture()
