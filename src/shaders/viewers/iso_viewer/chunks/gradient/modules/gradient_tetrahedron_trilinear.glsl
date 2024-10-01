@@ -29,7 +29,7 @@ vec3 texel_step = u_volume.inv_dimensions * 0.5;
 float sample_value[4];
 vec3 sample_texel;
 
-vec3 box_min = 0.0 - texel_step + EPSILON6;
+vec3 box_min = 0.0 - texel_step * 0.5;
 vec3 box_max = 1.0 - box_min;
 vec3 is_outside;
 

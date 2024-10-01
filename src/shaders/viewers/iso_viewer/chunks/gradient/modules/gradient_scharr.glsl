@@ -71,7 +71,7 @@ vec3 texel_step = u_volume.inv_dimensions;
 float sample_value[27];
 vec3 sample_texel;
 
-vec3 box_min = 0.0 - texel_step + EPSILON6;
+vec3 box_min = 0.0 - texel_step * 0.5;
 vec3 box_max = 1.0 - box_min;
 
 #pragma unroll_loop_start
@@ -100,13 +100,3 @@ trace.gradient *= u_volume.inv_spacing * 0.5; // // adjust gradient to physical 
 trace.gradient_norm = length(trace.gradient);
 trace.normal = - normalize(trace.gradient);
 trace.derivative = dot(trace.gradient, ray.direction);
-
-// // fix boundary normals
-// vec3 box_min = 0.0 + texel_step;
-// vec3 box_max = 1.0 - texel_step;
-
-// if (outside_box(box_min, box_max, trace.texel) > 0.0)
-// {
-//     sdf_box(box_min, box_max, trace.texel, trace.normal);
-//     trace.normal = normalize(trace.normal);
-// }

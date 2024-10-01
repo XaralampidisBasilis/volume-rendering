@@ -327,7 +327,7 @@ export default class ISOGui
             scale: debug.add(u_debug, 'scale').min(0).max(10).step(0.001),
             constant: debug.add(u_debug, 'constant').min(0).max(1).step(0.001),
             mixing: debug.add(u_debug, 'mixing').min(0).max(1).step(0.001),
-            epsilon: debug.add(u_debug, 'epsilon').min(-1).max(1).step(0.0000001),
+            epsilon: debug.add(u_debug, 'epsilon').min(-2).max(2).step(0.0000001),
         }
     }
     
