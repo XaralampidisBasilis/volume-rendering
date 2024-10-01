@@ -1,6 +1,4 @@
 
-Modularize XRGestures function
-
 Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2ikVUXKBw&ab_channel=Rafadante
 
 Add typescript

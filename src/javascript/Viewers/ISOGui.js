@@ -323,6 +323,7 @@ export default class ISOGui
                 variable2            :   29,
                 variable3            :   30,
             }),
+            number: debug.add(u_debug, 'number').min(0).max(20).step(1),
             scale: debug.add(u_debug, 'scale').min(0).max(10).step(0.001),
             constant: debug.add(u_debug, 'constant').min(0).max(1).step(0.001),
             mixing: debug.add(u_debug, 'mixing').min(0).max(1).step(0.001),

@@ -87,6 +87,7 @@ export default function(viewer)
         u_debug: new THREE.Uniform
         ({
             option     : 0,
+            number     : 1,
             scale      : 1,
             constant   : 0,
             mixing     : 0.5,

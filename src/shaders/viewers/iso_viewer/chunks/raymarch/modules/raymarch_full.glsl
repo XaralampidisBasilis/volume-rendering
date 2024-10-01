@@ -1,8 +1,5 @@
 
-// take a backstep in order to compute initial prev_trace
-ray.intersected = false;         
-trace.distance -= ray.max_spacing;
-trace.position = ray.origin + ray.direction * trace.distance;
+ray.intersected = false;    
 
 // Raymarch loop to traverse through the volume
 for (
@@ -32,9 +29,15 @@ for (
 
     // save prev trace
     #include "../../parameters/save_prev_trace"
+    
+    // compute stepping
+    #include "../../stepping/compute_stepping"
+    if (trace.steps < 1) 
+    {
+        trace.stepping = u_raycast.min_stepping;
+    }
 
     // Update ray position for the next step
-    #include "../../stepping/compute_stepping"
     trace.spacing = trace.stepping * ray.spacing;
     trace.distance += trace.spacing;
     trace.position += ray.direction * trace.spacing;

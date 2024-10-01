@@ -5,6 +5,7 @@
 struct uniforms_debug 
 {
     int option;
+    int number;
     float scale;
     float constant;
     float mixing;

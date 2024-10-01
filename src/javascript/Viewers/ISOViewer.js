@@ -3,9 +3,9 @@ import Experience from '../Experience'
 import ISOMaterial from './ISOMaterial'
 import ISOGui from './ISOGui'
 import ISOHelpers from './ISOHelpers'
-import ComputeSmoothing from '../GPGPU/Smoothing/ComputeSmoothing'
-import ComputeGradients from '../GPGPU/Gradients/ComputeGradients'
-import ComputeOccupancy from '../GPGPU/Occupancy/ComputeOccupancy'
+import ComputeSmoothing from '../Gpgpu/Smoothing/ComputeSmoothing'
+import ComputeGradients from '../Gpgpu/Gradients/ComputeGradients'
+import ComputeOccupancy from '../Gpgpu/Occupancy/ComputeOccupancy'
 
 export default class ISOViewer
 {

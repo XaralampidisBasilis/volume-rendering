@@ -34,4 +34,4 @@ seed_position *= 1000.0;
 // sample the noise map texture at the xy coordinates to generate dithering.
 ray.dithering = texture(u_sampler.noisemap, seed_position.xy).r;
 ray.dithering = clamp(ray.dithering, 0.0 + EPSILON3, 1.0 - EPSILON3) ;
-ray.dithering *= ray.max_spacing;
+ray.dithering *= ray.min_spacing;

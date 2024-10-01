@@ -13,9 +13,9 @@ struct parameters_ray
     float min_distance;
     float max_distance;
     float max_depth;
-    float min_box_distance;
-    float max_box_distance;
-    float max_box_depth;
+    float min_min_distance;
+    float max_max_distance;
+    float max_max_depth;
     float min_spacing;
     float max_spacing;
     int   max_steps;
@@ -33,9 +33,9 @@ void set_ray(out parameters_ray ray)
     ray.min_distance     = 0.0;
     ray.max_distance     = 0.0;
     ray.max_depth        = 0.0;
-    ray.min_box_distance = 0.0;
-    ray.max_box_distance = 0.0;
-    ray.max_box_depth    = 0.0;
+    ray.min_min_distance = 0.0;
+    ray.max_max_distance = 0.0;
+    ray.max_max_depth    = 0.0;
     ray.min_spacing      = 0.0;
     ray.max_spacing      = 0.0;
     ray.max_steps        = 0;
