@@ -7,6 +7,7 @@ struct uniforms_raycast
     float threshold;  
     float min_stepping;
     float max_stepping;
+    float dithering_scale;
     int max_steps;
     int spacing_method;
     int stepping_method;

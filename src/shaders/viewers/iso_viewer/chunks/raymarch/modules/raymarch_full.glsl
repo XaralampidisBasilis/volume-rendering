@@ -32,6 +32,7 @@ for (
     
     // compute stepping
     #include "../../stepping/compute_stepping"
+    #include "../../dithering/modules/dithering_dynamic"
     if (trace.steps < 1) 
     {
         trace.stepping = u_raycast.min_stepping;

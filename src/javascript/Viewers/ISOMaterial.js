@@ -28,14 +28,15 @@ export default function(viewer)
 
         u_raycast: new THREE.Uniform
         ({
-            threshold        : 0.3,
-            min_stepping     : 0.3,
-            max_stepping     : 2,
-            max_steps        : 1000,
-            spacing_method   : 2,
-            stepping_method  : 1,
-            dithering_method : 1,
-            refinement_method: 2,
+            threshold         : 0.3,
+            min_stepping      : 0.1,
+            max_stepping      : 2,
+            max_steps         : 1000,
+            spacing_method    : 2,
+            stepping_method   : 2,
+            dithering_method  : 1,
+            dithering_scale   : 0,
+            refinement_method : 2,
         }),
 
         u_gradient: new THREE.Uniform
@@ -115,11 +116,10 @@ export default function(viewer)
         GRADIENT_REFINEMENT_METHOD : 7,
         GRADIENT_METHOD            : 7,
 
-
         HAS_SMOOTHING_REFINEMENT   : 0,
         SMOOTHING_REFINEMENT_METHOD: 1,
-        SMOOTHING_METHOD           : 1,
-        SMOOTHING_RADIUS           : 1,
+        SMOOTHING_METHOD           : 5,
+        SMOOTHING_RADIUS           : 2,
     }
 
     const material = new THREE.ShaderMaterial({

@@ -106,11 +106,13 @@ export default class ISOGui
         {
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
 
-            steppingMin: raycast.add(u_raycast, 'min_stepping').min(0.1).max(5).step(0.001),
+            steppingMin: raycast.add(u_raycast, 'min_stepping').min(0.001).max(5).step(0.001),
 
-            steppingMax: raycast.add(u_raycast, 'max_stepping').min(0.1).max(5).step(0.001),
+            steppingMax: raycast.add(u_raycast, 'max_stepping').min(0.001).max(5).step(0.001),
 
             maxSteps: raycast.add(u_raycast, 'max_steps').min(0).max(2000).step(1),
+
+            ditheringScale: raycast.add(u_raycast, 'dithering_scale').min(0).max(1).step(0.001),
 
             spacingMethod: raycast.add(defines, 'SPACING_METHOD').name('spacing_method')
                 .options({ isotropic: 1, directional: 2, equalized: 3 })

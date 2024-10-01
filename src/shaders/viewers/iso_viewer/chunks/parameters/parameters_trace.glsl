@@ -15,6 +15,7 @@ struct parameters_trace
     float error;
     float distance;  // Distance the ray has traveled to the intersection
     float depth;  
+    float dithering;
     float skipped;  
     float stepping;  
     float spacing;
@@ -25,23 +26,24 @@ struct parameters_trace
 
 void set_trace(out parameters_trace trace)
 {
-    trace.position       = vec3(0.0);
-    trace.texel          = vec3(0.0);
-    trace.coords         = vec3(0.0);
-    trace.normal         = vec3(0.0); 
-    trace.gradient       = vec3(0.0); 
-    trace.color          = vec3(0.0);
-    trace.shading        = vec3(0.0);
-    trace.value          = 0.0;  
-    trace.error          = 0.0;  
-    trace.distance       = 0.0;
-    trace.depth          = 0.0;
-    trace.skipped        = 0.0;
-    trace.stepping       = 0.0;
-    trace.spacing        = 0.0;
-    trace.gradient_norm  = 0.0;
-    trace.derivative     = 0.0;
-    trace.steps          = 0;
+    trace.position      = vec3(0.0);
+    trace.texel         = vec3(0.0);
+    trace.coords        = vec3(0.0);
+    trace.normal        = vec3(0.0);
+    trace.gradient      = vec3(0.0);
+    trace.color         = vec3(0.0);
+    trace.shading       = vec3(0.0);
+    trace.value         = 0.0;
+    trace.error         = 0.0;
+    trace.distance      = 0.0;
+    trace.depth         = 0.0;
+    trace.dithering     = 0.0;
+    trace.skipped       = 0.0;
+    trace.stepping      = 0.0;
+    trace.spacing       = 0.0;
+    trace.gradient_norm = 0.0;
+    trace.derivative    = 0.0;
+    trace.steps         = 0;
 }
 
 void copy_trace(out parameters_trace trace, in parameters_trace copy)
@@ -57,6 +59,7 @@ void copy_trace(out parameters_trace trace, in parameters_trace copy)
     trace.error         = copy.error;
     trace.distance      = copy.distance;
     trace.depth         = copy.depth;
+    trace.dithering     = copy.dithering;
     trace.stepping      = copy.skipped;
     trace.skipped       = copy.skipped;
     trace.spacing       = copy.spacing;

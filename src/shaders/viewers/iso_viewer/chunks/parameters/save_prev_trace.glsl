@@ -9,6 +9,7 @@ prev_trace.value         = trace.value;
 prev_trace.error         = trace.error;
 prev_trace.distance      = trace.distance;
 prev_trace.depth         = trace.depth;
+prev_trace.dithering     = trace.dithering;
 prev_trace.stepping      = trace.skipped;
 prev_trace.skipped       = trace.skipped;
 prev_trace.spacing       = trace.spacing;
