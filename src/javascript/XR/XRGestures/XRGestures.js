@@ -497,7 +497,6 @@ class XRGestures extends THREE.EventDispatcher {
         this.updateDualAngularSpeed()  
 
         // this.printDualParameters( 3 )
-
     } 
 
     printDualParameters( digits ) {
@@ -513,6 +512,7 @@ class XRGestures extends THREE.EventDispatcher {
         console.log(`parametersDual: \n\n\tdistanceOffset = ${this.parametersDual.distanceOffset.toFixed(digits)} mm`)
         console.log(`parametersDual: \n\n\tangle = ${this.parametersDual.angle.toFixed(digits)} °`)
         console.log(`parametersDual: \n\n\tangle0 = ${this.parametersDual.angle0.toFixed(digits)} °`)
+        console.log(`parametersDual: \n\n\tangleOffset = ${this.parametersDual.angleOffset.toFixed(digits)} °`)
         console.log(`parametersDual: \n\n\tturnAngle = ${this.parametersDual.turnAngle.toFixed(digits)} °`)
         console.log(`parametersDual: \n\n\tangleBuffer[ 0 ] = ${this.parametersDual.angleBuffer[0].toFixed(digits)} ° \n\n\tangleBuffer[end] = ${this.parametersDual.angleBuffer[XRGestures.BUFFER_LENGTH - 1].toFixed(digits)} °`)
         console.log(`parametersDual: \n\n\tradialSpeed = ${this.parametersDual.radialSpeed.toFixed(digits)} m/s`)

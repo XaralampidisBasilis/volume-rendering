@@ -90,6 +90,6 @@ export default class Twist
 
 // gesture constants
 
-Twist.MIN_START_DISTANCE = 5 // mm
-Twist.MAX_START_DISTANCE_OFFSET = 10  // mm
-Twist.MIN_START_ANGLE_OFFSET = 0.12 // °
+Twist.MIN_START_DISTANCE = 30 // mm
+Twist.MAX_START_DISTANCE_OFFSET = 5  // mm
+Twist.MIN_START_ANGLE_OFFSET = 10 // °

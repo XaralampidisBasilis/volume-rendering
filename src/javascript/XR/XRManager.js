@@ -139,7 +139,7 @@ export default class XRManager
     onSessionEnd(event)
     {
         this.renderer.instance.setClearAlpha(1)
-        this.renderer.domElement.style.display = ''
+        this.renderer.instance.domElement.style.display = ''
         this.reticle.mesh.visible = false     
         this.scene.traverse((child) =>
             {

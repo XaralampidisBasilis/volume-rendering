@@ -24,7 +24,7 @@ export default class ISOViewer
         this.resource = {}        
         this.resource.volume = this.resources.items.volumeNifti
         this.resource.mask = this.resources.items.maskNifti  
-        // this.processResources()
+        this.processResources()
 
         this.setParameters()
         this.setNoisemaps()
@@ -35,8 +35,10 @@ export default class ISOViewer
         this.setMesh()
 
         this.computeGradients()
-        this.computeSmoothing()
+        // this.computeSmoothing()
         this.computeOccupancy()
+
+        this.volumeTensor.dispose()
 
         if (this.debug.active) 
         {
@@ -54,25 +56,29 @@ export default class ISOViewer
         const imageWidth  = Math.min(Math.floor(Math.sqrt(    aspectRatio * maxImagePixels)), volumeDimensions[0]);
         const imageHeight = Math.min(Math.floor(Math.sqrt(1 / aspectRatio * maxImagePixels)), volumeDimensions[1]);
 
-        this.volumeTensor = tf.tensor(volumeData, volumeDimensions, 'float32') 
-        this.volumeTensor.resizeBilinear([imageWidth, imageHeight], false, true)
-    }
+        this.volumeTensor = tf.tensor3d(volumeData, volumeDimensions, 'float32') 
 
+        // this does not work as expected
+        this.volumeTensor = this.volumeTensor.resizeNearestNeighbor([volumeDimensions[0]-1, volumeDimensions[1]-1], false, true) 
+    }
 
     setParameters()
     {
+        const volumeSize = this.resource.volume.size
+        const volumeDimensions = this.volumeTensor.shape
+        const volumeSpacing = this.resource.volume.size.map((size, i) => size / volumeDimensions[i])
+
         this.parameters = 
         {
             volume: 
             {
-                size         : new THREE.Vector3().fromArray(this.resource.volume.size),
-                dimensions   : new THREE.Vector3().fromArray(this.resource.volume.dimensions),
-                spacing      : new THREE.Vector3().fromArray(this.resource.volume.spacing),
-                spacing      : new THREE.Vector3().fromArray(this.resource.volume.spacing),
-                invSize      : new THREE.Vector3().fromArray(this.resource.volume.size.map((x) => 1 / x)),
-                invDimensions: new THREE.Vector3().fromArray(this.resource.volume.dimensions.map((x) => 1 / x)),
-                invSpacing   : new THREE.Vector3().fromArray(this.resource.volume.spacing.map((x) => 1 / x)),
-                count        : this.resource.volume.dimensions.reduce((product, value) => product * value, 1),
+                size         : new THREE.Vector3().fromArray(volumeSize),
+                dimensions   : new THREE.Vector3().fromArray(volumeDimensions),
+                spacing      : new THREE.Vector3().fromArray(volumeSpacing),
+                invSize      : new THREE.Vector3().fromArray(volumeSize.map((x) => 1 / x)),
+                invDimensions: new THREE.Vector3().fromArray(volumeDimensions.map((x) => 1 / x)),
+                invSpacing   : new THREE.Vector3().fromArray(volumeSpacing.map((x) => 1 / x)),
+                count        : volumeDimensions.reduce((product, value) => product * value, 1),
             },
 
             mask:
@@ -87,8 +93,8 @@ export default class ISOViewer
 
             geometry: 
             {
-                size  : new THREE.Vector3().fromArray(this.resource.volume.size),
-                center: new THREE.Vector3().fromArray(this.resource.volume.size).divideScalar(2),
+                size  : new THREE.Vector3().fromArray(volumeSize),
+                center: new THREE.Vector3().fromArray(volumeSize).divideScalar(2),
             }
         }
     }
@@ -125,13 +131,13 @@ export default class ISOViewer
         this.textures = {}
         this.setSourceTexture()
         this.setVolumeTexture()
-        this.setMaskTexture()
+        // this.setMaskTexture()
     }
 
     setSourceTexture()
     {
         const volumeDimensions = this.parameters.volume.dimensions.toArray()
-        const volumeData = this.resource.volume.getData()
+        const volumeData = this.volumeTensor.dataSync()
         this.textures.source = new THREE.Data3DTexture(volumeData, ...volumeDimensions)
         this.textures.source.format = THREE.RedFormat
         this.textures.source.type = THREE.FloatType     
@@ -147,7 +153,8 @@ export default class ISOViewer
 
     setVolumeTexture()
     {
-        const volumeData = this.resource.volume.getDataUint8()
+        const volumeDimensions = this.parameters.volume.dimensions.toArray()
+        const volumeData = this.volumeTensor.mul(255).round().dataSync()
         const volumeData4 = new Uint8ClampedArray(this.parameters.volume.count * 4)
         for (let i = 0; i < this.parameters.volume.count; i++)
         {
@@ -155,7 +162,6 @@ export default class ISOViewer
             volumeData4[i4 + 0] = volumeData[i]
         }
 
-        const volumeDimensions = this.parameters.volume.dimensions.toArray()
         this.textures.volume = new THREE.Data3DTexture(volumeData4, ...volumeDimensions)
         this.textures.volume.format = THREE.RGBAFormat
         this.textures.volume.type = THREE.UnsignedByteType     
