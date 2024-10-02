@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import Experience from '../Experience'
 import HitTest from './HitTest'
 import XRGestures from './XRGestures/XRGestures'
-import { XRButton } from 'three/examples/jsm/webxr/XRButton'
+import { ARButton } from 'three/examples/jsm/webxr/ARButton'
 
 export default class XRManager
 {
@@ -20,55 +20,64 @@ export default class XRManager
             this.setButton()
             this.setHitTest()
             this.setGestures()          
-            this.renderer.instance.xr.addEventListener('sessionstart', this.onSessionStart.bind(this))
-            this.renderer.instance.xr.addEventListener('sessionend', this.onSessionEnd.bind(this))
+            this.renderer.instance.xr.addEventListener('sessionstart', (event) => this.onSessionStart(event))
+            this.renderer.instance.xr.addEventListener('sessionend', (event) => this.onSessionEnd(event))
         })
 
     } 
 
     setButton()
     {
-        this.button = XRButton.createButton(this.renderer.instance, { 
-            mode: 'immersive-ar',
-            sessionInit: {
-                requiredFeatures: ['hit-test'],
-                optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],            
-                domOverlay: { root: document.getElementById('container-xr') },
-            }
+        this.button = ARButton.createButton(this.renderer.instance, 
+        { 
+            requiredFeatures: ['hit-test'],
+            optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],            
+            domOverlay: { root: document.getElementById('container-xr') },
         })
 
-        // this.button.addEventListener('click', this.onButton.bind(this))
-
+        this.button.addEventListener('click', this.onButton.bind(this))
         document.body.appendChild(this.button)
     }
 
     setHitTest()
     {
-        this.hitTest = new HitTest(this.renderer.instance)
+        this.hitTest = new HitTest()
         this.reticle = this.hitTest.reticle
-        this.scene.add(this.reticle.mesh)
+    }
+    
+    update()
+    {       
+        if (this.session) 
+            this.session.requestAnimationFrame(this.updateFrame.bind(this))
+    }
+
+    updateFrame(timestamp, frame)
+    {
+        this.gestures.update()  
+        this.hitTest.update(timestamp, frame)
+        this.renderer.update()
     }
 
     setGestures()
     {
         this.gestures = new XRGestures(this.renderer.instance)
-        this.gestures.addEventListener('polytap', this.onPolytap.bind(this))
-        this.gestures.addEventListener('hold', this.onHold.bind(this))
-        this.gestures.addEventListener('pan', this.onPan.bind(this))
-        this.gestures.addEventListener('swipe', this.onSwipe.bind(this))
-        this.gestures.addEventListener('pinch', this.onPinch.bind(this))
-        this.gestures.addEventListener('twist', this.onTwist.bind(this))
-        this.gestures.addEventListener('implode', this.onImplode.bind(this))
-        this.gestures.addEventListener('explode', this.onExplode.bind(this))
+        this.gestures.addEventListener('polytap', (event) => this.onPolytap(event))
+        this.gestures.addEventListener('hold',    (event) => this.onHold(event))
+        this.gestures.addEventListener('pan',     (event) => this.onPan(event))
+        this.gestures.addEventListener('swipe',   (event) => this.onSwipe(event))
+        this.gestures.addEventListener('pinch',   (event) => this.onPinch(event))
+        this.gestures.addEventListener('twist',   (event) => this.onTwist(event))
+        this.gestures.addEventListener('implode', (event) => this.onImplode(event))
+        this.gestures.addEventListener('explode', (event) => this.onExplode(event))
     }
 
     onPolytap(event)
     {
-        if (event.numTaps === 2)
-        {
-            this.world.viewer.mesh.visible = true
-            this.world.viewer.mesh.position.setFromMatrixPosition(this.reticle.mesh.matrix);
-        }
+        // if (event.numTaps === 2)
+        // {
+        //     this.world.viewer.mesh.visible = true
+        //     this.world.viewer.mesh.position.setFromMatrixPosition(this.reticle.mesh.matrix)
+        // }
 
     }
 
@@ -107,21 +116,17 @@ export default class XRManager
         
     }
 
-    
-    update()
-    {       
-        this.gestures.update()  
-        this.hitTest.update()
+    onButton()
+    {
+
     }
 
-    
-    onSessionStart()
+    onSessionStart(event)
     {
+        this.session = this.renderer.instance.xr.getSession()  
         this.renderer.instance.setClearAlpha(0)
-        this.renderer.instance.domElement.style.display = 'none';
-
+        this.renderer.instance.domElement.style.display = 'none'
         this.reticle.mesh.visible = false     
-
         this.scene.traverse((child) =>
         {
             if(child instanceof THREE.Mesh)
@@ -131,13 +136,11 @@ export default class XRManager
         })
     }
 
-    onSessionEnd()
+    onSessionEnd(event)
     {
         this.renderer.instance.setClearAlpha(1)
-        renderer.domElement.style.display = '';
-
+        this.renderer.domElement.style.display = ''
         this.reticle.mesh.visible = false     
-        
         this.scene.traverse((child) =>
             {
                 if(child instanceof THREE.Mesh)

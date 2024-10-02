@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import Experience from '../Experience'
 import Reticle from './Reticle'
 import EventEmitter from '../Utils/EventEmitter'
 
@@ -8,14 +9,16 @@ export default class HitTest extends EventEmitter
     {
         super()
 
-        this.renderer = renderer
-       
+        this.experience = new Experience()
+        this.renderer = this.experience.renderer.instance
+        this.scene = this.experience.scene
+
         this.setReticle()
 
         this.on('ready', this.onHitReady.bind(this))        
         this.on('empty', this.onHitEmpty.bind(this))
 
-        this.renderer.xr.addEventListener('sessionstart', this.onSessionStart.bind(this))
+        this.renderer.xr.addEventListener('sessionstart', (event) => this.onSessionStart(event))
     }
 
     setReticle()
@@ -23,6 +26,7 @@ export default class HitTest extends EventEmitter
         this.reticle = new Reticle()
         this.reticle.mesh.visible = false
         this.reticle.mesh.matrixAutoUpdate = false
+        this.scene.add(this.reticle.mesh)
     }
 
     onHitReady()
@@ -36,13 +40,13 @@ export default class HitTest extends EventEmitter
         this.reticle.mesh.visible = false;
     }
 
-    onSessionStart()
+    onSessionStart(event)
     {
         this.session = this.renderer.xr.getSession()
-        this.session.addEventListener('end', this.onSessionEnd.bind(this))
+        this.session.addEventListener('end', (event) => this.onSessionEnd(event))
     }
    
-    onSessionEnd()
+    onSessionEnd(event)
     {
         this.session = null
         this.referenceSpace = null
@@ -51,15 +55,10 @@ export default class HitTest extends EventEmitter
         this.result = null              
         this.pose = null
         this.matrix = null
+        this.scene.remove(this.reticle.mesh)
     }
 
-    update()
-    {
-        if (this.session) 
-            this.session.requestAnimationFrame(this.updateFrame.bind(this))
-    }
-
-    updateFrame(timestamp, frame)
+    update(timestamp, frame)
     {
         if (frame)
         {
@@ -68,8 +67,8 @@ export default class HitTest extends EventEmitter
 
             if (this.source)
                 this.getResults(frame)
-        }
-    }   
+        }    
+    }
 
     requestSource()
     {
@@ -80,12 +79,11 @@ export default class HitTest extends EventEmitter
             })
             .then((source) => {
                 this.source = source;
+                this.sourceRequested = true
             })
             .catch((error) => {
                 console.error('Error requesting hit test source:', error);
             })
-
-        this.sourceRequested = true
     }
 
     getResults(frame) 

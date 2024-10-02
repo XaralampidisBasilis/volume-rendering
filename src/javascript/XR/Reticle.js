@@ -28,5 +28,6 @@ export default class Reticle
     setMesh()
     {
         this.mesh = new THREE.Mesh(this.geometry, this.material)
+        this.mesh.add(new THREE.AxesHelper(0.2));
     }
 }

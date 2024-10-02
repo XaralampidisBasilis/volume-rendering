@@ -37,7 +37,7 @@ export default class Experience
         this.camera = new Camera()
         this.resources = new Resources(sources)
         this.renderer = new Renderer()
-        this.world = new World()
+        // this.world = new World()
         this.xr = new XRManager()
 
         if(this.debug.active)
@@ -71,14 +71,19 @@ export default class Experience
     update()
     {
         this.camera.update()
-        this.world.update()
-        this.renderer.update()
-
-        if(this.stats)
-            this.stats.update()    
+        // this.world.update()
 
         if (this.renderer.instance.xr.isPresenting)
+        {
             this.xr.update()
+        }
+        else
+        {
+            if(this.stats)
+                this.stats.update()    
+
+            this.renderer.update()
+        }
     }
 
     destroy()
