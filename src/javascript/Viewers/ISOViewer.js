@@ -24,30 +24,28 @@ export default class ISOViewer
         this.resource = {}        
         this.resource.volume = this.resources.items.volumeNifti
         this.resource.mask = this.resources.items.maskNifti  
-        this.processResources().then(() => {
+        this.processResources()
 
-            this.setParameters()
-            this.setNoisemaps()
-            this.setColormaps()
-            this.setTextures()
-            this.setGeometry()
-            this.setMaterial()
-            this.setMesh()
-            this.volumeTensor.dispose()
-    
-            this.computeGradients()
-            // this.computeSmoothing()
-            // this.computeOccupancy()
-    
-            if (this.debug.active) 
-            {
-                this.gui = new ISOGui(this)
-            } 
-        })
+        this.setParameters()
+        this.setNoisemaps()
+        this.setColormaps()
+        this.setTextures()
+        this.setGeometry()
+        this.setMaterial()
+        this.setMesh()
+        this.volumeTensor.dispose()
 
+        this.computeGradients()
+        // this.computeSmoothing()
+        // this.computeOccupancy()
+
+        if (this.debug.active) 
+        {
+            this.gui = new ISOGui(this)
+        } 
     }
 
-    async processResources()
+    processResources()
     {
         const volumeData = this.resource.volume.getData()
         const volumeDimensions = this.resource.volume.dimensions
@@ -57,11 +55,16 @@ export default class ISOViewer
         const imageWidth  = Math.min(Math.floor(Math.sqrt(    aspectRatio * maxImagePixels)), volumeDimensions[0]);
         const imageHeight = Math.min(Math.floor(Math.sqrt(1 / aspectRatio * maxImagePixels)), volumeDimensions[1]);
 
-        this.volumeTensor = tf.tensor3d(volumeData, volumeDimensions, 'float32') 
 
         // this does not work as expected
-        
-        this.volumeTensor = await this.volumeTensor.resizeNearestNeighbor([volumeDimensions[0]-1, volumeDimensions[1]], false, true)
+        this.volumeTensor = tf.tidy(() => 
+        { 
+            const dimensions = [volumeDimensions[2], volumeDimensions[1], volumeDimensions[0]]
+            this.volumeTensor = tf.tensor3d(volumeData, dimensions, 'float32') 
+            this.volumeTensor = this.volumeTensor.transpose([1, 2, 0]).resizeBilinear([419, 419], false, true).transpose([2, 0, 1])
+            // this.volumeTensor = this.volumeTensor.transpose([2, 0, 1])
+            return this.volumeTensor
+        })
 
     }
 
@@ -69,9 +72,9 @@ export default class ISOViewer
     {
         const volumeSize = this.resource.volume.size
         let volumeDimensions = this.volumeTensor.shape
-        volumeDimensions = [volumeDimensions[1], volumeDimensions[0], volumeDimensions[2]]
-
+        volumeDimensions = [volumeDimensions[2], volumeDimensions[1], volumeDimensions[0]]
         const volumeSpacing = this.resource.volume.size.map((size, i) => size / volumeDimensions[i])
+        const volumeCount = this.volumeTensor.size
 
         this.parameters = 
         {
@@ -83,7 +86,7 @@ export default class ISOViewer
                 invSize      : new THREE.Vector3().fromArray(volumeSize.map((x) => 1 / x)),
                 invDimensions: new THREE.Vector3().fromArray(volumeDimensions.map((x) => 1 / x)),
                 invSpacing   : new THREE.Vector3().fromArray(volumeSpacing.map((x) => 1 / x)),
-                count        : volumeDimensions.reduce((product, value) => product * value, 1),
+                count        : volumeCount,
             },
 
             mask:
