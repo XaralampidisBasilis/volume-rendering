@@ -6,7 +6,8 @@ import ISOHelpers from './ISOHelpers'
 import ComputeSmoothing from '../Gpgpu/Smoothing/ComputeSmoothing'
 import ComputeGradients from '../Gpgpu/Gradients/ComputeGradients'
 import ComputeOccupancy from '../Gpgpu/Occupancy/ComputeOccupancy'
-import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest'
+// import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest'
+import * as tf from '@tensorflow/tfjs'
 
 export default class ISOViewer
 {
@@ -24,29 +25,30 @@ export default class ISOViewer
         this.resource = {}        
         this.resource.volume = this.resources.items.volumeNifti
         this.resource.mask = this.resources.items.maskNifti  
-        this.processResources()
+        this.processResources().then(() => {
 
-        this.setParameters()
-        this.setNoisemaps()
-        this.setColormaps()
-        this.setTextures()
-        this.setGeometry()
-        this.setMaterial()
-        this.setMesh()
+            this.setParameters()
+            this.setNoisemaps()
+            this.setColormaps()
+            this.setTextures()
+            this.setGeometry()
+            this.setMaterial()
+            this.setMesh()
+            this.volumeTensor.dispose()
+    
+            this.computeGradients()
+            // this.computeSmoothing()
+            // this.computeOccupancy()
+    
+            if (this.debug.active) 
+            {
+                this.gui = new ISOGui(this)
+            } 
+        })
 
-        this.computeGradients()
-        // this.computeSmoothing()
-        this.computeOccupancy()
-
-        this.volumeTensor.dispose()
-
-        if (this.debug.active) 
-        {
-            this.gui = new ISOGui(this)
-        } 
     }
 
-    processResources()
+    async processResources()
     {
         const volumeData = this.resource.volume.getData()
         const volumeDimensions = this.resource.volume.dimensions
@@ -59,13 +61,17 @@ export default class ISOViewer
         this.volumeTensor = tf.tensor3d(volumeData, volumeDimensions, 'float32') 
 
         // this does not work as expected
-        this.volumeTensor = this.volumeTensor.resizeNearestNeighbor([volumeDimensions[0]-1, volumeDimensions[1]-1], false, true) 
+        
+        this.volumeTensor = await this.volumeTensor.resizeNearestNeighbor([volumeDimensions[0]-1, volumeDimensions[1]], false, true)
+
     }
 
     setParameters()
     {
         const volumeSize = this.resource.volume.size
-        const volumeDimensions = this.volumeTensor.shape
+        let volumeDimensions = this.volumeTensor.shape
+        volumeDimensions = [volumeDimensions[1], volumeDimensions[0], volumeDimensions[2]]
+
         const volumeSpacing = this.resource.volume.size.map((size, i) => size / volumeDimensions[i])
 
         this.parameters = 
@@ -228,7 +234,6 @@ export default class ISOViewer
     computeGradients()
     {
         this.gradients = new ComputeGradients(this)  
-
         for (let i = 0; i < this.parameters.volume.count; i++)
         {
             const i4 = i * 4
@@ -244,7 +249,6 @@ export default class ISOViewer
     computeSmoothing()
     {
         this.smoothing = new ComputeSmoothing(this)
-
         for (let i = 0; i < this.parameters.volume.count; i++)
         {
             const i4 = i * 4
