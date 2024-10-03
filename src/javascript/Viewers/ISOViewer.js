@@ -8,6 +8,9 @@ import ComputeGradients from '../Gpgpu/Gradients/ComputeGradients'
 import ComputeOccupancy from '../Gpgpu/Occupancy/ComputeOccupancy'
 import * as tf from '@tensorflow/tfjs'
 
+import ComputeGradientsTF from '../TensorFlow/Gradients/ComputeGradientsTF'
+
+
 export default class ISOViewer
 {
     constructor()
@@ -20,22 +23,20 @@ export default class ISOViewer
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
 
-        // Resource
-        this.resource = {}        
-        this.resource.volume = this.resources.items.volumeNifti
-        this.resource.mask = this.resources.items.maskNifti  
-        this.processResources()
-
-        this.setParameters()
         this.setNoisemaps()
         this.setColormaps()
+        this.setParameters()
+        this.setTensors()
+
+
         this.setTextures()
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
-        this.volumeTensor.dispose()
-
-        this.computeGradients()
+  
+        // new ComputeGradientsTF(this)
+        
+        // this.computeGradients()
         // this.computeSmoothing()
         // this.computeOccupancy()
 
@@ -45,66 +46,57 @@ export default class ISOViewer
         } 
     }
 
-    processResources()
-    {
-        const volumeData = this.resource.volume.getData()
-        const volumeDimensions = this.resource.volume.dimensions
-        const maxVolumeTexels = this.renderer.instance.capabilities.maxTextureSize ** 2
-        const maxImagePixels = maxVolumeTexels / volumeDimensions[2]
-        const aspectRatio = volumeDimensions[0] / volumeDimensions[1];
-        const imageWidth  = Math.min(Math.floor(Math.sqrt(    aspectRatio * maxImagePixels)), volumeDimensions[0]);
-        const imageHeight = Math.min(Math.floor(Math.sqrt(1 / aspectRatio * maxImagePixels)), volumeDimensions[1]);
-
-
-        // this does not work as expected
-        this.volumeTensor = tf.tidy(() => 
-        { 
-            const dimensions = [volumeDimensions[2], volumeDimensions[1], volumeDimensions[0]]
-            this.volumeTensor = tf.tensor3d(volumeData, dimensions, 'float32') 
-            this.volumeTensor = this.volumeTensor.transpose([1, 2, 0]).resizeBilinear([419, 419], false, true).transpose([2, 0, 1])
-            // this.volumeTensor = this.volumeTensor.transpose([2, 0, 1])
-            return this.volumeTensor
-        })
-
-    }
-
     setParameters()
     {
-        const volumeSize = this.resource.volume.size
-        let volumeDimensions = this.volumeTensor.shape
-        volumeDimensions = [volumeDimensions[2], volumeDimensions[1], volumeDimensions[0]]
-        const volumeSpacing = this.resource.volume.size.map((size, i) => size / volumeDimensions[i])
-        const volumeCount = this.volumeTensor.size
-
         this.parameters = 
         {
             volume: 
             {
-                size         : new THREE.Vector3().fromArray(volumeSize),
-                dimensions   : new THREE.Vector3().fromArray(volumeDimensions),
-                spacing      : new THREE.Vector3().fromArray(volumeSpacing),
-                invSize      : new THREE.Vector3().fromArray(volumeSize.map((x) => 1 / x)),
-                invDimensions: new THREE.Vector3().fromArray(volumeDimensions.map((x) => 1 / x)),
-                invSpacing   : new THREE.Vector3().fromArray(volumeSpacing.map((x) => 1 / x)),
-                count        : volumeCount,
+                size         : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size),
+                dimensions   : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.dimensions),
+                spacing      : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.spacing),
+                invSize      : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size.map((x) => 1 / x)),
+                invDimensions: new THREE.Vector3().fromArray(this.resources.items.volumeNifti.dimensions.map((x) => 1 / x)),
+                invSpacing   : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.spacing.map((x) => 1 / x)),
+                count        : this.resources.items.volumeNifti.dimensions.reduce((product, value) => product * value, 1),
             },
-
             mask:
             {
-                size         : new THREE.Vector3().fromArray(this.resource.mask.size),
-                dimensions   : new THREE.Vector3().fromArray(this.resource.mask.dimensions),
-                spacing      : new THREE.Vector3().fromArray(this.resource.mask.spacing),
-                invSize      : new THREE.Vector3().fromArray(this.resource.mask.size.map((x) => 1 / x)),
-                invDimensions: new THREE.Vector3().fromArray(this.resource.mask.dimensions.map((x) => 1 / x)),
-                invSpacing   : new THREE.Vector3().fromArray(this.resource.mask.spacing.map((x) => 1 / x)),
+                size         : new THREE.Vector3().fromArray(this.resources.items.maskNifti.size),
+                dimensions   : new THREE.Vector3().fromArray(this.resources.items.maskNifti.dimensions),
+                spacing      : new THREE.Vector3().fromArray(this.resources.items.maskNifti.spacing),
+                invSize      : new THREE.Vector3().fromArray(this.resources.items.maskNifti.size.map((x) => 1 / x)),
+                invDimensions: new THREE.Vector3().fromArray(this.resources.items.maskNifti.dimensions.map((x) => 1 / x)),
+                invSpacing   : new THREE.Vector3().fromArray(this.resources.items.maskNifti.spacing.map((x) => 1 / x)),
             },
-
             geometry: 
             {
-                size  : new THREE.Vector3().fromArray(volumeSize),
-                center: new THREE.Vector3().fromArray(volumeSize).divideScalar(2),
+                size  : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size),
+                center: new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size).divideScalar(2),
             }
         }
+    }
+
+    setTensors()
+    {
+        this.tensors = {}
+
+        // tensor flow uses the NHWC format by default
+        const volumeTensorShape = [
+            this.resources.items.volumeNifti.dimensions[2], // Batch size (number of images)
+            this.resources.items.volumeNifti.dimensions[1], // Height of the image
+            this.resources.items.volumeNifti.dimensions[0], // Width of the image
+            1,                                             // Number of channels (e.g., RGB channels)
+        ]
+        const maskTensorShape = [
+            this.resources.items.maskNifti.dimensions[2], // Batch size (number of images)
+            this.resources.items.maskNifti.dimensions[1], // Height of the image
+            this.resources.items.maskNifti.dimensions[0], // Width of the image
+            1,                                           // Number of channels (e.g., RGB channels)
+        ]
+
+        this.tensors.volume = tf.tensor4d(this.resources.items.volumeNifti.getData(), volumeTensorShape,'float32')
+        this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), maskTensorShape,'float32')
     }
 
     setNoisemaps()
@@ -139,13 +131,13 @@ export default class ISOViewer
         this.textures = {}
         this.setSourceTexture()
         this.setVolumeTexture()
-        // this.setMaskTexture()
+        this.setMaskTexture()
     }
 
     setSourceTexture()
     {
         const volumeDimensions = this.parameters.volume.dimensions.toArray()
-        const volumeData = this.volumeTensor.dataSync()
+        const volumeData = this.tensors.volume.dataSync()
         this.textures.source = new THREE.Data3DTexture(volumeData, ...volumeDimensions)
         this.textures.source.format = THREE.RedFormat
         this.textures.source.type = THREE.FloatType     
@@ -162,7 +154,7 @@ export default class ISOViewer
     setVolumeTexture()
     {
         const volumeDimensions = this.parameters.volume.dimensions.toArray()
-        const volumeData = this.volumeTensor.mul(255).round().dataSync()
+        const volumeData = new Uint8ClampedArray(this.tensors.volume.mul(255).round().dataSync())
         const volumeData4 = new Uint8ClampedArray(this.parameters.volume.count * 4)
         for (let i = 0; i < this.parameters.volume.count; i++)
         {
@@ -185,8 +177,8 @@ export default class ISOViewer
 
     setMaskTexture()
     {
-        const maskData = this.resource.volume.getDataUint8()
         const maskDimensions = this.parameters.mask.dimensions.toArray()
+        const maskData = new Uint8ClampedArray(this.tensors.mask.mul(255).round().dataSync())
         this.textures.mask = new THREE.Data3DTexture(maskData, ...maskDimensions)
         this.textures.mask.format = THREE.RedFormat
         this.textures.mask.type = THREE.UnsignedByteType     
