@@ -6,7 +6,6 @@ import ISOHelpers from './ISOHelpers'
 import ComputeSmoothing from '../Gpgpu/Smoothing/ComputeSmoothing'
 import ComputeGradients from '../Gpgpu/Gradients/ComputeGradients'
 import ComputeOccupancy from '../Gpgpu/Occupancy/ComputeOccupancy'
-// import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest'
 import * as tf from '@tensorflow/tfjs'
 
 export default class ISOViewer
