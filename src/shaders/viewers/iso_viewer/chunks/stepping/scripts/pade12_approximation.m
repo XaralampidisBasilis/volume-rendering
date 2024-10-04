@@ -13,3 +13,7 @@ pade12 = pade(taylor, x, 'Order', [1 2], 'ExpansionPoint', 0);
  quadratic_coeffs = simplify(quadratic_coeffs);
 
 pretty(quadratic_coeffs')
+
+%% Factoring
+quadratic_coeffs_2 = 6* f10 * (f00 * f20 - 2*f10^2) + 2*(f00 - fc)*(3*f10*f20 - f00*f30);
+disp(simplify(quadratic_coeffs(2) - quadratic_coeffs_2))

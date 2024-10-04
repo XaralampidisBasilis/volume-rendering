@@ -119,7 +119,7 @@ export default class ISOGui
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
                 
             steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')
-                .options({ taylor_linear: 1, taylor_quadratic: 2, taylor_cubic: 3, pade_rational11: 4, pade_rational02: 5, pade_rational21: 6, derivative: 7, normal: 8, gradient_norm: 9, uniform: 10, })
+                .options({ taylor_linear: 1, taylor_quadratic: 2, taylor_cubic: 3, pade_rational11: 4, pade_rational02: 5, pade_rational21: 6, pade_rational12: 7, pade_rational03: 8, derivative: 9, normal: 10, gradient_norm: 11, uniform: 12, })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             ditheringMethod: raycast.add(defines, 'DITHERING_METHOD').name('dithering_method')
@@ -326,7 +326,7 @@ export default class ISOGui
                 variable3            :   30,
             }),
             number: debug.add(u_debug, 'number').min(0).max(20).step(1),
-            scale: debug.add(u_debug, 'scale').min(0).max(10).step(0.001),
+            scale: debug.add(u_debug, 'scale').min(0).max(100).step(0.001),
             constant: debug.add(u_debug, 'constant').min(0).max(1).step(0.001),
             mixing: debug.add(u_debug, 'mixing').min(0).max(1).step(0.001),
             epsilon: debug.add(u_debug, 'epsilon').min(-2).max(2).step(0.0000001),

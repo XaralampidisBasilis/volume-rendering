@@ -30,20 +30,28 @@
 #elif STEPPING_METHOD == 6
     #include "./modules/stepping_pade_rational21" 
 
-// stepping_derivative
+// stepping_pade_rational12
 #elif STEPPING_METHOD == 7
+    #include "./modules/stepping_pade_rational12" 
+
+// stepping_pade_rational03
+#elif STEPPING_METHOD == 8
+    #include "./modules/stepping_pade_rational03" 
+
+// stepping_derivative
+#elif STEPPING_METHOD == 9
     #include "./modules/stepping_derivative"
 
 // stepping_normal
-#elif STEPPING_METHOD == 8
+#elif STEPPING_METHOD == 10
     #include "./modules/stepping_normal"    
 
 // stepping_gradient_norm
-#elif STEPPING_METHOD == 9
+#elif STEPPING_METHOD == 11
     #include "./modules/stepping_gradient_norm" 
 
 // stepping_uniform
-#elif STEPPING_METHOD == 10
+#elif STEPPING_METHOD == 12
     #include "./modules/stepping_uniform"   
 
 #else  

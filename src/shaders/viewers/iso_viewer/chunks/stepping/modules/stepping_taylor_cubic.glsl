@@ -26,6 +26,3 @@ next_stepping = mix(vec3(u_raycast.max_stepping), next_stepping, bvec3(num_roots
 trace.stepping = mmin(next_stepping);
 trace.stepping = clamp(trace.stepping, u_raycast.min_stepping, u_raycast.max_stepping);
 
-
-
-debug.variable3 = vec4(vec3(num_roots) / 3.0, 1.0);

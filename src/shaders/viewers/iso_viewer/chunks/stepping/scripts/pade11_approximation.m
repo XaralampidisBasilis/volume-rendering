@@ -12,4 +12,4 @@ pade11 = pade(taylor, x, 'Order', [1 1], 'ExpansionPoint', 0);
 [linear_coeffs, x_terms] = coeffs(num11 - den11 * fc, x);
  linear_coeffs = simplify(linear_coeffs);
 
-pretty(linear_coeffs)
+pretty(linear_coeffs')
