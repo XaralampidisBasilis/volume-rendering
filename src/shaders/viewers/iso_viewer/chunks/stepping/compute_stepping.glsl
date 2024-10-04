@@ -14,23 +14,39 @@
 #elif STEPPING_METHOD == 2  
     #include "./modules/stepping_taylor_quadratic"   
 
+// stepping_taylor_cubic
+#elif STEPPING_METHOD == 3  
+    #include "./modules/stepping_taylor_cubic"  
+
+// stepping_pade_rational11
+#elif STEPPING_METHOD == 4
+    #include "./modules/stepping_pade_rational11" 
+
+// stepping_pade_rational02
+#elif STEPPING_METHOD == 5
+    #include "./modules/stepping_pade_rational02" 
+
+// stepping_pade_rational21
+#elif STEPPING_METHOD == 6
+    #include "./modules/stepping_pade_rational21" 
+
 // stepping_derivative
-#elif STEPPING_METHOD == 3
+#elif STEPPING_METHOD == 7
     #include "./modules/stepping_derivative"
 
 // stepping_normal
-#elif STEPPING_METHOD == 4
+#elif STEPPING_METHOD == 8
     #include "./modules/stepping_normal"    
 
 // stepping_gradient_norm
-#elif STEPPING_METHOD == 5
+#elif STEPPING_METHOD == 9
     #include "./modules/stepping_gradient_norm" 
 
 // stepping_uniform
-#elif STEPPING_METHOD == 6
+#elif STEPPING_METHOD == 10
     #include "./modules/stepping_uniform"   
 
 #else  
-    #error "Unknown STEPPING_METHOD: Valid values are 1 to 6."
+    #error "Unknown STEPPING_METHOD."
 
 #endif // STEPPING_METHOD

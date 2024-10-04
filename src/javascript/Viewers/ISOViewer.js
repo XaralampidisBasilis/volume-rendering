@@ -27,8 +27,6 @@ export default class ISOViewer
         this.setColormaps()
         this.setParameters()
         this.setTensors()
-
-
         this.setTextures()
         this.setGeometry()
         this.setMaterial()
@@ -36,9 +34,9 @@ export default class ISOViewer
   
         // new ComputeGradientsTF(this)
         
-        // this.computeGradients()
-        // this.computeSmoothing()
-        // this.computeOccupancy()
+        this.computeGradients()
+        this.computeSmoothing()
+        this.computeOccupancy()
 
         if (this.debug.active) 
         {

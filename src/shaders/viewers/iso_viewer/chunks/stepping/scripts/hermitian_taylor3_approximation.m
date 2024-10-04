@@ -1,16 +1,16 @@
-syms s t t0 t1 f0 f1 f2 f10 f11 f21 f31 stepping ray_spacing;
+syms s t t0 t1 f0 f1 fc f10 f11 f21 f31 step space;
 
-assume([s t t0 t1 f0 f1 f2 f10 f11 f21 f31 stepping ray_spacing], 'real')
+assume([s t t0 t1 f0 f1 fc f10 f11 f21 f31 step space], 'real')
 assume(t0 <= t1)
 assume(f0 <= f1)
 
 % second order taylor approximation for t
 T = f1 + f11 * (t - t1) + f21 / 2 * (t - t1)^2 + f31 / 6 * (t - t1)^3;
 
-% we want to solve for equation T(t)- f2 == 0 and stepping = (t - t1) / ray_spacing; =>  t = stepping * ray_spacing + t1;
-S = simplify(subs(T - f2, t, stepping * ray_spacing + t1));
-[S_coeffs, S_terms] = coeffs(S, stepping);
-stepping_roots = solve(S == 0, stepping);
+% we want to solve for equation T(t)- fc == 0 and step = (t - t1) / space; =>  t = step * space + t1;
+S = simplify(subs(T - fc, t, step * space + t1));
+[S_coeffs, S_terms] = coeffs(S, step);
+stepping_roots = solve(S == 0, step);
 
 pretty(dot(S_coeffs, S_terms));
 pretty(stepping_roots)

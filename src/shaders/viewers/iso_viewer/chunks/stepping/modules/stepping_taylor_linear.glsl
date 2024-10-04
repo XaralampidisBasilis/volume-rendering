@@ -14,14 +14,17 @@
  * @output trace.stepping        : the adjusted trace stepping size  (float)
  */
 
+vec2 taylor_coeffs = vec2(trace.error, trace.derivative);
+
+// make change of variable to directly compute the next stepping and not spacing
+taylor_coeffs *= vec2(1.0, ray.spacing);
+
 // calculate the spacing size as the ratio between error and the derivative.
-float trace_spacing = - trace.error / maxabs(trace.derivative, EPSILON6);
+int num_roots; float next_stepping = linear_roots(taylor_coeffs, num_roots);
 
-// compute stepping by normalizing trace spacing with ray spacing
-trace.stepping = trace_spacing / ray.spacing;
+// filter unwanted stepping values (negative or non-solvable) and set them to max stepping.
+next_stepping = mix(u_raycast.max_stepping, next_stepping, next_stepping > 0.0);
+next_stepping = mix(u_raycast.max_stepping, next_stepping, num_roots > 0);
 
-// if stepping is negative set it to max stepping 
-trace.stepping = mix(u_raycast.max_stepping, trace.stepping, step(0.0, trace.stepping));
-
-// clamp the stepping size between the minimum and maximum allowable values.
-trace.stepping = clamp(trace.stepping, u_raycast.min_stepping, u_raycast.max_stepping);
+// choose the minimum valid solution and clamp the result between the allowable stepping range.
+trace.stepping = clamp(next_stepping, u_raycast.min_stepping, u_raycast.max_stepping);

@@ -25,4 +25,3 @@
 #include "./debug_ray_max_depth"       
 #include "./debug_ray_max_steps"       
 #include "./debug_frag_depth"  
-#include "./debug_trace_outside"  

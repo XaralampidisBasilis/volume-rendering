@@ -12,7 +12,7 @@ vec2 linear_coefficients(in vec2 t, in vec2 f)
     vec2 t_diff = t.xy - t.yx;
 
     // avoid division by small values by enforcing a minimum threshold
-    t_diff = maxabs(t_diff, EPSILON6);
+    t_diff = maxabs(t_diff, PICO_TOL);
 
     // matrix-vector multiplication with f_weighted
     mat2 t_matrix = mat2(-t.yx, vec2(1.0));

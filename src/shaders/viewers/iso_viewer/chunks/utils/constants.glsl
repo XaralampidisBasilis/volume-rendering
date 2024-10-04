@@ -47,14 +47,41 @@ license:
     #ifndef EULER
     #define EULER 2.718281828459045235360287471352
     #endif
-    #ifndef EPSILON3
-    #define EPSILON3 0.0001
+    #ifndef TERA_TOL
+    #define TERA_TOL 1e+12
     #endif
-    #ifndef EPSILON6
-    #define EPSILON6 0.0000001
+    #ifndef GIGA_TOL
+    #define GIGA_TOL 1e+9
     #endif
-    #ifndef EPSILON9
-    #define EPSILON9 0.0000000001
+    #ifndef MEGA_TOL
+    #define MEGA_TOL 1e+6
+    #endif
+    #ifndef KILO_TOL
+    #define KILO_TOL 1e+3
+    #endif
+    #ifndef HECTO_TOL
+    #define HECTO_TOL 1e+2
+    #endif
+    #ifndef DEKA_TOL
+    #define DEKA_TOL 1e+1
+    #endif
+    #ifndef DECI_TOL
+    #define DECI_TOL 1e-1
+    #endif
+    #ifndef CENTI_TOL
+    #define CENTI_TOL 1e-2
+    #endif
+    #ifndef MILLI_TOL
+    #define MILLI_TOL 1e-3
+    #endif
+    #ifndef MICRO_TOL
+    #define MICRO_TOL 1e-6
+    #endif
+    #ifndef NANO_TOL
+    #define NANO_TOL 1e-9
+    #endif
+    #ifndef PICO_TOL
+    #define PICO_TOL 1e-12
     #endif
 
 #endif // CONSTANTS

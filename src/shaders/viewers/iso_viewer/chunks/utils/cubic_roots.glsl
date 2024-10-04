@@ -11,7 +11,7 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
     float root12; vec2 roots2; vec3 roots3;
 
     // check if cubic
-    if (abs(coeff.w) < EPSILON9) {
+    if (abs(coeff.w) < PICO_TOL) {
         roots2 = quadratic_roots(coeff.xyz, num_roots);
         return roots2.xyy;
     }
@@ -59,7 +59,7 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
     roots3 = sqrt(max(0.0, -coeff_depressed.y)) * roots3 * 2.0 - coeff.z; 
     roots3 = sort(roots3);     
 
-    num_roots = 3 - 2 * int(discriminant < EPSILON9);
+    num_roots = 3 - 2 * int(discriminant < PICO_TOL);
     return roots3;
 }
 
@@ -69,7 +69,7 @@ vec3 cubic_roots(in vec4 coeff)
     float root12; vec2 roots2; vec3 roots3;
 
     // check if quadratic
-    if (abs(coeff.w) < EPSILON9) {
+    if (abs(coeff.w) < PICO_TOL) {
         roots2 = quadratic_roots(coeff.xyz);
         return roots2.xyy;
     }
@@ -97,7 +97,7 @@ vec3 cubic_roots(in vec4 coeff)
     vec2 cubic_root = vec2(cos(theta), sin(theta));
 
     // compute real root using cubic root formula for one real and two complex roots eq(0.15)
-    if (discriminant < EPSILON9) {
+    if (discriminant < PICO_TOL) {
         root12 = cbrt((-coeff_depressed.x + sqrt_discrim) * 0.5) 
                + cbrt((-coeff_depressed.x - sqrt_discrim) * 0.5)
                - coeff.z;
