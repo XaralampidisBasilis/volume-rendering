@@ -1,8 +1,7 @@
 
-// calculate the slope of the derivative between the current and previous trace.
+// compute the second and third derivative using Hermitian cubic interpolation.
 float slope = (trace.value - prev_trace.value) / trace.spacing;
 
-// compute the second derivative using Hermitian cubic interpolation.
 float second_derivative = (2.0 * trace.derivative + prev_trace.derivative - 3.0 * slope) * 2.0;
 second_derivative /= trace.spacing;
 

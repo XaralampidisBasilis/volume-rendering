@@ -47,6 +47,12 @@ license:
     #ifndef EULER
     #define EULER 2.718281828459045235360287471352
     #endif
+    #ifndef EXA_TOL
+    #define EXA_TOL 1e+18
+    #endif
+    #ifndef PETA_TOL
+    #define PETA_TOL 1e+15
+    #endif
     #ifndef TERA_TOL
     #define TERA_TOL 1e+12
     #endif
@@ -82,6 +88,12 @@ license:
     #endif
     #ifndef PICO_TOL
     #define PICO_TOL 1e-12
+    #endif
+    #ifndef FEMTO_TOL
+    #define FEMTO_TOL 1e-15
+    #endif
+    #ifndef ATTO_TOL
+    #define ATTO_TOL 1e-18
     #endif
 
 #endif // CONSTANTS

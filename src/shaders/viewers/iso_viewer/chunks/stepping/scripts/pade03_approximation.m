@@ -1,6 +1,6 @@
 clear, clc
-syms a0 b1 b2 b3 x x0 f00 f10 f20 f30 fc
-assume([a0 b1 b2 b3 x x0 f00 f10 f20 f30 fc], 'real')
+syms a0 b1 b2 b3 x x0 f00 f10 f20 f30 f40 fc
+assume([a0 b1 b2 b3 x x0 f00 f10 f20 f30 f40 fc], 'real')
 
 padde = a0 / (1 + b1 * x + b2 * x^2 + b3 * x^3);
 
