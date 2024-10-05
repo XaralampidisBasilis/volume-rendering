@@ -11,7 +11,10 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
     float root12; vec2 roots2; vec3 roots3;
 
     // check if cubic
-    if (abs(coeff.w) < PICO_TOL) {
+    float coeff_yz = abs(0.5 * coeff.y / coeff.z);
+    float error = abs(coeff.w * pow3(coeff_yz + sqrt(abs(coeff_yz * coeff_yz - coeff.z / coeff.x))));
+    
+    if (error < PICO_TOL) {
         roots2 = quadratic_roots(coeff.xyz, num_roots);
         return roots2.xyy;
     }
@@ -52,7 +55,7 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
     roots3 = vec3(
         cubic_root.x,                                                   // First root
         dot(vec2(-0.5, -0.5 * sqrt(3.0)), cubic_root),   // Second root (rotated by 120 degrees)
-        dot(vec2(-0.5, 0.5 * sqrt(3.0)), cubic_root)     // Third root (rotated by -120 degrees)
+        dot(vec2(-0.5,  0.5 * sqrt(3.0)), cubic_root)     // Third root (rotated by -120 degrees)
     );
 
     // revert transformation and sort the three real roots eq(0.2) and eq(0.16)
@@ -69,7 +72,10 @@ vec3 cubic_roots(in vec4 coeff)
     float root12; vec2 roots2; vec3 roots3;
 
     // check if quadratic
-    if (abs(coeff.w) < PICO_TOL) {
+    float coeff_yz = abs(0.5 * coeff.y / coeff.z);
+    float error = abs(coeff.w * pow3(coeff_yz + sqrt(coeff_yz * coeff_yz - coeff.z / coeff.x)));
+    
+    if (error < PICO_TOL) {
         roots2 = quadratic_roots(coeff.xyz);
         return roots2.xyy;
     }
@@ -108,7 +114,7 @@ vec3 cubic_roots(in vec4 coeff)
     roots3 = vec3(
         cubic_root.x,                                                   // First root
         dot(vec2(-0.5, -0.5 * sqrt(3.0)), cubic_root),   // Second root (rotated by 120 degrees)
-        dot(vec2(-0.5, 0.5 * sqrt(3.0)), cubic_root)     // Third root (rotated by -120 degrees)
+        dot(vec2(-0.5,  0.5 * sqrt(3.0)), cubic_root)     // Third root (rotated by -120 degrees)
     );
 
     // revert transformation and sort the three real roots eq(0.2) and eq(0.16)

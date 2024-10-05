@@ -13,3 +13,4 @@ pade03 = pade(taylor, x, 'Order', [0 3], 'ExpansionPoint', 0);
  quadratic_coeffs = simplify(quadratic_coeffs);
 
 pretty(quadratic_coeffs')
+

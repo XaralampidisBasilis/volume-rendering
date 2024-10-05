@@ -6,7 +6,7 @@ float slope = (trace.value - prev_trace.value) / trace.spacing;
 float second_derivative = (2.0 * trace.derivative + prev_trace.derivative - 3.0 * slope) * 2.0;
 second_derivative /= trace.spacing;
 
-float third_derivative = (trace.derivative + prev_trace.derivative - 3.0 * slope) * 6.0;
+float third_derivative = (trace.derivative + prev_trace.derivative - 2.0 * slope) * 6.0;
 third_derivative /= pow2(trace.spacing);
 
 // solve the equation of pade[1,2](x) == fc to find the next_spacing, this equation results in a quadratic

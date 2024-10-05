@@ -5,7 +5,8 @@
 vec2 quadratic_roots(in vec3 coeff, out int num_roots) 
 {
     // If linear return early
-    float error = abs(coeff.x * coeff.z / coeff.y);
+    float error = abs(coeff.x * pow2(coeff.z / coeff.y));
+    
     if (error < PICO_TOL) return vec2(linear_roots(coeff.xy, num_roots));
 
     // Normalize coefficients (divide x and y by z)
