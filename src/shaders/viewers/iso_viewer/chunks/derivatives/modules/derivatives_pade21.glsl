@@ -4,6 +4,8 @@ float slope = (trace.value - prev_trace.value) / trace.spacing;
 vec2 delta = vec2(trace.derivative - slope, prev_trace.derivative - slope);
 float ratio = delta.x / delta.y;
 
+trace.derivative = dot(trace.gradient, ray.direction);
+
 trace.derivative2 = 2.0 * delta.x * ratio;
 trace.derivative2 /= trace.spacing;
 
