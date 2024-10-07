@@ -4,8 +4,8 @@ assume([ a0 a1 b1 b2 x x0 f00 f10 f20 f30 fc], 'real')
 
 padde = (a0 + a1 * x) / (1 + b1 * x + b2 * x^2);
 
-taylor = f00 + f10 / factorial(1) * x + f20 / factorial(2) * x^2 + f30 / factorial(3) * x^3;
-pade12 = pade(taylor, x, 'Order', [1 2], 'ExpansionPoint', 0);
+taylor = f00 + f10 / factorial(1) * (x - x0) + f20 / factorial(2) * (x - x0)^2 + f30 / factorial(3) * (x - x0)^3;
+pade12 = pade(taylor, x, 'Order', [1 2], 'ExpansionPoint', x0);
 
 %% Simplify pade12
 [num12, den12] = numden(pade12);

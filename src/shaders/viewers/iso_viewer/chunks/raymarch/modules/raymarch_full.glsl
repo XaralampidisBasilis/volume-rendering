@@ -17,8 +17,9 @@ for (
     trace.gradient = (2.0 * volume_data.gba - 1.0) * u_gradient.max_norm;
     trace.gradient_norm = length(trace.gradient);
     trace.normal = - normalize(trace.gradient);
-    trace.derivative = dot(trace.gradient, ray.direction);
     float gradient_slope = trace.gradient_norm / u_gradient.max_norm;
+    
+    #include "../../derivatives/compute_derivatives"
 
     // Check if the sampled intensity exceeds the threshold
     if (trace.error > 0.0 && gradient_slope > u_gradient.threshold && trace.steps > 0) 

@@ -16,14 +16,8 @@
  * @output trace.stepping          : the adjusted trace stepping size (float)
  */
 
-/// compute the second and third derivative using Hermitian cubic interpolation.
-float slope = (trace.value - prev_trace.value) / trace.spacing;
-
-float second_derivative = (2.0 * trace.derivative + prev_trace.derivative - 3.0 * slope) * 2.0;
-second_derivative /= trace.spacing;
-
 // set up the coefficients for the quadratic Taylor approximation at the trace position.
-vec3 taylor_coeffs = vec3(trace.error, trace.derivative, second_derivative / 2.0);
+vec3 taylor_coeffs = vec3(trace.error, trace.derivative, trace.derivative2 / 2.0);
 
 // make change of variable to directly compute the next stepping and not spacing
 taylor_coeffs *= vec3(1.0, ray.spacing, pow2(ray.spacing));

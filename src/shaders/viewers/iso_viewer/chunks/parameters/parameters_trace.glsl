@@ -21,6 +21,8 @@ struct parameters_trace
     float spacing;
     float gradient_norm;
     float derivative;
+    float derivative2;
+    float derivative3;
     int   steps;
 };
 
@@ -43,6 +45,8 @@ void set_trace(out parameters_trace trace)
     trace.spacing       = 0.0;
     trace.gradient_norm = 0.0;
     trace.derivative    = 0.0;
+    trace.derivative2   = 0.0;
+    trace.derivative3   = 0.0;
     trace.steps         = 0;
 }
 
@@ -65,6 +69,8 @@ void copy_trace(out parameters_trace trace, in parameters_trace copy)
     trace.spacing       = copy.spacing;
     trace.gradient_norm = copy.gradient_norm;
     trace.derivative    = copy.derivative;
+    trace.derivative2   = copy.derivative2;
+    trace.derivative3   = copy.derivative3;
     trace.steps         = copy.steps;
 }
 

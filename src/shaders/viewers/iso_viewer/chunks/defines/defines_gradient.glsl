@@ -14,3 +14,8 @@
 #ifndef GRADIENT_REFINEMENT_METHOD
 #define GRADIENT_REFINEMENT_METHOD 3 
 #endif
+
+// {hermite_cubic, hermite_rational21, hermite_rational12}
+#ifndef DERIVATIVE_METHOD
+#define DERIVATIVE_METHOD 1 
+#endif

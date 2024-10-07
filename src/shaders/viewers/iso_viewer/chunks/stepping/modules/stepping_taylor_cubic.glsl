@@ -1,16 +1,6 @@
 
-
-// compute the second and third derivative using Hermitian cubic interpolation.
-float slope = (trace.value - prev_trace.value) / trace.spacing;
-
-float second_derivative = (2.0 * trace.derivative + prev_trace.derivative - 3.0 * slope) * 2.0;
-second_derivative /= trace.spacing;
-
-float third_derivative = (trace.derivative + prev_trace.derivative - 2.0 * slope) * 6.0;
-third_derivative /= pow2(trace.spacing);
-
 // set up the coefficients for the cubic Taylor approximation at the trace position.
-vec4 taylor_coeffs = vec4(trace.error, trace.derivative, second_derivative / 2.0, third_derivative / 6.0);
+vec4 taylor_coeffs = vec4(trace.error, trace.derivative, trace.derivative2 / 2.0, trace.derivative3 / 6.0);
 
 // make change of variable to directly compute the next stepping and not spacing
 taylor_coeffs *= vec4(1.0, ray.spacing, pow2(ray.spacing), pow3(ray.spacing));

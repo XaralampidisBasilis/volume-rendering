@@ -15,4 +15,6 @@ prev_trace.skipped       = trace.skipped;
 prev_trace.spacing       = trace.spacing;
 prev_trace.gradient_norm = trace.gradient_norm;
 prev_trace.derivative    = trace.derivative;
+prev_trace.derivative2   = trace.derivative2;
+prev_trace.derivative3   = trace.derivative3;
 prev_trace.steps         = trace.steps;

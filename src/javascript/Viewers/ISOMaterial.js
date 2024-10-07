@@ -115,6 +115,7 @@ export default function(viewer)
         HAS_GRADIENT_REFINEMENT    : 0,
         GRADIENT_REFINEMENT_METHOD : 7,
         GRADIENT_METHOD            : 7,
+        DERIVATIVE_METHOD          : 1,
 
         HAS_SMOOTHING_REFINEMENT   : 0,
         SMOOTHING_REFINEMENT_METHOD: 1,

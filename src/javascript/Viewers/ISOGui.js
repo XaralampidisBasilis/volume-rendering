@@ -173,6 +173,10 @@ export default class ISOGui
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true })
                 .onFinishChange(() => { this.viewer.computeGradients() }),
 
+            derivativeMethod: gradient.add(defines, 'DERIVATIVE_METHOD').name('derivative_method')
+                .options({hermite_cubic: 1, hermite_rational21: 2, hermite_rational12: 3 })
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+
             refinementMethod: gradient.add(defines, 'GRADIENT_REFINEMENT_METHOD').name('refinement_method')
                 .options({tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),

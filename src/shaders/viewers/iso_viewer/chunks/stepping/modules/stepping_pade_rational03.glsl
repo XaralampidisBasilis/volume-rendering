@@ -1,17 +1,8 @@
 
-// compute the second and third derivative using Hermitian cubic interpolation.
-float slope = (trace.value - prev_trace.value) / trace.spacing;
-
-float second_derivative = (2.0 * trace.derivative + prev_trace.derivative - 3.0 * slope) * 2.0;
-second_derivative /= trace.spacing;
-
-float third_derivative = (trace.derivative + prev_trace.derivative - 2.0 * slope) * 6.0;
-third_derivative /= pow2(trace.spacing);
-
 // solve the equation of pade[0,3](x) == fc to find the next_spacing, this equation results in a cubic
 vec2 mixed_terms = vec2(
-    second_derivative * trace.value - 2.0 * trace.derivative * trace.derivative,
-    third_derivative * trace.value - 3.0 * second_derivative * trace.derivative
+    trace.derivative2 * trace.value - 2.0 * trace.derivative * trace.derivative,
+    trace.derivative3 * trace.value - 3.0 * trace.derivative2 * trace.derivative
 );
 
 vec4 pade_coeffs = vec4(

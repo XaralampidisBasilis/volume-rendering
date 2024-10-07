@@ -1,16 +1,16 @@
 
 
-// derivative_hermite30
+// derivatives_hermite_cubic
 #if DERIVATIVE_METHOD == 1  
-    #include "./modules/derivative_hermite30"   
+    #include "./modules/derivatives_hermite_cubic"   
 
-// derivative_hermite21
+// derivatives_hermite_rational21
 #elif DERIVATIVE_METHOD == 2  
-    #include "./modules/derivative_hermite21"   
+    #include "./modules/derivatives_hermite_rational21"   
 
-// derivative_hermite12
+// derivatives_hermite_rational12
 #elif DERIVATIVE_METHOD == 3  
-    #include "./modules/derivative_hermite12"  
+    #include "./modules/derivatives_hermite_rational12"  
 
 #else  
     #error "Unknown DERIVATIVE_METHOD."
