@@ -1,6 +1,5 @@
 clear, clc
 syms t x x0 x1 f00 f01 f10 f11;
-
 assume([t x x0 x1 f00 f01 f10 f11], 'real')
 assume (x0 <= x1)
 

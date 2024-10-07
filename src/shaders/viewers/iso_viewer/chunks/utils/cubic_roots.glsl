@@ -11,10 +11,10 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
     float root12; vec2 roots2; vec3 roots3;
 
     // check if cubic
-    float coeff_yz = abs(0.5 * coeff.y / coeff.z);
-    float error = abs(coeff.w * pow3(coeff_yz + sqrt(abs(coeff_yz * coeff_yz - coeff.z / coeff.x))));
+    float y = abs(coeff.y / coeff.z) * 0.5;
+    float error = pow3(y + sqrt(y * y - coeff.z / coeff.x)) * coeff.w;
     
-    if (error < PICO_TOL) {
+    if (abs(error) < PICO_TOL) {
         roots2 = quadratic_roots(coeff.xyz, num_roots);
         return roots2.xyy;
     }
@@ -72,10 +72,10 @@ vec3 cubic_roots(in vec4 coeff)
     float root12; vec2 roots2; vec3 roots3;
 
     // check if quadratic
-    float coeff_yz = abs(0.5 * coeff.y / coeff.z);
-    float error = abs(coeff.w * pow3(coeff_yz + sqrt(coeff_yz * coeff_yz - coeff.z / coeff.x)));
+    float y = abs(coeff.y / coeff.z) * 0.5;
+    float error = pow3(y + sqrt(y * y - coeff.z / coeff.x)) * coeff.w;
     
-    if (error < PICO_TOL) {
+    if (abs(error) < PICO_TOL) {
         roots2 = quadratic_roots(coeff.xyz);
         return roots2.xyy;
     }
