@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Scharr from './Kernels/Scharr'
 import Sobel from './Kernels/Sobel'
+import Prewitt from './Kernels/Prewitt'
+import Tetrahedron from './Kernels/Tetrahedron'
 import Central from './Kernels/Central'
 
 // assumes intensity data 3D, and data3DTexture
@@ -23,7 +25,7 @@ export default class ComputeGradientsTF
 
     setKernels()
     {
-        this.kernels = new Central()
+        this.kernels = new Tetrahedron()
     }
 
     compute()
@@ -100,7 +102,7 @@ export default class ComputeGradientsTF
             gradientsQuantized1.dispose() 
     
             // return the final quantized gradient tensor and the maximum gradient norm.
-            return [gradientsQuantized.transpose([0, 1, 2, 3]), maxNorm]
+            return [gradientsQuantized, maxNorm]
         })
     
         // extract the tensor data as an array of 8-bit unsigned integers.
