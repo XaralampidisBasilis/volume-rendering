@@ -13,12 +13,10 @@ x_f40 = simplify(solve(D0_x == 0,  x));
 
 D0_coeffs = coeffs(D0_x, x);
 disrc_f40 = simplify(D0_coeffs(2)^2 - 4 * D0_coeffs(1) * D0_coeffs(3)) / 12;
+disrc_coeffs = coeffs(disrc_f40, f40);
 
-assume(disrc_f40 >= 0)
 f40_1 = simplify(solve(x_f40(1) == x0, f40));
 f40_2 = simplify(solve(x_f40(2) == x0, f40));
-
-assume(disrc_f40, "real")
 f40_3 = simplify(solve(disrc_f40 == 0, f40));
 
 %% Simplify pade21

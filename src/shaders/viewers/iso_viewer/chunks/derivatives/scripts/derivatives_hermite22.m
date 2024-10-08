@@ -1,11 +1,12 @@
 clear, clc
-syms a0 a1 a2 b1 b2 x x0 x1 f00 f01 f10 f11 fc 
-assume([a0 a1 a2 b1 b2 x x0 x1 f00 f01 f10 f11 fc ], 'real')
+syms a0 a1 a2 b1 b2 x x0 x1 f00 f01 f10 f11 f21 fc 
+assume([a0 a1 a2 b1 b2 x x0 x1 f00 f01 f10 f11 f21 fc ], 'real')
 
 P0_x = (a0 + a1 * x + a2 * x^2) / (1 + b1 * x + b2 * x^2);
 P1_x = simplify(diff(P0_x, x));
 P2_x = simplify(diff(P1_x, x));
 P3_x = simplify(diff(P2_x, x));
+P4_x = simplify(diff(P3_x, x));
 
 [N0_x, D0_x] = numden(P0_x);
 N1_x = simplify(diff(N0_x, x));
@@ -20,6 +21,7 @@ eq1 = subs(P0_x, x, x0) == f00;
 eq2 = subs(P0_x, x, x1) == f01; 
 eq3 = subs(P1_x, x, x0) == f10;     
 eq4 = subs(P1_x, x, x1) == f11;
+%eq5 = subs(P4_x, x, x1) == 0;
 sol = solve([eq1, eq2, eq3, eq4], [a0 a1 a2 b2]);
 
 %% compute derivatives

@@ -1,9 +1,15 @@
 
-// solve the equation of pade[2,1](x) == fc to find the next_spacing, this equation results in a quadratic
+// solve the equation of pade[2,2](x) == fc to find the next_spacing, this equation results in a quadratic
+// we assume trace.derivative4 = 0
+vec2 mixed = vec2(
+    2.0 * trace.derivative * trace.derivative3 - 3.0 * pow2(trace.derivative2),
+    3.0 * trace.derivative * trace.derivative2 - trace.error * trace.derivative3
+);
+
 vec3 pade_coeffs = vec3(
-    6.0 * trace.derivative2 * trace.error, 
-    6.0 * trace.derivative2 * trace.derivative - 2.0 * trace.derivative3 * trace.error,
-    3.0 * trace.derivative2 * trace.derivative2 - 2.0 * trace.derivative3 * trace.derivative
+    6.0 * trace.error * mixed.x, 
+    6.0 * (trace.derivative * mixed.x + trace.error *  trace.derivative2 * trace.derivative3),
+    3.0 * trace.derivative2 * mixed.x + 2.0 * trace.derivative3 * mixed.y
 );
 
 // make change of variable to directly compute the next stepping and not spacing

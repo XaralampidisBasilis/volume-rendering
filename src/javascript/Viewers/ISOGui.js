@@ -119,7 +119,7 @@ export default class ISOGui
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
                 
             steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')
-                .options({ taylor_linear: 1, taylor_quadratic: 2, taylor_cubic: 3, pade_rational11: 4, pade_rational02: 5, pade_rational21: 6, pade_rational12: 7, pade_rational03: 8, derivative: 9, normal: 10, gradient_norm: 11, uniform: 12, })
+                .options({ taylor10: 1, taylor20: 2, taylor30: 3, pade11: 4, pade02: 5, pade21: 6, pade12: 7, pade03: 8, pade22: 9, uniform: 10, })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             ditheringMethod: raycast.add(defines, 'DITHERING_METHOD').name('dithering_method')
@@ -168,14 +168,14 @@ export default class ISOGui
         {
             threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
             
+            derivativeMethod: gradient.add(defines, 'DERIVATIVE_METHOD').name('derivative_method')
+                .options({hermite30: 1, hermite21: 2, hermite12: 3, hermite22_nopoles: 4, })
+                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+
             precomputeMethod: gradient.add(defines, 'GRADIENT_METHOD').name('precompute_method')
                 .options({tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true })
                 .onFinishChange(() => { this.viewer.computeGradients() }),
-
-            derivativeMethod: gradient.add(defines, 'DERIVATIVE_METHOD').name('derivative_method')
-                .options({hermite_cubic: 1, hermite_rational21: 2, hermite_rational12: 3 })
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             refinementMethod: gradient.add(defines, 'GRADIENT_REFINEMENT_METHOD').name('refinement_method')
                 .options({tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 })

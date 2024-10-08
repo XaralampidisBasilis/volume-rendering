@@ -28,15 +28,12 @@ H41 = simplify(subs(H4_x, x, x1));
 pretty([H11; H21; H31; H41])
 
 %% simplify higher order derivatives at x1
-syms slope delta0 delta1 ratio10
+syms dx slope g10 g11 
 %slope = (f01 - f00) / (x1 - x0);
-%delta0 = f10 - slope;
-%delta1 = f11 - slope;
-%ratio10 = delta1 / delta0;
+%g10 = f10 - slope;
+%g11 = f11 - slope;
 
-F21 = simplify(subs(H21, f01, f00 + slope * (x1 - x0)));
-F31 = simplify(subs(H31, f01, f00 + slope * (x1 - x0)));
-
-F21 = simplify(subs(F21, [f10, f11], [delta0 + slope, delta1 + slope]));
-F31 = simplify(subs(F31, [f10, f11], [delta0 + slope, delta1 + slope]));
-pretty([F21; F31])
+H11 = simplify(subs(H11, [x0, f00, f10, f11], [x1 - dx, f01 - slope * dx, g10 + slope, g11 + slope]));
+H21 = simplify(subs(H21, [x0, f00, f10, f11], [x1 - dx, f01 - slope * dx, g10 + slope, g11 + slope]));
+H31 = simplify(subs(H31, [x0, f00, f10, f11], [x1 - dx, f01 - slope * dx, g10 + slope, g11 + slope]));
+pretty([H11; H21; H31])

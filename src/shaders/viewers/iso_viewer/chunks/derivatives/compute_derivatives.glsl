@@ -12,6 +12,10 @@
 #elif DERIVATIVE_METHOD == 3  
     #include "./modules/derivatives_hermite_rational12"  
 
+// derivatives_hermite_rational12
+#elif DERIVATIVE_METHOD == 4  
+    #include "./modules/derivatives_hermite_rational22_nopoles" 
+
 #else  
     #error "Unknown DERIVATIVE_METHOD."
 

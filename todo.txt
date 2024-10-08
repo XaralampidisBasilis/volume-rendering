@@ -4,9 +4,3 @@ Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2i
 Add typescript
 
 Να ψαξω βιβλιογραφία για το πως μπορεί να χρησιμοποιηθεί το εργαλιο για εφαρμογες σε ML και heart hailure
-
-pade_rational11 and pade_rational03 do not produce good results, find out why.
-
-Create 2 point pade, hermitian, lagrange stepping methods
-
-In order to decide the tolerance for quadratic roots and cubic roots i need to account the root error amount
