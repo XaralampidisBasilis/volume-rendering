@@ -4,29 +4,29 @@ export default class Prewitt
 {
     constructor()
     {
-        this.kernelX = tf.tensor3d([
+        this.x = tf.tensor3d([
             [[-1, -1, -1], [-1, -1, -1], [-1, -1, -1]],
             [[ 0,  0,  0], [ 0,  0,  0], [ 0,  0,  0]],
             [[ 1,  1,  1], [ 1,  1,  1], [ 1,  1,  1]]
-        ], [3, 3, 3], 'float32').div(9).div(2)
+        ], [3, 3, 3], 'float32').div([9]).div([2])
         
-        this.kernelY = tf.tensor3d([
+        this.y = tf.tensor3d([
             [[-1, -1, -1], [ 0, 0, 0], [ 1, 1, 1]],
             [[-1, -1, -1], [ 0, 0, 0], [ 1, 1, 1]],
             [[-1, -1, -1], [ 0, 0, 0], [ 1, 1, 1]]
-        ], [3, 3, 3], 'float32').div(9).div(2)
+        ], [3, 3, 3], 'float32').div([9]).div([2])
         
-        this.kernelZ =  tf.tensor3d([
+        this.z =  tf.tensor3d([
             [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]],
             [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]],
             [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]]
-        ], [3, 3, 3], 'float32').div(9).div(2)
+        ], [3, 3, 3], 'float32').div([9]).div([2])
     }
 
     dispose()
     {
-        this.kernelX.dispose()
-        this.kernelY.dispose()
-        this.kernelZ.dispose()
+        this.x.dispose()
+        this.y.dispose()
+        this.z.dispose()
     }
 }

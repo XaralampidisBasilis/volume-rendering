@@ -31,12 +31,11 @@ export default class ISOViewer
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
-  
-        // new ComputeGradientsTF(this)
-        
-        this.computeGradients()
-        this.computeSmoothing()
+          
+        this.computeGradientsTF()
+        // this.computeSmoothing()
         this.computeOccupancy()
+        this.tensors.volume.dispose()
 
         if (this.debug.active) 
         {
@@ -84,17 +83,17 @@ export default class ISOViewer
             this.resources.items.volumeNifti.dimensions[2], // Batch size (number of images)
             this.resources.items.volumeNifti.dimensions[1], // Height of the image
             this.resources.items.volumeNifti.dimensions[0], // Width of the image
-            1,                                             // Number of channels (e.g., RGB channels)
+            1,                                              // Number of channels (e.g., RGB channels)
         ]
         const maskTensorShape = [
             this.resources.items.maskNifti.dimensions[2], // Batch size (number of images)
             this.resources.items.maskNifti.dimensions[1], // Height of the image
             this.resources.items.maskNifti.dimensions[0], // Width of the image
-            1,                                           // Number of channels (e.g., RGB channels)
+            1,                                            // Number of channels (e.g., RGB channels)
         ]
 
         this.tensors.volume = tf.tensor4d(this.resources.items.volumeNifti.getData(), volumeTensorShape,'float32')
-        this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), maskTensorShape,'float32')
+        // this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), maskTensorShape,'float32')
     }
 
     setNoisemaps()
@@ -129,7 +128,7 @@ export default class ISOViewer
         this.textures = {}
         this.setSourceTexture()
         this.setVolumeTexture()
-        this.setMaskTexture()
+        // this.setMaskTexture()
     }
 
     setSourceTexture()
@@ -233,9 +232,27 @@ export default class ISOViewer
             this.textures.volume.image.data[i4 + 2] = this.gradients.data[i4 + 1]
             this.textures.volume.image.data[i4 + 3] = this.gradients.data[i4 + 2]
         }
+        this.gradients.data = null;
+
         this.textures.volume.needsUpdate = true
         this.material.uniforms.u_gradient.value.max_norm = this.gradients.maxNorm
+    }
+
+    computeGradientsTF()
+    {
+        this.gradients = new ComputeGradientsTF(this)  
+        for (let i = 0; i < this.parameters.volume.count; i++)
+        {
+            const i3 = i * 3
+            const i4 = i * 4
+            this.textures.volume.image.data[i4 + 1] = this.gradients.data[i3 + 0]
+            this.textures.volume.image.data[i4 + 2] = this.gradients.data[i3 + 1]
+            this.textures.volume.image.data[i4 + 3] = this.gradients.data[i3 + 2]
+        }
         this.gradients.data = null;
+
+        this.textures.volume.needsUpdate = true
+        this.material.uniforms.u_gradient.value.max_norm = this.gradients.maxNorm
     }
 
     computeSmoothing()
