@@ -27,87 +27,79 @@ export default class ComputeGradients
             case 4: return new Tetrahedron()
             case 5: return new Central()
             default: 
-                throw new Error(`Unknown GRADIENT_METHOD: ${this.method}`);
+                throw new Error(`Unknown GRADIENT_METHOD: ${this.method}`)
         }
     }
     
 
-    async compute()
-    {   
-        // applying the X convolution filter to the volume data.
-        const gradientX1 = tf.conv3d(this.viewer.tensors.volume, this.kernels.x, 1, 'same')
+    async compute() 
+    {
+        tf.tidy(() => 
+        {
+            // X, Y, Z convolution filters and normalization
+            const gradientX1 = tf.conv3d(this.viewer.tensors.volume, this.kernels.x, 1, 'same')
+            const gradientX = gradientX1.div([this.parameters.volume.spacing.x])
+            gradientX1.dispose()
 
-        // normalize the gradient along X by dividing by the voxel spacing in X direction.
-        const gradientX = gradientX1.div([this.parameters.volume.spacing.x])
-        gradientX1.dispose() 
+            const gradientY1 = tf.conv3d(this.viewer.tensors.volume, this.kernels.y, 1, 'same')
+            const gradientY = gradientY1.div([this.parameters.volume.spacing.y])
+            gradientY1.dispose()
 
-        // applying the Y convolution filter to the volume data.
-        const gradientY1 = tf.conv3d(this.viewer.tensors.volume, this.kernels.y, 1, 'same')
+            const gradientZ1 = tf.conv3d(this.viewer.tensors.volume, this.kernels.z, 1, 'same')
+            const gradientZ = gradientZ1.div([this.parameters.volume.spacing.z])
+            gradientZ1.dispose()
 
-        // normalize the gradient along Y by dividing by the voxel spacing in Y direction.
-        const gradientY = gradientY1.div([this.parameters.volume.spacing.y])
-        gradientY1.dispose() 
+            // Concatenate X, Y, and Z gradients into one tensor
+            const gradients = tf.concat([gradientX, gradientY, gradientZ], 3)
+            gradientX.dispose(), gradientY.dispose(), gradientZ.dispose() 
+    
+            // Compute Euclidean norm of the gradients
+            const gradientsNorm = tf.norm(gradients, 'euclidean', 3).reshape([-1])
+    
+            // Find the maximum norm from the top 0.1%
+            // const percentile = 99.9 
+            // const maxElements = Math.floor(gradientsNorm.size * (1 - percentile / 100))
+            // const maxNorm = tf.topk(gradientsNorm, maxElements, true).values.min()
+            const maxNorm = gradientsNorm.max()
+            gradientsNorm.dispose() 
+    
+            // Quantize the gradients by dividing by maxNorm
+            const gradientsQuantized5 = gradients.div(maxNorm)
+            gradients.dispose() 
 
-        // applying the Z convolution filter to the volume data.
-        const gradientZ1 = tf.conv3d(this.viewer.tensors.volume, this.kernels.z, 1, 'same')
+            // Continue quantization process
+            const gradientsQuantized4 = gradientsQuantized5.add([1])
+            gradientsQuantized5.dispose()
+    
+            const gradientsQuantized3 = gradientsQuantized4.div([2])
+            gradientsQuantized4.dispose()
+    
+            const gradientsQuantized2 = gradientsQuantized3.mul([255])
+            gradientsQuantized3.dispose()
+    
+            const gradientsQuantized1 = gradientsQuantized2.round()
+            gradientsQuantized2.dispose()
+    
+            const gradientsQuantized = gradientsQuantized1.clipByValue(0, 255)
+            gradientsQuantized1.dispose()
+    
+            // Extract the tensor data as an array of 8-bit unsigned integers
+            this.data = new Uint8Array(gradientsQuantized.dataSync()) 
+            gradientsQuantized.dispose()
 
-        // normalize the gradient along Z by dividing by the voxel spacing in Z direction.
-        const gradientZ = gradientZ1.div([this.parameters.volume.spacing.z])
-        gradientZ1.dispose() 
+            this.maxNorm = maxNorm.dataSync() 
+            maxNorm.dispose()
 
-        // concatenate the three gradients (X, Y, Z) along the 4th dimension to form the complete gradient vector field.
-        const gradients = tf.concat([gradientX, gradientY, gradientZ], 3); 
-        gradientX.dispose() 
-        gradientY.dispose() 
-        gradientZ.dispose() 
+            console.log(this.data)
+            console.log(this.maxNorm)
+            console.log(this.method)
+        })
 
-        // compute the Euclidean norm of the gradients along the 4th dimension (3D vectors).
-        const gradientsNorm1 = tf.norm(gradients, 'euclidean', 3).reshape([-1])
-        const gradientsNorm = gradientsNorm1.reshape([-1])
-        gradientsNorm1.dispose() 
+        console.log(tf.memory())
 
-        // find the smallest element among the top 1% (0.001) of the largest gradient norms.
-        const percentile = 99
-        const maxElements = Math.floor(gradientsNorm.size * (1 - percentile/100))
-        const maxNorm = tf.topk(gradientsNorm, maxElements, true).values.min()
-        // const maxNorm = gradientsNorm.max()
-        gradientsNorm.dispose()
-
-        // quantize the gradients by dividing them by maxNorm.
-        const gradientsQuantized5 = gradients.div(maxNorm)
-        gradients.dispose() 
-
-        // shift the gradients to the range [0, 2].
-        const gradientsQuantized4 = gradientsQuantized5.add([1])
-        gradientsQuantized5.dispose() 
-
-        // normalize to [0, 1] by dividing by 2.
-        const gradientsQuantized3 = gradientsQuantized4.div([2])
-        gradientsQuantized4.dispose() 
-
-        // scale the values to the range [0, 255].
-        const gradientsQuantized2 = gradientsQuantized3.mul([255])
-        gradientsQuantized3.dispose() 
-
-        // round the values to nearest integers.
-        const gradientsQuantized1 = gradientsQuantized2.round()
-        gradientsQuantized2.dispose() 
-
-        // clip the values to ensure they stay within [0, 255].
-        const gradientsQuantized = gradientsQuantized1.clipByValue(0, 255)
-        gradientsQuantized1.dispose() 
-
-        // extract the tensor data as an array of 8-bit unsigned integers.
-        this.data = new Uint8Array(await gradientsQuantized.data())
-        gradientsQuantized.dispose()
-        
-        // extract the maximum gradient norm
-        this.maxNorm = await maxNorm.array()
-        maxNorm.dispose()
-
-        return { data: this.data, maxNorm: this.maxNorm}
+        return { data: this.data, maxNorm: this.maxNorm } 
     }
-
+    
     dispose()
     {
         this.kernels.dispose()

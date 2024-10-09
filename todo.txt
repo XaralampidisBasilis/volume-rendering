@@ -5,6 +5,3 @@ Add typescript
 
 Να ψαξω βιβλιογραφία για το πως μπορεί να χρησιμοποιηθεί το εργαλιο για εφαρμογες σε ML και heart hailure
 
-
-
-fix the order of kernels in tensorflow gradients computation

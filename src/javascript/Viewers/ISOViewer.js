@@ -5,7 +5,6 @@ import ISOGui from './ISOGui'
 import ComputeGradients from '../TensorFlow/Gradients/ComputeGradients'
 import ComputeSmoothing from '../TensorFlow/Smoothing/ComputeSmoothing'
 import ComputeBoundingBox from '../TensorFlow/BoundingBox/ComputeBoundingBox'
-import ComputeOccupancy from '../Gpgpu/Occupancy/ComputeOccupancy'
 import * as tf from '@tensorflow/tfjs'
 
 export default class ISOViewer
@@ -49,6 +48,7 @@ export default class ISOViewer
             invSize      : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size.map((x) => 1 / x)),
             invDimensions: new THREE.Vector3().fromArray(this.resources.items.volumeNifti.dimensions.map((x) => 1 / x)),
             invSpacing   : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.spacing.map((x) => 1 / x)),
+            tensorShape  : this.resources.items.volumeNifti.dimensions.toReversed().concat(1), // // tensor flow uses the NHWC format by default
             count        : this.resources.items.volumeNifti.dimensions.reduce((product, value) => product * value, 1),
         }
 
@@ -60,6 +60,8 @@ export default class ISOViewer
             invSize      : new THREE.Vector3().fromArray(this.resources.items.maskNifti.size.map((x) => 1 / x)),
             invDimensions: new THREE.Vector3().fromArray(this.resources.items.maskNifti.dimensions.map((x) => 1 / x)),
             invSpacing   : new THREE.Vector3().fromArray(this.resources.items.maskNifti.spacing.map((x) => 1 / x)),
+            tensorShape  : this.resources.items.maskNifti.dimensions.toReversed().concat(1), // // tensor flow uses the NHWC format by default
+            count        : this.resources.items.maskNifti.dimensions.reduce((product, value) => product * value, 1),
         }
 
         // geometry parameters
@@ -72,24 +74,10 @@ export default class ISOViewer
     setTensors()
     {
         this.tensors = {}
-
-        // volume tensor
-        const volumeTensorShape = [ // tensor flow uses the NHWC format by default
-            this.resources.items.volumeNifti.dimensions[2], // Batch size (number of images)
-            this.resources.items.volumeNifti.dimensions[1], // Height of the image
-            this.resources.items.volumeNifti.dimensions[0], // Width of the image
-            1,                                              // Number of channels (e.g., RGB channels)
-        ]
-        this.tensors.volume = tf.tensor4d(this.resources.items.volumeNifti.getData(), volumeTensorShape,'float32')
-
-        // mask tensor
-        const maskTensorShape = [ // tensor flow uses the NHWC format by default
-            this.resources.items.maskNifti.dimensions[2], // Batch size (number of images)
-            this.resources.items.maskNifti.dimensions[1], // Height of the image
-            this.resources.items.maskNifti.dimensions[0], // Width of the image
-            1,                                            // Number of channels (e.g., RGB channels)
-        ]
-        this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), maskTensorShape,'bool')
+        this.tensors.volume = tf.tensor4d(this.resources.items.volumeNifti.getData(), this.parameters.volume.tensorShape,'float32')
+        this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), this.parameters.mask.tensorShape,'bool')
+        // tf.keep(this.tensors.volume)
+        // tf.keep(this.tensors.mask)
     }
 
     setData()
@@ -207,50 +195,148 @@ export default class ISOViewer
 
     async processData()
     {
-        console.time('processData')
+        await this.computeBoundingBox()
+        await this.computeSmoothing()
+        await this.computeGradients()
 
-        // bounding box
-        this.computeBoundingBox = new ComputeBoundingBox(this)  
-        await this.computeBoundingBox.compute()
-
-            this.material.uniforms.u_occupancy.value.box_min.copy(this.computeBoundingBox.min)
-            this.material.uniforms.u_occupancy.value.box_max.copy(this.computeBoundingBox.max) 
-            this.computeBoundingBox.dispose()
-
-        // smoothing
-        this.computeSmoothing = new ComputeSmoothing(this)  
-        await this.computeSmoothing.compute()
-
-            for (let i = 0; i < this.parameters.volume.count; i++) {
-                const i4 = i * 4
-                this.data.volume[i4 + 0] = this.computeSmoothing.data[i + 0]
-            }
-            this.computeSmoothing.dispose()
-
-        // gradients
-        this.computeGradients = new ComputeGradients(this)  
-        await this.computeGradients.compute()
-
-            for (let i = 0; i < this.parameters.volume.count; i++) {
-                const i3 = i * 3
-                const i4 = i * 4
-                this.data.volume[i4 + 1] = this.computeGradients.data[i3 + 0]
-                this.data.volume[i4 + 2] = this.computeGradients.data[i3 + 1]
-                this.data.volume[i4 + 3] = this.computeGradients.data[i3 + 2]
-            }
-            this.material.uniforms.u_gradient.value.max_norm = this.computeGradients.maxNorm
-            this.computeGradients.dispose()
-
-        
         // dispose
-        this.tensors.volume.dispose()
-        this.tensors.mask.dispose()
-        this.textures.volume.needsUpdate = true
+        // this.tensors.volume.dispose()
+        // this.tensors.mask.dispose()
+        // this.tensors.volume = null
+        // this.tensors.mask = null
+    }
 
-        console.timeEnd('processData')
+    async computeBoundingBox()
+    {
+        console.time('computeBoundingBox')
+
+        this.boundingBox = new ComputeBoundingBox(this)  
+        await this.boundingBox.compute()
+
+        this.material.uniforms.u_occupancy.value.box_min.copy(this.boundingBox.min)
+        this.material.uniforms.u_occupancy.value.box_max.copy(this.boundingBox.max) 
+        this.boundingBox.dispose()
+
+        console.timeEnd('computeBoundingBox')
+    }
+
+    async computeSmoothing()
+    {
+        console.time('computeSmoothing')
+
+        this.smoothing = new ComputeSmoothing(this)  
+        await this.smoothing.compute()
+
+        for (let i = 0; i < this.parameters.volume.count; i++) {
+            const i4 = i * 4
+            this.data.volume[i4 + 0] = this.smoothing.data[i + 0]
+        }
+
+        this.textures.volume.needsUpdate = true
+        this.smoothing.dispose()
+
+        console.timeEnd('computeSmoothing')
+    }
+
+    async computeGradients()
+    {
+        console.time('computeGradients')
+
+        this.gradients = new ComputeGradients(this)  
+        await this.gradients.compute()
+
+        for (let i = 0; i < this.parameters.volume.count; i++) 
+        {
+            const i3 = i * 3
+            const i4 = i * 4
+            this.textures.volume.image.data[i4 + 1] = this.gradients.data[i3 + 0]
+            this.textures.volume.image.data[i4 + 2] = this.gradients.data[i3 + 1]
+            this.textures.volume.image.data[i4 + 3] = this.gradients.data[i3 + 2]
+        }
+
+        this.material.uniforms.u_gradient.value.max_norm = this.gradients.maxNorm
+        this.textures.volume.needsUpdate = true
+        this.gradients.dispose()
+
+        console.timeEnd('computeGradients')
     }
 
     update()
     {
+
     }
+
+    destroy() 
+    {
+        // Dispose tensors
+        if (this.tensors.volume) {
+            this.tensors.volume.dispose()
+            this.tensors.volume = null
+        }
+        if (this.tensors.mask) {
+            this.tensors.mask.dispose()
+            this.tensors.mask = null
+        }
+    
+        // Dispose textures
+        if (this.textures.volume) {
+            this.textures.volume.dispose()
+            this.textures.volume = null
+        }
+        if (this.textures.mask) {
+            this.textures.mask.dispose()
+            this.textures.mask = null
+        }
+    
+        // Dispose geometry
+        if (this.geometry) {
+            this.geometry.dispose()
+            this.geometry = null
+        }
+    
+        // Dispose material
+        if (this.material) {
+            this.material.dispose()
+            this.material = null
+        }
+    
+        // Remove mesh from the scene
+        if (this.mesh) {
+            this.scene.remove(this.mesh)
+            this.mesh.geometry.dispose()
+            this.mesh.material.dispose()
+            this.mesh = null
+        }
+    
+        // Dispose resources associated with bounding box, gradients, and smoothing computations
+        if (this.boundingBox) {
+            this.boundingBox.dispose()
+            this.boundingBox = null
+        }
+        if (this.gradients) {
+            this.gradients.dispose()
+            this.gradients = null
+        }
+        if (this.smoothing) {
+            this.smoothing.dispose()
+            this.smoothing = null
+        }
+    
+        // Dispose GUI if it exists
+        if (this.gui) {
+            this.gui.destroy()
+            this.gui = null
+        }
+    
+        // Clean up references
+        this.scene = null
+        this.resources = null
+        this.renderer = null
+        this.camera = null
+        this.sizes = null
+        this.debug = null
+    
+        console.log("ISOViewer destroyed and resources cleaned up.");
+    }
+    
 }

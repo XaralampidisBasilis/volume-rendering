@@ -14,19 +14,17 @@ export default class ComputeBoundingBox
     async compute()
     {   
         // remove the last singular dimension
-        const volume = this.viewer.tensors.volume.squeeze()
 
         // compute the volume intensities that are above the threshold
-        const condition = volume.greater([this.threshold])
-        volume.dispose()
+        const condition = tf.tidy(() => this.viewer.tensors.volume.squeeze().greater([this.threshold]))
 
         // compute the coordinates of volumed intensities greater than threshold
         const coordinates = await tf.whereAsync(condition)
         condition.dispose()
 
         // find the box min and max coordinates 
-        const boxMin4 = coordinates.min(0)
-        const boxMax4 = coordinates.max(0)
+        const boxMin4 = tf.tidy(() => coordinates.min(0))
+        const boxMax4 = tf.tidy(() => coordinates.max(0))
         coordinates.dispose()
 
         // reverse the coordinates because tensor flow uses the NHWC format by default
@@ -57,8 +55,54 @@ export default class ComputeBoundingBox
         boxMin.dispose()
         boxMax.dispose()
 
+        console.log([this.min, this.max])
+
         return { min: this.min, max: this.max}
     }
+
+    // async compute()
+    // {   
+    //     // remove the last singular dimension
+    //     const volume = this.viewer.tensors.volume.squeeze()
+    //     let boxMin = this.parameters.volume.dimensions.toArray()
+    //     let boxMax = [0, 0, 0]
+        
+    //     for (let n = 0; n < volume.shape[0]; n++)
+    //     {
+    //         let slice = volume.slice(n)
+
+    //         let condition = slice.greater([this.threshold])
+    //         let coordinates = await tf.whereAsync(condition)
+    //         condition.dispose()
+    //         await tf.nextFrame()
+
+    //         let tempMin = await coordinates.min(0).array()
+    //         let tempMax = await coordinates.max(0).array()
+    //         coordinates.dispose()
+    //         await tf.nextFrame()
+
+    //         tempMin.forEach((x, i) => { boxMin[i] = Math.min(x, boxMin[i]) })
+    //         tempMax.forEach((x, i) => { boxMax[i] = Math.max(x, boxMax[i]) })
+    //     }
+
+    //     volume.dispose()
+        
+    //     boxMin = boxMin.toReverse().map((x, i) => 
+    //     {
+    //         return ( (x + 0) / this.parameters.volume.dimensions.getComponent(i)) * this.parameters.volume.size.getComponent(i)
+    //     })  
+        
+    //     boxMax = boxMax.toReverse().map((x, i) => 
+    //     {
+    //         return ( (x + 1) / this.parameters.volume.dimensions.getComponent(i)) * this.parameters.volume.size.getComponent(i)
+    //     })   
+    
+    //     // get the results
+    //     this.min = new THREE.Vector3().fromArray(boxMin)
+    //     this.max = new THREE.Vector3().fromArray(boxMax)
+
+    //     return { min: this.min, max: this.max}
+    // }
 
     dispose()
     {

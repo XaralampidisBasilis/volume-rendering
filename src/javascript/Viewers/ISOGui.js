@@ -104,7 +104,8 @@ export default class ISOGui
 
         this.controllers.raycast = 
         {
-            threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001),
+            threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001)
+                .onFinishChange(() => { this.viewer.computeBoundingBox() }),
 
             steppingMin: raycast.add(u_raycast, 'min_stepping').min(0.001).max(5).step(0.001),
 
@@ -173,16 +174,20 @@ export default class ISOGui
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             precomputeMethod: gradient.add(defines, 'GRADIENT_METHOD').name('precompute_method')
-                .options({tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 })
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true })
-                .onFinishChange(() => { this.viewer.computeGradients() }),
+                .options({scharr: 1, sobel: 2, prewitt: 3, tetrahedron: 4, central: 5 })
+                .onFinishChange(() => 
+                { 
+                    this.viewer.material.needsUpdate = true 
+                    this.viewer.computeGradients()
+                }),
 
             refinementMethod: gradient.add(defines, 'GRADIENT_REFINEMENT_METHOD').name('refinement_method')
                 .options({tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             hasRefinement: gradient.add(object, 'has_refinement')
-                .onFinishChange((value) => { 
+                .onFinishChange((value) => 
+                { 
                     this.viewer.material.defines.HAS_GRADIENT_REFINEMENT = value ? 1 : 0;
                     this.viewer.material.needsUpdate = true 
                 }),
@@ -198,14 +203,20 @@ export default class ISOGui
 
         this.controllers.smoothing = 
         {
-            radius: smoothing.add(defines, 'SMOOTHING_RADIUS').name('radius').min(1).max(5).step(1)
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true })
-                .onFinishChange(() => { this.viewer.computeSmoothing() }),
+            radius: smoothing.add(defines, 'SMOOTHING_RADIUS').name('radius').min(0).max(10).step(1)
+                .onFinishChange(() => 
+                { 
+                    this.viewer.material.needsUpdate = true
+                    this.viewer.computeSmoothing() 
+                }),
         
             precomputeMethod: smoothing.add(defines, 'SMOOTHING_METHOD').name('precompute_method')
-                .options({ none: 0, mean: 1, mean_trilinear: 2, gaussian: 3, gaussian_trilinear: 4, bessel: 5, conservative: 6 })
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true })
-                .onFinishChange(() => { this.viewer.computeSmoothing() }),
+                .options({ bessel: 1, gaussian: 2, average: 3 })
+                .onFinishChange(() => 
+                { 
+                    this.viewer.material.needsUpdate = true 
+                    this.viewer.computeSmoothing()
+                }),
         }
     }
     
@@ -346,22 +357,8 @@ export default class ISOGui
         this.controllers.raycast.threshold
         .onChange(() => 
         {
-            // displace colormap low based on raycast threshold
-            this.displaceColormapLow()
-
-            // displace colormap high based on raycast threshold
-            this.displaceColormapHigh()
-        })
-        .onFinishChange(() => 
-        {
-            if (this.viewer.occupancy)
-            {
-                this.viewer.occupancy.compute()
-                this.viewer.occupancy.update()
-                this.viewer.material.uniforms.u_sampler.value.occumap = this.viewer.occupancy.occumap
-                this.viewer.material.uniforms.u_occupancy.value.box_min.copy(this.viewer.occupancy.occubox.min)
-                this.viewer.material.uniforms.u_occupancy.value.box_max.copy(this.viewer.occupancy.occubox.max)            
-            }
+            this.displaceColormapLow() // displace colormap low based on raycast threshold
+            this.displaceColormapHigh()  // displace colormap high based on raycast threshold
         })
 
         // flip colormap colors
@@ -381,14 +378,6 @@ export default class ISOGui
 
         // cap raycast spacing max based on spacing min
         this.controllers.raycast.steppingMax.onChange(() => this.capRaycastSpacingMax())
-    
-        if (this.viewer.occupancy)
-        {
-            this.controllers.occupancy.levels.onChange(() => this.occumapsVisible())
-
-            // recompute new occupancy based on new divisions
-            this.controllers.occupancy.divisions.onFinishChange(() => this.changeOccupancyDivisions())
-        }
     }
 
     capRaycastSpacingMin()
@@ -476,48 +465,6 @@ export default class ISOGui
         let { v, u_start, u_end } = colormapLocations[this.controllers.colormap.name.getValue()]
         this.viewer.material.uniforms.u_colormap.value.texture_row = v
         this.viewer.material.uniforms.u_colormap.value.texture_columns.set(u_start, u_end)      
-    }
-
-    occumapsVisible()
-    {
-        const option = this.controllers.occupancy.levels.getValue()
-
-        switch (option)
-        {
-            case 0:
-                this.viewer.occupancy.helpers.occumaps.children.forEach((child) => child.material.visible = true)
-                break;
-            case 1:
-                this.viewer.occupancy.helpers.occumaps.children.forEach((child, i) => child.material.visible = (i === 0))
-                break;
-            case 2:
-                this.viewer.occupancy.helpers.occumaps.children.forEach((child, i) => child.material.visible = (i === 1))
-                break;
-            case 3:
-                this.viewer.occupancy.helpers.occumaps.children.forEach((child, i) => child.material.visible = (i === 2))
-                break;
-            default:
-                break;
-        }
-    }
-
-    changeOccupancyDivisions()
-    {
-        const occuboxVisible = this.controllers.occupancy.occubox.getValue()
-        const occumapsVisible = this.controllers.occupancy.occumaps.getValue()
-        const computationVisible = this.controllers.occupancy.computation.getValue()
-
-        this.viewer.occupancy.dispose()
-        this.viewer.computeOccupancy()
-
-        // destroy and create occupancy visible controller
-        this.controllers.occupancy.occubox.destroy()
-        this.controllers.occupancy.occumaps.destroy()
-        this.controllers.occupancy.computation.destroy()
-        
-        this.controllers.occupancy.occubox = this.subfolders.occupancy.add(this.viewer.occupancy.helpers.occubox, 'visible').name('occubox').setValue(occuboxVisible).updateDisplay()
-        this.controllers.occupancy.occumaps = this.subfolders.occupancy.add(this.viewer.occupancy.helpers.occumaps, 'visible').name('occumaps').setValue(occumapsVisible).updateDisplay()
-        this.controllers.occupancy.computation = this.subfolders.occupancy.add(this.viewer.occupancy.helpers.computation, 'visible').name('computation').setValue(computationVisible).updateDisplay()
     }
 
     dispose() {

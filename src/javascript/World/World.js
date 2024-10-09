@@ -9,7 +9,6 @@ export default class World
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.camera = this.experience.camera
-        this.world = this.experience.world
 
         // Wait for resources
         this.resources.on('ready', () =>
@@ -23,5 +22,11 @@ export default class World
     {
         if(this.viewer)
             this.viewer.update()
+    }
+
+    destroy()
+    {
+        if(this.viewer)
+            this.viewer.destroy()
     }
 }

@@ -12,14 +12,14 @@ export default class Average
         this.length = this.radius * 2 + 1
         this.coefficients = this.generate()
 
-        this.x = tf.tensor(this.coefficients, [1, 1, this.length, 1, 1], 'float32')
-        this.y = tf.tensor(this.coefficients, [1, this.length, 1, 1, 1], 'float32')
-        this.z = tf.tensor(this.coefficients, [this.length, 1, 1, 1, 1], 'float32')
+        this.x = tf.tensor5d(this.coefficients, [1, 1, this.length, 1, 1], 'float32')
+        this.y = tf.tensor5d(this.coefficients, [1, this.length, 1, 1, 1], 'float32')
+        this.z = tf.tensor5d(this.coefficients, [this.length, 1, 1, 1, 1], 'float32')
     }
     
     generate()
     {
-        return  Array.from({ length: length }, () => 1 / this.length)
+        return  Array.from({ length: this.length }, () => 1 / this.length)
     }
 
     dispose()

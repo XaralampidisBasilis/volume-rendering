@@ -30,31 +30,37 @@ export default class ComputeSmoothing
 
     async compute()
     {   
-        const smoothed3 = this.viewer.tensors.volume.clone()
 
-        // applying the X convolution filter to the volume data.            
+        // applying the X convolution filter to the volume data. 
+        const smoothed3 = this.viewer.tensors.volume.clone()           
         const smoothed2 = tf.conv3d(smoothed3, this.kernels.x, 1, 'same')
         smoothed3.dispose()
+        await tf.nextFrame() 
 
         // applying the Y convolution filter to the volume data.
         const smoothed1 = tf.conv3d(smoothed2, this.kernels.y, 1, 'same')
         smoothed2.dispose()
+        await tf.nextFrame() 
 
         // applying the Z convolution filter to the volume data.
         const smoothed = tf.conv3d(smoothed1, this.kernels.z, 1, 'same')
         smoothed1.dispose()
+        await tf.nextFrame() 
 
         // scale the values to the range [0, 255].
         const smoothedQuantized2 = smoothed.mul([255])
         smoothed.dispose() 
+        await tf.nextFrame() 
 
         // round the values to nearest integers.
         const smoothedQuantized1 = smoothedQuantized2.round()
         smoothedQuantized2.dispose() 
+        await tf.nextFrame() 
 
         // clip the values to ensure they stay within [0, 255].
         const smoothedQuantized = smoothedQuantized1.clipByValue(0, 255)
         smoothedQuantized1.dispose() 
+        await tf.nextFrame() 
 
         // return the final quantized smoothed volumed tensor 
         this.data = new Uint8Array(await smoothedQuantized.data())
