@@ -3,7 +3,7 @@ import { colormapLocations } from '../../../static/textures/colormaps/colormaps.
 import vertexShader from '../../shaders/viewers/iso_viewer/vertex.glsl'
 import fragmentShader from '../../shaders/viewers/iso_viewer/fragment.glsl'
 
-export default function(viewer)
+export default function()
 {
     const uniforms = 
     {
@@ -114,12 +114,12 @@ export default function(viewer)
 
         HAS_GRADIENT_REFINEMENT    : 0,
         GRADIENT_REFINEMENT_METHOD : 7,
-        GRADIENT_METHOD            : 7,
+        GRADIENT_METHOD            : 1,
         DERIVATIVE_METHOD          : 1,
 
         HAS_SMOOTHING_REFINEMENT   : 0,
         SMOOTHING_REFINEMENT_METHOD: 1,
-        SMOOTHING_METHOD           : 5,
+        SMOOTHING_METHOD           : 1,
         SMOOTHING_RADIUS           : 2,
     }
 

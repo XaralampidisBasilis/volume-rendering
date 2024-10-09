@@ -176,4 +176,18 @@ export default class ComputeGradients
         this.computation.texture = null
         this.computation = null
     }
+
+    updateViewer()
+    {
+        for (let i = 0; i < this.parameters.volume.count; i++)
+        {
+            const i4 = i * 4
+            this.viewer.textures.volume.image.data[i4 + 1] = this.data[i4 + 0]
+            this.viewer.textures.volume.image.data[i4 + 2] = this.data[i4 + 1]
+            this.viewer.textures.volume.image.data[i4 + 3] = this.data[i4 + 2]
+        }
+        this.data = null;
+        this.viewer.textures.volume.needsUpdate = true
+        this.viewer.material.uniforms.u_gradient.value.max_norm = this.maxNorm
+    }
 }

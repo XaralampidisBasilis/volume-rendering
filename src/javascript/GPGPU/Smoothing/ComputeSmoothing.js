@@ -155,4 +155,15 @@ export default class ComputeSmoothing
         this.computation.texture = null
         this.computation = null
     }
+
+    updateViewer()
+    {
+        for (let i = 0; i < this.parameters.volume.count; i++)
+        {
+            const i4 = i * 4
+            this.viewer.textures.volume.image.data[i4 + 0] = this.data[i4 + 0]
+        }
+        this.data = null;
+        this.viewer.textures.volume.needsUpdate = true
+    }
 }

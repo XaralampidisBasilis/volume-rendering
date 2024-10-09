@@ -8,7 +8,6 @@ export default class ComputeResizing
     {
         this.viewer = viewer
         this.parameters = this.viewer.parameters
-        this.tensors = this.viewer.tensors
         this.renderer = this.viewer.renderer
     }
 
@@ -22,14 +21,12 @@ export default class ComputeResizing
         
         this.parameters.volume.dimensions.x = Math.min(this.parameters.volume.dimensions.x, resizeWidth)
         this.parameters.volume.dimensions.y = Math.min(this.parameters.volume.dimensions.y, resizeHeight)
-
         this.parameters.volume.spacing = new THREE.Vector3().copy(this.parameters.volume.size).divide(this.parameters.volume.dimensions)
         this.parameters.volume.invSpacing = new THREE.Vector3(1, 1, 1).divide(this.parameters.volume.spacing)
         this.parameters.volume.invDimensions = new THREE.Vector3(1, 1, 1).divide(this.parameters.volume.dimensions)
         this.parameters.volume.count = this.parameters.volume.dimensions.reduce((product, value) => product * value, 1)
 
-        this.parameters.volume.tensor.dispose()
-        this.parameters.volume.tensor = this.tensors.volume.resizeBilinear([resizeHeight, resizeWidth], false, true)
+        this.tensor = this.viewer.tensors.volume.resizeBilinear([resizeHeight, resizeWidth], false, true)
     }
 
 }

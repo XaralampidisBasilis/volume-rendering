@@ -156,6 +156,16 @@ export default class ComputeOccupancy extends EventEmitter
         this.occubox.min.subScalar(0).divide(this.parameters.volumeDimensions).multiply(this.viewer.parameters.volume.size)
     }
 
+    updateViewer()
+    {
+        this.occupancy = new ComputeOccupancy(this)
+        this.material.uniforms.u_sampler.value.occumap = this.occupancy.occumap
+        this.material.uniforms.u_occupancy.value.occumap_dimensions.copy(this.occupancy.parameters.occumapDimensions)
+        this.material.uniforms.u_occupancy.value.block_dimensions.copy(this.occupancy.parameters.blockDimensions)
+        this.material.uniforms.u_occupancy.value.box_min.copy(this.occupancy.occubox.min)
+        this.material.uniforms.u_occupancy.value.box_max.copy(this.occupancy.occubox.max)        
+    }
+
     // IS NOT CORRECT
     updateOccupancyMap()
     {
