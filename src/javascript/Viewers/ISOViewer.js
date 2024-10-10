@@ -199,16 +199,9 @@ export default class ISOViewer
 
     async processData()
     {
-        console.log(tf.memory())
-
         await this.computeBoundingBox()
-        // console.log(tf.memory())
-
         await this.computeSmoothing()
-        // console.log(tf.memory())
-
         await this.computeGradients()
-        // console.log(tf.memory())
     }
 
     async computeBoundingBox()

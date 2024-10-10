@@ -14,7 +14,7 @@ export default class ComputeGradients
         this.viewer = viewer
         this.parameters = this.viewer.parameters
         this.method = this.viewer.material.defines.GRADIENT_METHOD
-        this.kernels = this.generate()
+        this.kernels = new Sobel()
     }
 
     generate() {
@@ -38,63 +38,96 @@ export default class ComputeGradients
 
         tf.tidy(() => 
         {
-            // X, Y, Z convolution filters and normalization
-            const gradientX1 = tf.conv3d(this.viewer.tensors.volume, this.kernels.x, 1, 'same')
-            const gradientX = gradientX1.div([this.parameters.volume.spacing.x])
-            gradientX1.dispose()
+            const volume = this.viewer.tensors.volume
+            const spacing = this.parameters.volume.spacing
 
-            const gradientY1 = tf.conv3d(this.viewer.tensors.volume, this.kernels.y, 1, 'same')
-            const gradientY = gradientY1.div([this.parameters.volume.spacing.y])
-            gradientY1.dispose()
+            // compute gradients
+            const gradientX = this.convolute(volume, this.kernels.x, spacing.x)
+            const gradientY = this.convolute(volume, this.kernels.y, spacing.y)
+            const gradientZ = this.convolute(volume, this.kernels.z, spacing.z)
 
-            const gradientZ1 = tf.conv3d(this.viewer.tensors.volume, this.kernels.z, 1, 'same')
-            const gradientZ = gradientZ1.div([this.parameters.volume.spacing.z])
-            gradientZ1.dispose()
+            // compute bounds 
+            const [minX, maxX] = [gradientX.min(), gradientX.max()]
+            const [minY, maxY] = [gradientY.min(), gradientY.max()]
+            const [minZ, maxZ] = [gradientZ.min(), gradientZ.max()]
 
-            // Concatenate X, Y, and Z gradients into one tensor
+            // normalize gradients in range [0, 1]
+            const normalizedX = this.normalize(gradientX, minX, maxX)
+            const normalizedY = this.normalize(gradientY, minY, maxY)
+            const normalizedZ = this.normalize(gradientZ, minZ, maxZ)
+
+            // concatenate normalized gradients
+            const normalized = tf.concat([normalizedX, normalizedY, normalizedZ], 3)
+            normalizedX.dispose()
+            normalizedY.dispose()
+            normalizedZ.dispose() 
+
+            // quantize normalized gradients
+            const quantized = this.quantize(normalized)
+
+            // extract the tensor data as an array of uint8
+            this.data = new Uint8Array(quantized.dataSync())
+            quantized.dispose()
+
+            // combine bounds
+            const min = tf.stack([minX, minY, minZ], 0)    
+            const max = tf.stack([maxX, maxY, maxZ], 0)
+
+            // extract bounds as three vector3
+            this.min = new THREE.Vector3().fromArray(min.arraySync())
+            this.max = new THREE.Vector3().fromArray(max.arraySync())
+            this.maxNorm = Math.max(this.min.length(), this.max.length())
+        })
+
+        console.log([this.min, this.max, this.maxNorm])
+        console.timeEnd('computeGradients')
+
+        return { data: this.data, maxNorm: this.maxNorm, min: this.min, max: this.max } 
+    }
+
+    async compute2() 
+    {
+        console.time('computeGradients')
+
+        tf.tidy(() => 
+        {
+            const volume = this.viewer.tensors.volume
+            const spacing = this.parameters.volume.spacing
+
+            // compute gradients
+            const gradientX = this.convolute(volume, this.kernels.x, spacing.x)
+            const gradientY = this.convolute(volume, this.kernels.y, spacing.y)
+            const gradientZ = this.convolute(volume, this.kernels.z, spacing.z)
+
+            // concatenate normalized gradients
             const gradients = tf.concat([gradientX, gradientY, gradientZ], 3)
-            gradientX.dispose(), gradientY.dispose(), gradientZ.dispose() 
-    
-            // Compute Euclidean norm of the gradients
-            const gradientsNorm = tf.norm(gradients, 'euclidean', 3).reshape([-1])
-    
-            // Find the maximum norm from the top 0.1%
-            // const percentile = 99.9 
-            // const maxElements = Math.floor(gradientsNorm.size * (1 - percentile / 100))
-            // const maxNorm = tf.topk(gradientsNorm, maxElements, true).values.min()
-            const maxNorm = gradientsNorm.max()
-            gradientsNorm.dispose() 
-    
-            // Quantize the gradients by dividing by maxNorm
-            const gradientsQuantized5 = gradients.div(maxNorm)
-            gradients.dispose() 
+            gradientX.dispose()
+            gradientY.dispose()
+            gradientZ.dispose() 
 
-            // Continue quantization process
-            const gradientsQuantized4 = gradientsQuantized5.add([1])
-            gradientsQuantized5.dispose()
-    
-            const gradientsQuantized3 = gradientsQuantized4.div([2])
-            gradientsQuantized4.dispose()
-    
-            const gradientsQuantized2 = gradientsQuantized3.mul([255])
-            gradientsQuantized3.dispose()
-    
-            const gradientsQuantized1 = gradientsQuantized2.round()
-            gradientsQuantized2.dispose()
-    
-            const gradientsQuantized = gradientsQuantized1.clipByValue(0, 255)
-            gradientsQuantized1.dispose()
-    
-            // Extract the tensor data as an array of 8-bit unsigned integers
-            this.data = new Uint8Array(gradientsQuantized.dataSync()) 
-            gradientsQuantized.dispose()
+            // normalize gradients based on max norm
+            const gradientsNorm = tf.norm(gradients, 'euclidean', 3)
+            const maxNorm = this.percentile(gradientsNorm, 99.9)
 
-            this.maxNorm = maxNorm.dataSync() 
-            maxNorm.dispose()
+            const scaled = gradients.div(maxNorm)
+            gradients.dispose()
 
-            // console.log(this.data)
-            // console.log(this.maxNorm)
-            // console.log(this.method)
+            const shifted = scaled.add([1])
+            scaled.dispose()
+
+            const normalized = shifted.mul([255 / 2])
+            shifted.dispose()
+
+            // quantize normalized gradients
+            const quantized = this.quantize(normalized)
+            normalized.dispose()
+
+            // extract the tensor data as an array of uint8
+            this.data = new Uint8Array(quantized.dataSync())
+            quantized.dispose()
+
+            // extract max norm
+            this.maxNorm = maxNorm.arraySync()
         })
 
         console.timeEnd('computeGradients')
@@ -121,6 +154,8 @@ export default class ComputeGradients
             this.viewer.data.volume[i4 + 3] = this.data[i3 + 2]
         }
 
+        this.viewer.material.uniforms.u_gradient.value.min = this.min
+        this.viewer.material.uniforms.u_gradient.value.max = this.max
         this.viewer.material.uniforms.u_gradient.value.max_norm = this.maxNorm
         this.viewer.textures.volume.needsUpdate = true
     }
@@ -133,5 +168,54 @@ export default class ComputeGradients
         this.viewer = null
         this.parameters = null
         this.method = null
+        console.log(tf.memory())
     }
+
+    // helper tensor functions
+
+    convolute(volume, kernel, spacing)
+    {
+        const passX = tf.conv3d(volume, kernel.separable.x, 1, 'same')
+        const passY = tf.conv3d(passX, kernel.separable.y, 1, 'same') 
+        passX.dispose()
+        const passZ = tf.conv3d(passY, kernel.separable.z, 1, 'same') 
+        passY.dispose()
+        const gradient = passZ.div([spacing])
+        passZ.dispose()
+        return gradient
+    }
+
+    normalize(gradient, min, max)
+    {
+        const shifted = gradient.sub(min)
+        gradient.dispose()
+        const normalized = shifted.div(tf.sub(max, min))
+        shifted.dispose()
+        return normalized
+    }
+
+    quantize(normalized)
+    {
+        const scaled = normalized.mul([255])
+        normalized.dispose()
+        const clipped = scaled.clipByValue(0, 255)  
+        scaled.dispose()
+        const quantized = clipped.round()
+        scaled.dispose()
+        return quantized
+    }
+
+    percentile(tensor, percentage)
+    {
+        const array = tensor.reshape([-1])
+        tensor.dispose()
+        const k = Math.floor(array.size * (1 - percentage / 100))
+        const topK = tf.topk(array, k, true) 
+        array.dispose() 
+        const percentile = topK.values.min() 
+        topK.values.dispose() 
+        topK.indices.dispose()
+        return percentile
+    }
+
 }

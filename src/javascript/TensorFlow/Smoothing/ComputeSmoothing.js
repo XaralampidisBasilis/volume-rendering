@@ -32,36 +32,36 @@ export default class ComputeSmoothing
     {   
         console.time('computeSmoothing')
 
-        // applying the X convolution filter to the volume data. 
-        const smoothed3 = this.viewer.tensors.volume.clone()           
-        const smoothed2 = tf.conv3d(smoothed3, this.kernels.x, 1, 'same')
-        smoothed3.dispose()
+        tf.tidy(() => 
+        {
+            // applying the X convolution filter to the volume data. 
+            const smoothedX = tf.conv3d(this.viewer.tensors.volume, this.kernels.x, 1, 'same')
 
-        // applying the Y convolution filter to the volume data.
-        const smoothed1 = tf.conv3d(smoothed2, this.kernels.y, 1, 'same')
-        smoothed2.dispose()
+            // applying the Y convolution filter to the volume data.
+            const smoothedY = tf.conv3d(smoothedX, this.kernels.y, 1, 'same')
+            smoothedX.dispose()
 
-        // applying the Z convolution filter to the volume data.
-        const smoothed = tf.conv3d(smoothed1, this.kernels.z, 1, 'same')
-        smoothed1.dispose()
+            // applying the Z convolution filter to the volume data.
+            const smoothedZ = tf.conv3d(smoothedY, this.kernels.z, 1, 'same')
+            smoothedY.dispose()
 
-        // scale the values to the range [0, 255].
-        const smoothedQuantized2 = smoothed.mul([255])
-        smoothed.dispose() 
+            // scale the values to the range [0, 255].
+            const scaled = smoothedZ.mul([255])
+            smoothedZ.dispose() 
 
-        // round the values to nearest integers.
-        const smoothedQuantized1 = smoothedQuantized2.round()
-        smoothedQuantized2.dispose() 
+            // round the values to nearest integers.
+            const rounded = scaled.round()
+            scaled.dispose() 
 
-        // clip the values to ensure they stay within [0, 255].
-        const smoothedQuantized = smoothedQuantized1.clipByValue(0, 255)
-        smoothedQuantized1.dispose() 
+            // clip the values to ensure they stay within [0, 255].
+            const quantized = rounded .clipByValue(0, 255)
+            rounded .dispose() 
 
-        // return the final quantized smoothed volumed tensor 
-        this.data = new Uint8Array(await smoothedQuantized.data())
-        smoothedQuantized.dispose()
+            // return the final quantized smoothed volumed tensor 
+            this.data = new Uint8Array(quantized.dataSync())
+            quantized.dispose()
+        })
 
-        console.log(tf.memory())
         console.timeEnd('computeSmoothing')
 
         return { data: this.data }
@@ -96,5 +96,6 @@ export default class ComputeSmoothing
         this.radius = null
         this.method = null
         this.parameters = null
+        console.log(tf.memory())
     }
 }

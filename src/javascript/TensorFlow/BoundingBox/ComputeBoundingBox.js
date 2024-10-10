@@ -29,26 +29,25 @@ export default class ComputeBoundingBox
             const conditionZ = condition.any([1, 2])
             condition.dispose()
 
-            const [minX, maxX] = [conditionX.argMax(0), conditionX.reverse().argMax(0)]
-            const [minY, maxY] = [conditionY.argMax(0), conditionY.reverse().argMax(0)]
-            const [minZ, maxZ] = [conditionZ.argMax(0), conditionZ.reverse().argMax(0)]
+            const [minIndX, maxIndX] = [conditionX.argMax(0), conditionX.reverse().argMax(0)]
+            const [minIndY, maxIndY] = [conditionY.argMax(0), conditionY.reverse().argMax(0)]
+            const [minIndZ, maxIndZ] = [conditionZ.argMax(0), conditionZ.reverse().argMax(0)]
             
             conditionX.dispose()
             conditionY.dispose()
             conditionZ.dispose()
 
-            const min1 = tf.stack([minX, minY, minZ], 0)    
-            const max1 = volumeDims.sub(tf.stack([maxX, maxY, maxZ], 0))
-            const min = min1.mul(volumeSpacing)
-            const max = max1.mul(volumeSpacing)
+            const minInd = tf.stack([minIndX, minIndY, minIndZ], 0)    
+            const maxInd = volumeDims.sub(tf.stack([maxIndX, maxIndY, maxIndZ], 0))
+           
+            const minPos = minInd.mul(volumeSpacing)
+            const maxPos = maxInd.mul(volumeSpacing)
 
             // get the results
-            this.min = new THREE.Vector3().fromArray(min.arraySync())
-            this.max = new THREE.Vector3().fromArray(max.arraySync())
+            this.min = new THREE.Vector3().fromArray(minPos.arraySync())
+            this.max = new THREE.Vector3().fromArray(maxPos.arraySync())
         })
 
-        console.log([this.min, this.max])
-        console.log(tf.memory())
         console.timeEnd('computeBoundingBox')
 
         return { min: this.min, max: this.max}

@@ -14,15 +14,16 @@ for (
     trace.error = trace.value - u_raycast.threshold;
 
     // Extract gradient from volume data
-    trace.gradient = (2.0 * volume_data.gba - 1.0) * u_gradient.max_norm;
+    debug.variable3 = vec4(volume_data.gba, 1.0);
+    trace.gradient = mix(u_gradient.min, u_gradient.max, volume_data.gba);
     trace.gradient_norm = length(trace.gradient);
     trace.normal = - normalize(trace.gradient);
-    float gradient_slope = trace.gradient_norm / u_gradient.max_norm;
+    float gradient_norm = trace.gradient_norm / u_gradient.max_norm;
     
     #include "../../derivatives/compute_derivatives"
 
     // Check if the sampled intensity exceeds the threshold
-    if (trace.error > 0.0 && gradient_slope > u_gradient.threshold && trace.steps > 0) 
+    if (trace.error > 0.0 && gradient_norm > u_gradient.threshold && trace.steps > 0) 
     {   
         ray.intersected = true;         
         break;

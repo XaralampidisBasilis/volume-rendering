@@ -42,7 +42,7 @@ trace.value = volume_data.r;
 trace.error = trace.value - u_raycast.threshold;
 
 // Extract gradient from volume data
-trace.gradient = (2.0 * volume_data.gba - 1.0) * u_gradient.max_norm;
+trace.gradient = mix(u_gradient.min, u_gradient.max, volume_data.gba);
 trace.gradient_norm = length(trace.gradient);
 trace.normal = - normalize(trace.gradient);
 trace.derivative = dot(trace.gradient, ray.direction);

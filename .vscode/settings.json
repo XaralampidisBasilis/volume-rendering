@@ -16,6 +16,7 @@
         "clim",
         "Colormap",
         "Colormaps",
+        "conv",
         "cumprod",
         "glsl",
         "hexacontratentant",
@@ -31,6 +32,7 @@
         "subind",
         "subm",
         "Texels",
+        "topk",
         "viridis",
         "voldim",
         "voxel"
