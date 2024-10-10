@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
-import Scharr from './Kernels/Scharr'
-import Sobel from './Kernels/Sobel'
-import Prewitt from './Kernels/Prewitt'
-import Tetrahedron from './Kernels/Tetrahedron'
-import Central from './Kernels/Central'
+import Scharr from './Filters/Scharr'
+import Sobel from './Filters/Sobel'
+import Prewitt from './Filters/Prewitt'
+import Tetrahedron from './Filters/Tetrahedron'
+import Central from './Filters/Central'
 
 // assumes intensity data 3D, and data3DTexture
 export default class ComputeGradients
@@ -14,10 +14,10 @@ export default class ComputeGradients
         this.viewer = viewer
         this.parameters = this.viewer.parameters
         this.method = this.viewer.material.defines.GRADIENT_METHOD
-        this.kernels = new Sobel()
+        this.filters = this.select()
     }
 
-    generate() {
+    select() {
 
         switch (this.method) 
         {
@@ -31,7 +31,6 @@ export default class ComputeGradients
         }
     }
     
-
     async compute() 
     {
         console.time('computeGradients')
@@ -42,9 +41,9 @@ export default class ComputeGradients
             const spacing = this.parameters.volume.spacing
 
             // compute gradients
-            const gradientX = this.convolute(volume, this.kernels.x, spacing.x)
-            const gradientY = this.convolute(volume, this.kernels.y, spacing.y)
-            const gradientZ = this.convolute(volume, this.kernels.z, spacing.z)
+            const gradientX = this.convolute(volume, this.filters.kernelX, spacing.x)
+            const gradientY = this.convolute(volume, this.filters.kernelY, spacing.y)
+            const gradientZ = this.convolute(volume, this.filters.kernelZ, spacing.z)
 
             // compute bounds 
             const [minX, maxX] = [gradientX.min(), gradientX.max()]
@@ -95,9 +94,9 @@ export default class ComputeGradients
             const spacing = this.parameters.volume.spacing
 
             // compute gradients
-            const gradientX = this.convolute(volume, this.kernels.x, spacing.x)
-            const gradientY = this.convolute(volume, this.kernels.y, spacing.y)
-            const gradientZ = this.convolute(volume, this.kernels.z, spacing.z)
+            const gradientX = this.convolute(volume, this.filters.kernelX, spacing.x)
+            const gradientY = this.convolute(volume, this.filters.kernelY, spacing.y)
+            const gradientZ = this.convolute(volume, this.filters.kernelZ, spacing.z)
 
             // concatenate normalized gradients
             const gradients = tf.concat([gradientX, gradientY, gradientZ], 3)
@@ -140,7 +139,7 @@ export default class ComputeGradients
         this.viewer = viewer
         this.parameters = this.viewer.parameters
         this.method = this.viewer.material.defines.GRADIENT_METHOD
-        this.kernels = this.generate()
+        this.filters = this.select()
     }
 
     update()
@@ -162,7 +161,7 @@ export default class ComputeGradients
     
     dispose()
     {
-        this.kernels.dispose()
+        this.filters.dispose()
         this.data = null
         this.maxNorm = null
         this.viewer = null
@@ -175,14 +174,23 @@ export default class ComputeGradients
 
     convolute(volume, kernel, spacing)
     {
-        const passX = tf.conv3d(volume, kernel.separable.x, 1, 'same')
-        const passY = tf.conv3d(passX, kernel.separable.y, 1, 'same') 
-        passX.dispose()
-        const passZ = tf.conv3d(passY, kernel.separable.z, 1, 'same') 
-        passY.dispose()
-        const gradient = passZ.div([spacing])
-        passZ.dispose()
-        return gradient
+        if (this.filters.areSeparable) {
+            
+            const passX = tf.conv3d(volume, kernel.separableX, 1, 'same')
+            const passY = tf.conv3d(passX, kernel.separableY, 1, 'same') 
+            passX.dispose()
+            const passZ = tf.conv3d(passY, kernel.separableZ, 1, 'same') 
+            passY.dispose()
+            const gradient = passZ.div([spacing])
+            passZ.dispose()
+            return gradient
+
+        } else {
+            const pass = tf.conv3d(volume, kernel, 1, 'same')
+            const gradient = pass.div([spacing])
+            pass.dispose()
+            return gradient
+        }
     }
 
     normalize(gradient, min, max)
