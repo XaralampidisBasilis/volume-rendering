@@ -30,43 +30,61 @@ export default class ComputeSmoothing
 
     async compute()
     {   
+        console.time('computeSmoothing')
 
         // applying the X convolution filter to the volume data. 
         const smoothed3 = this.viewer.tensors.volume.clone()           
         const smoothed2 = tf.conv3d(smoothed3, this.kernels.x, 1, 'same')
         smoothed3.dispose()
-        await tf.nextFrame() 
 
         // applying the Y convolution filter to the volume data.
         const smoothed1 = tf.conv3d(smoothed2, this.kernels.y, 1, 'same')
         smoothed2.dispose()
-        await tf.nextFrame() 
 
         // applying the Z convolution filter to the volume data.
         const smoothed = tf.conv3d(smoothed1, this.kernels.z, 1, 'same')
         smoothed1.dispose()
-        await tf.nextFrame() 
 
         // scale the values to the range [0, 255].
         const smoothedQuantized2 = smoothed.mul([255])
         smoothed.dispose() 
-        await tf.nextFrame() 
 
         // round the values to nearest integers.
         const smoothedQuantized1 = smoothedQuantized2.round()
         smoothedQuantized2.dispose() 
-        await tf.nextFrame() 
 
         // clip the values to ensure they stay within [0, 255].
         const smoothedQuantized = smoothedQuantized1.clipByValue(0, 255)
         smoothedQuantized1.dispose() 
-        await tf.nextFrame() 
 
         // return the final quantized smoothed volumed tensor 
         this.data = new Uint8Array(await smoothedQuantized.data())
         smoothedQuantized.dispose()
 
+        console.log(tf.memory())
+        console.timeEnd('computeSmoothing')
+
         return { data: this.data }
+    }
+
+    restart()
+    {
+        this.viewer = viewer
+        this.parameters = this.viewer.parameters
+        this.radius = this.viewer.material.defines.SMOOTHING_RADIUS
+        this.method = this.viewer.material.defines.SMOOTHING_METHOD
+        this.kernels = this.generate()
+    }
+
+    update()
+    {
+        for (let i = 0; i < this.parameters.volume.count; i++) 
+        {
+            const i4 = i * 4
+            this.viewer.data.volume[i4 + 0] = this.data[i + 0]
+        }
+
+        this.viewer.textures.volume.needsUpdate = true
     }
 
     dispose()

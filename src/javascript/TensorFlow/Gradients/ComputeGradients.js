@@ -34,6 +34,8 @@ export default class ComputeGradients
 
     async compute() 
     {
+        console.time('computeGradients')
+
         tf.tidy(() => 
         {
             // X, Y, Z convolution filters and normalization
@@ -90,14 +92,37 @@ export default class ComputeGradients
             this.maxNorm = maxNorm.dataSync() 
             maxNorm.dispose()
 
-            console.log(this.data)
-            console.log(this.maxNorm)
-            console.log(this.method)
+            // console.log(this.data)
+            // console.log(this.maxNorm)
+            // console.log(this.method)
         })
 
-        console.log(tf.memory())
+        console.timeEnd('computeGradients')
 
         return { data: this.data, maxNorm: this.maxNorm } 
+    }
+
+    restart()
+    {
+        this.viewer = viewer
+        this.parameters = this.viewer.parameters
+        this.method = this.viewer.material.defines.GRADIENT_METHOD
+        this.kernels = this.generate()
+    }
+
+    update()
+    {
+        for (let i = 0; i < this.parameters.volume.count; i++) 
+        {
+            const i3 = i * 3
+            const i4 = i * 4
+            this.viewer.data.volume[i4 + 1] = this.data[i3 + 0]
+            this.viewer.data.volume[i4 + 2] = this.data[i3 + 1]
+            this.viewer.data.volume[i4 + 3] = this.data[i3 + 2]
+        }
+
+        this.viewer.material.uniforms.u_gradient.value.max_norm = this.maxNorm
+        this.viewer.textures.volume.needsUpdate = true
     }
     
     dispose()

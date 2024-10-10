@@ -76,8 +76,6 @@ export default class ISOViewer
         this.tensors = {}
         this.tensors.volume = tf.tensor4d(this.resources.items.volumeNifti.getData(), this.parameters.volume.tensorShape,'float32')
         this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), this.parameters.mask.tensorShape,'bool')
-        // tf.keep(this.tensors.volume)
-        // tf.keep(this.tensors.mask)
     }
 
     setData()
@@ -85,12 +83,18 @@ export default class ISOViewer
         this.data = {}
 
         // volume data
-        let dataQuantized = new Uint8ClampedArray(this.tensors.volume.mul(255).round().dataSync())
+        let tensorQuantized = tf.tidy(() => this.tensors.volume.mul(255).round())
+        let dataQuantized = new Uint8ClampedArray(tensorQuantized.dataSync())
         this.data.volume = new Uint8ClampedArray(this.parameters.volume.count * 4)
-        for (let i = 0; i < this.parameters.volume.count; i++) {
+
+        for (let i = 0; i < this.parameters.volume.count; i++) 
+        {
             const i4 = i * 4
             this.data.volume[i4 + 0] = dataQuantized[i]
         }
+
+        tensorQuantized.dispose()
+        tensorQuantized = null
         dataQuantized = null
 
         // mask data
@@ -195,70 +199,39 @@ export default class ISOViewer
 
     async processData()
     {
-        await this.computeBoundingBox()
-        await this.computeSmoothing()
-        await this.computeGradients()
+        console.log(tf.memory())
 
-        // dispose
-        // this.tensors.volume.dispose()
-        // this.tensors.mask.dispose()
-        // this.tensors.volume = null
-        // this.tensors.mask = null
+        await this.computeBoundingBox()
+        // console.log(tf.memory())
+
+        await this.computeSmoothing()
+        // console.log(tf.memory())
+
+        await this.computeGradients()
+        // console.log(tf.memory())
     }
 
     async computeBoundingBox()
     {
-        console.time('computeBoundingBox')
-
         this.boundingBox = new ComputeBoundingBox(this)  
         await this.boundingBox.compute()
-
-        this.material.uniforms.u_occupancy.value.box_min.copy(this.boundingBox.min)
-        this.material.uniforms.u_occupancy.value.box_max.copy(this.boundingBox.max) 
-        this.boundingBox.dispose()
-
-        console.timeEnd('computeBoundingBox')
+        this.boundingBox.update()
     }
 
     async computeSmoothing()
     {
-        console.time('computeSmoothing')
-
         this.smoothing = new ComputeSmoothing(this)  
         await this.smoothing.compute()
-
-        for (let i = 0; i < this.parameters.volume.count; i++) {
-            const i4 = i * 4
-            this.data.volume[i4 + 0] = this.smoothing.data[i + 0]
-        }
-
-        this.textures.volume.needsUpdate = true
+        this.smoothing.update()
         this.smoothing.dispose()
-
-        console.timeEnd('computeSmoothing')
     }
 
     async computeGradients()
     {
-        console.time('computeGradients')
-
         this.gradients = new ComputeGradients(this)  
         await this.gradients.compute()
-
-        for (let i = 0; i < this.parameters.volume.count; i++) 
-        {
-            const i3 = i * 3
-            const i4 = i * 4
-            this.textures.volume.image.data[i4 + 1] = this.gradients.data[i3 + 0]
-            this.textures.volume.image.data[i4 + 2] = this.gradients.data[i3 + 1]
-            this.textures.volume.image.data[i4 + 3] = this.gradients.data[i3 + 2]
-        }
-
-        this.material.uniforms.u_gradient.value.max_norm = this.gradients.maxNorm
-        this.textures.volume.needsUpdate = true
+        this.gradients.update()
         this.gradients.dispose()
-
-        console.timeEnd('computeGradients')
     }
 
     update()
