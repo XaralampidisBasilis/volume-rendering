@@ -51,7 +51,7 @@ trace.gradient.y = sample_value[1] + sample_value[3] - sample_value[0] - sample_
 trace.gradient.z = sample_value[1] + sample_value[2] - sample_value[0] - sample_value[3];
 trace.gradient *= u_volume.inv_spacing * 0.5; // // adjust gradient to physical space 
 trace.gradient *= 8.0; // get integer kernel values from trilinear sampling
-trace.gradient /= 10.0; // normalize the kernel values
+trace.gradient /= 8.0; // normalize the kernel values
 
 trace.gradient_norm = length(trace.gradient);
 trace.normal = - normalize(trace.gradient);

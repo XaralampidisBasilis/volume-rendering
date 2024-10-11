@@ -6,6 +6,7 @@ import ComputeGradients from '../TensorFlow/Gradients/ComputeGradients'
 import ComputeSmoothing from '../TensorFlow/Smoothing/ComputeSmoothing'
 import ComputeBoundingBox from '../TensorFlow/BoundingBox/ComputeBoundingBox'
 import * as tf from '@tensorflow/tfjs'
+import { cos } from 'mathjs'
 
 export default class ISOViewer
 {
@@ -199,6 +200,11 @@ export default class ISOViewer
 
     async processData()
     {
+        this.boundingBox = new ComputeBoundingBox(this)
+        this.smoothing   = new ComputeSmoothing(this)
+        this.gradients   = new ComputeGradients(this)
+        console.log('processData:', tf.memory())
+
         await this.computeBoundingBox()
         await this.computeSmoothing()
         await this.computeGradients()
@@ -206,25 +212,32 @@ export default class ISOViewer
 
     async computeBoundingBox()
     {
-        this.boundingBox = new ComputeBoundingBox(this)  
-        await this.boundingBox.compute()
         this.boundingBox.update()
+
+        console.time('computeBoundingBox')
+        await this.boundingBox.compute().then(() => this.boundingBox.dataSync())
+        console.timeEnd('computeBoundingBox')
+        console.log('computeBoundingBox:', tf.memory())
     }
 
     async computeSmoothing()
     {
-        this.smoothing = new ComputeSmoothing(this)  
-        await this.smoothing.compute()
         this.smoothing.update()
-        this.smoothing.dispose()
+
+        console.time('computeSmoothing')
+        await this.smoothing.compute().then(() => this.smoothing.dataSync())
+        console.timeEnd('computeSmoothing')
+        console.log('computeSmoothing:', tf.memory())
     }
 
     async computeGradients()
     {
-        this.gradients = new ComputeGradients(this)  
-        await this.gradients.compute()
         this.gradients.update()
-        this.gradients.dispose()
+
+        console.time('computeGradients')
+        await this.gradients.compute().then(() => this.gradients.dataSync())
+        console.timeEnd('computeGradients')
+        console.log('computeGradients:', tf.memory())
     }
 
     update()
@@ -277,14 +290,17 @@ export default class ISOViewer
         // Dispose resources associated with bounding box, gradients, and smoothing computations
         if (this.boundingBox) {
             this.boundingBox.dispose()
+            this.boundingBox.destroy()
             this.boundingBox = null
         }
         if (this.gradients) {
             this.gradients.dispose()
+            this.gradients.destroy()
             this.gradients = null
         }
         if (this.smoothing) {
             this.smoothing.dispose()
+            this.smoothing.destroy()
             this.smoothing = null
         }
     

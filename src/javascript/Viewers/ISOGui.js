@@ -175,11 +175,7 @@ export default class ISOGui
 
             precomputeMethod: gradient.add(defines, 'GRADIENT_METHOD').name('precompute_method')
                 .options({scharr: 1, sobel: 2, prewitt: 3, tetrahedron: 4, central: 5 })
-                .onFinishChange(() => 
-                { 
-                    this.viewer.material.needsUpdate = true 
-                    this.viewer.computeGradients()
-                }),
+                .onFinishChange(() => { this.viewer.computeGradients() }),
 
             refinementMethod: gradient.add(defines, 'GRADIENT_REFINEMENT_METHOD').name('refinement_method')
                 .options({tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 })
@@ -204,19 +200,11 @@ export default class ISOGui
         this.controllers.smoothing = 
         {
             radius: smoothing.add(defines, 'SMOOTHING_RADIUS').name('radius').min(0).max(10).step(1)
-                .onFinishChange(() => 
-                { 
-                    this.viewer.material.needsUpdate = true
-                    this.viewer.computeSmoothing() 
-                }),
+                .onFinishChange(() => { this.viewer.computeSmoothing() }),
         
             precomputeMethod: smoothing.add(defines, 'SMOOTHING_METHOD').name('precompute_method')
                 .options({ bessel: 1, gaussian: 2, average: 3 })
-                .onFinishChange(() => 
-                { 
-                    this.viewer.material.needsUpdate = true 
-                    this.viewer.computeSmoothing()
-                }),
+                .onFinishChange(() => { this.viewer.computeSmoothing() }),
         }
     }
     

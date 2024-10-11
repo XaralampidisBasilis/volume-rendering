@@ -14,9 +14,9 @@ export default class ComputeGradients
         this.viewer = viewer
         this.parameters = this.viewer.parameters
         this.method = this.viewer.material.defines.GRADIENT_METHOD
-        this.filters = this.select()
+        this.filter = this.select()
     }
-
+   
     select() {
 
         switch (this.method) 
@@ -26,24 +26,21 @@ export default class ComputeGradients
             case 3: return new Prewitt()
             case 4: return new Tetrahedron()
             case 5: return new Central()
-            default: 
-                throw new Error(`Unknown GRADIENT_METHOD: ${this.method}`)
+            default: throw new Error(`unknown gradient method: ${this.method}`)
         }
     }
     
     async compute() 
     {
-        console.time('computeGradients')
-
         tf.tidy(() => 
         {
             const volume = this.viewer.tensors.volume
             const spacing = this.parameters.volume.spacing
 
             // compute gradients
-            const gradientX = this.convolute(volume, this.filters.kernelX, spacing.x)
-            const gradientY = this.convolute(volume, this.filters.kernelY, spacing.y)
-            const gradientZ = this.convolute(volume, this.filters.kernelZ, spacing.z)
+            const gradientX = this.convolute(volume, this.filter.kernelX, spacing.x)
+            const gradientY = this.convolute(volume, this.filter.kernelY, spacing.y)
+            const gradientZ = this.convolute(volume, this.filter.kernelZ, spacing.z)
 
             // compute bounds 
             const [minX, maxX] = [gradientX.min(), gradientX.max()]
@@ -64,39 +61,34 @@ export default class ComputeGradients
             // quantize normalized gradients
             const quantized = this.quantize(normalized)
 
+            // combine bounds
+            const minGrad = tf.stack([minX, minY, minZ], 0)    
+            const maxGrad = tf.stack([maxX, maxY, maxZ], 0)
+
             // extract the tensor data as an array of uint8
             this.data = new Uint8Array(quantized.dataSync())
             quantized.dispose()
 
-            // combine bounds
-            const min = tf.stack([minX, minY, minZ], 0)    
-            const max = tf.stack([maxX, maxY, maxZ], 0)
-
             // extract bounds as three vector3
-            this.min = new THREE.Vector3().fromArray(min.arraySync())
-            this.max = new THREE.Vector3().fromArray(max.arraySync())
+            this.min = new THREE.Vector3().fromArray(minGrad.arraySync())
+            this.max = new THREE.Vector3().fromArray(maxGrad.arraySync())
             this.maxNorm = Math.max(this.min.length(), this.max.length())
         })
-
-        console.log([this.min, this.max, this.maxNorm])
-        console.timeEnd('computeGradients')
 
         return { data: this.data, maxNorm: this.maxNorm, min: this.min, max: this.max } 
     }
 
     async compute2() 
     {
-        console.time('computeGradients')
-
         tf.tidy(() => 
         {
             const volume = this.viewer.tensors.volume
             const spacing = this.parameters.volume.spacing
 
             // compute gradients
-            const gradientX = this.convolute(volume, this.filters.kernelX, spacing.x)
-            const gradientY = this.convolute(volume, this.filters.kernelY, spacing.y)
-            const gradientZ = this.convolute(volume, this.filters.kernelZ, spacing.z)
+            const gradientX = this.convolute(volume, this.filter.kernelX, spacing.x)
+            const gradientY = this.convolute(volume, this.filter.kernelY, spacing.y)
+            const gradientZ = this.convolute(volume, this.filter.kernelZ, spacing.z)
 
             // concatenate normalized gradients
             const gradients = tf.concat([gradientX, gradientY, gradientZ], 3)
@@ -129,20 +121,10 @@ export default class ComputeGradients
             this.maxNorm = maxNorm.arraySync()
         })
 
-        console.timeEnd('computeGradients')
-
         return { data: this.data, maxNorm: this.maxNorm } 
     }
 
-    restart()
-    {
-        this.viewer = viewer
-        this.parameters = this.viewer.parameters
-        this.method = this.viewer.material.defines.GRADIENT_METHOD
-        this.filters = this.select()
-    }
-
-    update()
+    dataSync()
     {
         for (let i = 0; i < this.parameters.volume.count; i++) 
         {
@@ -152,31 +134,44 @@ export default class ComputeGradients
             this.viewer.data.volume[i4 + 2] = this.data[i3 + 1]
             this.viewer.data.volume[i4 + 3] = this.data[i3 + 2]
         }
-
+        
+        this.viewer.textures.volume.needsUpdate = true
         this.viewer.material.uniforms.u_gradient.value.min = this.min
         this.viewer.material.uniforms.u_gradient.value.max = this.max
         this.viewer.material.uniforms.u_gradient.value.max_norm = this.maxNorm
-        this.viewer.textures.volume.needsUpdate = true
+        this.viewer.material.needsUpdate = true
     }
-    
+
+    update()
+    {
+        this.dispose()
+        this.method = this.viewer.material.defines.GRADIENT_METHOD
+        this.filter = this.select()
+    }
+ 
     dispose()
     {
-        this.filters.dispose()
-        this.data = null
-        this.maxNorm = null
+        if (this.filter)
+            this.filter.dispose()
+    }
+
+    destroy()
+    {
         this.viewer = null
         this.parameters = null
         this.method = null
-        console.log(tf.memory())
+        this.filter = null
+        this.min = null
+        this.max = null
+        this.maxNorm = nulls
     }
 
     // helper tensor functions
 
-    convolute(volume, kernel, spacing)
+    convolute(tensor, kernel, spacing)
     {
-        if (this.filters.areSeparable) {
-            
-            const passX = tf.conv3d(volume, kernel.separableX, 1, 'same')
+        if (kernel.isSeparable) {
+            const passX = tf.conv3d(tensor, kernel.separableX, 1, 'same')
             const passY = tf.conv3d(passX, kernel.separableY, 1, 'same') 
             passX.dispose()
             const passZ = tf.conv3d(passY, kernel.separableZ, 1, 'same') 
@@ -184,28 +179,27 @@ export default class ComputeGradients
             const gradient = passZ.div([spacing])
             passZ.dispose()
             return gradient
-
         } else {
-            const pass = tf.conv3d(volume, kernel, 1, 'same')
+            const pass = tf.conv3d(tensor, kernel, 1, 'same')
             const gradient = pass.div([spacing])
             pass.dispose()
             return gradient
         }
     }
 
-    normalize(gradient, min, max)
+    normalize(tensor, min, max)
     {
-        const shifted = gradient.sub(min)
-        gradient.dispose()
+        const shifted = tensor.sub(min)
+        tensor.dispose()
         const normalized = shifted.div(tf.sub(max, min))
         shifted.dispose()
         return normalized
     }
 
-    quantize(normalized)
+    quantize(tensor)
     {
-        const scaled = normalized.mul([255])
-        normalized.dispose()
+        const scaled = tensor.mul([255])
+        tensor.dispose()
         const clipped = scaled.clipByValue(0, 255)  
         scaled.dispose()
         const quantized = clipped.round()

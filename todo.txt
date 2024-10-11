@@ -6,5 +6,6 @@ Add typescript
 Να ψαξω βιβλιογραφία για το πως μπορεί να χρησιμοποιηθεί το εργαλιο για εφαρμογες σε ML και heart hailure
 
 check with console.log(tf.memory()), memory leaks
+after gradient iterations
 
 

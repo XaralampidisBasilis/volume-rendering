@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
-import Bessel from './Kernels/Bessel'
-import Gaussian from './Kernels/Gaussian'
-import Average from './Kernels/Average'
+import Bessel from './Filters/Bessel'
+import Gaussian from './Filters/Gaussian'
+import Average from './Filters/Average'
 
 // assumes intensity data 3D, and data3DTexture
 export default class ComputeSmoothing
@@ -13,70 +13,33 @@ export default class ComputeSmoothing
         this.parameters = this.viewer.parameters
         this.radius = this.viewer.material.defines.SMOOTHING_RADIUS
         this.method = this.viewer.material.defines.SMOOTHING_METHOD
-        this.kernels = this.generate()
+        this.filter = this.select()
     }
 
-    generate() {
+    select() {
 
         switch (this.method) 
         {
             case 1: return new Bessel(this.radius)
             case 2: return new Gaussian(this.radius)
             case 3: return new Average(this.radius)
-            default: 
-                throw new Error(`Unknown SMOOTHING_METHOD: ${this.method}`)
+            default: throw new Error(`unknown smoothing method: ${this.method}`)
         }
     }
 
     async compute()
     {   
-        console.time('computeSmoothing')
-
         tf.tidy(() => 
         {
-            // applying the X convolution filter to the volume data. 
-            const smoothedX = tf.conv3d(this.viewer.tensors.volume, this.kernels.x, 1, 'same')
-
-            // applying the Y convolution filter to the volume data.
-            const smoothedY = tf.conv3d(smoothedX, this.kernels.y, 1, 'same')
-            smoothedX.dispose()
-
-            // applying the Z convolution filter to the volume data.
-            const smoothedZ = tf.conv3d(smoothedY, this.kernels.z, 1, 'same')
-            smoothedY.dispose()
-
-            // scale the values to the range [0, 255].
-            const scaled = smoothedZ.mul([255])
-            smoothedZ.dispose() 
-
-            // round the values to nearest integers.
-            const rounded = scaled.round()
-            scaled.dispose() 
-
-            // clip the values to ensure they stay within [0, 255].
-            const quantized = rounded .clipByValue(0, 255)
-            rounded .dispose() 
-
-            // return the final quantized smoothed volumed tensor 
+            const smoothed = this.convolute(this.viewer.tensors.volume, this.filter.kernel)
+            const quantized = this.quantize(smoothed)
             this.data = new Uint8Array(quantized.dataSync())
-            quantized.dispose()
         })
-
-        console.timeEnd('computeSmoothing')
 
         return { data: this.data }
     }
 
-    restart()
-    {
-        this.viewer = viewer
-        this.parameters = this.viewer.parameters
-        this.radius = this.viewer.material.defines.SMOOTHING_RADIUS
-        this.method = this.viewer.material.defines.SMOOTHING_METHOD
-        this.kernels = this.generate()
-    }
-
-    update()
+    dataSync()
     {
         for (let i = 0; i < this.parameters.volume.count; i++) 
         {
@@ -87,15 +50,51 @@ export default class ComputeSmoothing
         this.viewer.textures.volume.needsUpdate = true
     }
 
+    update()
+    {
+        this.dispose()
+        this.radius = this.viewer.material.defines.SMOOTHING_RADIUS
+        this.method = this.viewer.material.defines.SMOOTHING_METHOD
+        this.filter = this.select()
+    }
+
     dispose()
     {
-        this.kernels.dispose()
-        this.kernels = null
+        if (this.filter) 
+            this.filter.dispose()
+        // console.log(tf.memory())
+    }
+
+    destroy()
+    {
+        this.filter = null
         this.data = null
         this.viewer = null
         this.radius = null
         this.method = null
         this.parameters = null
-        console.log(tf.memory())
+    }
+
+    // helper tensor functions
+
+    convolute(tensor, kernel)
+    {
+        const passX = tf.conv3d(tensor, kernel.separableX, 1, 'same')
+        const passY = tf.conv3d(passX, kernel.separableY, 1, 'same') 
+        passX.dispose()
+        const passZ = tf.conv3d(passY, kernel.separableZ, 1, 'same') 
+        passY.dispose()
+        return passZ
+    }
+
+    quantize(tensor)
+    {
+        const scaled = tensor.mul([255])
+        tensor.dispose()
+        const clipped = scaled.clipByValue(0, 255)  
+        scaled.dispose()
+        const quantized = clipped.round()
+        scaled.dispose()
+        return quantized
     }
 }

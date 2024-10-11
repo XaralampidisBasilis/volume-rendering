@@ -94,7 +94,7 @@ for (int i = 0; i < 27; i++)
 }
 #pragma unroll_loop_end
 
-trace.gradient /= 10.0; // normalize the kernel values
+trace.gradient /= 8.0; // normalize the kernel values
 trace.gradient *= u_volume.inv_spacing * 0.5; // // adjust gradient to physical space 
 trace.gradient_norm = length(trace.gradient);
 trace.normal = - normalize(trace.gradient);

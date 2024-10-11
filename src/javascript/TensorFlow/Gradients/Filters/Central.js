@@ -4,11 +4,19 @@ export default class Central
 {
     constructor()
     {
-        this.areSeparable = false
+        this.generate()
+    }
 
-        this.kernelX = tf.tensor5d([-1, 0, 1], [1, 1, 3, 1, 1], 'float32').div([2])
-        this.kernelY = tf.tensor5d([-1, 0, 1], [1, 3, 1, 1, 1], 'float32').div([2])
-        this.kernelZ = tf.tensor5d([-1, 0, 1], [3, 1, 1, 1, 1], 'float32').div([2])
+    generate()
+    {
+        [this.kernelX, this.kernelY, this.kernelZ] = tf.tidy(() =>
+        {
+            const kernelX = tf.tensor5d([-1, 0, 1], [1, 1, 3, 1, 1], 'float32').div([2])
+            const kernelY = tf.tensor5d([-1, 0, 1], [1, 3, 1, 1, 1], 'float32').div([2])
+            const kernelZ = tf.tensor5d([-1, 0, 1], [3, 1, 1, 1, 1], 'float32').div([2])
+            
+            return [kernelX,kernelY, kernelZ]
+        })
     }
 
     dispose()
@@ -16,6 +24,10 @@ export default class Central
         this.kernelX.dispose()
         this.kernelY.dispose()
         this.kernelZ.dispose()
+    }
+
+    destroy()
+    {
         this.kernelX = null
         this.kernelY = null
         this.kernelZ = null
