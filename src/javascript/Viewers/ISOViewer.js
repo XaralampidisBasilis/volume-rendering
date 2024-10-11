@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import Experience from '../Experience'
 import ISOMaterial from './ISOMaterial'
 import ISOGui from './ISOGui'
+import ComputeResizing from '../TensorFlow/Resizing/ComputeResizing'
 import ComputeGradients from '../TensorFlow/Gradients/ComputeGradients'
 import ComputeSmoothing from '../TensorFlow/Smoothing/ComputeSmoothing'
 import ComputeBoundingBox from '../TensorFlow/BoundingBox/ComputeBoundingBox'
@@ -22,19 +23,21 @@ export default class ISOViewer
 
         this.setParameters()
         this.setTensors()
-        this.setData()
-        this.setTextures()
-        this.setNoisemaps()
-        this.setColormaps()
-        this.setGeometry()
-        this.setMaterial()
-        this.setMesh()
-        this.processData()
-
-        if (this.debug.active) 
+        this.computeResizing().then(() =>
         {
-            this.gui = new ISOGui(this)
-        } 
+            this.setData()
+            this.setTextures()
+            this.setNoisemaps()
+            this.setColormaps()
+            this.setGeometry()
+            this.setMaterial()
+            this.setMesh()
+            this.processData()
+    
+            if (this.debug.active) 
+                this.gui = new ISOGui(this)
+        })
+        
     }
 
     setParameters()
@@ -77,6 +80,19 @@ export default class ISOViewer
         this.tensors = {}
         this.tensors.volume = tf.tensor4d(this.resources.items.volumeNifti.getData(), this.parameters.volume.tensorShape,'float32')
         this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), this.parameters.mask.tensorShape,'bool')
+    }
+
+    async computeResizing()
+    {
+        this.resizing = new ComputeResizing(this)
+        
+        if (this.resizing.capabilities.needsResize)
+        {
+            console.time('computeResizing')
+            await this.resizing.compute().then(() => this.resizing.dataSync())
+            console.timeEnd('computeResizing')
+            console.log('computeResizing:', tf.memory())
+        }
     }
 
     setData()

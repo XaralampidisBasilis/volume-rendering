@@ -36,7 +36,6 @@ export default class ComputeBoundingBox
         return { boxMin: this.boxMin, boxMax: this.boxMax}
     }
 
-    
     dataSync()
     { 
         this.viewer.material.uniforms.u_occupancy.value.box_min.copy(this.boxMin)
