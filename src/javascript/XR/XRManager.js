@@ -1,9 +1,11 @@
 import * as THREE from 'three'
 import Experience from '../Experience'
+import EventEmitter from '../Utils/EventEmitter'
 import XRHitTest from './XRHitTest'
 import XRGestures from './XRGestures/XRGestures'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
 
+import Place from './XRActions/Place'
 export default class XRManager
 {
     constructor()
@@ -14,12 +16,14 @@ export default class XRManager
         this.renderer = this.experience.renderer
         this.world = this.experience.world
         this.scene = this.experience.scene
-        this.resources.on('ready', () =>
+
+        this.world.on('ready', () =>
         {
             this.gestures = new XRGestures()
             this.hitTest = new XRHitTest()
             this.setButton()
             this.addSessionListeners()
+            this.setActions()
         })
     } 
 
@@ -33,6 +37,12 @@ export default class XRManager
         })
         
         document.body.appendChild(this.button)
+    }
+
+    setActions()
+    {
+        this.actions = {}
+        this.actions.place = new Place(this.world.viewer.mesh, 'polytap')
     }
 
     addSessionListeners()

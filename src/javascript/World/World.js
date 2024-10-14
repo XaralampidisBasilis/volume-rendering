@@ -1,10 +1,13 @@
 import Experience from '../Experience'
 import ISOViewer from '../Viewers/ISOViewer'
+import EventEmitter from '../Utils/EventEmitter'
 
-export default class World
+export default class World extends EventEmitter
 {
     constructor()
     {
+        super()
+
         this.experience = new Experience()
         this.scene = this.experience.scene
         this.resources = this.experience.resources
@@ -13,8 +16,10 @@ export default class World
         // Wait for resources
         this.resources.on('ready', () =>
         {
-            // this.viewer = new ISOViewer()
+            this.viewer = new ISOViewer()
             this.camera.instance.position.fromArray(this.resources.items.volumeNifti.size)
+
+            this.viewer.on('ready', () => this.trigger('ready'))
         })
     }
 

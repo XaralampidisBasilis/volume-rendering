@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import Experience from '../Experience'
+import EventEmitter from '../Utils/EventEmitter'
 import ISOMaterial from './ISOMaterial'
 import ISOGui from './ISOGui'
 import ComputeResizing from '../TensorFlow/Resizing/ComputeResizing'
@@ -7,12 +8,13 @@ import ComputeGradients from '../TensorFlow/Gradients/ComputeGradients'
 import ComputeSmoothing from '../TensorFlow/Smoothing/ComputeSmoothing'
 import ComputeBoundingBox from '../TensorFlow/BoundingBox/ComputeBoundingBox'
 import * as tf from '@tensorflow/tfjs'
-import { cos } from 'mathjs'
 
-export default class ISOViewer
+export default class ISOViewer extends EventEmitter
 {
     constructor()
     {
+        super()
+
         this.experience = new Experience()
         this.scene = this.experience.scene
         this.resources = this.experience.resources
@@ -23,6 +25,8 @@ export default class ISOViewer
 
         this.setParameters()
         this.setTensors()
+
+        this.resizing = new ComputeResizing(this)
         this.computeResizing().then(() =>
         {
             this.setData()
@@ -36,6 +40,8 @@ export default class ISOViewer
     
             if (this.debug.active) 
                 this.gui = new ISOGui(this)
+
+            this.trigger('ready')
         })
         
     }
@@ -213,13 +219,10 @@ export default class ISOViewer
     }
 
     async computeResizing()
-    {
-        this.resizing = new ComputeResizing(this)
-        
+    {        
         console.time('computeResizing')
         await this.resizing.compute().then(() => this.resizing.dataSync())
         console.timeEnd('computeResizing')
-        console.log('computeResizing:', tf.memory())
     }
 
     async computeBoundingBox()
