@@ -118,7 +118,7 @@ class XRGestures extends THREE.EventDispatcher {
 
     setControllers() {
         
-        this.controller = [ 0, 1 ].map( (i) => this.renderer.xr.getController(i) )   
+        this.controller = [0, 1].map( (i) => this.renderer.xr.getController(i) )   
         this.controller.forEach( (controller, i) => {
             controller.userData.index = i                     
             controller.userData.parameters = this.parameters[i]

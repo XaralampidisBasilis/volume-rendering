@@ -19,7 +19,7 @@ export default class XRManager
         {          
             this.setButton()
             this.setHitTest()
-            this.setGestures()          
+            this.gestures = new XRGestures(this.renderer.instance)
             this.renderer.instance.xr.addEventListener('sessionstart', (event) => this.onSessionStart(event))
             this.renderer.instance.xr.addEventListener('sessionend', (event) => this.onSessionEnd(event))
         })
@@ -56,64 +56,6 @@ export default class XRManager
         this.gestures.update()  
         this.hitTest.update(timestamp, frame)
         this.renderer.update()
-    }
-
-    setGestures()
-    {
-        this.gestures = new XRGestures(this.renderer.instance)
-        this.gestures.addEventListener('polytap', (event) => this.onPolytap(event))
-        this.gestures.addEventListener('hold',    (event) => this.onHold(event))
-        this.gestures.addEventListener('pan',     (event) => this.onPan(event))
-        this.gestures.addEventListener('swipe',   (event) => this.onSwipe(event))
-        this.gestures.addEventListener('pinch',   (event) => this.onPinch(event))
-        this.gestures.addEventListener('twist',   (event) => this.onTwist(event))
-        this.gestures.addEventListener('implode', (event) => this.onImplode(event))
-        this.gestures.addEventListener('explode', (event) => this.onExplode(event))
-    }
-
-    onPolytap(event)
-    {
-        // if (event.numTaps === 2)
-        // {
-        //     this.world.viewer.mesh.visible = true
-        //     this.world.viewer.mesh.position.setFromMatrixPosition(this.reticle.mesh.matrix)
-        // }
-
-    }
-
-    onSwipe(event) 
-    {
-
-    }
-
-    onHold(event)
-    {
-
-    }
-
-    onPan(event)
-    {
-
-    }
-
-    onPinch(event)
-    {
-
-    }
-
-    onImplode(event)
-    {
-
-    }
-
-    onTwist(event)
-    {
-
-    }
-
-    onExplode(event)
-    {
-        
     }
 
     onButton()

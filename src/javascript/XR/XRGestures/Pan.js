@@ -9,6 +9,7 @@ export default class Pan
         this.detector = this.gestures.detector
 
         this.setGesture()
+        this.addListener()
     }
 
     setGesture()
@@ -17,8 +18,12 @@ export default class Pan
         this.current  = false
         this.end      = false
         this.userData = {}
-        
-        this.gestures.addEventListener( 'pan', (event) => this.onGesture( event ) )        
+    }
+
+    addListener()
+    {
+        this.listener = (event) => this.onGesture( event )
+        this.gestures.addEventListener( 'pan', this.listener )
     }
 
     detectGesture() {
@@ -85,6 +90,17 @@ export default class Pan
         if ( event.current ) console.log(`pan current`)
         if ( event.end )     console.log(`pan end`)
 
+    }
+
+    destroy() 
+    {
+        this.gestures.removeEventListener('pan', this.listener)
+        this.detector = null
+        this.userData = null
+        this.listener = null
+        this.start = null
+        this.current = null
+        this.end = null
     }
 
 }

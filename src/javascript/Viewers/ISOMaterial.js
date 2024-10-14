@@ -29,11 +29,11 @@ export default function()
         u_raycast: new THREE.Uniform
         ({
             threshold         : 0.3,
-            min_stepping      : 0.1,
-            max_stepping      : 2,
-            max_steps         : 1000,
-            spacing_method    : 2,
-            stepping_method   : 2,
+            min_stepping      : 2,
+            max_stepping      : 5,
+            max_steps         : 100,
+            spacing_method    : 1,
+            stepping_method   : 1,
             dithering_method  : 1,
             dithering_scale   : 0,
             refinement_method : 2,
@@ -103,9 +103,9 @@ export default function()
     {
         HAS_BBOX                   : 1,
         HAS_SKIPPING               : 0,
-        HAS_DITHERING              : 1,
+        HAS_DITHERING              : 0,
         
-        HAS_REFINEMENT             : 1,
+        HAS_REFINEMENT             : 0,
         DITHERING_METHOD           : 1,
         SPACING_METHOD             : 2,
         STEPPING_METHOD            : 1,

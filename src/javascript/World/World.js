@@ -13,7 +13,7 @@ export default class World
         // Wait for resources
         this.resources.on('ready', () =>
         {
-            this.viewer = new ISOViewer()
+            // this.viewer = new ISOViewer()
             this.camera.instance.position.fromArray(this.resources.items.volumeNifti.size)
         })
     }

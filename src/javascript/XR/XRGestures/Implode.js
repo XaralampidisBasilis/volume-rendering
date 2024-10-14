@@ -78,10 +78,9 @@ export default class Implode
             this.detector.gesture = undefined
     }
 
-    onGesture( event ) {
-        
+    onGesture( event ) 
+    {
         console.log(`implode`)       
-
     }
 
 }

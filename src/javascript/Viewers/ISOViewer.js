@@ -82,16 +82,6 @@ export default class ISOViewer
         this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), this.parameters.mask.tensorShape,'bool')
     }
 
-    async computeResizing()
-    {
-        this.resizing = new ComputeResizing(this)
-        
-        console.time('computeResizing')
-        await this.resizing.compute().then(() => this.resizing.dataSync())
-        console.timeEnd('computeResizing')
-        console.log('computeResizing:', tf.memory())
-    }
-
     setData()
     {
         this.data = {}
@@ -129,21 +119,21 @@ export default class ISOViewer
         this.textures.volume.wrapR = THREE.ClampToEdgeWrapping
         this.textures.volume.minFilter = THREE.LinearFilter
         this.textures.volume.magFilter = THREE.LinearFilter
-        this.textures.volume.generateMipmaps = true
-        this.textures.volume.unpackAlignment = 1 
+        this.textures.volume.generateMipmaps = false
+        this.textures.volume.unpackAlignment = 4 
         this.textures.volume.needsUpdate = true   
 
         // mask texture
         const maskDimensions = this.parameters.mask.dimensions.toArray()
         this.textures.mask = new THREE.Data3DTexture(this.data.mask, ...maskDimensions)
-        this.textures.mask.format = THREE.RedFormat
+        this.textures.mask.format = THREE.RedFormat 
         this.textures.mask.type = THREE.UnsignedByteType     
         this.textures.mask.wrapS = THREE.ClampToEdgeWrapping
         this.textures.mask.wrapT = THREE.ClampToEdgeWrapping
         this.textures.mask.wrapR = THREE.ClampToEdgeWrapping
         this.textures.mask.minFilter = THREE.LinearFilter
         this.textures.mask.magFilter = THREE.LinearFilter
-        this.textures.mask.generateMipmaps = true
+        this.textures.mask.generateMipmaps = false
         this.textures.mask.unpackAlignment = 1   
         this.textures.mask.needsUpdate = true     
     }
@@ -216,11 +206,20 @@ export default class ISOViewer
         this.boundingBox = new ComputeBoundingBox(this)
         this.smoothing   = new ComputeSmoothing(this)
         this.gradients   = new ComputeGradients(this)
-        console.log('processData:', tf.memory())
 
         await this.computeBoundingBox()
         await this.computeSmoothing()
         await this.computeGradients()
+    }
+
+    async computeResizing()
+    {
+        this.resizing = new ComputeResizing(this)
+        
+        console.time('computeResizing')
+        await this.resizing.compute().then(() => this.resizing.dataSync())
+        console.timeEnd('computeResizing')
+        console.log('computeResizing:', tf.memory())
     }
 
     async computeBoundingBox()
@@ -230,7 +229,7 @@ export default class ISOViewer
         console.time('computeBoundingBox')
         await this.boundingBox.compute().then(() => this.boundingBox.dataSync())
         console.timeEnd('computeBoundingBox')
-        console.log('computeBoundingBox:', tf.memory())
+        // console.log('computeBoundingBox:', tf.memory())
     }
 
     async computeSmoothing()
@@ -240,7 +239,7 @@ export default class ISOViewer
         console.time('computeSmoothing')
         await this.smoothing.compute().then(() => this.smoothing.dataSync())
         console.timeEnd('computeSmoothing')
-        console.log('computeSmoothing:', tf.memory())
+        // console.log('computeSmoothing:', tf.memory())
     }
 
     async computeGradients()
@@ -250,7 +249,7 @@ export default class ISOViewer
         console.time('computeGradients')
         await this.gradients.compute().then(() => this.gradients.dataSync())
         console.timeEnd('computeGradients')
-        console.log('computeGradients:', tf.memory())
+        // console.log('computeGradients:', tf.memory())
     }
 
     update()
@@ -302,7 +301,6 @@ export default class ISOViewer
     
         // Dispose resources associated with bounding box, gradients, and smoothing computations
         if (this.boundingBox) {
-            this.boundingBox.dispose()
             this.boundingBox.destroy()
             this.boundingBox = null
         }

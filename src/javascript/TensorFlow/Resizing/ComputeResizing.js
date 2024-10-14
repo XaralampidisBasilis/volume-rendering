@@ -14,11 +14,15 @@ export default class ComputeResizing
 
     setCapabilities()
     {
+        const textureCount = this.viewer.parameters.volume.count
         const maxTextureSize = this.renderer.instance.capabilities.maxTextureSize
+        const maxTextureCount = maxTextureSize * maxTextureSize * 0.5
+        const resizeDim3 = Math.min(Math.cbrt(maxTextureCount / textureCount), 1)
+        const resizeDim2 = Math.min(Math.sqrt(maxTextureCount / textureCount), 1)
 
-        this.parameters.volume.dimensions.x = Math.min(this.parameters.volume.dimensions.x, maxTextureSize)
-        this.parameters.volume.dimensions.y = Math.min(this.parameters.volume.dimensions.y, maxTextureSize)
-        this.parameters.volume.dimensions.z = Math.min(this.parameters.volume.dimensions.z, maxTextureSize)
+        this.parameters.volume.dimensions.x = Math.floor(this.parameters.volume.dimensions.x * resizeDim3)
+        this.parameters.volume.dimensions.y = Math.floor(this.parameters.volume.dimensions.y * resizeDim3)
+        this.parameters.volume.dimensions.z = Math.round(this.parameters.volume.dimensions.z * resizeDim3)
     }
 
     async compute()
