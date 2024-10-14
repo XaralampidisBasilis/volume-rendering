@@ -14,30 +14,22 @@ export default class ComputeResizing
 
     setCapabilities()
     {
-        this.capabilities = {}
-        this.capabilities.maxTextureSizeWebGL = this.renderer.instance.capabilities.maxTextureSize
-        this.capabilities.maxTextureSize = Math.max(...this.parameters.volume.dimensions.toArray())
-        this.capabilities.needsResize = this.capabilities.maxTextureSize > this.capabilities.maxTextureSizeWebGL
-        this.capabilities.needsResize = true
+        const maxTextureSize = this.renderer.instance.capabilities.maxTextureSize
 
-        if (this.capabilities.needsResize)
-        {
-            // const dimensionScale = this.capabilities.maxTextureSizeWebGL / this.capabilities.maxTextureSize
-            const dimensionScale = 0.5
-            this.parameters.volume.dimensions.x = Math.floor(this.parameters.volume.dimensions.x * dimensionScale)
-            this.parameters.volume.dimensions.y = Math.floor(this.parameters.volume.dimensions.y * dimensionScale)
-            this.parameters.volume.dimensions.z = Math.floor(this.parameters.volume.dimensions.z * dimensionScale)
-        }       
+        this.parameters.volume.dimensions.x = Math.min(this.parameters.volume.dimensions.x, maxTextureSize)
+        this.parameters.volume.dimensions.y = Math.min(this.parameters.volume.dimensions.y, maxTextureSize)
+        this.parameters.volume.dimensions.z = Math.min(this.parameters.volume.dimensions.z, maxTextureSize)
     }
 
     async compute()
     {
         this.tensor = tf.tidy(() =>
         {
-            const shape = [this.parameters.volume.dimensions.y, this.parameters.volume.dimensions.x]
-            const resizedXY = this.viewer.tensors.volume.resizeBilinear(shape, false, true)
-            const resized = this.resizeLinear(resizedXY, 0, this.parameters.volume.dimensions.z)
-            return resized
+            const volume = this.viewer.tensors.volume
+            const resizedX = this.resizeLinear(volume,   2, this.parameters.volume.dimensions.x)
+            const resizedY = this.resizeLinear(resizedX, 1, this.parameters.volume.dimensions.y)
+            const resizedZ = this.resizeLinear(resizedY, 0, this.parameters.volume.dimensions.z)
+            return resizedZ
         })
 
         return { tensor: this.tensor}
@@ -60,10 +52,6 @@ export default class ComputeResizing
         this.viewer = null
         this.parameters = null
         this.renderer = null
-        this.capabilities.maxTextureSize   = null
-        this.capabilities.maxTextureWidth  = null
-        this.capabilities.maxTextureHeight = null
-        this.capabilities.maxTextureDepth  = null
         this.tensor = null
     }
 
@@ -72,14 +60,11 @@ export default class ComputeResizing
     resizeLinear(tensor, axis, newSize)
     {
         const size = tensor.shape[axis]
-        const sliceSize = [...tensor.shape]
-        sliceSize[axis] = 1
-
-        const startFloor = [0, 0, 0, 0]
-        const startCeil  = [0, 0, 0, 0]
-        const slices = []
+        if (size <= newSize)
+             return tensor.clone()     
 
         // Interpolate between the two closest slices along Z for each voxel
+        const slices = []
         for (let n = 0; n < newSize; n++) 
         {
             const newS   = (n + 0.5) / newSize  // Float index in range (0, 1)
@@ -87,24 +72,29 @@ export default class ComputeResizing
             const sFloor = Math.floor(s)        // Lower slice index
             const sCeil  = Math.ceil(s)         // Upper slice index
             const t      = s - sFloor           // Fractional part for interpolation
-           
-            startFloor[axis] = sFloor
-            startCeil[axis] = sCeil
-            let sliceFloor = tensor.slice(startFloor, sliceSize)  // Slice at sFloor
-            let sliceCeil  = tensor.slice(startCeil,  sliceSize)  // Slice at sCeil
-            let slice = this.mix(sliceFloor, sliceCeil, t)        // Slice interpolation
-
+        
+            const sliceFloor = this.slice(tensor, axis, sFloor)  // Slice at sFloor
+            const sliceCeil  = this.slice(tensor, axis,  sCeil)  // Slice at sCeil
+            const slice = this.mix(sliceFloor, sliceCeil, t)     // Slice interpolation
             sliceFloor.dispose()
             sliceCeil.dispose()
             slices.push(slice)
         }
 
         tensor.dispose()
-
         const resized = tf.concat(slices, axis)
         tf.dispose(slices)
+        return resized       
+    }
 
-        return resized
+    slice(tensor, axis, number)
+    {
+        const begin = tensor.shape.map(() => 0)
+        const size = tensor.shape.map((x) => x)
+        begin[axis] = number
+        size[axis] = 1
+        return tensor.slice(begin, size)
+
     }
 
     mix(tensorA, tensorB, t)

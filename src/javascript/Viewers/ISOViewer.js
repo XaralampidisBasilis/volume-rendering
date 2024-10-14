@@ -86,13 +86,10 @@ export default class ISOViewer
     {
         this.resizing = new ComputeResizing(this)
         
-        if (this.resizing.capabilities.needsResize)
-        {
-            console.time('computeResizing')
-            await this.resizing.compute().then(() => this.resizing.dataSync())
-            console.timeEnd('computeResizing')
-            console.log('computeResizing:', tf.memory())
-        }
+        console.time('computeResizing')
+        await this.resizing.compute().then(() => this.resizing.dataSync())
+        console.timeEnd('computeResizing')
+        console.log('computeResizing:', tf.memory())
     }
 
     setData()
