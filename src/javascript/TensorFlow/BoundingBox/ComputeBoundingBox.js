@@ -50,11 +50,11 @@ export default class ComputeBoundingBox
 
     destroy()
     {
-        this.boxMin = null
-        this.boxMax = null
         this.viewer = null
         this.parameters = null
         this.threshold = null
+        this.boxMin = null
+        this.boxMax = null
     }
 
     // helper tensor functions
@@ -64,11 +64,9 @@ export default class ComputeBoundingBox
         const axes = [0, 1, 2, 3].toSpliced(axis, 1)
         const dimension = boolTensor.shape[axis]
         const condition = boolTensor.any(axes)
-        let minInd = condition.argMax(0)
-        let maxInd = condition.reverse().argMax(0)
-        maxInd = tf.sub(dimension, maxInd)
+        const minInd = condition.argMax(0)
+        const maxInd = tf.sub(dimension, condition.reverse().argMax(0))
         condition.dispose()
         return [minInd, maxInd] 
-
     }
 }

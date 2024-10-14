@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import Experience from '../../Experience'
+
 import Tap from './Tap'
 import Polytap from './Polytap'
 import Hold from './Hold'
@@ -28,24 +30,29 @@ function formatVector( vector, digits )
     if ( vector instanceof THREE.Vector3 ) return `(${sign[0] + Math.abs(vector.x).toFixed(digits)}, ${sign[1] + Math.abs(vector.y).toFixed(digits)}, ${sign[2] + Math.abs(vector.z).toFixed(digits)})`
 }
 
-// class
 let instance = null
-class XRGestures extends THREE.EventDispatcher {
-    
-    constructor( renderer ) {
+
+class XRGestures extends THREE.EventDispatcher 
+{
+    constructor() {
 
         super()     
 
-        if( instance ) return instance
-        instance = this // singleton
-
-        if ( ! renderer ) console.error('XRGestures must be passed a renderer')
-        this.renderer = renderer
-        this.camera = renderer.xr.getCamera()
+        // Singleton
+        if(instance)
+            return instance
+        instance = this
+            
+        this.experience = new Experience()
+        this.renderer = this.experience.renderer.instance
+        this.camera = this.renderer.xr.getCamera()
         
+        this.numControllers = 0
+        this.current = undefined
+        this.delayed = false
+
         this.setRaycasters()
         this.setParameters()
-        this.setDetector()
         this.setControllers()
         this.setInventory()
     }
@@ -54,7 +61,8 @@ class XRGestures extends THREE.EventDispatcher {
 
     setRaycasters() {
 
-        this.raycasters = {
+        this.raycasters = 
+        {
             view: new THREE.Raycaster(),
             hand: [ 0, 1 ].map( () => new THREE.Raycaster() ),
         }
@@ -106,25 +114,20 @@ class XRGestures extends THREE.EventDispatcher {
         }
 
     }
- 
-    setDetector() {
-
-        this.detector =  {
-            numControllers: 0,
-            gesture: undefined,
-            delayed: false,
-        }
-    }
 
     setControllers() {
         
         this.controller = [0, 1].map( (i) => this.renderer.xr.getController(i) )   
-        this.controller.forEach( (controller, i) => {
+        this.controller.forEach( (controller, i) => 
+        {
             controller.userData.index = i                     
             controller.userData.parameters = this.parameters[i]
             controller.userData.parametersDual = this.parametersDual
-            controller.addEventListener( 'connected',  async (event) => await this.onConnected( event ))
-            controller.addEventListener( 'disconnected', async (event) => await this.onDisconnected( event ))            
+
+            controller.connectedListener = async (event) => await this.onConnected( event )
+            controller.disconnectedListener = async (event) => await this.onDisconnected( event )
+            controller.addEventListener( 'connected', controller.connectedListener)
+            controller.addEventListener( 'disconnected', controller.disconnectedListener)            
         })     
     }
 
@@ -151,10 +154,10 @@ class XRGestures extends THREE.EventDispatcher {
         const index = controller.userData.index
         await delay( XRGestures.DELAY_CONTROLLER ) // need this to avoid some transient phenomenon, without it 
 
-        this.detector.numControllers += 1                            
+        this.numControllers += 1                            
         this.startParameters( index )
 
-        if ( this.detector.numControllers === 2 ) 
+        if ( this.numControllers === 2 ) 
             this.startDualParameters()
 
     }
@@ -165,10 +168,10 @@ class XRGestures extends THREE.EventDispatcher {
         const index = controller.userData.index
         await delay( XRGestures.DELAY_CONTROLLER )
 
-        this.detector.numControllers -= 1 
+        this.numControllers -= 1 
         this.stopParameters( index )
 
-        if ( this.detector.numControllers < 2 ) 
+        if ( this.numControllers < 2 ) 
             this.stopDualParameters()
     
     }     
@@ -198,13 +201,69 @@ class XRGestures extends THREE.EventDispatcher {
             this.updateDualParameters()  
         }
         
-        if ( ! this.detector.delayed ) { 
-            this.detectGestures()
-        } // else console.log( 'delay' )
+        if ( ! this.delayed ) { 
+            this.detect()
+        } 
 
     }    
 
-    detectGestures() {
+    destroy()
+    {
+        this.controller.forEach((controller) => 
+        {
+            if (controller.connectedListener) {
+                controller.removeEventListener('connected', controller.connectedListener)
+                controller.connectedListener = null
+            }
+            if (controller.disconnectedListener) {
+                controller.removeEventListener('disconnected', controller.disconnectedListener)
+                controller.disconnectedListener = null
+            }
+        })
+
+         // Clean up individual raycasters
+        if (this.raycasters) 
+        {
+            if (this.raycasters.view) 
+                this.raycasters.view = null 
+            
+            if (this.raycasters.hand) 
+                this.raycasters.hand.forEach((_, i) => { this.raycasters.hand[i] = null })
+        }
+
+        this.raycasters = null
+
+        // Clean up parameters
+        if (this.parameters)
+            this.parameters.forEach((_, i) => this.destroyParameters(i))
+
+        if (this.parametersDual)
+            this.destroyDualParameters()
+    
+        // Clean up inventory items (gesture detectors)
+        if (this.inventory) 
+        {
+            Object.keys(this.inventory).forEach((gesture) => 
+            {
+                if (this.inventory[gesture].destroy)
+                    this.inventory[gesture].destroy() // Call a destroy method if available
+                
+                this.inventory[gesture] = null
+            })
+
+            this.inventory = null
+        }
+    
+        // Nullify references
+        this.experience = null
+        this.renderer = null
+        this.camera = null
+        this.controller = null    
+
+        console.log("XRGestures destroyed")
+    }
+
+    detect() {
 
         // order matters
         this.inventory.tap.detectGesture()                                   
@@ -242,6 +301,33 @@ class XRGestures extends THREE.EventDispatcher {
         this.parameters[i].turnSpeed = 0
         this.parameters[i].turnDeviation = 0
 
+    }
+
+    destroyParameters(i) {
+
+        if (this.parameters[i].clock) {
+            this.parameters[i].clock.stop()
+            this.parameters[i].clock = null
+        }
+    
+        this.parameters[i].cursor = null
+        this.parameters[i].cursor0 = null
+        this.parameters[i].cursorOffset = null
+        this.parameters[i].cursorBuffer = null
+        this.parameters[i].cursorSmooth = null
+        this.parameters[i].connected = null
+        this.parameters[i].duration = null
+        this.parameters[i].distance = null
+        this.parameters[i].angle = null
+        this.parameters[i].angleBuffer = null
+        this.parameters[i].radialSpeed = null
+        this.parameters[i].angularSpeed = null
+        this.parameters[i].pathDistance = null
+        this.parameters[i].turnAngle = null
+        this.parameters[i].pathSpeed = null
+        this.parameters[i].turnSpeed = null
+        this.parameters[i].turnDeviation = null
+        this.parameters[i] = null
     }
 
     startParameters( i ) {
@@ -451,6 +537,35 @@ class XRGestures extends THREE.EventDispatcher {
         this.parametersDual.angularSpeed = 0
     }
 
+    destroyDualParameters() {
+
+        if (this.parametersDual.clock) {
+            this.parametersDual.clock.stop()
+            this.parametersDual.clock = null
+        }
+    
+        this.parametersDual.median = null
+        this.parametersDual.median0 = null
+        this.parametersDual.medianOffset = null
+        this.parametersDual.vector = null
+        this.parametersDual.vector0 = null
+        this.parametersDual.vectorBuffer = null
+        this.parametersDual.connected = null
+        this.parametersDual.duration = null
+        this.parametersDual.distance = null
+        this.parametersDual.distance0 = null
+        this.parametersDual.distanceOffset = null
+        this.parametersDual.angle = null
+        this.parametersDual.angle0 = null
+        this.parametersDual.angleOffset = null
+        this.parametersDual.turnAngle = null
+        this.parametersDual.angleBuffer = null
+        this.parametersDual.radialSpeed = null
+        this.parametersDual.angularSpeed = null
+        this.parametersDual = null
+    }
+    
+
     startDualParameters() {
         
         this.resetDualParameters()
@@ -647,10 +762,10 @@ class XRGestures extends THREE.EventDispatcher {
         }                
     }
 
-    delayDetector( delay ) {
+    delayGestures( delay ) {
 
-        this.detector.delayed = true
-        setTimeout( () => this.detector.delayed = false, delay )
+        this.delayed = true
+        setTimeout( () => this.delayed = false, delay )
 
     }
 

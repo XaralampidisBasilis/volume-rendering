@@ -115,8 +115,8 @@ export default class Experience
 
         this.camera.controls.dispose()
         this.renderer.instance.dispose()
-
         this.world.destroy()
+        this.xr.destroy()
 
         if(this.debug.active)
             this.debug.ui.destroy()

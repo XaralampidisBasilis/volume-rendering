@@ -329,7 +329,7 @@ export default class ISOViewer
         this.sizes = null
         this.debug = null
     
-        console.log("ISOViewer destroyed and resources cleaned up.");
+        console.log("ISOViewer destroyed")
     }
     
 }

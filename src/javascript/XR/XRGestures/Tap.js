@@ -6,8 +6,6 @@ export default class Tap
     {
         this.gestures = new XRGestures()
         this.parameters = this.gestures.parameters
-        this.detector = this.gestures.detector
-
         this.setGesture()
     }
 
@@ -17,23 +15,22 @@ export default class Tap
         this.current  = false
         this.end      = false
         this.userData = {}
-
         this.numTaps = 0
-        
-        this.gestures.addEventListener( 'tap', (event) => this.onGesture( event ) )        
+        this.listener = (event) => this.onGesture( event )
+        this.gestures.addEventListener( 'tap', this.listener )         
     }
 
     detectGesture() {  
 
         if ( ! this.start ) {
 
-            if ( this.detector.numControllers === 1 ) this.startGesture()
+            if ( this.gestures.numControllers === 1 ) this.startGesture()
 
         }
 
         if ( this.current ) {
 
-            if ( ! ( this.detector.numControllers === 0 )) return
+            if ( ! ( this.gestures.numControllers === 0 )) return
             if ( ! ( this.parameters[0].duration < Tap.MAX_END_DURATION )) return
             if ( ! ( this.parameters[0].distance < Tap.MAX_END_DISTANCE )) return  
 
@@ -70,14 +67,29 @@ export default class Tap
         this.current = false
         this.end     = false
 
-        if (this.detector.gesture == 'tap')
-            this.detector.gesture = undefined
+        if (this.gestures.current == 'tap')
+            this.gestures.current = undefined
     }
 
-    onGesture( event ) {
-
+    onGesture( event ) 
+    {
         console.log( `tap` )
+    }
 
+    
+    destroy()
+    {
+        this.gestures.removeEventListener('tap', this.listener)
+        this.listener   = null
+        this.gestures   = null
+        this.parameters = null
+        this.start      = null
+        this.current    = null
+        this.end        = null
+        this.userData   = null
+        this.numTaps    = null
+
+        console.log("Tap destroyed")
     }
 
 }

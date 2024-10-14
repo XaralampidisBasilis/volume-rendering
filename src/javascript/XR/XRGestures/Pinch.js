@@ -6,8 +6,6 @@ export default class Pinch
     {
         this.gestures = new XRGestures()
         this.parametersDual = this.gestures.parametersDual
-        this.detector = this.gestures.detector
-
         this.setGesture()          
     }
 
@@ -17,22 +15,21 @@ export default class Pinch
         this.current  = false
         this.end      = false
         this.userData = {}
-
-        this.gestures.addEventListener( 'pinch', (event) => this.onGesture( event ) )     
+        this.listener = (event) => this.onGesture( event )
+        this.gestures.addEventListener( 'pinch', this.listener )   
     }
 
     detectGesture() {
 
         if ( ! this.start ) {
 
-            if ( ! ( this.detector.gesture === undefined ) ) return
-            if ( ! ( this.detector.numControllers === 2 ) ) return
+            if ( ! ( this.gestures.current === undefined ) ) return
+            if ( ! ( this.gestures.numControllers === 2 ) ) return
             if ( ! ( Math.abs( this.parametersDual.distanceOffset ) > Pinch.MIN_START_DISTANCE_OFFSET ) ) return
             if ( ! ( Math.abs( this.parametersDual.angleOffset ) < Pinch.MAX_START_ANGLE_OFFSET ) ) return
             if ( ! ( Math.abs( this.parametersDual.radialSpeed ) < Pinch.MAX_START_RADIAL_SPEED )) return   
 
-            this.detector.gesture = 'pinch'           
-
+            this.gestures.current = 'pinch'           
             this.gestures.dispatchEvent( { type: 'pinch', start: true, userData: this.userData } )
             this.gestures.resetGesturesExcept('pinch')
             this.startGesture()
@@ -42,14 +39,14 @@ export default class Pinch
            
             this.gestures.dispatchEvent( { type: 'pinch', current: true, userData: this.userData } )
         
-            if ( this.detector.numControllers < 2 ) this.endGesture()
+            if ( this.gestures.numControllers < 2 ) this.endGesture()
 
         } 
         
         if ( this.end ) {
 
             this.gestures.dispatchEvent( { type: 'pinch', end: true, userData: this.userData } )
-            this.gestures.delayDetector( XRGestures.DELAY_DETECTOR ) 
+            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures() 
 
         }
@@ -74,8 +71,8 @@ export default class Pinch
         this.current = false
         this.end     = false
 
-        if (this.detector.gesture == 'pinch')
-            this.detector.gesture = undefined
+        if (this.gestures.current == 'pinch')
+            this.gestures.current = undefined
     }
 
     onGesture( event ) {
@@ -86,9 +83,23 @@ export default class Pinch
 
     }
 
+    destroy()
+    {
+        this.gestures.removeEventListener('pinch', this.listener)
+        this.listener = null
+        this.gestures = null
+        this.parametersDual = null
+        this.start    = null
+        this.current  = null
+        this.end      = null
+        this.userData = null
+
+        console.log("Pinch destroyed")
+    }
+
 }
 
-// gesture constants
+// current constants
 
 Pinch.MIN_START_DISTANCE_OFFSET = 5 // mm
 Pinch.MAX_START_ANGLE_OFFSET = 10 // °

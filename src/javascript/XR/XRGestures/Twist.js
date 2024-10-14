@@ -6,8 +6,6 @@ export default class Twist
     {
         this.gestures = new XRGestures()
         this.parametersDual = this.gestures.parametersDual
-        this.detector = this.gestures.detector
-
         this.setGesture()          
     }
 
@@ -17,21 +15,21 @@ export default class Twist
         this.current  = false
         this.end      = false
         this.userData = {}
-
-        this.gestures.addEventListener( 'twist', (event) => this.onGesture( event ) )     
+        this.listener = (event) => this.onGesture( event )
+        this.gestures.addEventListener( 'twist', this.listener )    
     }
 
     detectGesture() {
         
         if ( ! this.start ) {
 
-            if ( ! ( this.detector.gesture === undefined )) return
-            if ( ! ( this.detector.numControllers === 2 ) ) return
+            if ( ! ( this.gestures.current === undefined )) return
+            if ( ! ( this.gestures.numControllers === 2 ) ) return
             if ( ! ( this.parametersDual.distance > Twist.MIN_START_DISTANCE ) ) return
             if ( ! ( Math.abs( this.parametersDual.distanceOffset ) < Twist.MAX_START_DISTANCE_OFFSET ) ) return
             if ( ! ( Math.abs( this.parametersDual.angleOffset ) > Twist.MIN_START_ANGLE_OFFSET ) ) return
 
-            this.detector.gesture = 'twist'         
+            this.gestures.current = 'twist'         
                
             this.gestures.dispatchEvent( { type: 'twist', start: true, userData: this.userData, } )                
             this.gestures.resetGesturesExcept('twist')
@@ -43,14 +41,14 @@ export default class Twist
 
             this.gestures.dispatchEvent( { type: 'twist', current: true, userData: this.userData, } )
         
-            if ( this.detector.numControllers < 2 ) this.endGesture()        
+            if ( this.gestures.numControllers < 2 ) this.endGesture()        
 
         } 
         
         if ( this.end ) {
 
             this.gestures.dispatchEvent( { type: 'twist', end: true, userData: this.userData, } )
-            this.gestures.delayDetector( XRGestures.DELAY_DETECTOR ) 
+            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures()
 
         }
@@ -74,21 +72,34 @@ export default class Twist
         this.current = false
         this.end     = false
 
-        if (this.detector.gesture == 'twist')
-            this.detector.gesture = undefined
+        if (this.gestures.current == 'twist')
+            this.gestures.current = undefined
     }
 
-    onGesture( event ) {
-        
+    onGesture( event ) 
+    {
         if ( event.start )   console.log( `twist start` )
         if ( event.current ) console.log( `twist current` )
         if ( event.end )     console.log( `twist end` )
+    }
 
+    destroy()
+    {
+        this.gestures.removeEventListener('twist', this.listener)
+        this.listener = null
+        this.gestures = null
+        this.parametersDual = null
+        this.start    = null
+        this.current  = null
+        this.end      = null
+        this.userData = null
+
+        console.log("Twist destroyed")
     }
 
 }
 
-// gesture constants
+// current constants
 
 Twist.MIN_START_DISTANCE = 30 // mm
 Twist.MAX_START_DISTANCE_OFFSET = 5  // mm

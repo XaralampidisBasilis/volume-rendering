@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import Experience from '../Experience'
-import HitTest from './HitTest'
+import XRHitTest from './XRHitTest'
 import XRGestures from './XRGestures/XRGestures'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
 
@@ -14,16 +14,13 @@ export default class XRManager
         this.renderer = this.experience.renderer
         this.world = this.experience.world
         this.scene = this.experience.scene
-
         this.resources.on('ready', () =>
-        {          
+        {
+            this.gestures = new XRGestures()
+            this.hitTest = new XRHitTest()
             this.setButton()
-            this.setHitTest()
-            this.gestures = new XRGestures(this.renderer.instance)
-            this.renderer.instance.xr.addEventListener('sessionstart', (event) => this.onSessionStart(event))
-            this.renderer.instance.xr.addEventListener('sessionend', (event) => this.onSessionEnd(event))
+            this.addSessionListeners()
         })
-
     } 
 
     setButton()
@@ -31,20 +28,21 @@ export default class XRManager
         this.button = ARButton.createButton(this.renderer.instance, 
         { 
             requiredFeatures: ['hit-test'],
-            optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],            
+            optionalFeatures: ['dom-overlay'],            
             domOverlay: { root: document.getElementById('container-xr') },
         })
-
-        this.button.addEventListener('click', this.onButton.bind(this))
+        
         document.body.appendChild(this.button)
     }
 
-    setHitTest()
+    addSessionListeners()
     {
-        this.hitTest = new HitTest()
-        this.reticle = this.hitTest.reticle
+        this.sessionStartListener = () => this.onSessionStart()
+        this.sessionEndListener = () => this.onSessionEnd()
+        this.renderer.instance.xr.addEventListener('sessionstart', this.sessionStartListener)
+        this.renderer.instance.xr.addEventListener('sessionend', this.sessionEndListener)
     }
-    
+
     update()
     {       
         if (this.session) 
@@ -58,37 +56,69 @@ export default class XRManager
         this.renderer.update()
     }
 
-    onButton()
-    {
-
-    }
-
-    onSessionStart(event)
+    onSessionStart()
     {
         this.session = this.renderer.instance.xr.getSession()  
+        
         this.renderer.instance.setClearAlpha(0)
         this.renderer.instance.domElement.style.display = 'none'
-        this.reticle.mesh.visible = false     
         this.scene.traverse((child) =>
         {
             if(child instanceof THREE.Mesh)
-            {
                 child.visible = false
-            }
         })
+        
+        this.hitTest.reticle.mesh.visible = false    
     }
 
-    onSessionEnd(event)
+    onSessionEnd()
     {
         this.renderer.instance.setClearAlpha(1)
         this.renderer.instance.domElement.style.display = ''
-        this.reticle.mesh.visible = false     
+
+        this.hitTest.reticle.mesh.visible = false     
         this.scene.traverse((child) =>
-            {
-                if(child instanceof THREE.Mesh)
-                {
-                    child.visible = true
-                }
-            })  
+        {
+            if(child instanceof THREE.Mesh)
+                child.visible = true
+        })  
     }
+
+    destroy()
+    {
+        // Remove event listeners for XR session events
+        if (this.renderer.instance.xr) {
+            this.renderer.instance.xr.removeEventListener('sessionstart', this.sessionStartListener)
+            this.renderer.instance.xr.removeEventListener('sessionend', this.sessionEndListener)
+        }
+
+        // Clean up the hit test system
+        if (this.hitTest) {
+            this.hitTest.destroy() 
+            this.hitTest = null
+        }
+
+        // Clean up the gestures system
+        if (this.gestures) {
+            this.gestures.destroy()
+            this.gestures = null
+        }
+
+        // Remove the AR button from the DOM
+        if (this.button && this.button.parentElement) {
+            this.button.parentElement.removeChild(this.button)
+            this.button = null
+        }
+
+        // Nullify references to other class properties to avoid memory leaks
+        this.session = null
+        this.experience = null
+        this.resources = null
+        this.renderer = null
+        this.world = null
+        this.scene = null
+
+        console.log("XRManager destroyed")
+    }
+
 }

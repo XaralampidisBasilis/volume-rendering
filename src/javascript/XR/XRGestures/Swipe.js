@@ -6,8 +6,6 @@ export default class Swipe
     {
         this.gestures = new XRGestures()
         this.parameters = this.gestures.parameters
-        this.detector = this.gestures.detector
-
         this.setGesture()
     }
 
@@ -17,19 +15,18 @@ export default class Swipe
         this.current  = false
         this.end      = false
         this.userData = {}
-        
         this.direction  = undefined
         this.directions = [ 'RIGHT', 'UP', 'LEFT', 'DOWN'] 
-
-        this.gestures.addEventListener( 'swipe', (event) => this.onGesture( event ) )        
+        this.listener = (event) => this.onGesture( event )
+        this.gestures.addEventListener( 'swipe', this.listener )   
     }
 
     detectGesture() {
 
         if ( ! this.start ) {
 
-            if ( ! ( this.detector.gesture === undefined )) return
-            if ( ! ( this.detector.numControllers === 1 )) return
+            if ( ! ( this.gestures.current === undefined )) return
+            if ( ! ( this.gestures.numControllers === 1 )) return
             if ( ! ( this.parameters[0].pathDistance > Swipe.MIN_START_PATH_DISTANCE )) return
             if ( ! ( this.parameters[0].pathSpeed > Swipe.MIN_START_PATH_SPEED )) return
 
@@ -39,9 +36,9 @@ export default class Swipe
 
         if ( this.current ) {
 
-            if ( this.detector.numControllers === 0 ) {
+            if ( this.gestures.numControllers === 0 ) {
 
-                this.detector.gesture = 'swipe'
+                this.gestures.current = 'swipe'
 
                 this.gestures.resetGesturesExcept('swipe')
                 this.endGesture()
@@ -56,7 +53,7 @@ export default class Swipe
             this.direction = this.directions[index]   
 
             this.gestures.dispatchEvent( { type: 'swipe', start: true, current: true, end: true, direction: this.direction, userData: this.userData } )
-            this.gestures.delayDetector( XRGestures.DELAY_DETECTOR )   
+            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR )   
             this.gestures.resetGestures()
 
         }
@@ -81,14 +78,29 @@ export default class Swipe
         this.current = false
         this.end     = false
 
-        if (this.detector.gesture == 'swipe')
-            this.detector.gesture = undefined
+        if (this.gestures.current == 'swipe')
+            this.gestures.current = undefined
     }
 
-    onGesture( event ) {
-        
+    onGesture( event ) 
+    {
         console.log( `swipe ${ event.direction }` )        
+    }
 
+    destroy()
+    {
+        this.gestures.removeEventListener('swipe', this.listener)
+        this.listener   = null
+        this.gestures   = null
+        this.parameters = null
+        this.start      = null
+        this.current    = null
+        this.end        = null
+        this.userData   = null
+        this.direction  = null
+        this.directions = null
+
+        console.log("Swipe destroyed")
     }
 
 }

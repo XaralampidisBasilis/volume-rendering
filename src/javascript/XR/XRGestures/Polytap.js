@@ -6,8 +6,6 @@ export default class Polytap
     {
         this.gestures = new XRGestures()
         this.parameters = this.gestures.parameters
-        this.detector = this.gestures.detector
-
         this.setGesture()
     }
 
@@ -17,25 +15,22 @@ export default class Polytap
         this.current  = false
         this.end      = false
         this.userData = {}
-
         this.timeoutID = undefined
         this.numTaps = 0
-        
-        this.gestures.addEventListener( 'polytap', (event) => this.onGesture( event ) )        
+        this.listener = (event) => this.onGesture( event )
+        this.gestures.addEventListener( 'polytap', this.listener )   
     }
 
     detectGesture() {  
 
         if ( ! this.start ) {
 
-            if ( ! ( this.detector.gesture === undefined )) return
+            if ( ! ( this.gestures.current === undefined )) return
             if ( ! ( this.gestures.inventory.tap.numTaps === 1 )) return        
 
-            this.detector.gesture = 'polytap'
-
+            this.gestures.current = 'polytap'
             this.numTaps = this.gestures.inventory.tap.numTaps
             this.timeoutID = setTimeout( () => this.endGesture(), Polytap.MAX_TAP_DURATION )
-
             this.gestures.dispatchEvent( { type: 'polytap', start: true, numTaps: this.numTaps, userData: this.userData } ) 
             this.startGesture()
 
@@ -46,11 +41,10 @@ export default class Polytap
             this.gestures.dispatchEvent( { type: 'polytap', current: true, numTaps: this.numTaps, userData: this.userData } ) 
 
             // break condition
-            if ( this.detector.numControllers > 1 ) { 
-              
+            if ( this.gestures.numControllers > 1 ) { 
+            
                 clearTimeout( this.timeoutID )
                 this.resetGesture()   
-
                 this.gestures.inventory.tap.numTaps = 0 
                 this.numTaps = 0            
 
@@ -60,7 +54,6 @@ export default class Polytap
             if ( this.gestures.inventory.tap.numTaps > this.numTaps ) {
 
                 clearTimeout( this.timeoutID )
-
                 this.numTaps = this.gestures.inventory.tap.numTaps
                 this.timeoutID = setTimeout( () => this.endGesture(), Polytap.MAX_TAP_DURATION )
 
@@ -70,9 +63,8 @@ export default class Polytap
         if ( this.end ) {
 
             this.gestures.dispatchEvent( { type: 'polytap', end: true, numTaps: this.numTaps, userData: this.userData } ) 
-            this.gestures.delayDetector( XRGestures.DELAY_DETECTOR ) 
+            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures()
-
             this.gestures.inventory.tap.numTaps = 0
             this.numTaps = 0 
 
@@ -97,8 +89,8 @@ export default class Polytap
         this.current = false
         this.end     = false
 
-        if (this.detector.gesture == 'polytap')
-            this.detector.gesture = undefined
+        if (this.gestures.current == 'polytap')
+            this.gestures.current = undefined
 
     }
 
@@ -108,6 +100,25 @@ export default class Polytap
         if ( event.current ) console.log( `polytap current ${ event.numTaps }` )
         if ( event.end )     console.log( `polytap end ${ event.numTaps }` )
 
+    }
+
+    destroy()
+    {
+        if (this.timeoutID) 
+            clearTimeout(this.timeoutID)
+
+        this.gestures.removeEventListener('polytap', this.listener)
+        this.listener   = null
+        this.gestures   = null
+        this.parameters = null
+        this.start      = null
+        this.current    = null
+        this.end        = null
+        this.userData   = null
+        this.timeoutID  = null
+        this.numTaps    = null
+
+        console.log("Polytap destroyed")
     }
 
 }

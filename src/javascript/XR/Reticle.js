@@ -28,6 +28,30 @@ export default class Reticle
     setMesh()
     {
         this.mesh = new THREE.Mesh(this.geometry, this.material)
-        this.mesh.add(new THREE.AxesHelper(0.2));
+        this.mesh.add(new THREE.AxesHelper(0.2))
+    }
+
+    destroy()
+    {
+        if (this.mesh) {
+
+            if (this.geometry) {
+                this.geometry.dispose()
+                this.geometry = null
+            }
+            if (this.material) {
+                this.material.dispose()
+                this.material = null
+            }
+
+            this.mesh.traverse((child) => 
+            {
+                if (child instanceof THREE.AxesHelper) 
+                    this.mesh.remove(child)
+                
+            })
+
+            this.mesh = null
+        }
     }
 }

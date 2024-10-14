@@ -6,8 +6,6 @@ export default class Implode
     {
         this.gestures = new XRGestures()
         this.parametersDual = this.gestures.parametersDual
-        this.detector = this.gestures.detector
-
         this.setGesture()          
     }
 
@@ -17,16 +15,16 @@ export default class Implode
         this.current  = false
         this.end      = false
         this.userData = {}
-
-        this.gestures.addEventListener( 'implode', (event) => this.onGesture( event ) )     
+        this.listener = (event) => this.onGesture( event )
+        this.gestures.addEventListener( 'implode', this.listener )     
     }
 
     detectGesture() {
 
         if ( ! this.start ) {
 
-            if ( ! ( this.detector.gesture === undefined )) return
-            if ( ! ( this.detector.numControllers === 2 )) return
+            if ( ! ( this.gestures.current === undefined )) return
+            if ( ! ( this.gestures.numControllers === 2 )) return
             if ( ! ( this.parametersDual.distanceOffset  < Implode.MAX_START_DISTANCE_OFFSET )) return
             if ( ! ( Math.abs( this.parametersDual.radialSpeed ) > Implode.MIN_START_RADIAL_SPEED )) return
             
@@ -36,10 +34,9 @@ export default class Implode
 
         if ( this.current ) {
 
-            if ( this.detector.numControllers < 2 ) {
+            if ( this.gestures.numControllers < 2 ) {
 
-                this.detector.gesture = 'implode'
-
+                this.gestures.current = 'implode'
                 this.gestures.resetGesturesExcept('implode')
                 this.endGesture()
 
@@ -50,7 +47,7 @@ export default class Implode
         if ( this.end ) {  
 
             this.gestures.dispatchEvent( { type: 'implode', start: true, current: true, end: true, userData: this.userData, } )
-            this.gestures.delayDetector( XRGestures.DELAY_DETECTOR ) 
+            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures()
 
         }
@@ -74,13 +71,27 @@ export default class Implode
         this.current = false
         this.end     = false
 
-        if (this.detector.gesture == 'implode')
-            this.detector.gesture = undefined
+        if (this.gestures.current == 'implode')
+            this.gestures.current = undefined
     }
 
     onGesture( event ) 
     {
         console.log(`implode`)       
+    }
+
+    destroy()
+    {
+        this.gestures.removeEventListener('implode', this.listener)
+        this.listener = null
+        this.gestures = null
+        this.parametersDual = null
+        this.start    = null
+        this.current  = null
+        this.end      = null
+        this.userData = null
+
+        console.log("Implode destroyed")
     }
 
 }

@@ -6,8 +6,6 @@ export default class Explode
     {
         this.gestures = new XRGestures()
         this.parametersDual = this.gestures.parametersDual
-        this.detector = this.gestures.detector
-
         this.setGesture()          
     }
 
@@ -17,16 +15,16 @@ export default class Explode
         this.current  = false
         this.end      = false
         this.userData = {}
-
-        this.gestures.addEventListener( 'explode', (event) => this.onGesture( event ) )     
+        this.listener = (event) => this.onGesture( event )
+        this.gestures.addEventListener( 'explode', this.listener )     
     }
 
     detectGesture() {
 
         if ( ! this.start ) {
 
-            if ( ! ( this.detector.gesture === undefined )) return
-            if ( ! ( this.detector.numControllers === 2 )) return
+            if ( ! ( this.gestures.current === undefined )) return
+            if ( ! ( this.gestures.numControllers === 2 )) return
             if ( ! ( this.parametersDual.distanceOffset > Explode.MIN_START_DISTANCE_OFFSET )) return
             if ( ! ( Math.abs( this.parametersDual.radialSpeed ) > Explode.MIN_START_RADIAL_SPEED)) return
 
@@ -36,13 +34,11 @@ export default class Explode
 
         if ( this.current ) {
 
-            if ( this.detector.numControllers < 2 ) {
+            if ( this.gestures.numControllers < 2 ) {
 
-                this.detector.gesture = 'explode'
-
+                this.gestures.current = 'explode'
                 this.gestures.resetGesturesExcept( 'explode' )
                 this.endGesture()
-
             }
            
         }
@@ -50,7 +46,7 @@ export default class Explode
         if ( this.end ) {  
 
             this.gestures.dispatchEvent( { type: 'explode', start: true, current: true, end: true, userData: this.userData, } )
-            this.gestures.delayDetector( XRGestures.DELAY_DETECTOR ) 
+            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures()
 
         }
@@ -74,13 +70,28 @@ export default class Explode
         this.current = false
         this.end     = false
 
-        if (this.detector.gesture == 'explode')
-            this.detector.gesture = undefined
+        if (this.gestures.current == 'explode')
+            this.gestures.current = undefined
     }
 
-    onGesture( event ) {
-        
+    onGesture( event ) 
+    {
         console.log( `explode` )       
+
+    }
+
+    destroy()
+    {
+        this.gestures.removeEventListener('explode', this.listener)
+        this.listener = null
+        this.gestures = null
+        this.parametersDual = null
+        this.start    = null
+        this.current  = null
+        this.end      = null
+        this.userData = null
+
+        console.log("Explode destroyed")
 
     }
 
