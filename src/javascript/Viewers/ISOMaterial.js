@@ -82,9 +82,9 @@ export default function()
         ({
             occumap_dimensions: new THREE.Vector3(),
             block_dimensions  : new THREE.Vector3(),
+            block_divisions   : 64,
             box_min           : new THREE.Vector3(0, 0, 0),
             box_max           : new THREE.Vector3(1, 1, 1),
-            divisions         : 10,
         }),
 
         u_debug: new THREE.Uniform
@@ -123,6 +123,8 @@ export default function()
         SMOOTHING_REFINEMENT_METHOD: 1,
         SMOOTHING_METHOD           : 1,
         SMOOTHING_RADIUS           : 2,
+
+        BLOCK_DIVISIONS            : 10,
     }
 
     const material = new THREE.ShaderMaterial({

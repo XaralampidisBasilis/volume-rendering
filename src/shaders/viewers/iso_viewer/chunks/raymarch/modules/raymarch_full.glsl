@@ -14,7 +14,6 @@ for (
     trace.error = trace.value - u_raycast.threshold;
 
     // Extract gradient from volume data
-    debug.variable3 = vec4(volume_data.gba, 1.0);
     trace.gradient = mix(u_gradient.min, u_gradient.max, volume_data.gba);
     trace.gradient_norm = length(trace.gradient);
     trace.normal = - normalize(trace.gradient);

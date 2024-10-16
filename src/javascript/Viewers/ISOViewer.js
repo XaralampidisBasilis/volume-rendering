@@ -7,6 +7,7 @@ import ComputeResizing from '../TensorFlow/Resizing/ComputeResizing'
 import ComputeGradients from '../TensorFlow/Gradients/ComputeGradients'
 import ComputeSmoothing from '../TensorFlow/Smoothing/ComputeSmoothing'
 import ComputeBoundingBox from '../TensorFlow/BoundingBox/ComputeBoundingBox'
+import ComputeOccumap from '../TensorFlow/Occumap/ComputeOccumap'
 import * as tf from '@tensorflow/tfjs'
 
 export default class ISOViewer extends EventEmitter
@@ -31,8 +32,6 @@ export default class ISOViewer extends EventEmitter
         {
             this.setData()
             this.setTextures()
-            this.setNoisemaps()
-            this.setColormaps()
             this.setGeometry()
             this.setMaterial()
             this.setMesh()
@@ -114,8 +113,14 @@ export default class ISOViewer extends EventEmitter
     setTextures()
     {
         this.textures = {}
+        this.setVolumeTex()
+        this.setMaskTex()
+        this.setNoisemap()
+        this.setColormaps()
+    }
 
-        // volume texture
+    setVolumeTex()
+    {
         const volumeDimensions = this.parameters.volume.dimensions.toArray()
         this.textures.volume = new THREE.Data3DTexture(this.data.volume, ...volumeDimensions)
         this.textures.volume.format = THREE.RGBAFormat
@@ -128,8 +133,10 @@ export default class ISOViewer extends EventEmitter
         this.textures.volume.generateMipmaps = false
         this.textures.volume.unpackAlignment = 4 
         this.textures.volume.needsUpdate = true   
+    }
 
-        // mask texture
+    setMaskTex()
+    {
         const maskDimensions = this.parameters.mask.dimensions.toArray()
         this.textures.mask = new THREE.Data3DTexture(this.data.mask, ...maskDimensions)
         this.textures.mask.format = THREE.RedFormat 
@@ -141,34 +148,33 @@ export default class ISOViewer extends EventEmitter
         this.textures.mask.magFilter = THREE.LinearFilter
         this.textures.mask.generateMipmaps = false
         this.textures.mask.unpackAlignment = 1   
-        this.textures.mask.needsUpdate = true     
+        this.textures.mask.needsUpdate = true  
     }
 
-    setNoisemaps()
+    setNoisemap()
     {
-        this.noisemaps = {}        
-        this.noisemaps.white256 = this.resources.items.blue256Noisemap
-        this.noisemaps.white256.repeat.set(4, 4)
-        this.noisemaps.white256.format = THREE.RedFormat
-        this.noisemaps.white256.type = THREE.UnsignedByteType
-        this.noisemaps.white256.wrapS = THREE.RepeatWrapping
-        this.noisemaps.white256.wrapT = THREE.RepeatWrapping
-        this.noisemaps.white256.minFilter = THREE.NearestFilter
-        this.noisemaps.white256.magFilter = THREE.NearestFilter
-        this.noisemaps.white256.generateMipmaps = false
-        this.noisemaps.white256.unpackAlignment = 8   
-        this.noisemaps.white256.needsUpdate = true         
+        this.textures.noisemap = this.resources.items.blue256Noisemap
+        this.textures.noisemap.repeat.set(4, 4)
+        this.textures.noisemap.format = THREE.RedFormat
+        this.textures.noisemap.type = THREE.UnsignedByteType
+        this.textures.noisemap.wrapS = THREE.RepeatWrapping
+        this.textures.noisemap.wrapT = THREE.RepeatWrapping
+        this.textures.noisemap.minFilter = THREE.NearestFilter
+        this.textures.noisemap.magFilter = THREE.NearestFilter
+        this.textures.noisemap.generateMipmaps = false
+        this.textures.noisemap.unpackAlignment = 8   
+        this.textures.noisemap.needsUpdate = true         
     }
 
     setColormaps()
     {        
-        this.colormaps = this.resources.items.colormaps                      
-        this.colormaps.colorSpace = THREE.SRGBColorSpace
-        this.colormaps.minFilter = THREE.LinearFilter
-        this.colormaps.magFilter = THREE.LinearFilter         
-        this.colormaps.unpackAlignment = 8
-        this.colormaps.generateMipmaps = false
-        this.colormaps.needsUpdate = true 
+        this.textures.colormaps = this.resources.items.colormaps                      
+        this.textures.colormaps.colorSpace = THREE.SRGBColorSpace
+        this.textures.colormaps.minFilter = THREE.LinearFilter
+        this.textures.colormaps.magFilter = THREE.LinearFilter         
+        this.textures.colormaps.unpackAlignment = 8
+        this.textures.colormaps.generateMipmaps = false
+        this.textures.colormaps.needsUpdate = true 
     }
   
     setGeometry()
@@ -196,8 +202,8 @@ export default class ISOViewer extends EventEmitter
         this.material.uniforms.u_sampler.value.volume = this.textures.volume
         this.material.uniforms.u_sampler.value.gradients = this.textures.gradients
         this.material.uniforms.u_sampler.value.mask = this.textures.mask
-        this.material.uniforms.u_sampler.value.colormap = this.colormaps    
-        this.material.uniforms.u_sampler.value.noisemap = this.noisemaps.white256
+        this.material.uniforms.u_sampler.value.colormap = this.textures.colormaps    
+        this.material.uniforms.u_sampler.value.noisemap = this.textures.noisemap
     }
 
     setMesh()
@@ -212,10 +218,12 @@ export default class ISOViewer extends EventEmitter
         this.boundingBox = new ComputeBoundingBox(this)
         this.smoothing   = new ComputeSmoothing(this)
         this.gradients   = new ComputeGradients(this)
+        this.occumap     = new ComputeOccumap(this)
 
         await this.computeBoundingBox()
         await this.computeSmoothing()
         await this.computeGradients()
+        await this.computeOccumap()
     }
 
     async computeResizing()
@@ -253,6 +261,16 @@ export default class ISOViewer extends EventEmitter
         await this.gradients.compute().then(() => this.gradients.dataSync())
         console.timeEnd('computeGradients')
         // console.log('computeGradients:', tf.memory())
+    }
+
+    async computeOccumap()
+    {
+        this.occumap.update()
+
+        console.time('computeOccumap')
+        await this.occumap.compute().then(() => this.occumap.dataSync())
+        console.timeEnd('computeOccumap')
+        // console.log('computeOccumap:', tf.memory())
     }
 
     update()
