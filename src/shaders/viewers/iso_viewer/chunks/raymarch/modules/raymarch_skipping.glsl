@@ -1,10 +1,11 @@
-ray.intersected = false;    
+#include "./compute_skipping"
 
 // Precompute invariant values outside the loop to avoid redundant work
 float raycast_threshold = u_raycast.threshold;
-vec3 inv_volume_size = u_volume.inv_size;
 vec3 inv_volume_spacing = u_volume.inv_spacing;
 float inv_gradient_max_norm = 1.0 / u_gradient.max_norm;
+
+ray.intersected = true;    
 
 // Raymarch loop to traverse through the volume
 for (trace.steps = 0; trace.steps < ray.max_steps && trace.distance < ray.max_distance; trace.steps++) 

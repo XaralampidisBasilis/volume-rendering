@@ -13,6 +13,7 @@ ray.max_depth += ray.dithering;
 // initialize trace starting position along the ray.
 trace.distance = ray.min_distance - ray.dithering;
 trace.position = ray.origin + ray.direction * trace.distance;
+trace.texel = trace.position * u_volume.inv_size;
 trace.spacing = ray.spacing;
 #include "../parameters/save_prev_trace"
 

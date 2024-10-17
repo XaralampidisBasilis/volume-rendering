@@ -15,31 +15,34 @@ export default class ComputeBoundingBox
     {               
         tf.tidy(() => 
         {
+            const spacing = this.parameters.volume.spacing.toArray()
             const condition = this.viewer.tensors.volume.greater([this.threshold])
 
             const [minIndX, maxIndX] = this.argMinMax(condition, 2)
             const [minIndY, maxIndY] = this.argMinMax(condition, 1)
             const [minIndZ, maxIndZ] = this.argMinMax(condition, 0)
 
-            const minInd = tf.stack([minIndX, minIndY, minIndZ], 0)    
-            const maxInd = tf.stack([maxIndX, maxIndY, maxIndZ], 0)  
-
-            const spacing = this.parameters.volume.spacing.toArray()
-            const boxMin = minInd.mul(spacing)    
-            const boxMax = maxInd.mul(spacing)   
+            const minCoords = tf.stack([minIndX, minIndY, minIndZ], 0)    
+            const maxCoords = tf.stack([maxIndX, maxIndY, maxIndZ], 0)  
+            const minPosition = minCoords.mul(spacing)    
+            const maxPosition = maxCoords.mul(spacing)   
 
             // get min max positions as vec3
-            this.boxMin = new THREE.Vector3().fromArray(boxMin.arraySync())
-            this.boxMax = new THREE.Vector3().fromArray(boxMax.arraySync())
+            this.minCoords = new THREE.Vector3().fromArray(minCoords.arraySync())
+            this.maxCoords = new THREE.Vector3().fromArray(maxCoords.arraySync())
+            this.minPosition = new THREE.Vector3().fromArray(minPosition.arraySync())
+            this.maxPosition = new THREE.Vector3().fromArray(maxPosition.arraySync())
         })
 
-        return { boxMin: this.boxMin, boxMax: this.boxMax}
+        return { minCoords: this.minCoords, minCoords: this.minCoords, minPosition: this.minPosition, maxPosition: this.maxPosition }
     }
 
     dataSync()
     { 
-        this.viewer.material.uniforms.u_occupancy.value.box_min.copy(this.boxMin)
-        this.viewer.material.uniforms.u_occupancy.value.box_max.copy(this.boxMax)
+        this.viewer.material.uniforms.u_occupancy.value.min_coords.copy(this.minCoords)
+        this.viewer.material.uniforms.u_occupancy.value.max_coords.copy(this.maxCoords)
+        this.viewer.material.uniforms.u_occupancy.value.min_position.copy(this.minPosition)
+        this.viewer.material.uniforms.u_occupancy.value.max_position.copy(this.maxPosition)
         this.viewer.material.needsUpdate = true
     }
 
@@ -53,8 +56,10 @@ export default class ComputeBoundingBox
         this.viewer = null
         this.parameters = null
         this.threshold = null
-        this.boxMin = null
-        this.boxMax = null
+        this.minCoords = null
+        this.maxCoords = null
+        this.minPosition = null
+        this.maxPosition = null
     }
 
     // helper tensor functions

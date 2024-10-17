@@ -75,9 +75,7 @@ export default class ISOGui
         this.addControllersColormap() 
         this.addControllersShading() 
         this.addControllersLighting() 
-
-        if (this.viewer.occupancy)
-            this.addControllersOccupancy() 
+        this.addControllersOccupancy() 
 
         if (this.viewer.material.uniforms.u_debug)
             this.addControllersDebug() 
@@ -170,7 +168,7 @@ export default class ISOGui
             threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
             
             derivativeMethod: gradient.add(defines, 'DERIVATIVE_METHOD').name('derivative_method')
-                .options({hermite30: 1, hermite21: 2, hermite12: 3, hermite22_nopoles: 4, })
+                .options({hermite30: 1, hermite21: 2, hermite12: 3, hermite22_nopoles: 4, linear: 5, })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
             precomputeMethod: gradient.add(defines, 'GRADIENT_METHOD').name('precompute_method')
@@ -278,12 +276,7 @@ export default class ISOGui
 
         this.controllers.occupancy = 
         {
-            divisions  : occupancy.add(u_occupancy, 'divisions').min(2).max(20).step(1),
-            occubox    : occupancy.add(this.viewer.occupancy.helpers.occubox, 'visible').name('occubox'),
-            computation: occupancy.add(this.viewer.occupancy.helpers.computation, 'visible').name('computation'),
-            occumap    : occupancy.add(this.viewer.occupancy.helpers.occumap, 'visible').name('occumap'),
-            // occumaps: occupancy.add(this.viewer.occupancy.helpers.occumaps, 'visible').name('occumaps'),
-            levels: occupancy.add(object, 'options').options({ all: 0, level0: 1, level1: 2, level2: 3}).name('levels'),
+            threshold  : occupancy.add(u_occupancy, 'threshold').min(0).max(1).step(0.001),
         }
 
     }
@@ -330,8 +323,8 @@ export default class ISOGui
             }),
             number: debug.add(u_debug, 'number').min(0).max(20).step(1),
             scale: debug.add(u_debug, 'scale').min(0).max(100).step(0.001),
-            constant: debug.add(u_debug, 'constant').min(0).max(1).step(0.001),
-            mixing: debug.add(u_debug, 'mixing').min(0).max(1).step(0.001),
+            constant: debug.add(u_debug, 'constant').min(0).max(10).step(0.000001),
+            mixing: debug.add(u_debug, 'mixing').min(0).max(1).step(0.000001),
             epsilon: debug.add(u_debug, 'epsilon').min(-2).max(2).step(0.0000001),
         }
     }

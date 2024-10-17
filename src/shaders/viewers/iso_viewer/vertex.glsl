@@ -1,10 +1,10 @@
 
 // varying
-varying vec3 v_position;
-varying vec3 v_camera;
-varying vec3 v_direction;
-varying mat4 v_model_view_matrix;
-varying mat4 v_projection_model_view_matrix;
+out vec3 v_position;
+out vec3 v_camera;
+out vec3 v_direction;
+out mat4 v_model_view_matrix;
+out mat4 v_projection_model_view_matrix;
 
 void main() {				    
 

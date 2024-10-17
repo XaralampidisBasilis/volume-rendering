@@ -29,8 +29,8 @@ export default function()
         u_raycast: new THREE.Uniform
         ({
             threshold         : 0.3,
-            min_stepping      : 2,
-            max_stepping      : 5,
+            min_stepping      : 0.01,
+            max_stepping      : 2,
             max_steps         : 100,
             spacing_method    : 1,
             stepping_method   : 1,
@@ -80,11 +80,16 @@ export default function()
 
         u_occupancy: new THREE.Uniform
         ({
-            occumap_dimensions: new THREE.Vector3(),
-            block_dimensions  : new THREE.Vector3(),
-            block_divisions   : 64,
-            box_min           : new THREE.Vector3(0, 0, 0),
-            box_max           : new THREE.Vector3(1, 1, 1),
+            threshold       : 0,
+            occumap_max_dims: new THREE.Vector3(),
+            occumap_num_lod : 1,
+            occumap_size    : new THREE.Vector3(),
+            block_min_dims  : new THREE.Vector3(),
+            block_min_size  : new THREE.Vector3(),
+            min_coords      : new THREE.Vector3(),
+            max_coords      : new THREE.Vector3(),
+            min_position    : new THREE.Vector3(),
+            max_position    : new THREE.Vector3(),
         }),
 
         u_debug: new THREE.Uniform
@@ -103,9 +108,9 @@ export default function()
     {
         HAS_BBOX                   : 1,
         HAS_SKIPPING               : 0,
-        HAS_DITHERING              : 0,
+        HAS_DITHERING              : 1,
         
-        HAS_REFINEMENT             : 0,
+        HAS_REFINEMENT             : 1,
         DITHERING_METHOD           : 1,
         SPACING_METHOD             : 2,
         STEPPING_METHOD            : 1,
@@ -123,8 +128,6 @@ export default function()
         SMOOTHING_REFINEMENT_METHOD: 1,
         SMOOTHING_METHOD           : 1,
         SMOOTHING_RADIUS           : 2,
-
-        BLOCK_DIVISIONS            : 10,
     }
 
     const material = new THREE.ShaderMaterial({
@@ -134,7 +137,7 @@ export default function()
         depthTest: true,
         depthWrite: true,
 
-        glslVersion: THREE.GLSL1,
+        glslVersion: THREE.GLSL3,
         uniforms: uniforms,
         defines: defines,
         vertexShader: vertexShader,

@@ -72,12 +72,6 @@ export default class ISOViewer extends EventEmitter
             tensorShape  : this.resources.items.maskNifti.dimensions.toReversed().concat(1), // // tensor flow uses the NHWC format by default
             count        : this.resources.items.maskNifti.dimensions.reduce((product, value) => product * value, 1),
         }
-
-        // geometry parameters
-        this.parameters.geometry = {
-            size  : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size),
-            center: new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size).divideScalar(2),
-        }
     }
 
     setTensors()
@@ -179,8 +173,8 @@ export default class ISOViewer extends EventEmitter
   
     setGeometry()
     {
-        const geometrySize = this.parameters.geometry.size.toArray()
-        const geometryCenter = this.parameters.geometry.center.toArray()
+        const geometrySize = this.parameters.volume.size
+        const geometryCenter = this.parameters.volume.size.clone().divideScalar(2)
         this.geometry = new THREE.BoxGeometry(...geometrySize)
         this.geometry.translate(...geometryCenter) // to align model and texel coordinates
     }
@@ -196,11 +190,10 @@ export default class ISOViewer extends EventEmitter
         this.material.uniforms.u_volume.value.inv_size.copy(this.parameters.volume.invSize)
         this.material.uniforms.u_volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
 
-        this.material.uniforms.u_occupancy.value.box_min.copy(new THREE.Vector3())
-        this.material.uniforms.u_occupancy.value.box_max.copy(this.parameters.volume.size)
+        this.material.uniforms.u_occupancy.value.min_position.set(0, 0, 0)
+        this.material.uniforms.u_occupancy.value.max_position.copy(this.parameters.volume.size)
 
         this.material.uniforms.u_sampler.value.volume = this.textures.volume
-        this.material.uniforms.u_sampler.value.gradients = this.textures.gradients
         this.material.uniforms.u_sampler.value.mask = this.textures.mask
         this.material.uniforms.u_sampler.value.colormap = this.textures.colormaps    
         this.material.uniforms.u_sampler.value.noisemap = this.textures.noisemap

@@ -5,7 +5,7 @@
 
 // raymarch_skip
 #elif HAS_SKIPPING == 1
-    #include "./modules/raymarch_skip"
+    #include "./modules/raymarch_skipping"
 
 #else  
     #error "unknown: HAS_SKIPPING"

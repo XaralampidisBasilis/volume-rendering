@@ -12,13 +12,11 @@ set_trace(trace);
 set_block(block);
 set_debug(debug);
 
-ray.origin    = v_camera;
+ray.origin = v_camera;
 ray.direction = normalize(v_direction);
-ray.box_min   = vec3(0.0);
-ray.box_max   = u_volume.size;
 
 trace.position = ray.origin;
-trace.texel    = ray.origin * u_volume.inv_size;
+trace.texel = ray.origin * u_volume.inv_size;
 trace.stepping = u_raycast.min_stepping;
 
 #include "./save_prev_trace"

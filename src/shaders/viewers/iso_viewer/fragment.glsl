@@ -5,10 +5,12 @@ precision highp float;
 precision highp int;
 
 // varying
-varying vec3 v_camera;
-varying vec3 v_direction;
-varying mat4 v_model_view_matrix;
-varying mat4 v_projection_model_view_matrix;
+in vec3 v_camera;
+in vec3 v_direction;
+in mat4 v_model_view_matrix;
+in mat4 v_projection_model_view_matrix;
+
+out vec4 fragColor;
 
 // uniforms, parameters, utils
 #include "./chunks/uniforms/uniforms"
@@ -19,13 +21,11 @@ varying mat4 v_projection_model_view_matrix;
 void main() 
 {
     #include "./chunks/parameters/set_parameters"
-    
     #include "./chunks/raycasting/compute_raycasting"
     #include "./chunks/colormapping/compute_colormapping"
     #include "./chunks/shading/compute_shading"
 
-    gl_FragColor = vec4(trace.shading, 1.0);
-
+    fragColor = vec4(trace.shading, 1.0);
     #include "./chunks/compute_frag_depth"
     #include "./chunks/debug/compute_debug"
 

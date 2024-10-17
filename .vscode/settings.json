@@ -21,6 +21,7 @@
         "glsl",
         "hexacontratentant",
         "isosurface",
+        "lods",
         "Mipmaps",
         "multisampling",
         "Noisemap",

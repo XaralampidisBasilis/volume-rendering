@@ -9,7 +9,6 @@ export default class ComputeOccumap
         this.viewer = viewer
         this.parameters = this.viewer.parameters
         this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
-        this.blockDivisions = this.viewer.material.uniforms.u_occupancy.value.block_divisions
     }
 
     async compute()
@@ -18,9 +17,27 @@ export default class ComputeOccumap
         {
             const volume = this.viewer.tensors.volume
             const condition = volume.greater([this.threshold])
-            this.blockDims = volume.shape.map((dim) => Math.ceil(dim / this.blockDivisions))
-            const occumap = tf.maxPool3d(condition, this.blockDims, this.blockDims, 'same')
+            // const condition = tf.fill (volume.shape, true,'bool')
+
+            // pad dimensions to the next power of 2
+            const paddedDims = condition.shape.map((dim) => Math.pow(2, Math.ceil(Math.log2(dim))))
+            const paddedCondition = tf.pad(condition, paddedDims.map((dim, i) => [0, dim - condition.shape[i]]))
+            condition.dispose()
+            
+            const blockDivisions = paddedDims.map((dim) => Math.pow(2, Math.ceil(Math.log2(dim)) - 1))
+            const blockDims = paddedDims.map((dim, i) => Math.ceil(dim / blockDivisions[i]))
+
+            // convert boolean values to uint8
+            const occupancy = paddedCondition.mul([255])
+            paddedCondition.dispose()
+
+            // compute the occupancy density of each block
+            const occumap = tf.avgPool3d(occupancy, blockDims, blockDims, 'same')
+            occupancy.dispose()
+            
             this.mipmaps = this.generateMipmaps(occumap)
+            this.blockDivisions = blockDivisions.toReversed()
+            this.blockDims = blockDims.toReversed()
         })
 
         return { mipmaps: this.mipmaps, blockDims: this.blockDims }
@@ -28,9 +45,9 @@ export default class ComputeOccumap
 
     dataSync()
     { 
-        if (this.viewer.textures.occumap) 
-            this.viewer.textures.occumap.dispose()
-
+        // if (this.viewer.textures.occumap) 
+        //     this.viewer.textures.occumap.dispose()
+   
         this.viewer.textures.occumap = new THREE.Data3DTexture(
             this.mipmaps[0].data,   
             this.mipmaps[0].width,  
@@ -40,26 +57,34 @@ export default class ComputeOccumap
 
         this.viewer.textures.occumap.format = THREE.RedFormat
         this.viewer.textures.occumap.type = THREE.UnsignedByteType
-        this.viewer.textures.occumap.wrapS = THREE.RepeatWrapping
-        this.viewer.textures.occumap.wrapT = THREE.RepeatWrapping
-        this.viewer.textures.occumap.wrapR = THREE.RepeatWrapping
+        this.viewer.textures.occumap.wrapS = THREE.ClampToEdgeWrapping 
+        this.viewer.textures.occumap.wrapT = THREE.ClampToEdgeWrapping 
+        this.viewer.textures.occumap.wrapR = THREE.ClampToEdgeWrapping 
         this.viewer.textures.occumap.minFilter = THREE.NearestFilter
         this.viewer.textures.occumap.magFilter = THREE.NearestFilter
         this.viewer.textures.occumap.mipmaps = this.mipmaps
         this.viewer.textures.occumap.generateMipmaps = false
         this.viewer.textures.occumap.needsUpdate = true
 
-        this.viewer.material.uniforms.u_occupancy.value.occumap_dimensions.set(this.mipmaps[0].width, this.mipmaps[0].height, this.mipmaps[0].depth)
-        this.viewer.material.uniforms.u_occupancy.value.block_dimensions.set(this.blockDims[2], this.blockDims[1], this.blockDims[0])
-        this.viewer.material.uniforms.u_occupancy.value.block_divisions = this.blockDivisions
+        this.viewer.material.uniforms.u_occupancy.value.block_min_dims.fromArray(this.blockDims)
+        this.viewer.material.uniforms.u_occupancy.value.block_min_size.copy(this.viewer.material.uniforms.u_occupancy.value.block_min_dims).multiply(this.parameters.volume.spacing)
+        this.viewer.material.uniforms.u_occupancy.value.occumap_num_lod = this.mipmaps.length
+        // this.viewer.material.uniforms.u_occupancy.value.occumap_num_lod = Math.floor(Math.log2(Math.max(this.mipmaps[0].width, this.mipmaps[0].height, this.mipmaps[0].depth))) + 1
+
+        this.viewer.material.uniforms.u_occupancy.value.occumap_max_dims.set(this.mipmaps[0].width, this.mipmaps[0].height, this.mipmaps[0].depth)
+        this.viewer.material.uniforms.u_occupancy.value.occumap_size.copy(this.viewer.material.uniforms.u_occupancy.value.occumap_max_dims).multiply(this.viewer.material.uniforms.u_occupancy.value.block_min_size)
         this.viewer.material.uniforms.u_sampler.value.occumap = this.viewer.textures.occumap
         this.viewer.material.needsUpdate = true
+
+        console.log(this.mipmaps)
+        console.log(this.viewer.textures.occumap)
+        console.log(this.viewer.material.uniforms)
+
     }
 
     update()
     {
         this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
-        this.blockDivisions = this.viewer.material.uniforms.u_occupancy.value.block_divisions
     }
 
     destroy()
@@ -75,36 +100,19 @@ export default class ComputeOccumap
 
     generateMipmaps(occumap, maxLevels = Infinity) 
     {
-        const mipmaps = []  // Array to hold mipmaps {data, width, height, depth}
+        const mipmaps = [] 
         let currentLevel = occumap
     
-        // Generate mipmaps up to maxLevels or until the size becomes 1x1x1
         for (let level = 0; level < maxLevels; level++) 
         {
-            // Get the current dimensions (assuming shape is [depth, height, width])
             const [depth, height, width] = currentLevel.shape
-    
-            // If the smallest dimension is 1, stop further processing
-            if (Math.min(depth, height, width) <= 1) break
-    
-            // Get the raw data (this will depend on the environment, but here's an example for TensorFlow.js)
-            const data = Uint8Array.from(currentLevel.dataSync(), value => value * 255);  // converts boolean tensor data to a Uint8Array
 
-            // Add the current level's mipmap as an object
-            mipmaps.push({
-                data: data,        // Flattened data (Uint8Array)
-                width: width,      // Width of the texture
-                height: height,    // Height of the texture
-                depth: depth       // Depth of the texture
-            })
+            if (Math.min(depth, height, width) <= 1) break
+            const data = Uint8Array.from(currentLevel.dataSync(), (x) => Math.ceil(x)) 
+            mipmaps.push({ data: data, width: width, height: height,  depth: depth  })
     
-            // If this is the last level (no more downsampling), break
             if (level === maxLevels - 1) break
-    
-            // Downsample the current level using maxPool3d to the next mipmap level
-            const nextLevel = tf.maxPool3d(currentLevel.expandDims(0),  [2, 2, 2],  [2, 2, 2], 'same').squeeze(0)                    
-    
-            // Update current level for the next iteration
+            const nextLevel = tf.avgPool3d(currentLevel.expandDims(0),  [2, 2, 2],  [2, 2, 2], 'same').squeeze(0)                    
             currentLevel.dispose()
             currentLevel = nextLevel
         }
