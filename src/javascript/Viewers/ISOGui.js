@@ -98,7 +98,13 @@ export default class ISOGui
         const { raycast } = this.subfolders
         const u_raycast = this.viewer.material.uniforms.u_raycast.value
         const defines = this.viewer.material.defines
-        const object = { has_refinement: true, has_dithering: true, has_bbox: true, has_skipping: false }
+        const material = this.viewer.material
+        const object = { 
+            has_refinement: Boolean(defines.HAS_REFINEMENT),
+            has_dithering : Boolean(defines.HAS_DITHERING),
+            has_bbox      : Boolean(defines.HAS_BBOX),
+            has_skipping  : Boolean(defines.HAS_SKIPPING)
+        }
 
         this.controllers.raycast = 
         {
@@ -115,42 +121,42 @@ export default class ISOGui
 
             spacingMethod: raycast.add(defines, 'SPACING_METHOD').name('spacing_method')
                 .options({ isotropic: 1, directional: 2, equalized: 3 })
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+                .onFinishChange(() => { material.needsUpdate = true }),
                 
             steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')
                 .options({ taylor10: 1, taylor20: 2, taylor30: 3, pade11: 4, pade02: 5, pade21: 6, pade12: 7, pade03: 8, pade22: 9, uniform: 10, })
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+                .onFinishChange(() => { material.needsUpdate = true }),
 
             ditheringMethod: raycast.add(defines, 'DITHERING_METHOD').name('dithering_method')
                 .options({ generative: 1, texture: 2, })
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+                .onFinishChange(() => { material.needsUpdate = true }),
 
             refinementMethod: raycast.add(defines, 'REFINEMENT_METHOD').name('refinement_method')
                 .options({ sub_sampling: 1, bisection_iterative: 2, newtons_iterative: 3, linear: 4, lagrange_quadratic: 5, lagrange_cubic: 6, hermite_cubic: 7 })
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+                .onFinishChange(() => { material.needsUpdate = true }),
 
             hasRefinement: raycast.add(object, 'has_refinement')
                 .onFinishChange((value) => { 
-                    this.viewer.material.defines.HAS_REFINEMENT = value ? 1 : 0;
-                    this.viewer.material.needsUpdate = true 
+                    defines.HAS_REFINEMENT = value ? 1 : 0;
+                    material.needsUpdate = true 
                 }),
 
             hasDithering: raycast.add(object, 'has_dithering')
                 .onFinishChange((value) => { 
-                    this.viewer.material.defines.HAS_DITHERING = value ? 1 : 0;
-                    this.viewer.material.needsUpdate = true 
+                    defines.HAS_DITHERING = value ? 1 : 0;
+                    material.needsUpdate = true 
                 }),
 
             hasBbox: raycast.add(object, 'has_bbox')
                 .onFinishChange((value) => { 
-                    this.viewer.material.defines.HAS_BBOX = value ? 1 : 0;
-                    this.viewer.material.needsUpdate = true 
+                    defines.HAS_BBOX = value ? 1 : 0;
+                    material.needsUpdate = true 
                 }),
 
             hasSkipping: raycast.add(object, 'has_skipping')
                 .onFinishChange((value) => { 
-                    this.viewer.material.defines.HAS_SKIPPING = value ? 1 : 0;
-                    this.viewer.material.needsUpdate = true 
+                    defines.HAS_SKIPPING = value ? 1 : 0;
+                    material.needsUpdate = true 
                 }),
         }
 
@@ -289,43 +295,53 @@ export default class ISOGui
         this.controllers.debug = 
         {
             option: debug.add(u_debug, 'option').options({ 
-                default              :   0,
-                trace_position       :   1, 
-                trace_coords         :   2, 
-                trace_distance       :   3, 
-                trace_depth          :   4, 
-                trace_traversed      :   5, 
-                trace_skipped        :   6,
-                trace_steps          :   7,
-                trace_error          :   8,
-                trace_abs_error      :   9,
-                trace_value          :   10,
-                trace_color          :   11,
-                trace_shading        :   12,
-                trace_luminance      :   13,
-                trace_normal         :   14,
-                trace_gradient       :   15,
-                trace_gradient_norm  :   16,
-                trace_derivative     :   17,
-                trace_stepping       :   18,
-                trace_mean_stepping  :   19,
-                ray_direction        :   20,
-                ray_spacing          :   21,
-                ray_dithering        :   22,
-                ray_min_distance     :   23,
-                ray_max_distance     :   24,
-                ray_max_depth        :   25,
-                ray_max_steps        :   26,
-                frag_depth           :   27,
-                variable1            :   28,
-                variable2            :   29,
-                variable3            :   30,
+                default            : 0,
+                trace_position     : 1,
+                trace_coords       : 2,
+                trace_distance     : 3,
+                trace_depth        : 4,
+                trace_traversed    : 5,
+                trace_skipped      : 6,
+                trace_steps        : 7,
+                trace_error        : 8,
+                trace_abs_error    : 9,
+                trace_value        : 10,
+                trace_color        : 11,
+                trace_shading      : 12,
+                trace_luminance    : 13,
+                trace_normal       : 14,
+                trace_gradient     : 15,
+                trace_gradient_norm: 16,
+                trace_derivative   : 17,
+                trace_stepping     : 18,
+                trace_mean_stepping: 19,
+                ray_direction      : 20,
+                ray_spacing        : 21,
+                ray_dithering      : 22,
+                ray_min_distance   : 23,
+                ray_max_distance   : 24,
+                ray_max_depth      : 25,
+                ray_max_steps      : 26,
+                block_lod          : 27,
+                block_coords       : 28,
+                block_max_position : 29,
+                block_min_position : 30,
+                block_occupancy    : 31,
+                block_occupied     : 32,
+                block_size         : 33,
+                block_skip_depth   : 34,
+                block_texel        : 35,
+                frag_depth         : 36,
+                variable1          : 37,
+                variable2          : 38,
+                variable3          : 39,
             }),
-            number: debug.add(u_debug, 'number').min(0).max(20).step(1),
-            scale: debug.add(u_debug, 'scale').min(0).max(100).step(0.001),
+            number  : debug.add(u_debug, 'number').min(0).max(100).step(1),
+            scale   : debug.add(u_debug, 'scale').min(0).max(100).step(0.001),
             constant: debug.add(u_debug, 'constant').min(0).max(10).step(0.000001),
-            mixing: debug.add(u_debug, 'mixing').min(0).max(1).step(0.000001),
-            epsilon: debug.add(u_debug, 'epsilon').min(-2).max(2).step(0.0000001),
+            mixing  : debug.add(u_debug, 'mixing').min(0).max(1).step(0.000001),
+            epsilon : debug.add(u_debug, 'epsilon').min(-2).max(2).step(0.0000001),
+            texel   : debug.addColor(u_debug, 'texel'),
         }
     }
     

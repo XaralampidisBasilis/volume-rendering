@@ -10,6 +10,7 @@ struct uniforms_debug
     float constant;
     float mixing;
     float epsilon;
+    vec3 texel;
 };
 
 uniform uniforms_debug u_debug;

@@ -7,3 +7,5 @@ Add typescript
 
 
 It seems that Volume raycasting is too heavy for android devices
+
+Cannot access mipmaps in glsl...for some reason

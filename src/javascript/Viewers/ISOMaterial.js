@@ -29,9 +29,9 @@ export default function()
         u_raycast: new THREE.Uniform
         ({
             threshold         : 0.3,
-            min_stepping      : 0.01,
-            max_stepping      : 2,
-            max_steps         : 100,
+            min_stepping      : 1,
+            max_stepping      : 1,
+            max_steps         : 1000,
             spacing_method    : 1,
             stepping_method   : 1,
             dithering_method  : 1,
@@ -95,25 +95,26 @@ export default function()
         u_debug: new THREE.Uniform
         ({
             option     : 0,
-            number     : 1,
-            scale      : 1,
+            number     : 100,
+            scale      : 4,
             constant   : 0,
             mixing     : 0.5,
             epsilon    : 0,
+            texel      : new THREE.Color(0x000000),
         })
 
     }
 
     const defines = 
     {
-        HAS_BBOX                   : 1,
-        HAS_SKIPPING               : 0,
-        HAS_DITHERING              : 1,
+        HAS_BBOX                   : 0,
+        HAS_SKIPPING               : 1,
+        HAS_DITHERING              : 0,
         
-        HAS_REFINEMENT             : 1,
+        HAS_REFINEMENT             : 0,
         DITHERING_METHOD           : 1,
-        SPACING_METHOD             : 2,
-        STEPPING_METHOD            : 1,
+        SPACING_METHOD             : 1,
+        STEPPING_METHOD            : 10,
         REFINEMENT_METHOD          : 2,
 
         SHADING_METHOD             : 1,
@@ -122,7 +123,7 @@ export default function()
         HAS_GRADIENT_REFINEMENT    : 0,
         GRADIENT_REFINEMENT_METHOD : 7,
         GRADIENT_METHOD            : 1,
-        DERIVATIVE_METHOD          : 1,
+        DERIVATIVE_METHOD          : 5,
 
         HAS_SMOOTHING_REFINEMENT   : 0,
         SMOOTHING_REFINEMENT_METHOD: 1,

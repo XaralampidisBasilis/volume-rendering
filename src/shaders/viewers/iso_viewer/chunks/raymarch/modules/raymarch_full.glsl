@@ -1,10 +1,12 @@
-ray.intersected = false;    
 
 // Precompute invariant values outside the loop to avoid redundant work
 float raycast_threshold = u_raycast.threshold;
+float gradient_threshold = u_gradient.threshold;
 vec3 inv_volume_size = u_volume.inv_size;
 vec3 inv_volume_spacing = u_volume.inv_spacing;
 float inv_gradient_max_norm = 1.0 / u_gradient.max_norm;
+
+ray.intersected = false;    
 
 // Raymarch loop to traverse through the volume
 for (trace.steps = 0; trace.steps < ray.max_steps && trace.distance < ray.max_distance; trace.steps++) 
@@ -25,7 +27,7 @@ for (trace.steps = 0; trace.steps < ray.max_steps && trace.distance < ray.max_di
     #include "../../derivatives/compute_derivatives"
 
     // If intensity exceeds threshold and gradient is strong enough, register an intersection
-    if (trace.error > 0.0 && gradient_norm > u_gradient.threshold && trace.steps > 0) 
+    if (trace.error > 0.0 && gradient_norm > gradient_threshold && trace.steps > 0) 
     {   
         ray.intersected = true;         
         break;
