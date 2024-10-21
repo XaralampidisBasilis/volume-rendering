@@ -6,8 +6,7 @@ import ISOGui from './ISOGui'
 import ComputeResizing from '../TensorFlow/Resizing/ComputeResizing'
 import ComputeGradients from '../TensorFlow/Gradients/ComputeGradients'
 import ComputeSmoothing from '../TensorFlow/Smoothing/ComputeSmoothing'
-import ComputeBoundingBox from '../TensorFlow/BoundingBox/ComputeBoundingBox'
-import ComputeOccumap from '../TensorFlow/Occumap/ComputeOccumap'
+import ComputeOccupancy from '../TensorFlow/Occupancy/ComputeOccupancy'
 import * as tf from '@tensorflow/tfjs'
 
 export default class ISOViewer extends EventEmitter
@@ -208,15 +207,13 @@ export default class ISOViewer extends EventEmitter
 
     async processData()
     {
-        this.boundingBox = new ComputeBoundingBox(this)
-        this.smoothing   = new ComputeSmoothing(this)
-        this.gradients   = new ComputeGradients(this)
-        this.occumap     = new ComputeOccumap(this)
+        this.smoothing = new ComputeSmoothing(this)
+        this.gradients = new ComputeGradients(this)
+        this.occupancy = new ComputeOccupancy(this)
 
-        await this.computeBoundingBox()
         await this.computeSmoothing()
         await this.computeGradients()
-        await this.computeOccumap()
+        await this.computeOccupancy()
     }
 
     async computeResizing()
@@ -224,16 +221,6 @@ export default class ISOViewer extends EventEmitter
         console.time('computeResizing')
         await this.resizing.compute().then(() => this.resizing.dataSync())
         console.timeEnd('computeResizing')
-    }
-
-    async computeBoundingBox()
-    {
-        this.boundingBox.update()
-
-        console.time('computeBoundingBox')
-        await this.boundingBox.compute().then(() => this.boundingBox.dataSync())
-        console.timeEnd('computeBoundingBox')
-        // console.log('computeBoundingBox:', tf.memory())
     }
 
     async computeSmoothing()
@@ -256,13 +243,13 @@ export default class ISOViewer extends EventEmitter
         // console.log('computeGradients:', tf.memory())
     }
 
-    async computeOccumap()
+    async computeOccupancy()
     {
-        this.occumap.update()
+        this.occupancy.update()
 
-        console.time('computeOccumap')
-        await this.occumap.compute().then(() => this.occumap.dataSync())
-        console.timeEnd('computeOccumap')
+        console.time('computeOccupancy')
+        await this.occupancy.compute().then(() => this.occupancy.dataSync())
+        console.timeEnd('computeOccupancy')
         // console.log('computeOccumap:', tf.memory())
     }
 

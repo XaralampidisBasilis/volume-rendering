@@ -5,7 +5,6 @@
 struct parameters_block 
 {
     int lod;
-    float occupancy;
     bool occupied;
     float skip_depth;
     ivec3 coords;
@@ -18,7 +17,6 @@ struct parameters_block
 void set_block(out parameters_block block)
 {
     block.lod          = 0;
-    block.occupancy    = 0.0;
     block.occupied     = false;
     block.skip_depth   = 0.0;
     block.coords       = ivec3(0);

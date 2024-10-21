@@ -109,7 +109,7 @@ export default class ISOGui
         this.controllers.raycast = 
         {
             threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001)
-                .onFinishChange(() => { this.viewer.computeBoundingBox() }),
+                .onFinishChange(() => { this.viewer.computeOccupancy() }),
 
             steppingMin: raycast.add(u_raycast, 'min_stepping').min(0.001).max(5).step(0.001),
 
@@ -278,11 +278,9 @@ export default class ISOGui
     {
         const { occupancy } = this.subfolders
         const u_occupancy = this.viewer.material.uniforms.u_occupancy.value
-        const object = { options: 0 }
 
         this.controllers.occupancy = 
         {
-            threshold  : occupancy.add(u_occupancy, 'threshold').min(0).max(1).step(0.001),
         }
 
     }
@@ -326,17 +324,16 @@ export default class ISOGui
                 block_coords       : 28,
                 block_max_position : 29,
                 block_min_position : 30,
-                block_occupancy    : 31,
-                block_occupied     : 32,
-                block_size         : 33,
-                block_skip_depth   : 34,
-                block_texel        : 35,
-                frag_depth         : 36,
-                variable1          : 37,
-                variable2          : 38,
-                variable3          : 39,
+                block_occupied     : 31,
+                block_size         : 32,
+                block_skip_depth   : 33,
+                block_texel        : 34,
+                frag_depth         : 35,
+                variable1          : 36,
+                variable2          : 37,
+                variable3          : 38,
             }),
-            number  : debug.add(u_debug, 'number').min(0).max(100).step(1),
+            number  : debug.add(u_debug, 'number').min(0).max(1000).step(1),
             scale   : debug.add(u_debug, 'scale').min(0).max(100).step(0.001),
             constant: debug.add(u_debug, 'constant').min(0).max(10).step(0.000001),
             mixing  : debug.add(u_debug, 'mixing').min(0).max(1).step(0.000001),

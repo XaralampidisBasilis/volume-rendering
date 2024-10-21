@@ -1,41 +1,49 @@
-float occupancy_threshold = u_occupancy.threshold;
-vec3 inv_volume_size = u_volume.inv_size;
-vec3 occumap_size = u_occupancy.occumap_size;
 
-// Start with the coarsest LOD
-// int occumap_lod = u_occupancy.occumap_num_lod - 1;
-block.lod = int(u_debug.scale);
-vec3 occumap_dims = vec3(textureSize(u_sampler.occumap, block.lod).xyz);
-block.size = occumap_size / occumap_dims;
+ivec3 base_dimensions = u_occupancy.base_dimensions;
+float spacing_delta = ray.spacing;
 
-for(int counter = 0; counter < u_debug.number; counter++)
+block.lod = u_occupancy.lods - 1;
+float scaling = exp2(float(block.lod));
+ivec3 occumap_dimensions = base_dimensions / int(scaling);
+block.size = u_occupancy.base_spacing * scaling;
+
+ivec3 occumap_offset = ivec3(0);
+if (block.lod > 0) 
 {
-    block.texel = trace.position / occumap_size;
-    block.coords = ivec3(floor(block.texel * occumap_dims));
-    block.occupancy = textureLod(u_sampler.occumap, block.texel, float(block.lod)).r;
-    // float occupancy = texelFetch(u_sampler.occumap, block.coords, block.lod).r;
+    occumap_offset.y = base_dimensions.y - 2 * occumap_dimensions.y;
+    occumap_offset.z = base_dimensions.z;
+}
 
-    if (block.occupancy <= occupancy_threshold)
+for (int steps = 1; steps < MAX_SKIPPING_STEPS && trace.distance < ray.max_distance; steps++) 
+{
+    // Calculate block coordinates and occupancy
+    block.coords = ivec3(trace.position / block.size);
+    float occupancy = texelFetch(u_sampler.occumaps, block.coords + occumap_offset, 0).r;
+    block.occupied = occupancy > 0.0;
+
+    if (!block.occupied) 
     {
-       block.min_position = vec3(block.coords) * block.size;
-       block.max_position = block.min_position + block.size;
-       block.skip_depth = intersect_box_max(block.min_position, block.max_position, trace.position, ray.direction);
-
-        trace.spacing = min(block.skip_depth + ray.min_spacing * 0.5, 0.01);
+        block.min_position = vec3(block.coords) * block.size;
+        block.max_position = block.min_position + block.size;
+        block.skip_depth = intersect_box_max(block.min_position, block.max_position, trace.position, ray.direction);
+        
+        trace.spacing = block.skip_depth + spacing_delta;
         trace.distance += trace.spacing;
         trace.position += ray.direction * trace.spacing;
-        trace.texel = trace.position * inv_volume_size;
-        if (trace.distance > ray.max_distance) break;
-    }
-    else
+        trace.texel = trace.position * u_volume.inv_size;
+    } 
+    else 
     {
-        break;
-        // occumap_lod--;
-        // if (occumap_lod == 0) break;
-
-        // occumap_dims = vec3(textureSize(u_sampler.occumap, occumap_lod));
-        // block.size = occumap_size / occumap_dims;
+        if (block.lod == 0) break; 
+        block.lod--;
+        block.size *= 0.5;
+        occumap_dimensions *= 2;
+        occumap_offset.y = (block.lod > 0) ? base_dimensions.y - 2 * occumap_dimensions.y : 0;
+        occumap_offset.z = (block.lod > 0) ? base_dimensions.z : 0;
     }
 }
 
-
+trace.spacing = - spacing_delta * 2.0;
+trace.distance += trace.spacing;
+trace.position += ray.direction * trace.spacing;
+trace.texel = trace.position * u_volume.inv_size;

@@ -4,7 +4,6 @@
 #include "./uniforms_raycast"
 #include "./uniforms_gradient"
 #include "./uniforms_colormap"
-#include "./uniforms_occumaps"
 #include "./uniforms_shading"
 #include "./uniforms_lighting"
 #include "./uniforms_debug"

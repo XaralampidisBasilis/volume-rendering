@@ -28,7 +28,6 @@
 #include "./debug_block_coords"
 #include "./debug_block_max_position"
 #include "./debug_block_min_position"
-#include "./debug_block_occupancy"
 #include "./debug_block_occupied"
 #include "./debug_block_size"
 #include "./debug_block_skip_depth"
