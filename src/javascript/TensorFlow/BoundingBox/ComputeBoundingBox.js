@@ -18,9 +18,9 @@ export default class ComputeBoundingBox
             const spacing = this.parameters.volume.spacing.toArray()
             const condition = this.viewer.tensors.volume.greater([this.threshold])
 
-            const [minIndX, maxIndX] = this.argMinMax(condition, 2)
-            const [minIndY, maxIndY] = this.argMinMax(condition, 1)
-            const [minIndZ, maxIndZ] = this.argMinMax(condition, 0)
+            const [minIndX, maxIndX] = this.argRange(condition, 2)
+            const [minIndY, maxIndY] = this.argRange(condition, 1)
+            const [minIndZ, maxIndZ] = this.argRange(condition, 0)
 
             const minCoords = tf.stack([minIndX, minIndY, minIndZ], 0)    
             const maxCoords = tf.stack([maxIndX, maxIndY, maxIndZ], 0)  
@@ -64,11 +64,11 @@ export default class ComputeBoundingBox
 
     // helper tensor functions
 
-    argMinMax(boolTensor, axis)
+    argRange(tensor, axis)
     {
         const axes = [0, 1, 2, 3].toSpliced(axis, 1)
-        const dimension = boolTensor.shape[axis]
-        const condition = boolTensor.any(axes)
+        const dimension = tensor.shape[axis]
+        const condition = tensor.any(axes)
         const minInd = condition.argMax(0)
         const maxInd = tf.sub(dimension, condition.reverse().argMax(0))
         condition.dispose()

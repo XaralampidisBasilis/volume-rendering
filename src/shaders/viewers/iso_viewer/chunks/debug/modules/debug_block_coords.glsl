@@ -1,5 +1,6 @@
 
-vec3 block_occumap_dims = vec3(textureSize(u_sampler.occumap, block.lod).xyz);
-vec3 block_coords = vec3(block.coords) / (block_occumap_dims - 1.0);
+int debug_occumap_downscale = int(exp2(float(block.lod)));
+ivec3 debug_occumap_dims = u_occumaps.base_dimensions / debug_occumap_downscale;
+vec3 debug_block_coords = vec3(block.coords) / vec3(debug_occumap_dims - 1);
 
-debug.block_coords = vec4(vec3(block_coords), 1.0);
+debug.block_coords = vec4(vec3(debug_block_coords), 1.0);

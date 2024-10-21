@@ -9,11 +9,11 @@ export default function()
     {
         u_sampler: new THREE.Uniform
         ({
-            volume   : null,
-            mask     : null,
-            colormap : null,
-            noisemap : null,
-            occumap  : null,
+            volume  : null,
+            mask    : null,
+            colormap: null,
+            noisemap: null,
+            occumaps: null,
         }),
 
         u_volume : new THREE.Uniform
@@ -80,16 +80,20 @@ export default function()
 
         u_occupancy: new THREE.Uniform
         ({
-            threshold       : 0,
-            occumap_max_dims: new THREE.Vector3(),
-            occumap_num_lod : 1,
-            occumap_size    : new THREE.Vector3(),
-            block_min_dims  : new THREE.Vector3(),
-            block_min_size  : new THREE.Vector3(),
-            min_coords      : new THREE.Vector3(),
-            max_coords      : new THREE.Vector3(),
-            min_position    : new THREE.Vector3(),
-            max_position    : new THREE.Vector3(),
+            threshold         : 0,
+            min_coords        : new THREE.Vector3(),
+            max_coords        : new THREE.Vector3(),
+            min_position      : new THREE.Vector3(),
+            max_position      : new THREE.Vector3(),
+        }),
+
+        u_occumaps: new THREE.Uniform
+        ({
+            lods           : 1,
+            dimensions     : new THREE.Vector3(),
+            base_dimensions: new THREE.Vector3(),
+            base_spacing   : new THREE.Vector3(),
+            base_size      : new THREE.Vector3(),
         }),
 
         u_debug: new THREE.Uniform
@@ -107,26 +111,24 @@ export default function()
 
     const defines = 
     {
-        HAS_BBOX                   : 0,
-        HAS_SKIPPING               : 1,
-        HAS_DITHERING              : 0,
-        
-        HAS_REFINEMENT             : 0,
+        HAS_BBOX                   : 1,
+        HAS_SKIPPING               : 0,
+        HAS_DITHERING              : 1,
+        HAS_REFINEMENT             : 1,
+        HAS_GRADIENT_REFINEMENT    : 0,
+        HAS_SMOOTHING_REFINEMENT   : 0,
+
         DITHERING_METHOD           : 1,
         SPACING_METHOD             : 1,
         STEPPING_METHOD            : 10,
         REFINEMENT_METHOD          : 2,
-
         SHADING_METHOD             : 1,
         ATTENUATION_METHOD         : 1,
-
-        HAS_GRADIENT_REFINEMENT    : 0,
-        GRADIENT_REFINEMENT_METHOD : 7,
         GRADIENT_METHOD            : 1,
         DERIVATIVE_METHOD          : 5,
-
-        HAS_SMOOTHING_REFINEMENT   : 0,
         SMOOTHING_REFINEMENT_METHOD: 1,
+        GRADIENT_REFINEMENT_METHOD : 7,
+   
         SMOOTHING_METHOD           : 1,
         SMOOTHING_RADIUS           : 2,
     }

@@ -15,66 +15,64 @@ export default class ComputeOccumap
     {               
         tf.tidy(() => 
         {
+            const spacing = this.parameters.volume.spacing.toArray()
             const volume = this.viewer.tensors.volume
             const condition = volume.greater([this.threshold])
-            const occupancy = this.padPow2(condition)
 
-            const prevPowerOf2 = (x) => Math.pow(2, Math.ceil(Math.log2(x)) - 1)
-            const blockDivisions = occupancy.shape.map(prevPowerOf2)
-            const blockDims = occupancy.shape.map((dim, i) => Math.ceil(dim / blockDivisions[i]))
+            const padded = this.padPow2(condition)
+            condition.dispose()
 
-            // convert boolean values to uint8
-            const occupancy0 = occupancy.mul([255])
-            occupancy.dispose()
+            const occupancy = this.quantize(padded)
+            padded.dispose()
 
             // compute the occupancy density of each block
-            const occumap0 = tf.avgPool3d(occupancy0, blockDims, blockDims, 'same')
-            occupancy0.dispose()
-            
-            this.mipmaps = this.generateMipmaps(occumap0)
-            this.blockDivisions = blockDivisions.toReversed()
-            this.blockDims = blockDims.toReversed()
+            const baseOccumap = tf.avgPool3d(occupancy, [2, 2, 2], [2, 2, 2], 'same')
+            occupancy.dispose()
+
+            const [occumaps, lods] = this.generateAtlas(baseOccumap)
+            const dimensions = occumaps.shape.slice(0, 3).toReversed()
+            const baseDimensions = baseOccumap.shape.slice(0, 3).toReversed()
+            const baseSize = padded.shape.slice(0, 3).toReversed().map((dim, i) => dim * spacing[i])
+            const baseSpacing = baseSize.map((size, i) => size / baseDimensions[i])
+
+            this.occumaps = {
+                data          : Uint8Array.from(occumaps.dataSync(), (x) => Math.ceil(x)),
+                dimensions    : dimensions,
+                baseDimensions: baseDimensions,
+                baseSpacing   : baseSpacing,
+                baseSize      : baseSize,
+                lods          : lods,
+            }
         })
 
-        return { mipmaps: this.mipmaps, blockDims: this.blockDims }
     }
 
-    dataSync()
-    { 
-        // if (this.viewer.textures.occumap) 
-        //     this.viewer.textures.occumap.dispose()
+    dataSync()  
+    {
+        
+        // if (this.viewer.textures.occumaps) this.viewer.textures.occumaps.dispose()
+        this.viewer.textures.occumaps = new THREE.Data3DTexture(this.occumaps.data, ...this.occumaps.dimensions)     
+        this.viewer.textures.occumaps.type = THREE.UnsignedByteType
+        this.viewer.textures.occumaps.format = THREE.RedFormat
+        this.viewer.textures.occumaps.wrapS = THREE.ClampToEdgeWrapping
+        this.viewer.textures.occumaps.wrapT = THREE.ClampToEdgeWrapping
+        this.viewer.textures.occumaps.wrapR = THREE.ClampToEdgeWrapping
+        this.viewer.textures.occumaps.minFilter = THREE.NearestFilter
+        this.viewer.textures.occumaps.magFilter = THREE.NearestFilter
+        this.viewer.textures.occumaps.needsUpdate = true
+        this.viewer.material.uniforms.u_sampler.value.occumaps = this.viewer.textures.occumaps
+        this.viewer.material.needsUpdate = true
 
-        // this.mipmaps[0].data.fill(255)
-   
-        this.viewer.textures.occumap = new THREE.Data3DTexture(
-            this.mipmaps[0].data,   
-            this.mipmaps[0].width,  
-            this.mipmaps[0].height, 
-            this.mipmaps[0].depth    
-        )       
+        const occumaps = this.viewer.material.uniforms.u_occumaps.value
+        occumaps.lods = this.occumaps.lods
+        occumaps.dimensions.fromArray(this.occumaps.dimensions)
+        occumaps.base_dimensions.fromArray(this.occumaps.baseDimensions)
+        occumaps.base_spacing.fromArray(this.occumaps.baseSpacing)
+        occumaps.base_size.fromArray(this.occumaps.baseSize)
 
-        this.viewer.textures.occumap.format = THREE.RedFormat
-        this.viewer.textures.occumap.type = THREE.UnsignedByteType
-        this.viewer.textures.occumap.wrapS = THREE.ClampToEdgeWrapping 
-        this.viewer.textures.occumap.wrapT = THREE.ClampToEdgeWrapping 
-        this.viewer.textures.occumap.wrapR = THREE.ClampToEdgeWrapping 
-        this.viewer.textures.occumap.minFilter = THREE.NearestMipmapNearestFilter
-        this.viewer.textures.occumap.magFilter = THREE.NearestFilter
-        this.viewer.textures.occumap.mipmaps = this.mipmaps
-        this.viewer.textures.occumap.generateMipmaps = false
-        this.viewer.textures.occumap.needsUpdate = true
-
-        const u_occupancy = this.viewer.material.uniforms.u_occupancy.value
-        u_occupancy.block_min_dims.fromArray(this.blockDims)
-        u_occupancy.block_min_size.copy(u_occupancy.block_min_dims).multiply(this.parameters.volume.spacing)
-        u_occupancy.occumap_num_lod = this.mipmaps.length
-        u_occupancy.occumap_max_dims.set(this.mipmaps[0].width, this.mipmaps[0].height, this.mipmaps[0].depth)
-        u_occupancy.occumap_size.copy(u_occupancy.occumap_max_dims).multiply(u_occupancy.block_min_size)
-        this.viewer.material.uniforms.u_sampler.value.occumap = this.viewer.textures.occumap
-
-        console.log(this.mipmaps)
-        console.log(this.viewer.textures.occumap)
-        console.log(this.viewer.material.uniforms)
+        console.log(this.occumaps)
+        console.log(this.viewer.textures.occumaps)
+        console.log(occumaps)
     }
 
     update()
@@ -102,30 +100,70 @@ export default class ComputeOccumap
         return padded
     }
 
+    quantize(tensor)
+    {
+        const scaled = tensor.mul([255])
+        tensor.dispose()
+        const clipped = scaled.clipByValue(0, 255)  
+        scaled.dispose()
+        const quantized = clipped.round()
+        scaled.dispose()
+        return quantized
+    }
+
+    generateAtlas(tensor)
+    {
+        let subTensor = tensor
+        let atlasTensor = subTensor.pad([[0, subTensor.shape[0] / 2], [0, 0], [0, 0], [0, 0] ])
+        let offset = [subTensor.shape[0], 0, 0, 0]
+        let lod = 1
+
+        while(Math.min(...subTensor.shape.slice(0, 3)) > 1)
+        {
+            const subTensorTemp = tf.avgPool3d(subTensor, [2, 2, 2], [2, 2, 2], 'same')            
+            subTensor.dispose()
+            subTensor = subTensorTemp
+
+            const paddedTensor = subTensor.pad([
+                [offset[0], atlasTensor.shape[0] - offset[0] - subTensor.shape[0]],
+                [offset[1], atlasTensor.shape[1] - offset[1] - subTensor.shape[1]],
+                [offset[2], atlasTensor.shape[2] - offset[2] - subTensor.shape[2]],
+                [offset[3], atlasTensor.shape[3] - offset[3] - subTensor.shape[3]],
+            ])
+
+            const atlasTensorTemp = atlasTensor.add(paddedTensor)
+            paddedTensor.dispose()
+            atlasTensor.dispose()
+            atlasTensor = atlasTensorTemp
+
+            offset[1] += subTensor.shape[1]
+            lod++
+        }
+        return [atlasTensor, lod]
+    }
+
     generateMipmaps(occumap) 
     {
         let mipmap = occumap
         let shape = mipmap.shape.slice(0, 3)
         let data = Uint8Array.from(mipmap.dataSync(), (x) => Math.ceil(x)) 
+        const array = [] 
+        array.push({ data: data, width: shape[2], height: shape[1], depth: shape[0]})
 
-        const mipmaps = [] 
-        mipmaps.push({ data: data, width: shape[2], height: shape[1], depth: shape[0] })
-
-        while(Math.max(...shape) > 1)
+        while(Math.min(...shape) > 1)
         {
             const nextMipmap = tf.avgPool3d(mipmap, [2, 2, 2], [2, 2, 2], 'same')            
             mipmap.dispose()
             mipmap = nextMipmap
             data = Uint8Array.from(mipmap.dataSync(), (x) => Math.ceil(x)) 
             shape = mipmap.shape.slice(0, 3)
-            mipmaps.push({ data: data, width: shape[2], height: shape[1], depth: shape[0] })
+            array.push({ data: data, width: shape[2], height: shape[1], depth: shape[0]})
         }
-
         mipmap.dispose()
-        return mipmaps
+        return array
     }
 
-    splitBlocks(tensor, numBlocks) 
+    split(tensor, numBlocks) 
     {
         const inputShape = tensor.shape  // Shape of the input tensor [D1, D2, D3]
     
@@ -173,5 +211,5 @@ export default class ComputeOccumap
         return [blockTensor, blockShape]
     }
 
-
+   
 }
