@@ -11,9 +11,8 @@
  */
 
 // take a backstep to do a refined traverse
-parameters_trace final_trace;
-copy_trace(final_trace, trace);
-copy_trace(trace, prev_trace);
+parameters_trace final_trace = trace;
+trace = prev_trace;
 
 // calculate the refined substep
 float sub_spacing = trace.spacing / 6.0;  
@@ -47,7 +46,7 @@ trace.depth = trace.distance - ray.min_distance;
 
 // if there was not any refinement copy the final trace
 if (abs(trace.error) > abs(final_trace.error)) {
-    copy_trace(trace, final_trace);
+   trace = final_trace;
 }
 
 

@@ -18,5 +18,3 @@ ray.direction = normalize(v_direction);
 trace.position = ray.origin;
 trace.texel = ray.origin * u_volume.inv_size;
 trace.stepping = u_raycast.min_stepping;
-
-#include "./save_prev_trace"

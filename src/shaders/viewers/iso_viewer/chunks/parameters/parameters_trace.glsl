@@ -50,29 +50,4 @@ void set_trace(out parameters_trace trace)
     trace.steps         = 0;
 }
 
-void copy_trace(out parameters_trace trace, in parameters_trace copy)
-{
-    trace.position      = copy.position;
-    trace.texel         = copy.texel;
-    trace.coords        = copy.coords;
-    trace.normal        = copy.normal;
-    trace.gradient      = copy.gradient;
-    trace.color         = copy.color;
-    trace.shading       = copy.shading;
-    trace.value         = copy.value;
-    trace.error         = copy.error;
-    trace.distance      = copy.distance;
-    trace.depth         = copy.depth;
-    trace.dithering     = copy.dithering;
-    trace.stepping      = copy.skipped;
-    trace.skipped       = copy.skipped;
-    trace.spacing       = copy.spacing;
-    trace.gradient_norm = copy.gradient_norm;
-    trace.derivative    = copy.derivative;
-    trace.derivative2   = copy.derivative2;
-    trace.derivative3   = copy.derivative3;
-    trace.steps         = copy.steps;
-}
-
-
 #endif

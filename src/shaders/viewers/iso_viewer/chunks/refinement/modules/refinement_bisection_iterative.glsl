@@ -11,8 +11,7 @@
  */
 
 // save not refined solution
-parameters_trace temp_trace;
-copy_trace(temp_trace, trace);
+parameters_trace temp_trace = trace;
 
 // define the bisection intervals
 vec2 values = vec2(prev_trace.value, trace.value);
@@ -58,7 +57,7 @@ trace.depth = trace.distance - ray.min_distance;
 
 // if we do not have any improvement with refinement go to previous solution
 if (abs(trace.error) > abs(temp_trace.error)) {
-    copy_trace(trace, temp_trace);
+    trace = temp_trace;
 }
 
 

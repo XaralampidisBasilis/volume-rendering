@@ -15,7 +15,6 @@ trace.distance = ray.min_distance - ray.dithering;
 trace.position = ray.origin + ray.direction * trace.distance;
 trace.texel = trace.position * u_volume.inv_size;
 trace.spacing = ray.spacing;
-#include "../parameters/save_prev_trace"
 
 // raycasting loop to traverse through the volume and find intersections.
 #include "../raymarch/compute_raymarch"
