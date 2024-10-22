@@ -1,3 +1,6 @@
+ray.origin = v_camera;
+ray.direction = normalize(v_direction);
+
 // compute the intersection bounds of a ray with the occupancy axis-aligned bounding box.
 #include "./modules/compute_distances"
 
@@ -15,6 +18,7 @@ trace.distance = ray.min_distance - ray.dithering;
 trace.position = ray.origin + ray.direction * trace.distance;
 trace.texel = trace.position * u_volume.inv_size;
 trace.spacing = ray.spacing;
+trace.stepping = u_raycast.min_stepping;
 
 // raycasting loop to traverse through the volume and find intersections.
 #include "../raymarch/compute_raymarch"

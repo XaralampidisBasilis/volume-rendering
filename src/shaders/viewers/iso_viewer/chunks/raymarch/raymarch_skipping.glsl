@@ -16,9 +16,8 @@ ray.intersected = false;
 // raymarch loop to traverse through the volume
 for (trace.steps = 0; trace.steps < ray.max_steps; trace.steps++) 
 {
-    block.coords = ivec3(trace.position / block.size);
-    block.occupied = texelFetch(u_sampler.occumaps, block.coords + occumap_offset, 0).r > 0.0;
-
+    #include "./modules/update_occumap_sample"
+    
     if (block.occupied) {
 
         #include "./modules/update_trace_sample"

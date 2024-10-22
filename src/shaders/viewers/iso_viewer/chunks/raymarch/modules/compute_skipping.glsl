@@ -7,7 +7,7 @@ for (int steps = 0; steps < MAX_SKIPPING_STEPS; steps++)
 
     if (block.occupied) 
     {
-        if (block.lod < 1) break; 
+        if (occumap.lod < 1) break; 
         #include "./update_occumap_lod"
     } 
     else 
@@ -19,6 +19,7 @@ for (int steps = 0; steps < MAX_SKIPPING_STEPS; steps++)
 
 // update trace position
 trace.spacing = - ray.spacing * 2.0;
+trace.skipped += trace.spacing;
 trace.distance += trace.spacing;
 trace.position += ray.direction * trace.spacing;
 trace.texel = trace.position * u_volume.inv_size;

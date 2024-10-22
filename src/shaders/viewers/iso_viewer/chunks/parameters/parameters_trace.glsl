@@ -26,7 +26,7 @@ struct parameters_trace
     int   steps;
 };
 
-void set_trace(out parameters_trace trace)
+void set(out parameters_trace trace)
 {
     trace.position      = vec3(0.0);
     trace.texel         = vec3(0.0);

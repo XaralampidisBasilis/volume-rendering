@@ -35,11 +35,9 @@ switch (u_debug.option)
     case 29: fragColor = debug.block_max_position;   break;
     case 30: fragColor = debug.block_min_position;   break;
     case 31: fragColor = debug.block_occupied;       break;
-    case 32: fragColor = debug.block_size;           break;
-    case 33: fragColor = debug.block_skip_depth;     break;
-    case 34: fragColor = debug.block_texel;          break;
-    case 35: fragColor = debug.frag_depth;           break;
-    case 36: fragColor = debug.variable1;            break;
-    case 37: fragColor = debug.variable2;            break;
-    case 38: fragColor = debug.variable3;            break;
+    case 32: fragColor = debug.block_skipping;       break;
+    case 33: fragColor = debug.frag_depth;           break;
+    case 34: fragColor = debug.variable1;            break;
+    case 35: fragColor = debug.variable2;            break;
+    case 36: fragColor = debug.variable3;            break;
 }

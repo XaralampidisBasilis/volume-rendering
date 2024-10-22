@@ -33,10 +33,8 @@ struct parameters_debug
     vec4 block_lod;
     vec4 block_occupancy;
     vec4 block_occupied;
-    vec4 block_skip_depth;
+    vec4 block_skipping;
     vec4 block_coords;
-    vec4 block_texel;
-    vec4 block_size;
     vec4 block_min_position;
     vec4 block_max_position;     
     vec4 frag_depth;        
@@ -45,7 +43,7 @@ struct parameters_debug
     vec4 variable3;  
 };
 
-void set_debug(out parameters_debug debug)
+void set(out parameters_debug debug)
 {
     debug.trace_position      = vec4(0.0);
     debug.trace_coords        = vec4(0.0);
@@ -76,10 +74,8 @@ void set_debug(out parameters_debug debug)
     debug.block_lod           = vec4(0.0);
     debug.block_occupancy     = vec4(0.0);
     debug.block_occupied      = vec4(0.0);
-    debug.block_skip_depth    = vec4(0.0);
+    debug.block_skipping      = vec4(0.0);
     debug.block_coords        = vec4(0.0);
-    debug.block_texel         = vec4(0.0);
-    debug.block_size          = vec4(0.0);
     debug.block_min_position  = vec4(0.0);
     debug.block_max_position  = vec4(0.0);
     debug.frag_depth          = vec4(0.0);

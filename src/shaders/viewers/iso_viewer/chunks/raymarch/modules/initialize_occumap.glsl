@@ -1,11 +1,10 @@
-block.lod = u_occupancy.lods - 1;
-float scaling = exp2(float(block.lod));
-ivec3 occumap_dimensions = base_dimensions / int(scaling);
-block.size = u_occupancy.base_spacing * scaling;
 
-ivec3 occumap_offset = ivec3(0);
-if (block.lod > 0) 
-{
-    occumap_offset.y = base_dimensions.y - 2 * occumap_dimensions.y;
-    occumap_offset.z = base_dimensions.z;
-}
+// begin at the coarsest level of occumap
+occumap.lod = u_occupancy.lods - 1;
+occumap.lod_scale = exp2(float(occumap.lod));
+occumap.dimensions = u_occupancy.base_dimensions / int(occumap.lod_scale);
+occumap.spacing = u_occupancy.base_spacing * occumap.lod_scale;
+
+occumap.offset.y = base_dimensions.y - 2 * occumap.dimensions.y;
+occumap.offset.z = base_dimensions.z;
+if (occumap.lod < 1) occumap.offset = ivec3(0);

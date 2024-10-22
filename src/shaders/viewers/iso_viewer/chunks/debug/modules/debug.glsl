@@ -29,7 +29,5 @@
 #include "./debug_block_max_position"
 #include "./debug_block_min_position"
 #include "./debug_block_occupied"
-#include "./debug_block_size"
-#include "./debug_block_skip_depth"
-#include "./debug_block_texel"
+#include "./debug_block_skipping"
 #include "./debug_frag_depth"  

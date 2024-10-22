@@ -1,5 +1,5 @@
 
 // normalize trace skipped to the range [0, 1]
-float trace_skipped_norm = trace.skipped / ray.global_max_distance;
+float debug_trace_skipped = trace.skipped / ray.global_max_depth;
 
-debug.trace_skipped = vec4(vec3(trace_skipped_norm), 1.0);
+debug.trace_skipped = vec4(vec3(debug_trace_skipped), 1.0);

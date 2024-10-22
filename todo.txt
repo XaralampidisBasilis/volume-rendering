@@ -4,8 +4,4 @@ Implement dom element for AR based on this: https://www.youtube.com/watch?v=uJ2i
 Add typescript
 
 Να ψαξω βιβλιογραφία για το πως μπορεί να χρησιμοποιηθεί το εργαλιο για εφαρμογες σε ML και heart hailure
-
-
-It seems that Volume raycasting is too heavy for android devices
-
-Cannot access mipmaps in glsl...for some reason
+Και να ολοκληρώσω τα ερωτηματολόγια
