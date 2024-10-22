@@ -5,7 +5,7 @@ vec3 view_vector = ray.origin - trace.position;
 vec3 normal_vector = trace.normal;
 
 // Calculate attenuation frading
-#include "../attenuation/compute_attenuation"
+#include "./modules/compute_attenuation"
 
 // normalize shading vectors
 light_vector = normalize(light_vector);

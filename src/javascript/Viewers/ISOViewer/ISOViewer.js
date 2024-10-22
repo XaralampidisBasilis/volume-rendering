@@ -1,12 +1,12 @@
 import * as THREE from 'three'
-import Experience from '../Experience'
-import EventEmitter from '../Utils/EventEmitter'
+import Experience from '../../Experience'
+import EventEmitter from '../../Utils/EventEmitter'
 import ISOMaterial from './ISOMaterial'
 import ISOGui from './ISOGui'
-import ComputeResizing from '../TensorFlow/Resizing/ComputeResizing'
-import ComputeGradients from '../TensorFlow/Gradients/ComputeGradients'
-import ComputeSmoothing from '../TensorFlow/Smoothing/ComputeSmoothing'
-import ComputeOccupancy from '../TensorFlow/Occupancy/ComputeOccupancy'
+import ComputeResizing from '../../TensorFlow/Resizing/ComputeResizing'
+import ComputeGradients from '../../TensorFlow/Gradients/ComputeGradients'
+import ComputeSmoothing from '../../TensorFlow/Smoothing/ComputeSmoothing'
+import ComputeOccupancy from '../../TensorFlow/Occupancy/ComputeOccupancy'
 import * as tf from '@tensorflow/tfjs'
 
 export default class ISOViewer extends EventEmitter

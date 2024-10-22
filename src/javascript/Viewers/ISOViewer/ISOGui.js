@@ -1,6 +1,6 @@
 
-import { colormapLocations } from '../../../static/textures/colormaps/colormaps'
-import { throttleByCalls, throttleByDelay } from '../Utils/Throttle'
+import { colormapLocations } from '../../../../static/textures/colormaps/colormaps'
+import { throttleByCalls, throttleByDelay } from '../../Utils/Throttle'
 
 export default class ISOGui
 {
@@ -333,12 +333,13 @@ export default class ISOGui
                 variable2          : 37,
                 variable3          : 38,
             }),
-            number  : debug.add(u_debug, 'number').min(0).max(1000).step(1),
-            scale   : debug.add(u_debug, 'scale').min(0).max(100).step(0.001),
-            constant: debug.add(u_debug, 'constant').min(0).max(10).step(0.000001),
-            mixing  : debug.add(u_debug, 'mixing').min(0).max(1).step(0.000001),
-            epsilon : debug.add(u_debug, 'epsilon').min(-2).max(2).step(0.0000001),
-            texel   : debug.addColor(u_debug, 'texel'),
+            number   : debug.add(u_debug, 'number').min(0).max(1000).step(1),
+            scale    : debug.add(u_debug, 'scale').min(0).max(100).step(0.001),
+            constant : debug.add(u_debug, 'constant').min(0).max(10).step(0.000001),
+            mixing   : debug.add(u_debug, 'mixing').min(0).max(1).step(0.000001),
+            epsilon  : debug.add(u_debug, 'epsilon').min(-2).max(2).step(0.0000001),
+            tolerance: debug.add(u_debug, 'tolerance').min(-1).max(1).step(1e-30),
+            texel    : debug.addColor(u_debug, 'texel'),
         }
     }
     

@@ -11,8 +11,8 @@ ray.intersected = false;
 for (trace.steps = 0; trace.steps < ray.max_steps && trace.distance < ray.max_distance; trace.steps++) 
 {
    
-    #include "./update_sample"
-    #include "../../derivatives/compute_derivatives"
+    #include "./modules/update_sample"
+    #include "../derivatives/compute_derivatives"
 
     // If intensity exceeds threshold and gradient is strong enough, register an intersection
     if (trace.error > 0.0 && length(trace.gradient) > gradient_threshold && trace.steps > 0) 
@@ -22,8 +22,8 @@ for (trace.steps = 0; trace.steps < ray.max_steps && trace.distance < ray.max_di
     }
 
     // Save the previous trace state
-    #include "../../parameters/save_prev_trace"
-    #include "./update_step"
+    #include "../parameters/save_prev_trace"
+    #include "./modules/update_step"
 }   
 
 // Compute the final depth and coordinates

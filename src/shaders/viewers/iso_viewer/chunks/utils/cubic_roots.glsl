@@ -11,10 +11,15 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
     float root12; vec2 roots2; vec3 roots3;
 
     // check if cubic
-    float y = abs(coeff.y / coeff.z) * 0.5;
-    float error = pow3(y + sqrt(y * y - coeff.z / coeff.x)) * coeff.w;
-    
-    if (abs(error) < PICO_TOL) {
+    // float disc = dot(vec2(coeff.y, -4.0 * coeff.z), coeff.yy);
+    // float error = (coeff.y + sqrt(abs(disc))) * cbrt(coeff.w);
+    // float tolerance = abs(2.0 * coeff.z) * PICO_TOL;
+
+    // if (abs(error) < tolerance) {
+    //     roots2 = quadratic_roots(coeff.xyz, num_roots);
+    //     return roots2.xyy;
+    // }
+    if (abs(coeff.w) < PICO_TOL) {
         roots2 = quadratic_roots(coeff.xyz, num_roots);
         return roots2.xyy;
     }
@@ -72,10 +77,15 @@ vec3 cubic_roots(in vec4 coeff)
     float root12; vec2 roots2; vec3 roots3;
 
     // check if quadratic
-    float y = abs(coeff.y / coeff.z) * 0.5;
-    float error = pow3(y + sqrt(y * y - coeff.z / coeff.x)) * coeff.w;
-    
-    if (abs(error) < PICO_TOL) {
+    // float disc = dot(vec2(coeff.y, -4.0 * coeff.z), coeff.yy);
+    // float error = (coeff.y + sqrt(abs(disc))) * cbrt(coeff.w);
+    // float tolerance = abs(2.0 * coeff.z) * PICO_TOL;
+
+    // if (abs(error) < tolerance) {
+    //     roots2 = quadratic_roots(coeff.xyz);
+    //     return roots2.xyy;
+    // }
+    if (abs(coeff.w) < PICO_TOL) {
         roots2 = quadratic_roots(coeff.xyz);
         return roots2.xyy;
     }

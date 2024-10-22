@@ -5,8 +5,10 @@
 vec2 quadratic_roots(in vec3 coeff, out int num_roots) 
 {
     // If linear return early
-    float error = pow2(coeff.z / coeff.y) * coeff.x;
-    if (abs(error) < PICO_TOL) return vec2(linear_roots(coeff.xy, num_roots));
+    // float error = abs(coeff.z) * sqrt(abs(coeff.x));
+    // float tolerance = abs(coeff.y) * PICO_TOL;
+    // if (abs(error) < tolerance) return vec2(linear_roots(coeff.xy, num_roots));
+    if (abs(coeff.x) < PICO_TOL) return vec2(linear_roots(coeff.xy, num_roots));
 
     // Normalize coefficients (divide x and y by z)
     coeff.xy /= coeff.z;
@@ -30,8 +32,10 @@ vec2 quadratic_roots(in vec3 coeff, out int num_roots)
 vec2 quadratic_roots(in vec3 coeff) 
 {
     // If linear return early
-    float error = pow2(coeff.z / coeff.y) * coeff.x;
-    if (abs(error) < PICO_TOL) return vec2(linear_roots(coeff.xy));
+    // float error = abs(coeff.z) * sqrt(abs(coeff.x));
+    // float tolerance = abs(coeff.y) * PICO_TOL;
+    // if (abs(error) < tolerance) return vec2(linear_roots(coeff.xy));
+    if (abs(coeff.x) < PICO_TOL) return vec2(linear_roots(coeff.xy));
 
     // Normalize coefficients (divide x and y by z)
     coeff.xy /= coeff.z;
@@ -41,7 +45,7 @@ vec2 quadratic_roots(in vec3 coeff)
     float discriminant = coeff.y * coeff.y - coeff.x;
 
     // If the discriminant is negative, there's no real solution
-    if (discriminant < PICO_TOL)  return vec2(0.0); // Not solvable in the real number system, return a default root (0.0)
+    if (discriminant < 0.0)  return vec2(0.0); // Not solvable in the real number system, return a default root (0.0)
 
     // Return the quadratic roots sorted 
     return sqrt(discriminant) * vec2(-1.0, 1.0) - coeff.y;

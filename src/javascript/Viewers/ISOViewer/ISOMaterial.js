@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { colormapLocations } from '../../../static/textures/colormaps/colormaps.js'
-import vertexShader from '../../shaders/viewers/iso_viewer/vertex.glsl'
-import fragmentShader from '../../shaders/viewers/iso_viewer/fragment.glsl'
+import { colormapLocations } from '../../../../static/textures/colormaps/colormaps.js'
+import vertexShader from '../../../shaders/viewers/iso_viewer/vertex.glsl'
+import fragmentShader from '../../../shaders/viewers/iso_viewer/fragment.glsl'
 
 export default function()
 {
@@ -99,6 +99,7 @@ export default function()
             constant   : 0,
             mixing     : 0.5,
             epsilon    : 0,
+            tolerance  : 0,
             texel      : new THREE.Color(0x000000),
         })
 
@@ -120,7 +121,7 @@ export default function()
         SHADING_METHOD             : 1,
         ATTENUATION_METHOD         : 1,
         GRADIENT_METHOD            : 1,
-        DERIVATIVE_METHOD          : 5,
+        DERIVATIVE_METHOD          : 1,
         SMOOTHING_REFINEMENT_METHOD: 1,
         GRADIENT_REFINEMENT_METHOD : 7,
    

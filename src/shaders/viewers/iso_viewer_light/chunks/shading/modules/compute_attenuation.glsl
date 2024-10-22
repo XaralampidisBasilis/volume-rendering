@@ -1,4 +1,3 @@
-// ATTENUATION_SMOOTHSTEP
 
 vec2 box_distance = sdf_box_bounds(ray.global_min_position, ray.global_max_position, light_position);
 float light_distance = distance(light_position, trace.position);

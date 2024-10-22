@@ -8,6 +8,7 @@ license:
 #ifndef CONSTANTS
 #define CONSTANTS
 
+    // MATHEMATICAL CONSTANTS
     #ifndef QTR_PI
     #define QTR_PI 0.78539816339
     #endif
@@ -46,6 +47,20 @@ license:
     #endif
     #ifndef EULER
     #define EULER 2.718281828459045235360287471352
+    #endif
+
+    // SI METRIC PREFIX TOLERANCES
+    #ifndef QUETTA_TOL
+    #define QUETTA_TOL 1e+27
+    #endif
+    #ifndef RONNA_TOL
+    #define RONNA_TOL 1e+27
+    #endif
+    #ifndef YOTTA_TOL
+    #define YOTTA_TOL 1e+24
+    #endif
+    #ifndef ZETTA_TOL
+    #define ZETTA_TOL 1e+21
     #endif
     #ifndef EXA_TOL
     #define EXA_TOL 1e+18
@@ -94,6 +109,18 @@ license:
     #endif
     #ifndef ATTO_TOL
     #define ATTO_TOL 1e-18
+    #endif
+    #ifndef ZEPTO_TOL
+    #define ZEPTO_TOL 1e-21
+    #endif
+    #ifndef YOCTO_TOL
+    #define YOCTO_TOL 1e-24
+    #endif
+    #ifndef RONTO_TOL
+    #define RONTO_TOL 1e-27
+    #endif
+    #ifndef QUECTO_TOL
+    #define QUECTO_TOL 1e-30
     #endif
 
 #endif // CONSTANTS

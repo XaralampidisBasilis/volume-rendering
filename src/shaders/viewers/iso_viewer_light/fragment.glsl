@@ -27,7 +27,6 @@ void main()
 
     fragColor = vec4(trace.shading, 1.0);
     #include "./chunks/compute_frag_depth"
-    #include "./chunks/debug/compute_debug"
 
     if (!ray.intersected) discard;  
 }
