@@ -36,7 +36,8 @@ struct parameters_debug
     vec4 block_skipping;
     vec4 block_coords;
     vec4 block_min_position;
-    vec4 block_max_position;     
+    vec4 block_max_position;   
+    vec4 block_skips;  
     vec4 frag_depth;        
     vec4 variable1;  
     vec4 variable2;  
@@ -78,6 +79,7 @@ void set(out parameters_debug debug)
     debug.block_coords        = vec4(0.0);
     debug.block_min_position  = vec4(0.0);
     debug.block_max_position  = vec4(0.0);
+    debug.block_skips         = vec4(0.0);
     debug.frag_depth          = vec4(0.0);
     debug.variable1           = vec4(0.0);
     debug.variable2           = vec4(0.0);

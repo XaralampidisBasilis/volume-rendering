@@ -4,7 +4,9 @@ float raycast_threshold = u_raycast.threshold;
 float gradient_threshold = u_gradient.threshold * u_gradient.max_norm;
 vec3 inv_volume_size = u_volume.inv_size;
 vec3 inv_volume_spacing = u_volume.inv_spacing;
-ivec3 base_dimensions = u_occupancy.base_dimensions;
+ivec3 occupancy_base_dimensions = u_occupancy.base_dimensions;
+vec3 occupancy_base_spacing = u_occupancy.base_spacing;
+int occupancy_max_skips = u_occupancy.max_skips;
 
 // skip initial empty space
 #include "./modules/compute_skipping"

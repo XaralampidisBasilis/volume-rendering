@@ -1,6 +1,5 @@
 
 // compute trace luminance
-const vec3 luminance = vec3(0.2126, 0.7152, 0.0722);
-float trace_luminance = dot(trace.shading, luminance);
+float debug_trace_luminance = dot(trace.shading, vec3(0.2126, 0.7152, 0.0722));
 
-debug.trace_luminance = vec4(vec3(trace_luminance), 1.0);
+debug.trace_luminance = vec4(vec3(debug_trace_luminance), 1.0);

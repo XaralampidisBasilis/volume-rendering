@@ -1,5 +1,5 @@
 
 // normalize trace distance to the range [0, 1]
-float trace_distance_norm = trace.distance / ray.global_max_distance;
+float debug_trace_distance = trace.distance / ray.global_max_distance;
 
-debug.trace_distance = vec4(vec3(trace_distance_norm), 1.0);
+debug.trace_distance = vec4(vec3(debug_trace_distance), 1.0);

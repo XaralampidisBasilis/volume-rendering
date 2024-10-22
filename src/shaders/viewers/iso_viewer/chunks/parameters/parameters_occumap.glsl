@@ -4,6 +4,7 @@
 // struct to hold gradient uniforms
 struct parameters_occumap
 {
+    int max_skips;
     int lod;
     float lod_scale;
     ivec3 dimensions;
@@ -13,6 +14,7 @@ struct parameters_occumap
 
 void set(out parameters_occumap occumap)
 {
+    occumap.max_skips   = 0;
     occumap.lod         = 0;
     occumap.lod_scale   = 0.0;
     occumap.dimensions  = ivec3(0);

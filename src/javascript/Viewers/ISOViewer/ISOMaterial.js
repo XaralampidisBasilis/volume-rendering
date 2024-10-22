@@ -80,15 +80,16 @@ export default function()
 
         u_occupancy: new THREE.Uniform
         ({
+            max_skips      : 200,
             lods           : 1,
             dimensions     : new THREE.Vector3(),
             base_dimensions: new THREE.Vector3(),
             base_spacing   : new THREE.Vector3(),
             base_size      : new THREE.Vector3(),
-            min_coords        : new THREE.Vector3(),
-            max_coords        : new THREE.Vector3(),
-            min_position      : new THREE.Vector3(),
-            max_position      : new THREE.Vector3(),
+            min_coords     : new THREE.Vector3(),
+            max_coords     : new THREE.Vector3(),
+            min_position   : new THREE.Vector3(),
+            max_position   : new THREE.Vector3(),
         }),
 
         u_debug: new THREE.Uniform

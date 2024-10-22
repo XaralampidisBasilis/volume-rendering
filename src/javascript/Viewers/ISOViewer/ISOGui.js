@@ -281,6 +281,7 @@ export default class ISOGui
 
         this.controllers.occupancy = 
         {
+            maxSkips : occupancy.add(u_occupancy, 'max_skips').min(0).max(1000).step(1),
         }
 
     }
@@ -326,10 +327,11 @@ export default class ISOGui
                 block_min_position : 30,
                 block_occupied     : 31,
                 block_skipping     : 32,
-                frag_depth         : 33,
-                variable1          : 34,
-                variable2          : 35,
-                variable3          : 36,
+                block_skips        : 33,
+                frag_depth         : 34,
+                variable1          : 35,
+                variable2          : 36,
+                variable3          : 37,
             }),
             number   : debug.add(u_debug, 'number').min(0).max(1000).step(1),
             scale    : debug.add(u_debug, 'scale').min(0).max(100).step(0.001),

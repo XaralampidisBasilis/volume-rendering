@@ -30,4 +30,5 @@
 #include "./debug_block_min_position"
 #include "./debug_block_occupied"
 #include "./debug_block_skipping"
+#include "./debug_block_skips"
 #include "./debug_frag_depth"  

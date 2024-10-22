@@ -5,6 +5,7 @@
 struct parameters_block 
 {
     bool occupied;
+    int skips;
     float skipping;
     ivec3 coords;
     vec3 min_position;
@@ -14,6 +15,7 @@ struct parameters_block
 void set(out parameters_block block)
 {
     block.occupied     = false;
+    block.skips        = 0;
     block.skipping     = 0.0;
     block.coords       = ivec3(0);
     block.min_position = vec3(0.0);

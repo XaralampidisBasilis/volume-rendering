@@ -1,6 +1,5 @@
 
 // normalize ray spacing to the range [0, 1]
-float max_voxel_spacing = length(u_volume.spacing);
-float ray_spacing_norm = ray.spacing / max_voxel_spacing;
+float debug_ray_spacing = ray.spacing / length(u_volume.spacing);
 
-debug.ray_spacing = vec4(vec3(ray_spacing_norm), 1.0);
+debug.ray_spacing = vec4(vec3(debug_ray_spacing), 1.0);
