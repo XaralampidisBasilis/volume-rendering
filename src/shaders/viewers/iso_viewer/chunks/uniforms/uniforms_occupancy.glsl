@@ -5,6 +5,7 @@
 struct uniforms_occupancy 
 {
     int max_skips;
+    int min_lod;
     int lods;          
     ivec3 dimensions;    
     ivec3 base_dimensions;

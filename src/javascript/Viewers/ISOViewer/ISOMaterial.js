@@ -81,7 +81,8 @@ export default function()
         u_occupancy: new THREE.Uniform
         ({
             max_skips      : 200,
-            lods           : 1,
+            min_lod        : 0,
+            lods           : 0,
             dimensions     : new THREE.Vector3(),
             base_dimensions: new THREE.Vector3(),
             base_spacing   : new THREE.Vector3(),
@@ -114,6 +115,8 @@ export default function()
         HAS_REFINEMENT             : 1,
         HAS_GRADIENT_REFINEMENT    : 0,
         HAS_SMOOTHING_REFINEMENT   : 0,
+        HAS_OCCUPANCY_BBOX         : 1,
+        HAS_OCCUPANCY_MAPS         : 0,
 
         DITHERING_METHOD           : 1,
         SPACING_METHOD             : 1,

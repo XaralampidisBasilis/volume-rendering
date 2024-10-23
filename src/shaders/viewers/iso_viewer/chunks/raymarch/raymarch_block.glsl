@@ -1,9 +1,11 @@
 
-// initialize raymarch
-#include "./modules/initialize_trace"
+block.distance = trace.distance;
+block.max_steps = int(block.skipping / ray.min_spacing);
+
+// #include "./modules/refine_trace_position"
 
 // raymarch loop to traverse through the volume
-for (trace.steps = 0; trace.steps < ray.max_steps; trace.steps++) 
+for (block.steps = 0; block.steps < block.max_steps; block.steps++) 
 {
     #include "./modules/update_trace_sample"
 
@@ -12,6 +14,7 @@ for (trace.steps = 0; trace.steps < ray.max_steps; trace.steps++)
 
     prev_trace = trace;
     #include "./modules/update_trace_position"
-    if (trace.distance > ray.max_distance) break;
+    if (trace.distance - block.distance > block.skipping) break;
 }   
 
+ 

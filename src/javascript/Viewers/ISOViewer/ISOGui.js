@@ -137,25 +137,25 @@ export default class ISOGui
 
             hasRefinement: raycast.add(object, 'has_refinement')
                 .onFinishChange((value) => { 
-                    defines.HAS_REFINEMENT = value ? 1 : 0;
+                    defines.HAS_REFINEMENT = Number(value);
                     material.needsUpdate = true 
                 }),
 
             hasDithering: raycast.add(object, 'has_dithering')
                 .onFinishChange((value) => { 
-                    defines.HAS_DITHERING = value ? 1 : 0;
+                    defines.HAS_DITHERING = Number(value);
                     material.needsUpdate = true 
                 }),
 
             hasBbox: raycast.add(object, 'has_bbox')
                 .onFinishChange((value) => { 
-                    defines.HAS_BBOX = value ? 1 : 0;
+                    defines.HAS_BBOX = Number(value);
                     material.needsUpdate = true 
                 }),
 
             hasSkipping: raycast.add(object, 'has_skipping')
                 .onFinishChange((value) => { 
-                    defines.HAS_SKIPPING = value ? 1 : 0;
+                    defines.HAS_SKIPPING = Number(value);
                     material.needsUpdate = true 
                 }),
         }
@@ -188,7 +188,7 @@ export default class ISOGui
             hasRefinement: gradient.add(object, 'has_refinement')
                 .onFinishChange((value) => 
                 { 
-                    this.viewer.material.defines.HAS_GRADIENT_REFINEMENT = value ? 1 : 0;
+                    this.viewer.material.defines.HAS_GRADIENT_REFINEMENT = Number(value);
                     this.viewer.material.needsUpdate = true 
                 }),
         }
@@ -278,11 +278,33 @@ export default class ISOGui
     {
         const { occupancy } = this.subfolders
         const u_occupancy = this.viewer.material.uniforms.u_occupancy.value
+        const defines = this.viewer.material.defines
+        const material = this.viewer.material
+        const object = { 
+            has_bbox: Boolean(defines.HAS_OCCUPANCY_BBOX),
+            has_maps: Boolean(defines.HAS_OCCUPANCY_MAPS),
+        }
 
         this.controllers.occupancy = 
         {
             maxSkips : occupancy.add(u_occupancy, 'max_skips').min(0).max(1000).step(1),
+
+            minLod : occupancy.add(u_occupancy, 'min_lod').min(0).max(10).step(1),
+
+            hasBbox: occupancy.add(object, 'has_bbox')
+            .onFinishChange((value) => { 
+                defines.HAS_OCCUPANCY_BBOX = Number(value);
+                material.needsUpdate = true 
+            }),
+
+            hasMaps: occupancy.add(object, 'has_maps')
+            .onFinishChange((value) => { 
+                defines.HAS_OCCUPANCY_MAPS = Number(value);
+                material.needsUpdate = true 
+            }),
         }
+
+        
 
     }
 
@@ -294,44 +316,45 @@ export default class ISOGui
         this.controllers.debug = 
         {
             option: debug.add(u_debug, 'option').options({ 
-                default            : 0,
-                trace_position     : 1,
-                trace_coords       : 2,
-                trace_distance     : 3,
-                trace_depth        : 4,
-                trace_traversed    : 5,
-                trace_skipped      : 6,
-                trace_steps        : 7,
-                trace_error        : 8,
-                trace_abs_error    : 9,
-                trace_value        : 10,
-                trace_color        : 11,
-                trace_shading      : 12,
-                trace_luminance    : 13,
-                trace_normal       : 14,
-                trace_gradient     : 15,
-                trace_gradient_norm: 16,
-                trace_derivative   : 17,
-                trace_stepping     : 18,
-                trace_mean_stepping: 19,
-                ray_direction      : 20,
-                ray_spacing        : 21,
-                ray_dithering      : 22,
-                ray_min_distance   : 23,
-                ray_max_distance   : 24,
-                ray_max_depth      : 25,
-                ray_max_steps      : 26,
-                block_lod          : 27,
-                block_coords       : 28,
-                block_max_position : 29,
-                block_min_position : 30,
-                block_occupied     : 31,
-                block_skipping     : 32,
-                block_skips        : 33,
-                frag_depth         : 34,
-                variable1          : 35,
-                variable2          : 36,
-                variable3          : 37,
+                default            :  0,
+                trace_position     :  1,
+                trace_coords       :  2,
+                trace_distance     :  3,
+                trace_depth        :  4,
+                trace_outside      :  5,
+                trace_traversed    :  6,
+                trace_skipped      :  7,
+                trace_steps        :  8,
+                trace_error        :  9,
+                trace_abs_error    : 10,
+                trace_value        : 11,
+                trace_color        : 12,
+                trace_shading      : 13,
+                trace_luminance    : 14,
+                trace_normal       : 15,
+                trace_gradient     : 16,
+                trace_gradient_norm: 17,
+                trace_derivative   : 18,
+                trace_stepping     : 19,
+                trace_mean_stepping: 20,
+                ray_direction      : 21,
+                ray_spacing        : 22,
+                ray_dithering      : 23,
+                ray_min_distance   : 24,
+                ray_max_distance   : 25,
+                ray_max_depth      : 26,
+                ray_max_steps      : 27,
+                block_lod          : 28,
+                block_coords       : 29,
+                block_max_position : 30,
+                block_min_position : 31,
+                block_occupied     : 32,
+                block_skipping     : 33,
+                block_skips        : 34,
+                frag_depth         : 35,
+                variable1          : 36,
+                variable2          : 37,
+                variable3          : 38,
             }),
             number   : debug.add(u_debug, 'number').min(0).max(1000).step(1),
             scale    : debug.add(u_debug, 'scale').min(0).max(100).step(0.001),

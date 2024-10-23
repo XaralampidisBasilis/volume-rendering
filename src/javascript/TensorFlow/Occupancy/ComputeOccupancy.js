@@ -27,13 +27,13 @@ export default class ComputeOccupancy
             // compute the occupancy density of each block
             const baseOccumap = tf.maxPool3d(occupancy, [2, 2, 2], [2, 2, 2], 'same')
             occupancy.dispose()
-
-            const [atlas, lods] = this.buildAtlasLod(baseOccumap)
+            
+            const [occumapAtlasLod, lods] = this.buildAtlasLod(baseOccumap)
             baseOccumap.dispose()
       
             this.results = {
-                data          : new Uint8Array(atlas.dataSync()),
-                dimensions    : atlas.shape.slice(0, 3).toReversed(),
+                data          : new Uint8Array(occumapAtlasLod.dataSync()),
+                dimensions    : occumapAtlasLod.shape.slice(0, 3).toReversed(),
                 lods          : lods,
                 baseSpacing   : spacing.map((space) => 2 * space).slice(0, 3).toReversed(),
                 baseDimensions: baseOccumap.shape.slice(0, 3).toReversed(),
@@ -69,8 +69,6 @@ export default class ComputeOccupancy
         this.viewer.material.uniforms.u_sampler.value.occumaps = this.viewer.textures.occumaps
         this.viewer.material.needsUpdate = true
 
-        console.log(this.results)
-        console.log(this.viewer.textures.occumaps)
         this.results.data = null
     }
 

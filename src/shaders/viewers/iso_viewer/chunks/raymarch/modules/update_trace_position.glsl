@@ -4,6 +4,6 @@
 trace.spacing = trace.stepping * ray.spacing;
 trace.distance += trace.spacing;
 trace.position += ray.direction * trace.spacing;
-trace.texel = trace.position * inv_volume_size;
+trace.texel = trace.position * volume_inv_size;
 trace.depth = trace.distance - ray.min_distance;
-trace.coords = floor(trace.position * inv_volume_spacing);
+trace.coords = floor(trace.position * volume_inv_spacing);
