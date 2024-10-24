@@ -8,6 +8,9 @@ Add typescript
 
 small errors are noticed when using raymarch_skipping. Also need to make sure to traverse a block boundary
 
+
+
+
 Improve variable naming
 
 struct parameters_trace 
@@ -18,44 +21,47 @@ struct parameters_trace
     float step_scaling;  
     float step_distance;
     float skip_distance;
-    float rand_distance;        dither_step; dither_distance; jitter_dist; noise_distance
+    float rand_distance;            dither_step; dither_distance; jitter_dist; noise_distance
 
     float distance;
-    vec3  position;         space_position; model_position;
+    vec3  position;                 space_position; model_position;
 
-    float sample;         value;         value;    sample_value;   value; sampled_value; sampled_intensity; intensity_value; voxel_value; voxel_intensity;
-    vec4  sample_color;   value_color;   color;    sample_color;  
-    vec4  sample_shading; value_shading; shading;  sample_shading;
+    float sample;                   value;         value;    sample_value;   value; sampled_value; sampled_intensity; intensity_value; voxel_value; voxel_intensity;
+    float sample_error;
+    vec4  sample_color;             value_color;   color;    sample_color;  color_mapped;
+    vec4  sample_shading;           value_shading; shading;  sample_shading; color_shading;
 
     vec3  gradient;
     float gradient_magnitude;       gradient_size;  gradient_norm;  
     vec3  gradient_direction;       normal; surface_normal; 
 
-    vec3  voxel_coords; coordinates; volume_texture_coords;
-    vec3  voxel_texture_coords; position_texture; volume_texture_position; voxel_tex_coords;
-
-    ivec3 block_coords
-    ivec3 block_texture_coords
-    bool  block_occupied
+    vec3  coords;          voxel_coords;             coordinates; volume_texture_coords;
+    vec3  coords_texture;  voxel_texture_coords;     position_texture; volume_texture_position; voxel_tex_coords;
 
     float step_derivative;  directional_derivative; derivative1; first_derivative; step_gradient; directional_gradient; step_derivative; step_velocity;
     float step_curvature;   directional_derivative2; derivative2; second_derivative; step_curvature; step_acceleration;
     float step_torsion;     step_jerk; directional_derivative3; derivative3; third_derivative; step_gradient; step_torsion; step_jerk; step_flexion;
 
-    vec4  color_mapped;  sample_color;
-    vec4  color_shading; sample_shading;
+    parameters_block block;
 };
+
+struct parameters_block
+{
+    bool  occupied;
+    ivec3 coords;
+    ivec3 coords_texture;
+    vec3  min_position;
+    vec3  max_position;
+}
 
 struct parameters_ray 
 {
-
-    int   max_steps_count;
-    int   max_skips_count;
-
     vec3  step_direction;
     float step_distance;
     float min_step_distance;
     float max_step_distance;
+    int   max_steps_count;
+    int   max_skips_count;
 
     vec3  start_position;
     vec3  end_position;
@@ -65,7 +71,19 @@ struct parameters_ray
     float rand_distance;
 
     bool  intersected;
+
+    parameters_trace trace;
+    parameters_stats stats;
 };
+
+struct parameters_stats
+{
+    float spanned_distance;
+    float stepped_distance;  
+    float skipped_distance;  
+    int   steps_count;
+    int   skips_count;
+}
 
 struct parameters_global
 {
@@ -77,19 +95,7 @@ struct parameters_global
     float max_step_scaling;
     vec3  min_position; 
     vec3  max_position;
-   
 } 
-
-struct parameters_stats
-{
-    float sample_error;
-    float spanned_distance;
-    float stepped_distance;  
-    float skipped_distance;  
-    int   steps_count;
-    int   skips_count;
-}
-
 
 stepping = step_scaling
 spacing = step_size
