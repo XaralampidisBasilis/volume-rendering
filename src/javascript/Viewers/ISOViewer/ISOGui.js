@@ -102,7 +102,6 @@ export default class ISOGui
         const object = { 
             has_refinement: Boolean(defines.HAS_REFINEMENT),
             has_dithering : Boolean(defines.HAS_DITHERING),
-            has_bbox      : Boolean(defines.HAS_BBOX),
             has_skipping  : Boolean(defines.HAS_SKIPPING)
         }
 
@@ -117,7 +116,7 @@ export default class ISOGui
 
             maxSteps: raycast.add(u_raycast, 'max_steps').min(0).max(2000).step(1),
 
-            ditheringScale: raycast.add(u_raycast, 'dithering_scale').min(0).max(1).step(0.001),
+            // ditheringScale: raycast.add(u_raycast, 'dithering_scale').min(0).max(1).step(0.001),
 
             spacingMethod: raycast.add(defines, 'SPACING_METHOD').name('spacing_method')
                 .options({ isotropic: 1, directional: 2, equalized: 3 })
@@ -135,26 +134,17 @@ export default class ISOGui
                 .options({ sub_sampling: 1, bisection_iterative: 2, newtons_iterative: 3, linear: 4, lagrange_quadratic: 5, lagrange_cubic: 6, hermite_cubic: 7 })
                 .onFinishChange(() => { material.needsUpdate = true }),
 
-            hasRefinement: raycast.add(object, 'has_refinement')
-                .onFinishChange((value) => { 
+            hasRefinement: raycast.add(object, 'has_refinement').onFinishChange((value) => { 
                     defines.HAS_REFINEMENT = Number(value);
                     material.needsUpdate = true 
                 }),
 
-            hasDithering: raycast.add(object, 'has_dithering')
-                .onFinishChange((value) => { 
+            hasDithering: raycast.add(object, 'has_dithering').onFinishChange((value) => { 
                     defines.HAS_DITHERING = Number(value);
                     material.needsUpdate = true 
                 }),
 
-            hasBbox: raycast.add(object, 'has_bbox')
-                .onFinishChange((value) => { 
-                    defines.HAS_BBOX = Number(value);
-                    material.needsUpdate = true 
-                }),
-
-            hasSkipping: raycast.add(object, 'has_skipping')
-                .onFinishChange((value) => { 
+            hasSkipping: raycast.add(object, 'has_skipping').onFinishChange((value) => { 
                     defines.HAS_SKIPPING = Number(value);
                     material.needsUpdate = true 
                 }),
@@ -185,8 +175,7 @@ export default class ISOGui
                 .options({tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 })
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
-            hasRefinement: gradient.add(object, 'has_refinement')
-                .onFinishChange((value) => 
+            hasRefinement: gradient.add(object, 'has_refinement').onFinishChange((value) => 
                 { 
                     this.viewer.material.defines.HAS_GRADIENT_REFINEMENT = Number(value);
                     this.viewer.material.needsUpdate = true 
@@ -291,17 +280,15 @@ export default class ISOGui
 
             minLod : occupancy.add(u_occupancy, 'min_lod').min(0).max(10).step(1),
 
-            hasBbox: occupancy.add(object, 'has_bbox')
-            .onFinishChange((value) => { 
-                defines.HAS_OCCUPANCY_BBOX = Number(value);
-                material.needsUpdate = true 
-            }),
+            hasBbox: occupancy.add(object, 'has_bbox').onFinishChange((value) => { 
+                    defines.HAS_OCCUPANCY_BBOX = Number(value);
+                    material.needsUpdate = true 
+                }),
 
-            hasMaps: occupancy.add(object, 'has_maps')
-            .onFinishChange((value) => { 
-                defines.HAS_OCCUPANCY_MAPS = Number(value);
-                material.needsUpdate = true 
-            }),
+            hasMaps: occupancy.add(object, 'has_maps').onFinishChange((value) => { 
+                    defines.HAS_OCCUPANCY_MAPS = Number(value);
+                    material.needsUpdate = true 
+                }),
         }
 
         
@@ -312,6 +299,11 @@ export default class ISOGui
     {
         const { debug } = this.subfolders
         const u_debug = this.viewer.material.uniforms.u_debug.value
+        const defines = this.viewer.material.defines
+        const material = this.viewer.material
+        const object = { 
+            full: Boolean(defines.HAS_DEBUG_FULL),
+        }
 
         this.controllers.debug = 
         {
@@ -335,27 +327,35 @@ export default class ISOGui
                 trace_gradient     : 16,
                 trace_gradient_norm: 17,
                 trace_derivative   : 18,
-                trace_stepping     : 19,
-                trace_mean_stepping: 20,
-                ray_direction      : 21,
-                ray_spacing        : 22,
-                ray_dithering      : 23,
-                ray_min_distance   : 24,
-                ray_max_distance   : 25,
-                ray_max_depth      : 26,
-                ray_max_steps      : 27,
-                block_lod          : 28,
-                block_coords       : 29,
-                block_max_position : 30,
-                block_min_position : 31,
-                block_occupied     : 32,
-                block_skipping     : 33,
-                block_skips        : 34,
-                frag_depth         : 35,
-                variable1          : 36,
-                variable2          : 37,
-                variable3          : 38,
+                trace_derivative2  : 19,
+                trace_derivative3  : 20,
+                trace_stepping     : 21,
+                trace_mean_stepping: 22,
+                ray_direction      : 23,
+                ray_spacing        : 24,
+                ray_dithering      : 25,
+                ray_min_distance   : 26,
+                ray_max_distance   : 27,
+                ray_max_depth      : 28,
+                ray_max_steps      : 29,
+                block_lod          : 30,
+                block_coords       : 31,
+                block_max_position : 32,
+                block_min_position : 33,
+                block_occupied     : 34,
+                block_skipping     : 35,
+                block_skips        : 36,
+                frag_depth         : 37,
+                variable1          : 38,
+                variable2          : 39,
+                variable3          : 40,
             }),
+
+            full: debug.add(object, 'full').onFinishChange((value) => { 
+                    defines.HAS_DEBUG_FULL = Number(value);
+                    material.needsUpdate = true 
+                }),
+
             number   : debug.add(u_debug, 'number').min(0).max(1000).step(1),
             scale    : debug.add(u_debug, 'scale').min(0).max(100).step(0.001),
             constant : debug.add(u_debug, 'constant').min(0).max(10).step(0.000001),

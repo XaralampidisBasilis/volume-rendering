@@ -109,7 +109,6 @@ export default function()
 
     const defines = 
     {
-        HAS_BBOX                   : 1,
         HAS_SKIPPING               : 0,
         HAS_DITHERING              : 1,
         HAS_REFINEMENT             : 1,
@@ -117,6 +116,7 @@ export default function()
         HAS_SMOOTHING_REFINEMENT   : 0,
         HAS_OCCUPANCY_BBOX         : 1,
         HAS_OCCUPANCY_MAPS         : 0,
+        HAS_DEBUG_FULL             : 0,
 
         DITHERING_METHOD           : 1,
         SPACING_METHOD             : 1,

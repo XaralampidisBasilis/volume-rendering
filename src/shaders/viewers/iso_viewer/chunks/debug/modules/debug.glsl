@@ -16,6 +16,8 @@
 #include "./debug_trace_gradient"      
 #include "./debug_trace_gradient_norm" 
 #include "./debug_trace_derivative"    
+#include "./debug_trace_derivative2"    
+#include "./debug_trace_derivative3"    
 #include "./debug_trace_stepping"      
 #include "./debug_trace_mean_stepping" 
 #include "./debug_ray_direction"       

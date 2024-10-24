@@ -8,4 +8,3 @@
     #include "./skipping_occupancy_maps"
 
 #endif // HAS_SKIPPING
-

@@ -22,11 +22,13 @@ struct parameters_debug
     vec4 trace_gradient;      
     vec4 trace_gradient_norm; 
     vec4 trace_derivative;    
+    vec4 trace_derivative2;    
+    vec4 trace_derivative3;    
     vec4 trace_stepping;      
     vec4 trace_mean_stepping; 
     vec4 ray_direction;       
     vec4 ray_spacing;         
-    vec4 ray_dithering;       
+    vec4 ray_dithering;        
     vec4 ray_min_distance;    
     vec4 ray_max_distance;    
     vec4 ray_max_depth;       
@@ -65,6 +67,8 @@ void set(out parameters_debug debug)
     debug.trace_gradient      = vec4(0.0);
     debug.trace_gradient_norm = vec4(0.0);
     debug.trace_derivative    = vec4(0.0);
+    debug.trace_derivative2   = vec4(0.0);
+    debug.trace_derivative3   = vec4(0.0);
     debug.trace_stepping      = vec4(0.0);
     debug.trace_mean_stepping = vec4(0.0);
     debug.ray_direction       = vec4(0.0);

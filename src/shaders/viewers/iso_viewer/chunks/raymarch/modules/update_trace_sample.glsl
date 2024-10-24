@@ -6,5 +6,6 @@ trace.error = trace.value - raycast_threshold;
 
 // Compute the gradient and its norm in a single step
 trace.gradient = mix(u_gradient.min, u_gradient.max, volume_texture_data.gba);
+trace.gradient_norm = length(trace.gradient);
 trace.normal = -normalize(trace.gradient);
 #include "../../derivatives/compute_derivatives"

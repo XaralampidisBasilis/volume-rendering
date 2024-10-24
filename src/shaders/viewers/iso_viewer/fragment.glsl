@@ -29,5 +29,7 @@ void main()
     #include "./chunks/compute_frag_depth"
     #include "./chunks/debug/compute_debug"
 
-    if (!ray.intersected) discard;  
+    #if HAS_DEBUG_FULL == 0
+        if (!ray.intersected) discard;  
+    #endif
 }

@@ -55,6 +55,11 @@ export default class ComputeOccupancy
         this.viewer.textures.occumaps = new THREE.Data3DTexture(this.results.data, ...this.results.dimensions)     
         this.viewer.textures.occumaps.type = THREE.UnsignedByteType
         this.viewer.textures.occumaps.format = THREE.RedFormat
+        this.viewer.textures.occumaps.wrapS = THREE.ClampToEdgeWrapping
+        this.viewer.textures.occumaps.wrapT = THREE.ClampToEdgeWrapping
+        this.viewer.textures.occumaps.wrapR = THREE.ClampToEdgeWrapping
+        this.viewer.textures.occumaps.minFilter = THREE.LinearFilter
+        this.viewer.textures.occumaps.magFilter = THREE.LinearFilter
         this.viewer.textures.occumaps.needsUpdate = true
 
         this.viewer.material.uniforms.u_occupancy.value.lods = this.results.lods
