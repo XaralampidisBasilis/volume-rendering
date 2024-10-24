@@ -4,10 +4,12 @@
 // struct to hold gradient uniforms
 struct parameters_ray 
 {
-    vec3  origin;
-    vec3  direction;
-    float spacing;
-    float dithering;
+    vec3  start_position;
+    vec3  step_direction;
+    float step_size;
+    float min_step_size;
+    float max_step_size;
+    float dither_step;
     float min_distance;
     float max_distance;
     float max_depth;
@@ -16,9 +18,8 @@ struct parameters_ray
     float global_min_distance;
     float global_max_distance;
     float global_max_depth;
-    float min_spacing;
-    float max_spacing;
     int   max_steps;
+    int   max_skips;
     bool  intersected;
 };
 
