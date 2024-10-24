@@ -7,3 +7,71 @@ Add typescript
 Και να ολοκληρώσω τα ερωτηματολόγια
 
 small errors are noticed when using raymarch_skipping. Also need to make sure to traverse a block boundary
+
+Improve variable naming
+struct parameters_trace 
+{
+    float depth;  
+    float distance;
+    float distance_skipped;  
+    int   step_index;
+    float step_size;
+    float step_scaling;  
+    float dither_step;
+    vec3  position; model_position;
+    vec3  position_texture; volume_texture_position;     
+    vec3  coordinates; volume_texture_coords;
+    float error; sampled_error;
+    float value; sampled_value; sampled_intensity; intensity_value;
+    vec3  gradient; gradient_vector; gradient_direction;
+    float gradient_size;  gradient_norm;  gradient_magnitude;  
+    vec3  normal; surface_normal; gradient_direction;
+    float derivative1; first_derivative; directional_derivative;
+    float derivative2; second_derivative; directional_derivative2;
+    float derivative3; third_derivative; directional_derivative3;
+    vec4  color_mapped;
+    vec4  color_shading;
+};
+struct parameters_ray 
+{
+    vec3  start_position; start_model_position;
+    vec3  step_vector;
+    vec3  step_direction;
+    float step_size;
+    float min_step_size;
+    float max_step_size;
+    int   max_steps;
+    float min_distance;
+    float max_distance;
+    float max_depth;
+    vec3  global_min_position; global_min_model_position; 
+    vec3  global_max_position; global_max_model_position;
+    float global_min_distance;
+    float global_max_distance;
+    float global_max_depth;
+    float dither_step;
+    bool  intersected;
+};
+
+stepping = step_scaling
+spacing = step_size
+
+Inspired implementation: 
+https://www.youtube.com/watch?v=rh7nWk1v4-8&ab_channel=TimurVizaev
+
+Future Implementations
+1. Direct Volume Rendering (DVR)
+    Maximum Intensity Projection
+2. Multi-Planar Reformation (MPR)
+3. 4D Flow MRI Visualization
+4. 3D/4D Volume Rendering
+5. Doppler Flow Visualization
+    Color Doppler mapping: Overlay color-coded blood flow (red/blue for flow direction) on 2D or 3D heart images to help visualize blood flow dynamics.
+    Spectral Doppler rendering: Include velocity waveforms for precise flow measurements through valves.
+6. Segmentation and Measurement Tools
+    Heart structure segmentation: Allow the user to isolate and highlight specific heart regions (e.g., left ventricle, aorta).
+    Measurement tools: Enable distance and area measurements (e.g., valve area, chamber volumes) directly on the heart model or slices.
+7. Implement automatic heart structure segmentation
+
+
+
