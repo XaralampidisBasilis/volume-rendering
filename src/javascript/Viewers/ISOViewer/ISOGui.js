@@ -26,21 +26,20 @@ export default class ISOGui
 
     addSubfolders()
     {
-        this.subfolders           = {}
+        this.subfolders = {}
         this.subfolders.raymarch  = this.folders.viewer.addFolder('raymarch').close()
         this.subfolders.volume    = this.folders.viewer.addFolder('volume').close()
         this.subfolders.colormap  = this.folders.viewer.addFolder('colormap').close()
         this.subfolders.shading   = this.folders.viewer.addFolder('shading').close()
         this.subfolders.lighting  = this.folders.viewer.addFolder('lighting').close()
 
-        if (this.viewer.material.uniforms.u_debug)
+        if (this.viewer.material.uniforms.debug)
             this.subfolders.debug = this.folders.viewer.addFolder('debug').close()
 
-
-        this.addSubfolderToggles()            
+        this.addToggles()            
     }
 
-    addSubfolderToggles()
+    addToggles()
     {
         const subfolders = Object.values(this.subfolders)
 
@@ -66,25 +65,14 @@ export default class ISOGui
     addControllers()
     {
         this.controllers = {}
-        this.addControllersViewer()
         this.addControllersRaymarch() 
         this.addControllersVolume() 
         this.addControllersColormap() 
         this.addControllersShading() 
         this.addControllersLighting() 
         this.addControllersDebug() 
-
-        // this.setControllersBindings()  
-    }
-
-    addControllersViewer()
-    {
-        const { viewer } = this.folders
-
-        this.controllers.viewer = 
-        {
-            visible: viewer.add(this.viewer.mesh, 'visible'),
-        }
+        
+        // this.setBindings()  
     }
 
     addControllersRaymarch() 
@@ -142,8 +130,8 @@ export default class ISOGui
 
     addControllersVolume() 
     {
+        const folder = this.subfolders.volume
         const material = this.viewer.material
-        const uniforms = this.viewer.material.uniforms.volume.value
         const defines = this.viewer.material.defines
         const objects = { 
             VOLUME_BOUNDING_BOX_ENABLED: Boolean(defines.VOLUME_BOUNDING_BOX_ENABLED),
@@ -154,8 +142,6 @@ export default class ISOGui
             VOLUME_SMOOTHING_METHOD: { bessel: 1, gaussian: 2, average: 3 },
         }
 
-        const folder = this.subfolders.volume
-
         this.controllers.volume = 
         {
             smoothingRadius: folder.add(defines, 'VOLUME_SMOOTHING_RADIUS').name('smoothing_radius').min(0).max(5).step(1).onFinishChange(() => { this.viewer.computeSmoothing() }),
@@ -163,6 +149,7 @@ export default class ISOGui
             gradientsMethod: folder.add(defines, 'VOLUME_GRADIENTS_METHOD').name('gradients_method').options(options.VOLUME_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             enableBbox     : folder.add(objects, 'VOLUME_BOUNDING_BOX_ENABLED').name('enable_bbox').onFinishChange((value) => { defines.VOLUME_BOUNDING_BOX_ENABLED = Number(value), material.needsUpdate = true }),
             enableSkipping : folder.add(objects, 'VOLUME_SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.VOLUME_SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableVolume   : folder.add(material, 'visible').name('enable_volume')
         }
 
     }
@@ -171,7 +158,7 @@ export default class ISOGui
     {
         const folder = this.subfolders.colormap
         const uniforms = this.viewer.material.uniforms.colormap.value
-        const object = { flip: false }
+        const objects = { flip: false }
     
         this.controllers.colormap = 
         {
@@ -179,7 +166,7 @@ export default class ISOGui
             minThreshold: folder.add(uniforms.thresholds, 'x').name('min_threshold').min(0).max(1).step(0.001),
             maxThreshold: folder.add(uniforms.thresholds, 'y').name('max_threshold').min(0).max(1).step(0.001),
             levels      : folder.add(uniforms, 'levels').min(1).max(255).step(1),
-            flip        : folder.add(object, 'flip').onChange(this.flipColormap)
+            flip        : folder.add(objects, 'flip').onChange(this.flipColormap)
         }
 
     }
@@ -187,6 +174,7 @@ export default class ISOGui
     addControllersShading() 
     {
         const folder = this.subfolders.shading
+        const material = this.viewer.material
         const uniforms = this.viewer.material.uniforms.shading.value
         const defines = this.viewer.material.defines
         const options = { SHADING_METHOD: { blinn : 1, phong : 2} }
@@ -198,82 +186,45 @@ export default class ISOGui
             specularReflectance: folder.add(uniforms, 'specular_reflectance').min(0).max(1).step(0.001),
             shininess          : folder.add(uniforms, 'shininess').min(0).max(40.0).step(0.2),
             edgeContrast       : folder.add(uniforms, 'shadow_threshold').min(0).max(1).step(0.001),
-            shadingMethod      : folder.add(defines, 'SHADING_METHOD').name('shading_method').options(options.SHADING_METHOD).onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+            shadingMethod      : folder.add(defines, 'SHADING_METHOD').name('shading_method').options(options.SHADING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
         }
     }
 
     addControllersLighting() 
     {
         const folder = this.subfolders.lighting
+        const material = this.viewer.material
         const uniforms = this.viewer.material.uniforms.u_lighting.value
         const defines = this.viewer.material.defines
+        const objects = { LIGHTING_ATTENUATION_ENABLED: Boolean(defines.LIGHTING_ATTENUATION_ENABLED) }
+        const options = { LIGHTING_ATTENUATION_METHOD: { softstep: 1, physical: 2} }
 
         this.controllers.lighting = 
         {
-            intensity     : folder.add(uniforms, 'intensity').min(0).max(2.0).step(0.001),
-            shadows       : folder.add(uniforms, 'shadows').min(0).max(1.0).step(0.001),
-            ambient_color : folder.addColor(uniforms, 'ambient_color'),
-            diffuse_color : folder.addColor(uniforms, 'diffuse_color'),
-            specular_color: folder.addColor(uniforms, 'specular_color'),
-
-
-            offsetPositionX: folder.add(uniforms.offset_position, 'x').min(-5).max(5).step(0.01).name('offset_position_x'),
-            offsetPositionY: folder.add(uniforms.offset_position, 'y').min(-5).max(5).step(0.01).name('offset_position_y'),
-            offsetPositionZ: folder.add(uniforms.offset_position, 'z').min(-5).max(5).step(0.01).name('offset_position_z'),
-            
-            attenuationMethod: folder.add(defines, 'ATTENUATION_METHOD').name('attenuation_method')
-                .options({ softstep: 1, physical: 2})
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
-
-            hasAttenuation: folder.add(uniforms, 'has_attenuation'),
+            intensity        : folder.add(uniforms, 'intensity').min(0).max(2.0).step(0.001),
+            shadows          : folder.add(uniforms, 'shadows').min(0).max(1.0).step(0.001),
+            ambient_color    : folder.addColor(uniforms, 'ambient_color'),
+            diffuse_color    : folder.addColor(uniforms, 'diffuse_color'),
+            specular_color   : folder.addColor(uniforms, 'specular_color'),
+            positionX        : folder.add(uniforms.position_offset, 'x').min(-5).max(5).step(0.01).name('position_x'),
+            positionY        : folder.add(uniforms.position_offset, 'y').min(-5).max(5).step(0.01).name('position_y'),
+            positionZ        : folder.add(uniforms.position_offset, 'z').min(-5).max(5).step(0.01).name('position_z'),
+            attenuationMethod: folder.add(defines, 'LIGHTING_ATTENUATION_METHOD').name('attenuation_method').options(options.LIGHTING_ATTENUATION_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            enableAttenuation: folder.add(objects, 'LIGHTING_ATTENUATION_ENABLED').name('enable_attenuation').onFinishChange((value) => { defines.LIGHTING_ATTENUATION_ENABLED = Number(value), material.needsUpdate = true }),
         }
     }
     
-    addControllersOccupancy() 
-    {
-        const { occupancy } = this.subfolders
-        const u_occupancy = this.viewer.material.uniforms.u_occupancy.value
-        const defines = this.viewer.material.defines
-        const material = this.viewer.material
-        const object = { 
-            has_bbox: Boolean(defines.HAS_OCCUPANCY_BBOX),
-            has_maps: Boolean(defines.HAS_OCCUPANCY_MAPS),
-        }
-
-        this.controllers.occupancy = 
-        {
-            maxSkips : occupancy.add(u_occupancy, 'max_skips').min(0).max(1000).step(1),
-
-            minLod : occupancy.add(u_occupancy, 'min_lod').min(0).max(10).step(1),
-
-            hasBbox: occupancy.add(object, 'has_bbox').onFinishChange((value) => { 
-                    defines.HAS_OCCUPANCY_BBOX = Number(value);
-                    material.needsUpdate = true 
-                }),
-
-            hasMaps: occupancy.add(object, 'has_maps').onFinishChange((value) => { 
-                    defines.HAS_OCCUPANCY_MAPS = Number(value);
-                    material.needsUpdate = true 
-                }),
-        }
-
-        
-
-    }
-
     addControllersDebug()
     {
-        const { debug } = this.subfolders
-        const u_debug = this.viewer.material.uniforms.u_debug.value
+        const folder = this.subfolders.debug
+        const uniforms = this.viewer.material.uniforms.debug.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
-        const object = { 
-            full: Boolean(defines.HAS_DEBUG_FULL),
-        }
+        const objects = { DEBUG_DISCARDING_ENABLED: Boolean(defines.DEBUG_DISCARDING_ENABLED) }
 
         this.controllers.debug = 
         {
-            option: debug.add(u_debug, 'option').options({ 
+            option: folder.add(uniforms, 'option').options({ 
                 default            :  0,
                 trace_position     :  1,
                 trace_coords       :  2,
@@ -317,24 +268,13 @@ export default class ISOGui
                 variable3          : 40,
             }),
 
-            full: debug.add(object, 'full').onFinishChange((value) => { 
-                    defines.HAS_DEBUG_FULL = Number(value);
-                    material.needsUpdate = true 
-                }),
-
-            number   : debug.add(u_debug, 'number').min(0).max(1000).step(1),
-            scale    : debug.add(u_debug, 'scale').min(0).max(100).step(0.001),
-            constant : debug.add(u_debug, 'constant').min(0).max(10).step(0.000001),
-            mixing   : debug.add(u_debug, 'mixing').min(0).max(1).step(0.000001),
-            epsilon  : debug.add(u_debug, 'epsilon').min(-2).max(2).step(0.0000001),
-            tolerance: debug.add(u_debug, 'tolerance').min(-1).max(1).step(1e-30),
-            texel    : debug.addColor(u_debug, 'texel'),
+            enable_discarding: folder.add(objects, 'DEBUG_DISCARDING_ENABLED').name('enable_discarding').onFinishChange((value) => { defines.DEBUG_DISCARDING_ENABLED = Number(value), material.needsUpdate = true }),
         }
     }
     
     // controllers bindings
 
-    setControllersBindings()
+    setBindings()
     {
     
         // raycast threshold controller

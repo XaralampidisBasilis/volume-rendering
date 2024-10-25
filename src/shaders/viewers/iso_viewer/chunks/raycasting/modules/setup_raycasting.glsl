@@ -1,16 +1,3 @@
-// precompute invariant values outside the loop to avoid redundant memory access
-float raycast_threshold = u_raycast.threshold;
-float gradient_threshold = u_gradient.threshold * u_gradient.max_norm;
-vec3 volume_size = u_volume.size;
-vec3 volume_spacing = u_volume.spacing;
-vec3 volume_inv_size = u_volume.inv_size;
-vec3 volume_inv_spacing = u_volume.inv_spacing;
-ivec3 occupancy_dimensions = u_occupancy.dimensions;
-ivec3 occupancy_base_dimensions = u_occupancy.base_dimensions;
-vec3 occupancy_base_spacing = u_occupancy.base_spacing;
-vec3 occupancy_base_size = u_occupancy.base_size;
-int occupancy_max_skips = u_occupancy.max_skips;
-int occupancy_lods = u_occupancy.lods;
 
 // initialize ray and trace parameters
 ray.intersected = false;
