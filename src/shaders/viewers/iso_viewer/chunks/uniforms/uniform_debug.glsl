@@ -1,8 +1,8 @@
-#ifndef UNIFORMS_CONTROLS
-#define UNIFORMS_CONTROLS
+#ifndef UNIFORMS_DEBUG
+#define UNIFORMS_DEBUG
 
 // struct to hold colormap uniforms
-struct Controls 
+struct Debug 
 {
     int option;
     int number;

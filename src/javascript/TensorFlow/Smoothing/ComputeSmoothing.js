@@ -11,8 +11,8 @@ export default class ComputeSmoothing
     { 
         this.viewer = viewer
         this.parameters = this.viewer.parameters
-        this.radius = this.viewer.material.defines.SMOOTHING_RADIUS
-        this.method = this.viewer.material.defines.SMOOTHING_METHOD
+        this.radius = this.viewer.material.defines.VOLUME_SMOOTHING_RADIUS
+        this.method = this.viewer.material.defines.VOLUME_SMOOTHING_METHOD
         this.filter = this.select()
     }
 
@@ -53,8 +53,8 @@ export default class ComputeSmoothing
     update()
     {
         this.dispose()
-        this.radius = this.viewer.material.defines.SMOOTHING_RADIUS
-        this.method = this.viewer.material.defines.SMOOTHING_METHOD
+        this.radius = this.viewer.material.defines.VOLUME_SMOOTHING_RADIUS
+        this.method = this.viewer.material.defines.VOLUME_SMOOTHING_METHOD
         this.filter = this.select()
     }
 
@@ -62,7 +62,6 @@ export default class ComputeSmoothing
     {
         if (this.filter) 
             this.filter.dispose()
-        // console.log(tf.memory())
     }
 
     destroy()

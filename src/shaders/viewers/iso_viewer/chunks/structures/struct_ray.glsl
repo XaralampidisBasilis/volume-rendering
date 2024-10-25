@@ -4,23 +4,30 @@
 // struct to hold ray parameters and settings for raymarching
 struct Ray 
 {
+    bool  intersected;          // flag indicating if the ray intersected an object
+
+    vec3  origin_position;      // origin position of the ray in 3d model coordinates 
+    vec3  start_position;       // starting position of the ray in 3d model coordinates for raymarching
+    vec3  end_position;         // ending position of the ray in 3d model coordinates for raymarching
+
     vec3  step_direction;       // direction vector for each step along the ray
     float step_distance;        // fixed step distance for each ray 
-
-    float min_step_distance;    // minimum step distance for adaptive stepping
-    float max_step_distance;    // maximum step distance for adaptive stepping
-
+    float rand_distance;        // random distance for dithering
+    float start_distance;       // starting distance along the ray from origin for raymarching
+    float end_distance;         // ending distance along the ray from origin for raymarching
+    float span_distance;        // total distance that can be covered by the ray for raymarching
+   
     int   max_step_count;       // maximum number of steps allowed
     int   max_skip_count;       // maximum number of skips allowed
 
-    vec3  start_position;       // starting position of the ray in 3d model coordinates
-    vec3  end_position;         // ending position of the ray in 3d model coordinates
-    float start_distance;       // starting distance along the ray from camera
-    float end_distance;         // ending distance along the ray from camera
-    float span_distance;        // total distance that can be covered by the ray
-    float rand_distance;        // random distance for dithering
-
-    bool  intersected;          // flag indicating if the ray intersected an object
+    float min_step_distance;    // minimum step distance for adaptive stepping
+    float max_step_distance;    // maximum step distance for adaptive stepping
+    float min_start_distance;   // minimum allowed starting distance for each ray
+    float max_end_distance;     // maximum allowed ending distance for each ray
+    float max_span_distance;    // maximum allowed span distance for each ray
+    
+    float max_voxel_distance;   // maximum distance that can be spanned inside a voxel
+    float max_block_distance;   // maximum distance that can be spanned inside an occupancy block
 };
 
 Ray Ray()
@@ -32,12 +39,18 @@ Ray Ray()
     ray.max_step_distance = 0.0;
     ray.max_step_count = 0;
     ray.max_skip_count = 0;
+    ray.origin_position = vec3(0.0);
     ray.start_position = vec3(0.0);
     ray.end_position = vec3(0.0);
+    ray.rand_distance = 0.0;
     ray.start_distance = 0.0;
     ray.end_distance = 0.0;
     ray.span_distance = 0.0;
-    ray.rand_distance = 0.0;
+    ray.min_start_distance = 0.0;
+    ray.max_end_distance = 0.0;
+    ray.max_span_distance = 0.0;
+    ray.max_voxel_distance = 0.0;
+    ray.max_block_distance = 0.0;
     ray.intersected = false;
     return ray;
 }

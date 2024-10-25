@@ -2,7 +2,7 @@
 #define UNIFORM_SHADING
 
 // struct to hold shading uniforms
-struct Shading 
+struct Shading
 {
     float reflectance_a;
     float reflectance_d;
@@ -10,9 +10,6 @@ struct Shading
     float shininess;
     float shadow_threshold;
     float edge_threshold;
-    int model;
-    bool attenuation;
 };
 
-
-#endif
+#endif // UNIFORM_SHADING

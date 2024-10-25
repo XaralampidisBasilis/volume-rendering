@@ -31,6 +31,7 @@
         "Precomputes",
         "raycast",
         "Raycaster",
+        "raymarch",
         "subind",
         "subm",
         "Texels",

@@ -27,13 +27,11 @@ export default class ISOGui
     addSubfolders()
     {
         this.subfolders           = {}
-        this.subfolders.raycast   = this.folders.viewer.addFolder('raycast').close()
-        this.subfolders.gradient  = this.folders.viewer.addFolder('gradient').close()
-        this.subfolders.smoothing = this.folders.viewer.addFolder('smoothing').close()
+        this.subfolders.raymarch  = this.folders.viewer.addFolder('raymarch').close()
+        this.subfolders.volume    = this.folders.viewer.addFolder('volume').close()
         this.subfolders.colormap  = this.folders.viewer.addFolder('colormap').close()
         this.subfolders.shading   = this.folders.viewer.addFolder('shading').close()
         this.subfolders.lighting  = this.folders.viewer.addFolder('lighting').close()
-        this.subfolders.occupancy = this.folders.viewer.addFolder('occupancy').close()
 
         if (this.viewer.material.uniforms.u_debug)
             this.subfolders.debug = this.folders.viewer.addFolder('debug').close()
@@ -69,18 +67,14 @@ export default class ISOGui
     {
         this.controllers = {}
         this.addControllersViewer()
-        this.addControllersRaycast() 
-        this.addControllersGradient() 
-        this.addControllersSmoothing() 
+        this.addControllersRaymarch() 
+        this.addControllersVolume() 
         this.addControllersColormap() 
         this.addControllersShading() 
         this.addControllersLighting() 
-        this.addControllersOccupancy() 
+        this.addControllersDebug() 
 
-        if (this.viewer.material.uniforms.u_debug)
-            this.addControllersDebug() 
-
-        this.setControllersBindings()  
+        // this.setControllersBindings()  
     }
 
     addControllersViewer()
@@ -93,173 +87,145 @@ export default class ISOGui
         }
     }
 
-    addControllersRaycast() 
+    addControllersRaymarch() 
     {
-        const { raycast } = this.subfolders
-        const u_raycast = this.viewer.material.uniforms.u_raycast.value
-        const defines = this.viewer.material.defines
         const material = this.viewer.material
-        const object = { 
-            has_refinement: Boolean(defines.HAS_REFINEMENT),
-            has_dithering : Boolean(defines.HAS_DITHERING),
-            has_skipping  : Boolean(defines.HAS_SKIPPING)
+        const uniforms = this.viewer.material.uniforms.raymarch.value
+        const defines = this.viewer.material.defines
+        const objects = { 
+            RAYMARCH_DITHERING_ENABLED : Boolean(defines.RAYMARCH_DITHERING_ENABLED),
+            RAYMARCH_REFINEMENT_ENABLED: Boolean(defines.RAYMARCH_REFINEMENT_ENABLED),
+            RAYMARCH_SKIPPING_ENABLED  : Boolean(defines.RAYMARCH_SKIPPING_ENABLED),
+            RAYMARCH_GRADIENTS_ENABLED : Boolean(defines.RAYMARCH_GRADIENTS_ENABLED),
+            RAYMARCH_SMOOTHING_ENABLED : Boolean(defines.RAYMARCH_SMOOTHING_ENABLED),
         }
+        const options = {
+            RAYMARCH_DITHERING_METHOD  : { generative: 1, texture: 2, },
+            RAYMARCH_STEPPING_METHOD   : { isotropic: 1, directional: 2, equalized: 3 },
+            RAYMARCH_SCALING_METHOD    : { taylor10: 1, taylor20: 2, taylor30: 3, pade11: 4, pade02: 5, pade21: 6, pade12: 7, pade03: 8, pade22: 9, uniform: 10, },
+            RAYMARCH_REFINEMENT_METHOD : { sub_sampling: 1, bisection_iterative: 2, newtons_iterative: 3, linear: 4, lagrange_quadratic: 5, lagrange_cubic: 6, hermite_cubic: 7 },
+            RAYMARCH_DERIVATIVES_METHOD: { hermite30: 1, hermite21: 2, hermite12: 3, hermite22_nopoles: 4, linear: 5, },
+            RAYMARCH_GRADIENTS_METHOD  : { tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 },
+            RAYMARCH_SMOOTHING_METHOD  : { bessel: 1, gaussian: 2, average: 3 },
+        }
+
+        const controls = this.subfolders.raycast.addFolder('raymarch').close()
+        const methods  = this.subfolders.raycast.addFolder('raymarch').close()
+        const enablers = this.subfolders.raycast.addFolder('raymarch').close()
 
         this.controllers.raycast = 
         {
-            threshold: raycast.add(u_raycast, 'threshold').min(0).max(1).step(0.0001)
-                .onFinishChange(() => { this.viewer.computeOccupancy() }),
+            sampleThreshold   : controls.add(uniforms, 'sample_threshold').min(0).max(1).step(0.0001).onFinishChange(() => { this.viewer.computeOccupancy() }),
+            gradientThreshold : controls.add(uniforms, 'gradient_threshold').min(0).max(1).step(0.0001),
+            minStepScale      : controls.add(uniforms, 'min_step_scale').min(0.001).max(5).step(0.001),
+            maxStepScale      : controls.add(uniforms, 'max_step_scale').min(0.001).max(5).step(0.001),
+            maxStepCount      : controls.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
+            maxSkipCount      : controls.add(uniforms, 'max_skip_count').min(0).max(100).step(1),
+            minSkipLod        : controls.add(uniforms, 'min_skip_lod').min(0).max(10).step(1),
 
-            steppingMin: raycast.add(u_raycast, 'min_stepping').min(0.001).max(5).step(0.001),
-
-            steppingMax: raycast.add(u_raycast, 'max_stepping').min(0.001).max(5).step(0.001),
-
-            maxSteps: raycast.add(u_raycast, 'max_steps').min(0).max(2000).step(1),
-
-            // ditheringScale: raycast.add(u_raycast, 'dithering_scale').min(0).max(1).step(0.001),
-
-            spacingMethod: raycast.add(defines, 'SPACING_METHOD').name('spacing_method')
-                .options({ isotropic: 1, directional: 2, equalized: 3 })
-                .onFinishChange(() => { material.needsUpdate = true }),
-                
-            steppingMethod: raycast.add(defines, 'STEPPING_METHOD').name('stepping_method')
-                .options({ taylor10: 1, taylor20: 2, taylor30: 3, pade11: 4, pade02: 5, pade21: 6, pade12: 7, pade03: 8, pade22: 9, uniform: 10, })
-                .onFinishChange(() => { material.needsUpdate = true }),
-
-            ditheringMethod: raycast.add(defines, 'DITHERING_METHOD').name('dithering_method')
-                .options({ generative: 1, texture: 2, })
-                .onFinishChange(() => { material.needsUpdate = true }),
-
-            refinementMethod: raycast.add(defines, 'REFINEMENT_METHOD').name('refinement_method')
-                .options({ sub_sampling: 1, bisection_iterative: 2, newtons_iterative: 3, linear: 4, lagrange_quadratic: 5, lagrange_cubic: 6, hermite_cubic: 7 })
-                .onFinishChange(() => { material.needsUpdate = true }),
-
-            hasRefinement: raycast.add(object, 'has_refinement').onFinishChange((value) => { 
-                    defines.HAS_REFINEMENT = Number(value);
-                    material.needsUpdate = true 
-                }),
-
-            hasDithering: raycast.add(object, 'has_dithering').onFinishChange((value) => { 
-                    defines.HAS_DITHERING = Number(value);
-                    material.needsUpdate = true 
-                }),
-
-            hasSkipping: raycast.add(object, 'has_skipping').onFinishChange((value) => { 
-                    defines.HAS_SKIPPING = Number(value);
-                    material.needsUpdate = true 
-                }),
-        }
-
-    }
-
-    addControllersGradient() 
-    {
-        const { gradient } = this.subfolders
-        const u_gradient = this.viewer.material.uniforms.u_gradient.value
-        const defines = this.viewer.material.defines
-        const object = { has_refinement: false }
-    
-        this.controllers.gradient = 
-        {
-            threshold: gradient.add(u_gradient, 'threshold').min(0).max(1).step(0.001),
+            spacingMethod     : methods.add(defines, 'RAYMARCH_STEPPING_METHOD').name('stepping_method').options(options.RAYMARCH_STEPPING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            scalingMethod     : methods.add(defines, 'RAYMARCH_SCALING_METHOD').name('stepping_method').options(options.RAYMARCH_SCALING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            ditheringMethod   : methods.add(defines, 'RAYMARCH_DITHERING_METHOD').name('dithering_method').options(options.RAYMARCH_DITHERING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            refinementMethod  : methods.add(defines, 'RAYMARCH_REFINEMENT_METHOD').name('refinement_method').options(options.RAYMARCH_REFINEMENT_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            derivativeMethod  : methods.add(defines, 'RAYMARCH_DERIVATIVES_METHOD').name('derivatives_method').options(options.RAYMARCH_DERIVATIVES_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            gradientsMethod   : methods.add(defines, 'RAYMARCH_GRADIENTS_METHOD').name('refinement_method').options(options.RAYMARCH_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            smoothingMethod   : methods.add(defines, 'RAYMARCH_SMOOTHING_METHOD').name('refinement_method').options(options.RAYMARCH_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             
-            derivativeMethod: gradient.add(defines, 'DERIVATIVE_METHOD').name('derivative_method')
-                .options({hermite30: 1, hermite21: 2, hermite12: 3, hermite22_nopoles: 4, linear: 5, })
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
-
-            precomputeMethod: gradient.add(defines, 'GRADIENT_METHOD').name('precompute_method')
-                .options({scharr: 1, sobel: 2, prewitt: 3, tetrahedron: 4, central: 5 })
-                .onFinishChange(() => { this.viewer.computeGradients() }),
-
-            refinementMethod: gradient.add(defines, 'GRADIENT_REFINEMENT_METHOD').name('refinement_method')
-                .options({tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 })
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
-
-            hasRefinement: gradient.add(object, 'has_refinement').onFinishChange((value) => 
-                { 
-                    this.viewer.material.defines.HAS_GRADIENT_REFINEMENT = Number(value);
-                    this.viewer.material.needsUpdate = true 
-                }),
+            enableDithering   : enablers.add(objects, 'RAYMARCH_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAYMARCH_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableRefinement  : enablers.add(objects, 'RAYMARCH_REFINEMENT_ENABLED').name('enable_refinement').onFinishChange((value) => { defines.RAYMARCH_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipping    : enablers.add(objects, 'RAYMARCH_SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.RAYMARCH_SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableGradients   : enablers.add(objects, 'RAYMARCH_GRADIENTS_ENABLED').name('enable_gradients').onFinishChange((value) => { defines.RAYMARCH_GRADIENTS_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSmoothing   : enablers.add(objects, 'RAYMARCH_SMOOTHING_ENABLED').name('enable_smoothing').onFinishChange((value) => { defines.RAYMARCH_SMOOTHING_ENABLED = Number(value), material.needsUpdate = true }),
         }
 
     }
 
-    addControllersSmoothing()
+    addControllersVolume() 
     {
-        const { smoothing } = this.subfolders
+        const material = this.viewer.material
+        const uniforms = this.viewer.material.uniforms.volume.value
         const defines = this.viewer.material.defines
-        const object = { has_refinement: false }
-
-        this.controllers.smoothing = 
-        {
-            radius: smoothing.add(defines, 'SMOOTHING_RADIUS').name('radius').min(0).max(10).step(1)
-                .onFinishChange(() => { this.viewer.computeSmoothing() }),
-        
-            precomputeMethod: smoothing.add(defines, 'SMOOTHING_METHOD').name('precompute_method')
-                .options({ bessel: 1, gaussian: 2, average: 3 })
-                .onFinishChange(() => { this.viewer.computeSmoothing() }),
+        const objects = { 
+            VOLUME_BOUNDING_BOX_ENABLED: Boolean(defines.VOLUME_BOUNDING_BOX_ENABLED),
+            VOLUME_SKIPPING_ENABLED    : Boolean(defines.VOLUME_SKIPPING_ENABLED),
         }
+        const options = {
+            VOLUME_GRADIENTS_METHOD: { scharr: 1, sobel: 2, prewitt: 3, tetrahedron: 4, central: 5 },
+            VOLUME_SMOOTHING_METHOD: { bessel: 1, gaussian: 2, average: 3 },
+        }
+
+        const folder = this.subfolders.volume
+
+        this.controllers.volume = 
+        {
+            smoothingRadius: folder.add(defines, 'VOLUME_SMOOTHING_RADIUS').name('smoothing_radius').min(0).max(5).step(1).onFinishChange(() => { this.viewer.computeSmoothing() }),
+            smoothingMethod: folder.add(defines, 'VOLUME_SMOOTHING_METHOD').name('smoothing_method').options(options.VOLUME_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            gradientsMethod: folder.add(defines, 'VOLUME_GRADIENTS_METHOD').name('gradients_method').options(options.VOLUME_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            enableBbox     : folder.add(objects, 'VOLUME_BOUNDING_BOX_ENABLED').name('enable_bbox').onFinishChange((value) => { defines.VOLUME_BOUNDING_BOX_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipping : folder.add(objects, 'VOLUME_SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.VOLUME_SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
+        }
+
     }
-    
+
     addControllersColormap() 
     {
-        const { colormap } = this.subfolders
-        const u_colormap = this.viewer.material.uniforms.u_colormap.value
+        const folder = this.subfolders.colormap
+        const uniforms = this.viewer.material.uniforms.colormap.value
         const object = { flip: false }
     
         this.controllers.colormap = 
         {
-            low   : colormap.add(u_colormap, 'low').min(0).max(1).step(0.001),
-            high  : colormap.add(u_colormap, 'high').min(0).max(1).step(0.001),
-            levels: colormap.add(u_colormap, 'levels').min(1).max(255).step(1),
-            name  : colormap.add(u_colormap, 'name').options(Object.keys(colormapLocations)),
-            flip  : colormap.add(object, 'flip')
+            name        : folder.add(uniforms, 'name').options(Object.keys(colormapLocations)).onChange(this.updateColormap),
+            minThreshold: folder.add(uniforms.thresholds, 'x').name('min_threshold').min(0).max(1).step(0.001),
+            maxThreshold: folder.add(uniforms.thresholds, 'y').name('max_threshold').min(0).max(1).step(0.001),
+            levels      : folder.add(uniforms, 'levels').min(1).max(255).step(1),
+            flip        : folder.add(object, 'flip').onChange(this.flipColormap)
         }
 
     }
     
     addControllersShading() 
     {
-        const { shading } = this.subfolders
-        const u_shading = this.viewer.material.uniforms.u_shading.value
+        const folder = this.subfolders.shading
+        const uniforms = this.viewer.material.uniforms.shading.value
         const defines = this.viewer.material.defines
-    
+        const options = { SHADING_METHOD: { blinn : 1, phong : 2} }
+
         this.controllers.shading = 
         {
-            reflectanceA   : shading.add(u_shading, 'reflectance_a').min(0).max(1).step(0.001),
-            reflectanceD   : shading.add(u_shading, 'reflectance_d').min(0).max(1).step(0.001),
-            reflectanceS   : shading.add(u_shading, 'reflectance_s').min(0).max(1).step(0.001),
-            shininess      : shading.add(u_shading, 'shininess').min(0).max(40.0).step(0.2),
-            shadowThreshold: shading.add(u_shading, 'shadow_threshold').min(0).max(1).step(0.001),
-            edgeThreshold  : shading.add(u_shading, 'edge_threshold').min(0).max(1).step(0.001),
-
-            method: shading.add(defines, 'SHADING_METHOD').name('shading_method')
-                .options({ blinn : 1, phong : 2})
-                .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
+            ambientReflectance : folder.add(uniforms, 'ambient_reflectance').min(0).max(1).step(0.001),
+            diffuseReflectance : folder.add(uniforms, 'diffuse_reflectance').min(0).max(1).step(0.001),
+            specularReflectance: folder.add(uniforms, 'specular_reflectance').min(0).max(1).step(0.001),
+            shininess          : folder.add(uniforms, 'shininess').min(0).max(40.0).step(0.2),
+            edgeContrast       : folder.add(uniforms, 'shadow_threshold').min(0).max(1).step(0.001),
+            shadingMethod      : folder.add(defines, 'SHADING_METHOD').name('shading_method').options(options.SHADING_METHOD).onFinishChange(() => { this.viewer.material.needsUpdate = true }),
         }
     }
 
     addControllersLighting() 
     {
-        const { lighting } = this.subfolders
-        const u_lighting = this.viewer.material.uniforms.u_lighting.value
+        const folder = this.subfolders.lighting
+        const uniforms = this.viewer.material.uniforms.u_lighting.value
         const defines = this.viewer.material.defines
 
         this.controllers.lighting = 
         {
-            colorA         : lighting.addColor(u_lighting, 'color_a'),
-            colorD         : lighting.addColor(u_lighting, 'color_d'),
-            colorS         : lighting.addColor(u_lighting, 'color_s'),
-            offsetPositionX: lighting.add(u_lighting.offset_position, 'x').min(-5).max(5).step(0.01).name('offset_position_x'),
-            offsetPositionY: lighting.add(u_lighting.offset_position, 'y').min(-5).max(5).step(0.01).name('offset_position_y'),
-            offsetPositionZ: lighting.add(u_lighting.offset_position, 'z').min(-5).max(5).step(0.01).name('offset_position_z'),
-            power          : lighting.add(u_lighting, 'power').min(0).max(2.0).step(0.1),
+            intensity     : folder.add(uniforms, 'intensity').min(0).max(2.0).step(0.001),
+            shadows       : folder.add(uniforms, 'shadows').min(0).max(1.0).step(0.001),
+            ambient_color : folder.addColor(uniforms, 'ambient_color'),
+            diffuse_color : folder.addColor(uniforms, 'diffuse_color'),
+            specular_color: folder.addColor(uniforms, 'specular_color'),
+
+
+            offsetPositionX: folder.add(uniforms.offset_position, 'x').min(-5).max(5).step(0.01).name('offset_position_x'),
+            offsetPositionY: folder.add(uniforms.offset_position, 'y').min(-5).max(5).step(0.01).name('offset_position_y'),
+            offsetPositionZ: folder.add(uniforms.offset_position, 'z').min(-5).max(5).step(0.01).name('offset_position_z'),
             
-            attenuationMethod: lighting.add(defines, 'ATTENUATION_METHOD').name('attenuation_method')
+            attenuationMethod: folder.add(defines, 'ATTENUATION_METHOD').name('attenuation_method')
                 .options({ softstep: 1, physical: 2})
                 .onFinishChange(() => { this.viewer.material.needsUpdate = true }),
 
-            hasAttenuation: lighting.add(u_lighting, 'has_attenuation'),
+            hasAttenuation: folder.add(uniforms, 'has_attenuation'),
         }
     }
     
@@ -379,12 +345,6 @@ export default class ISOGui
             this.displaceColormapHigh()  // displace colormap high based on raycast threshold
         })
 
-        // flip colormap colors
-        this.controllers.colormap.flip.onChange(() => this.flipColormapRange())
-
-        // locate colormap in texture
-        this.controllers.colormap.name.onChange(() => this.locateColormapTexture())
-
         // cap colormap low based on raycast threshold
         this.controllers.colormap.low.onChange(() => this.capColormapLow())
 
@@ -429,7 +389,7 @@ export default class ISOGui
             Math.min
             (
                 this.controllers.colormap.low.getValue(), 
-                this.controllers.raycast.threshold.getValue()
+                this.controllers.raycast.sampleThreshold.getValue()
             )
         ).updateDisplay()
     }
@@ -440,7 +400,7 @@ export default class ISOGui
         (
             Math.max
             (
-                this.controllers.raycast.threshold.getValue(),
+                this.controllers.raycast.sampleThreshold.getValue(),
                 this.controllers.colormap.high.getValue()
             )
         ).updateDisplay()
@@ -453,7 +413,7 @@ export default class ISOGui
             Math.min
             (
                 this.controllers.colormap.low.getValue(),            
-                this.controllers.raycast.threshold.getValue(),
+                this.controllers.raycast.sampleThreshold.getValue(),
                 this.controllers.colormap.high.getValue()
             )
         ).updateDisplay()
@@ -466,23 +426,24 @@ export default class ISOGui
             Math.max
             (
                 this.controllers.colormap.low.getValue(), 
-                this.controllers.raycast.threshold.getValue(), 
+                this.controllers.raycast.sampleThreshold.getValue(), 
                 this.controllers.colormap.high.getValue()
             )
         ).updateDisplay()
     }
 
-    flipColormapRange()
+    flipColormap()
     {
-        [this.viewer.material.uniforms.u_colormap.value.texture_columns.y, this.viewer.material.uniforms.u_colormap.value.texture_columns.x] = 
-        [this.viewer.material.uniforms.u_colormap.value.texture_columns.x, this.viewer.material.uniforms.u_colormap.value.texture_columns.y]      
+        const colormap = this.viewer.material.uniforms.colormap.value
+        [colormap.start_coords.x, colormap.end_coords.x] = 
+        [colormap.end_coords.x, colormap.start_coords.x]      
     }
 
-    locateColormapTexture()
+    updateColormap()
     {
-        let { v, u_start, u_end } = colormapLocations[this.controllers.colormap.name.getValue()]
-        this.viewer.material.uniforms.u_colormap.value.texture_row = v
-        this.viewer.material.uniforms.u_colormap.value.texture_columns.set(u_start, u_end)      
+        let { x_start, x_end, y } = colormapLocations[this.controllers.colormap.name.getValue()]
+        this.viewer.material.uniforms.colormap.value.start_coords.set(x_start, y)
+        this.viewer.material.uniforms.colormap.value.end_coords.set(x_end, y)      
     }
 
     dispose() {

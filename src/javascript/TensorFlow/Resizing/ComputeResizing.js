@@ -22,7 +22,7 @@ export default class ComputeResizing
 
         this.parameters.volume.dimensions.x = Math.floor(this.parameters.volume.dimensions.x * resizeDim3)
         this.parameters.volume.dimensions.y = Math.floor(this.parameters.volume.dimensions.y * resizeDim3)
-        this.parameters.volume.dimensions.z = Math.round(this.parameters.volume.dimensions.z * resizeDim3)
+        this.parameters.volume.dimensions.z = Math.floor(this.parameters.volume.dimensions.z * resizeDim3)
     }
 
     async compute()

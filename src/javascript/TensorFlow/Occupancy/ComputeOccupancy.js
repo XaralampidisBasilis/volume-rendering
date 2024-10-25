@@ -8,14 +8,15 @@ export default class ComputeOccupancy
     { 
         this.viewer = viewer
         this.parameters = this.viewer.parameters
-        this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
+        this.threshold = this.viewer.material.uniforms.raymarch.value.sample_threshold
     }
 
     async compute()
     {               
         tf.tidy(() => 
         {
-            const spacing = [...this.parameters.volume.spacing.toArray().toReversed(), 1]
+            // const spacing = [...this.parameters.volume.spacing.toArray().toReversed(), 1]
+            const spacing = this.parameters.volume.spacing.toArray().toReversed().push(1)
             const condition = this.viewer.tensors.volume.greater([this.threshold])
 
             const [minCoords, maxCoords] = this.argRange4d(condition)
@@ -28,20 +29,20 @@ export default class ComputeOccupancy
             const baseOccumap = tf.maxPool3d(occupancy, [2, 2, 2], [2, 2, 2], 'same')
             occupancy.dispose()
             
-            const [occumapAtlasLod, lods] = this.buildAtlasLod(baseOccumap)
+            const [atlasOccumaps, atlasLods] = this.buildAtlasLod(baseOccumap)
             baseOccumap.dispose()
       
             this.results = {
-                data          : new Uint8Array(occumapAtlasLod.dataSync()),
-                dimensions    : occumapAtlasLod.shape.slice(0, 3).toReversed(),
-                lods          : lods,
-                baseSpacing   : spacing.map((space) => 2 * space).slice(0, 3).toReversed(),
-                baseDimensions: baseOccumap.shape.slice(0, 3).toReversed(),
-                baseSize      : occupancy.shape.map((dim, i) => dim * spacing[i]).slice(0, 3).toReversed(),
-                minCoords     : minCoords.arraySync().slice(0, 3).toReversed(),
-                maxCoords     : maxCoords.arraySync().slice(0, 3).toReversed(),
-                minPosition   : minPosition.arraySync().slice(0, 3).toReversed(),
-                maxPosition   : maxPosition.arraySync().slice(0, 3).toReversed(),
+                data           : new Uint8Array(atlasOccumaps.dataSync()),
+                atlasDimensions: atlasOccumaps.shape.slice(0, 3).toReversed(),
+                atlasLods      : atlasLods,
+                baseSpacing    : spacing.map((space) => 2 * space).slice(0, 3).toReversed(),
+                baseDimensions : baseOccumap.shape.slice(0, 3).toReversed(),
+                baseSize       : occupancy.shape.map((dim, i) => dim * spacing[i]).slice(0, 3).toReversed(),
+                minCoords      : minCoords.arraySync().slice(0, 3).toReversed(),
+                maxCoords      : maxCoords.arraySync().slice(0, 3).toReversed(),
+                minPosition    : minPosition.arraySync().slice(0, 3).toReversed(),
+                maxPosition    : maxPosition.arraySync().slice(0, 3).toReversed(),
             }
         })
 
@@ -62,16 +63,18 @@ export default class ComputeOccupancy
         this.viewer.textures.occumaps.magFilter = THREE.LinearFilter
         this.viewer.textures.occumaps.needsUpdate = true
 
-        this.viewer.material.uniforms.u_occupancy.value.lods = this.results.lods
-        this.viewer.material.uniforms.u_occupancy.value.dimensions.fromArray(this.results.dimensions)
-        this.viewer.material.uniforms.u_occupancy.value.base_dimensions.fromArray(this.results.baseDimensions)
-        this.viewer.material.uniforms.u_occupancy.value.base_spacing.fromArray(this.results.baseSpacing)
-        this.viewer.material.uniforms.u_occupancy.value.base_size.fromArray(this.results.baseSize)
-        this.viewer.material.uniforms.u_occupancy.value.min_coords.fromArray(this.results.minCoords)
-        this.viewer.material.uniforms.u_occupancy.value.max_coords.fromArray(this.results.maxCoords)
-        this.viewer.material.uniforms.u_occupancy.value.min_position.fromArray(this.results.minPosition)
-        this.viewer.material.uniforms.u_occupancy.value.max_position.fromArray(this.results.maxPosition)
-        this.viewer.material.uniforms.u_sampler.value.occumaps = this.viewer.textures.occumaps
+        this.viewer.material.uniforms.occumaps.value.atlas_lods = this.results.atlasLods
+        this.viewer.material.uniforms.occumaps.value.atlas_dimensions.fromArray(this.results.atlasDimensions)
+        this.viewer.material.uniforms.occumaps.value.base_dimensions.fromArray(this.results.baseDimensions)
+        this.viewer.material.uniforms.occumaps.value.base_spacing.fromArray(this.results.baseSpacing)
+        this.viewer.material.uniforms.occumaps.value.base_size.fromArray(this.results.baseSize)
+
+        this.viewer.material.uniforms.volume.value.min_coords.fromArray(this.results.minCoords)
+        this.viewer.material.uniforms.volume.value.max_coords.fromArray(this.results.maxCoords)
+        this.viewer.material.uniforms.volume.value.min_position.fromArray(this.results.minPosition)
+        this.viewer.material.uniforms.volume.value.max_position.fromArray(this.results.maxPosition)
+
+        this.viewer.material.uniforms.textures.value.occumaps = this.viewer.textures.occumaps
         this.viewer.material.needsUpdate = true
 
         this.results.data = null
@@ -79,7 +82,7 @@ export default class ComputeOccupancy
 
     update()
     {
-        this.threshold = this.viewer.material.uniforms.u_raycast.value.threshold
+        this.threshold = this.viewer.material.uniforms.raymarch.value.sample_threshold
     }
 
     destroy() 
@@ -89,7 +92,6 @@ export default class ComputeOccupancy
         this.viewer = null;
         this.parameters = null;
         this.threshold = null;
-        this.blockDivisions = null;
 
         console.log('ComputeOccupancy destroyed and resources freed.');
     }

@@ -4,22 +4,22 @@
 // struct to hold information about the current ray trace 
 struct Trace 
 {
-    int step_count;            // number of steps taken along the ray
-    int skip_count;            // number of skipped steps along the ray
+    int step_count;             // number of steps taken along the ray
+    int skip_count;             // number of skipped steps along the ray
 
-    float step_scaling;        // scaling factor for step size
-    float step_distance;       // distance to be covered
-    float skip_distance;       // distance to be skipped
-    float rand_distance;       // random distance for dithering
+    float step_scaling;         // scaling factor for step size
+    float step_distance;        // distance to be covered
+    float skip_distance;        // distance to be skipped
+    float rand_distance;        // random distance for dithering
 
-    vec3  position;            // current position in 3d model coordinates
-    float distance;            // current distance traveled from camera
-    float spanned_distance;    // total spanned distance from ray start including stepping and skipping
-    float stepped_distance;    // total stepped distance from ray start
-    float skipped_distance;    // total skipped distance from ray start
+    vec3  position;             // current position in 3d model coordinates
+    float distance;             // current distance traveled from camera
+    float spanned_distance;     // total spanned distance from ray start including stepping and skipping
+    float stepped_distance;     // total stepped distance from ray start
+    float skipped_distance;     // total skipped distance from ray start
 
-    float sample;              // sampled value at the current position
-    float sample_error;        // sampled error associated with the difference of the sample value from the threshold
+    float sample;               // sampled value at the current position
+    float sample_error;         // sampled error associated with the difference of the sample value from the threshold
 
     ivec3 voxel_coords;         // integer voxel coordinates in 3d space
     vec3  voxel_texture_coords; // normalized voxel texture coordinates
@@ -28,17 +28,17 @@ struct Trace
     ivec3 block_coords;         // integer coordinates of the current block
     vec3  block_texture_coords; // normalized texture coordinates of the block
 
-    vec3  normal;              // normal vector
-    vec3  gradient;            // gradient vector
-    vec3  gradient_direction;  // direction of the gradient vector
-    float gradient_magnitude;  // magnitude of the gradient vector
+    vec3  normal;               // normal vector
+    vec3  gradient;             // gradient vector
+    vec3  gradient_direction;   // direction of the gradient vector
+    float gradient_magnitude;   // magnitude of the gradient vector
 
-    float derivative_1st;      // first derivative at the sample position
-    float derivative_2nd;      // second derivative at the sample position
-    float derivative_3rd;      // third derivative at the sample position
+    float derivative_1st;       // first derivative at the sample position
+    float derivative_2nd;       // second derivative at the sample position
+    float derivative_3rd;       // third derivative at the sample position
 
-    vec4  mapped_color;        // color mapped from the sample value
-    vec4  shaded_color;        // color after shading has been applied
+    vec4  mapped_color;         // color mapped from the sample value
+    vec4  shaded_color;         // color after shading has been applied
 };
 
 Trace Trace()

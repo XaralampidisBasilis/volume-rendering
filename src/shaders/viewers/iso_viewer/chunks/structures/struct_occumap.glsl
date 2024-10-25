@@ -4,21 +4,21 @@
 // struct to hold the current occumap parameters
 struct Occumap
 {
-    int   lod;              // level of detail for the current occupancy map
-    float lod_scale;        // scale factor associated with the lod level
-    ivec3 dimensions;       // dimensions of the current occupancy map in blocks
-    vec3  spacing;          // spacing between voxels in the occupancy map
-    ivec3 offset;           // occupancy map offset inside occupamp atlas
+    int   lod;           // level of detail for the current occupancy map
+    float lod_scale;     // scale factor associated with the lod level
+    ivec3 dimensions;    // dimensions of the current occupancy map in blocks
+    vec3  spacing;       // spacing between voxels in the occupancy map
+    ivec3 start_coords;  // occupancy map offset inside occupamp atlas
 };
 
 Occumap Occumap()
 {
     Occumap occumap;
-    occumap.lod         = 0;
-    occumap.lod_scale   = 1.0;
-    occumap.dimensions  = ivec3(0);
-    occumap.offset      = ivec3(0);
-    occumap.spacing     = vec3(0.0);
+    occumap.lod          = 0;
+    occumap.lod_scale    = 1.0;
+    occumap.dimensions   = ivec3(0);
+    occumap.start_coords = ivec3(0);
+    occumap.spacing      = vec3(0.0);
     return occumap;
 }
 

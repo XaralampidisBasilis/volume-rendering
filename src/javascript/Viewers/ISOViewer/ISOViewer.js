@@ -34,8 +34,8 @@ export default class ISOViewer extends EventEmitter
             this.setGeometry()
             this.setMaterial()
             this.setMesh()
-            this.processData()
-    
+            this.precompute()
+
             if (this.debug.active) 
                 this.gui = new ISOGui(this)
 
@@ -182,20 +182,19 @@ export default class ISOViewer extends EventEmitter
     {
         this.material = new ISOMaterial()
 
-        this.material.uniforms.u_volume.value.dimensions.copy(this.parameters.volume.dimensions)
-        this.material.uniforms.u_volume.value.size.copy(this.parameters.volume.size)
-        this.material.uniforms.u_volume.value.spacing.copy(this.parameters.volume.spacing)
-        this.material.uniforms.u_volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
-        this.material.uniforms.u_volume.value.inv_size.copy(this.parameters.volume.invSize)
-        this.material.uniforms.u_volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
+        this.material.uniforms.volume.value.dimensions.copy(this.parameters.volume.dimensions)
+        this.material.uniforms.volume.value.size.copy(this.parameters.volume.size)
+        this.material.uniforms.volume.value.spacing.copy(this.parameters.volume.spacing)
+        this.material.uniforms.volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
+        this.material.uniforms.volume.value.inv_size.copy(this.parameters.volume.invSize)
+        this.material.uniforms.volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
+        this.material.uniforms.volume.value.min_position.setScalar(0)
+        this.material.uniforms.volume.value.max_position.copy(this.parameters.volume.size)
 
-        this.material.uniforms.u_occupancy.value.min_position.set(0, 0, 0)
-        this.material.uniforms.u_occupancy.value.max_position.copy(this.parameters.volume.size)
-
-        this.material.uniforms.u_sampler.value.volume = this.textures.volume
-        this.material.uniforms.u_sampler.value.mask = this.textures.mask
-        this.material.uniforms.u_sampler.value.colormap = this.textures.colormaps    
-        this.material.uniforms.u_sampler.value.noisemap = this.textures.noisemap
+        this.material.uniforms.textures.value.volume = this.textures.volume
+        this.material.uniforms.textures.value.mask = this.textures.mask
+        this.material.uniforms.textures.value.colormaps = this.textures.colormaps    
+        this.material.uniforms.textures.value.noisemap = this.textures.noisemap
     }
 
     setMesh()
@@ -205,7 +204,7 @@ export default class ISOViewer extends EventEmitter
         this.scene.add(this.mesh)
     }
 
-    async processData()
+    async precompute()
     {
         this.smoothing = new ComputeSmoothing(this)
         this.gradients = new ComputeGradients(this)
@@ -226,31 +225,25 @@ export default class ISOViewer extends EventEmitter
     async computeSmoothing()
     {
         this.smoothing.update()
-
         console.time('computeSmoothing')
         await this.smoothing.compute().then(() => this.smoothing.dataSync())
         console.timeEnd('computeSmoothing')
-        // console.log('computeSmoothing:', tf.memory())
     }
 
     async computeGradients()
     {
         this.gradients.update()
-
         console.time('computeGradients')
         await this.gradients.compute().then(() => this.gradients.dataSync())
         console.timeEnd('computeGradients')
-        // console.log('computeGradients:', tf.memory())
     }
 
     async computeOccupancy()
     {
         this.occupancy.update()
-
         console.time('computeOccupancy')
         await this.occupancy.compute().then(() => this.occupancy.dataSync())
         console.timeEnd('computeOccupancy')
-        // console.log('computeOccumap:', tf.memory())
     }
 
     update()

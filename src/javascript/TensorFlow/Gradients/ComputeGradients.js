@@ -13,7 +13,7 @@ export default class ComputeGradients
     { 
         this.viewer = viewer
         this.parameters = this.viewer.parameters
-        this.method = this.viewer.material.defines.GRADIENT_METHOD
+        this.method = this.viewer.material.defines.VOLUME_GRADIENTS_METHOD
         this.filter = this.select()
     }
    
@@ -38,107 +38,107 @@ export default class ComputeGradients
             const spacing = this.parameters.volume.spacing
 
             // compute gradients
-            const [gradientX, minX, maxX] = this.gradient(volume, this.filter.kernelX, spacing.x)
-            const [gradientY, minY, maxY] = this.gradient(volume, this.filter.kernelY, spacing.y)
-            const [gradientZ, minZ, maxZ] = this.gradient(volume, this.filter.kernelZ, spacing.z)
+            const [gradientX, minGradX, maxGradX] = this.gradient(volume, this.filter.kernelX, spacing.x)
+            const [gradientY, minGradY, maxGradY] = this.gradient(volume, this.filter.kernelY, spacing.y)
+            const [gradientZ, minGradZ, maxGradZ] = this.gradient(volume, this.filter.kernelZ, spacing.z)
 
             // extract the tensor data as an array of uint8
-            this.dataX = new Uint8Array(gradientX.dataSync())
+            this.gradX = new Uint8Array(gradientX.dataSync())
             gradientX.dispose()
 
-            this.dataY = new Uint8Array(gradientY.dataSync())
+            this.gradY = new Uint8Array(gradientY.dataSync())
             gradientY.dispose()
 
-            this.dataZ = new Uint8Array(gradientZ.dataSync())
+            this.gradZ = new Uint8Array(gradientZ.dataSync())
             gradientZ.dispose()
 
             // combine bounds
-            const minGrad = tf.stack([minX, minY, minZ], 0) 
-            tf.dispose([minX, minY, minZ])
+            const minGrad = tf.stack([minGradX, minGradY, minGradZ], 0) 
+            tf.dispose([minGradX, minGradY, minGradZ])
             
-            const maxGrad = tf.stack([maxX, maxY, maxZ], 0)
-            tf.dispose([maxX, maxY, maxZ])
+            const maxGrad = tf.stack([maxGradX, maxGradY, maxGradZ], 0)
+            tf.dispose([maxGradX, maxGradY, maxGradZ])
 
             // extract bounds as three vector3
-            this.min = new THREE.Vector3().fromArray(minGrad.arraySync())
+            this.minGrad = new THREE.Vector3().fromArray(minGrad.arraySync())
             minGrad.dispose()
 
-            this.max = new THREE.Vector3().fromArray(maxGrad.arraySync())
+            this.maxGrad = new THREE.Vector3().fromArray(maxGrad.arraySync())
             maxGrad.dispose()
 
-            this.maxNorm = Math.max(this.min.length(), this.max.length())
+            this.maxNorm = Math.max(this.minGrad.length(), this.maxGrad.length())
         })
 
-        return { dataX: this.dataX, dataY: this.dataY, dataZ: this.dataZ, maxNorm: this.maxNorm, min: this.min, max: this.max } 
+        return { gradX: this.gradX, gradY: this.gradY, gradZ: this.gradZ, minGrad: this.minGrad, maxGrad: this.maxGrad, maxNorm: this.maxNorm, } 
     }
 
-    async compute2() 
-    {
-        tf.tidy(() => 
-        {
-            const volume = this.viewer.tensors.volume
-            const spacing = this.parameters.volume.spacing
+    // async compute2() 
+    // {
+    //     tf.tidy(() => 
+    //     {
+    //         const volume = this.viewer.tensors.volume
+    //         const spacing = this.parameters.volume.spacing
 
-            // compute gradients
-            const gradientX = this.convolute(volume, this.filter.kernelX, spacing.x)
-            const gradientY = this.convolute(volume, this.filter.kernelY, spacing.y)
-            const gradientZ = this.convolute(volume, this.filter.kernelZ, spacing.z)
+    //         // compute gradients
+    //         const gradientX = this.convolute(volume, this.filter.kernelX, spacing.x)
+    //         const gradientY = this.convolute(volume, this.filter.kernelY, spacing.y)
+    //         const gradientZ = this.convolute(volume, this.filter.kernelZ, spacing.z)
 
-            // concatenate normalized gradients
-            const gradients = tf.concat([gradientX, gradientY, gradientZ], 3)
-            gradientX.dispose()
-            gradientY.dispose()
-            gradientZ.dispose() 
+    //         // concatenate normalized gradients
+    //         const gradients = tf.concat([gradientX, gradientY, gradientZ], 3)
+    //         gradientX.dispose()
+    //         gradientY.dispose()
+    //         gradientZ.dispose() 
 
-            // normalize gradients based on max norm
-            const gradientsNorm = tf.norm(gradients, 'euclidean', 3)
-            const maxNorm = this.percentile(gradientsNorm, 99.9)
+    //         // normalize gradients based on max norm
+    //         const gradientsNorm = tf.norm(gradients, 'euclidean', 3)
+    //         const maxNorm = this.percentile(gradientsNorm, 99.9)
 
-            const scaled = gradients.div(maxNorm)
-            gradients.dispose()
+    //         const scaled = gradients.div(maxNorm)
+    //         gradients.dispose()
 
-            const shifted = scaled.add([1])
-            scaled.dispose()
+    //         const shifted = scaled.add([1])
+    //         scaled.dispose()
 
-            const normalized = shifted.mul([255 / 2])
-            shifted.dispose()
+    //         const normalized = shifted.mul([255 / 2])
+    //         shifted.dispose()
 
-            // quantize normalized gradients
-            const quantized = this.quantize(normalized)
-            normalized.dispose()
+    //         // quantize normalized gradients
+    //         const quantized = this.quantize(normalized)
+    //         normalized.dispose()
 
-            // extract the tensor data as an array of uint8
-            this.data = new Uint8Array(quantized.dataSync())
-            quantized.dispose()
+    //         // extract the tensor data as an array of uint8
+    //         this.data = new Uint8Array(quantized.dataSync())
+    //         quantized.dispose()
 
-            // extract max norm
-            this.maxNorm = maxNorm.arraySync()
-        })
+    //         // extract max norm
+    //         this.maxNorm = maxNorm.arraySync()
+    //     })
 
-        return { data: this.data, maxNorm: this.maxNorm } 
-    }
+    //     return { data: this.data, maxNorm: this.maxNorm } 
+    // }
 
     dataSync()
     {
         for (let i = 0; i < this.parameters.volume.count; i++) 
         {
             const i4 = i * 4
-            this.viewer.data.volume[i4 + 1] = this.dataX[i]
-            this.viewer.data.volume[i4 + 2] = this.dataY[i]
-            this.viewer.data.volume[i4 + 3] = this.dataZ[i]
+            this.viewer.data.volume[i4 + 1] = this.gradX[i]
+            this.viewer.data.volume[i4 + 2] = this.gradY[i]
+            this.viewer.data.volume[i4 + 3] = this.gradZ[i]
         }
         
         this.viewer.textures.volume.needsUpdate = true
-        this.viewer.material.uniforms.u_gradient.value.min = this.min
-        this.viewer.material.uniforms.u_gradient.value.max = this.max
-        this.viewer.material.uniforms.u_gradient.value.max_norm = this.maxNorm
+        this.viewer.material.uniforms.volume.value.min_gradient = this.minGrad
+        this.viewer.material.uniforms.volume.value.max_gradient = this.maxGrad
+        this.viewer.material.uniforms.volume.value.max_gradient_magnitude = this.maxNorm
         this.viewer.material.needsUpdate = true
     }
 
     update()
     {
         this.dispose()
-        this.method = this.viewer.material.defines.GRADIENT_METHOD
+        this.method = this.viewer.material.defines.VOLUME_GRADIENTS_METHOD
         this.filter = this.select()
     }
  
@@ -152,11 +152,11 @@ export default class ComputeGradients
     {
         this.dispose()
         this.filter = null
-        this.dataX = null
-        this.dataY = null
-        this.dataZ = null
-        this.min = null
-        this.max = null
+        this.gradX = null
+        this.gradY = null
+        this.gradZ = null
+        this.minGrad = null
+        this.maxGrad = null
         this.maxNorm = null
     }
 

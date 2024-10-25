@@ -2,7 +2,7 @@
 #define UNIFORM_RAYCAST
 
 // struct to hold raycast uniforms
-struct Raycast 
+struct Raymarch 
 {
     float threshold;  
     float min_stepping;
