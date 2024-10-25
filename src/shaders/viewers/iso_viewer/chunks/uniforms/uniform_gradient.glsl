@@ -1,15 +1,13 @@
-#ifndef GRADIENT_UNIFORMS
-#define GRADIENT_UNIFORMS
+#ifndef UNIFORM_GRADIENT
+#define UNIFORM_GRADIENT
 
 // struct to hold gradient uniforms
-struct uniforms_gradient 
+struct Gradient 
 {
     vec3 min;
     vec3 max;
     float max_norm;
     float threshold;
 };
-
-uniform uniforms_gradient u_gradient;
 
 #endif

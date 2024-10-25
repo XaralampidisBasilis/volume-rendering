@@ -1,8 +1,8 @@
-#ifndef UNIFORMS_LIGHTING
-#define UNIFORMS_LIGHTING
+#ifndef UNIFORM_LIGHTING
+#define UNIFORM_LIGHTING
 
 // struct to hold lighting uniforms
-struct uniforms_lighting 
+struct Lighting 
 {
     float power;
     vec3  color_a;
@@ -12,6 +12,4 @@ struct uniforms_lighting
     float has_attenuation;
 };
 
-uniform uniforms_lighting u_lighting;
-
-#endif // UNIFORMS_LIGHTING
+#endif // UNIFORM_LIGHTING

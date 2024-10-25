@@ -1,8 +1,8 @@
-#ifndef UNIFORMS_SHADING
-#define UNIFORMS_SHADING
+#ifndef UNIFORM_SHADING
+#define UNIFORM_SHADING
 
 // struct to hold shading uniforms
-struct uniforms_shading 
+struct Shading 
 {
     float reflectance_a;
     float reflectance_d;
@@ -14,6 +14,5 @@ struct uniforms_shading
     bool attenuation;
 };
 
-uniform uniforms_shading u_shading;
 
 #endif

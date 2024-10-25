@@ -1,8 +1,8 @@
-#ifndef UNIFORMS_DEBUG
-#define UNIFORMS_DEBUG
+#ifndef UNIFORMS_CONTROLS
+#define UNIFORMS_CONTROLS
 
 // struct to hold colormap uniforms
-struct uniforms_debug 
+struct Controls 
 {
     int option;
     int number;
@@ -13,7 +13,5 @@ struct uniforms_debug
     float tolerance;
     vec3 texel;
 };
-
-uniform uniforms_debug u_debug;
 
 #endif

@@ -1,8 +1,8 @@
-#ifndef VOLUME_UNIFORMS
-#define VOLUME_UNIFORMS
+#ifndef UNIFORM_VOLUME
+#define UNIFORM_VOLUME
 
 // struct to hold volume uniforms
-struct uniforms_volume 
+struct Volume 
 {
     vec3 dimensions;
     vec3 size;
@@ -11,7 +11,5 @@ struct uniforms_volume
     vec3 inv_size;
     vec3 inv_spacing;
 };
-
-uniform uniforms_volume u_volume;
 
 #endif

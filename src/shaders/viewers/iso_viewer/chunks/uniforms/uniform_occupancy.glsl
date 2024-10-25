@@ -1,8 +1,8 @@
-#ifndef OCCUPANCY_UNIFORMS
-#define OCCUPANCY_UNIFORMS
+#ifndef UNIFORM_OCCUPANCY
+#define UNIFORM_OCCUPANCY
 
 // struct to hold occupancy uniforms
-struct uniforms_occupancy 
+struct Occupancy 
 {
     int max_skips;
     int min_lod;
@@ -16,7 +16,5 @@ struct uniforms_occupancy
     vec3 min_position;    
     vec3 max_position;    
 };
-
-uniform uniforms_occupancy u_occupancy;
 
 #endif

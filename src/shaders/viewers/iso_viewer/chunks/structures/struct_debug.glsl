@@ -1,8 +1,8 @@
-#ifndef PARAMETERS_DEBUG
-#define PARAMETERS_DEBUG
+#ifndef STRUCT_DEBUG
+#define STRUCT_DEBUG
 
 // struct to hold gradient uniforms
-struct parameters_debug 
+struct Debug 
 {
     vec4 trace_position;  
     vec4 trace_coords;  
@@ -47,8 +47,9 @@ struct parameters_debug
     vec4 variable3;  
 };
 
-void set(out parameters_debug debug)
+Debug Debug()
 {
+    Debug debug;
     debug.trace_position      = vec4(0.0);
     debug.trace_coords        = vec4(0.0);
     debug.trace_distance      = vec4(0.0);
@@ -90,6 +91,7 @@ void set(out parameters_debug debug)
     debug.variable1           = vec4(0.0);
     debug.variable2           = vec4(0.0);
     debug.variable3           = vec4(0.0);
+    return debug;
 }
 
-#endif
+#endif // STRUCT_DEBUG

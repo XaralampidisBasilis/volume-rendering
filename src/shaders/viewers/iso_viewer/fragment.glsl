@@ -12,15 +12,20 @@ in mat4 v_projection_model_view_matrix;
 
 out vec4 fragColor;
 
-// uniforms, parameters, utils
+// uniforms, defines, structs, utils
 #include "./chunks/uniforms/uniforms"
 #include "./chunks/defines/defines"
-#include "./chunks/parameters/parameters"
+#include "./chunks/structs/structs"
 #include "./chunks/utils/utils"
 
 void main() 
 {
-    #include "./chunks/parameters/set_parameters"
+    Ray ray = Ray();  
+    Trace trace = Trace();
+    Trace trace_prev = Trace();
+    Occumap occumap = Occumap();
+    Debug debug = Debug();
+
     #include "./chunks/raycasting/compute_raycasting"
     #include "./chunks/colormapping/compute_colormapping"
     #include "./chunks/shading/compute_shading"

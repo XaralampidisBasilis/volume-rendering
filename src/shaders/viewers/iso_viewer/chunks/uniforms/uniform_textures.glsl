@@ -1,6 +1,7 @@
-#ifndef SAMPLER_UNIFORMS
-#define SAMPLER_UNIFORMS
-struct uniforms_sampler 
+#ifndef UNIFORM_TEXTURES
+#define UNIFORM_TEXTURES
+
+struct Textures 
 {
     sampler3D volume;
     sampler3D mask;
@@ -8,8 +9,5 @@ struct uniforms_sampler
     sampler2D noisemap;
     sampler3D occumaps;
 };
-
-uniform uniforms_sampler u_sampler;
-
 
 #endif

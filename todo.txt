@@ -8,97 +8,98 @@ Add typescript
 
 small errors are noticed when using raymarch_skipping. Also need to make sure to traverse a block boundary
 
-
-
-
 Improve variable naming
 
-struct parameters_trace 
+struct Trace 
 {
-    int   step_index;
-    int   skip_index;
+    int step_count;             //  step_index;
+    int skip_count;             //  skip_index;
 
     float step_scaling;  
     float step_distance;
     float skip_distance;
-    float rand_distance;            dither_step; dither_distance; jitter_dist; noise_distance
+    float rand_distance;          //  dither_step; dither_distance; jitter_dist; noise_distance
 
+    vec3  position;               //  space_position; model_position;
     float distance;
-    vec3  position;                 space_position; model_position;
+    float spanned_distance;
+    float stepped_distance;  
+    float skipped_distance;  
 
-    float sample;                   value;         value;    sample_value;   value; sampled_value; sampled_intensity; intensity_value; voxel_value; voxel_intensity;
+    float sample;                  // value;         value;    sample_value;   value; sampled_value; sampled_intensity; intensity_value; voxel_value; voxel_intensity;
     float sample_error;
-    vec4  sample_color;             value_color;   color;    sample_color;  color_mapped;
-    vec4  sample_shading;           value_shading; shading;  sample_shading; color_shading;
 
+    ivec3 voxel_coords;             //voxel_coords;             coordinates; volume_texture_coords;
+    vec3  voxel_texture_coords;     //voxel_texture_coords;     position_texture; volume_texture_position; voxel_tex_coords;
+
+    bool  block_occupied;
+    ivec3 block_coords;
+    vec3  block_texture_coords;
+
+    vec3  normal;
     vec3  gradient;
-    float gradient_magnitude;       gradient_size;  gradient_norm;  
-    vec3  gradient_direction;       normal; surface_normal; 
+    vec3  gradient_direction;       //normal; surface_normal; 
+    float gradient_magnitude;       //gradient_size;  gradient_norm;  
 
-    vec3  coords;          voxel_coords;             coordinates; volume_texture_coords;
-    vec3  coords_texture;  voxel_texture_coords;     position_texture; volume_texture_position; voxel_tex_coords;
+    float derivative_1st;       //step_derivative_1st; step_derivative;  directional_derivative; derivative1; first_derivative; step_gradient; directional_gradient; step_derivative; step_velocity;
+    float derivative_2nd;       //step_derivative_2nd; step_curvature;  directional_derivative2; derivative2; second_derivative; step_curvature; step_acceleration;
+    float derivative_3rd;       //step_derivative_3rd; step_torsion;  step_jerk; directional_derivative3; derivative3; third_derivative; step_gradient; step_torsion; step_jerk; step_flexion;
 
-    float step_derivative;  directional_derivative; derivative1; first_derivative; step_gradient; directional_gradient; step_derivative; step_velocity;
-    float step_curvature;   directional_derivative2; derivative2; second_derivative; step_curvature; step_acceleration;
-    float step_torsion;     step_jerk; directional_derivative3; derivative3; third_derivative; step_gradient; step_torsion; step_jerk; step_flexion;
-
-    parameters_block block;
+    vec4  mapped_color;         // sample_color;            // mapped_color; value_color;   color;    sample_color;  color_mapped;
+    vec4  shaded_color;         // sample_shading;          // shaded_color; value_shading; shading;  sample_shading; color_shading;
 };
 
-struct parameters_block
-{
-    bool  occupied;
-    ivec3 coords;
-    ivec3 coords_texture;
-    vec3  min_position;
-    vec3  max_position;
-}
-
-struct parameters_ray 
+struct Ray 
 {
     vec3  step_direction;
     float step_distance;
     float min_step_distance;
     float max_step_distance;
-    int   max_steps_count;
-    int   max_skips_count;
+    int   max_step_count;
+    int   max_skip_count;
 
     vec3  start_position;
     vec3  end_position;
-    float start_distance;   min_distance; 
-    float end_distance;     max_distance; 
-    float range_distance;   max_depth; path_depth; depth_range;  depth_distance;
+    float start_distance;  //min_distance; 
+    float end_distance;    //max_distance; 
+    float span_distance;  //max_depth; path_depth; depth_range;  depth_distance;
     float rand_distance;
 
     bool  intersected;
-
-    parameters_trace trace;
-    parameters_stats stats;
 };
 
-struct parameters_stats
-{
-    float spanned_distance;
-    float stepped_distance;  
-    float skipped_distance;  
-    int   steps_count;
-    int   skips_count;
-}
-
-struct parameters_global
+struct Globals
 {
     vec3  camera_position;
     float min_start_distance; 
     float max_end_distance;
-    float max_range_distance;
+    float max_span_distance;
     float min_step_scaling;
     float max_step_scaling;
     vec3  min_position; 
     vec3  max_position;
+    int   max_step_count;
+    int   max_skip_count;
+    float min_sample_threshold
+    float min_gradient_threshold
 } 
 
-stepping = step_scaling
-spacing = step_size
+struct Metrics
+{
+    ivec3 volume_dimensions
+    vec3  volume_size
+    vec3  volume_spacing
+    vec3  volume_inv_spacing
+
+    int   occumap_lod
+    float occumap_scale
+    ivec3 occumap_dimensions
+    ivec3 occumap_offset
+    vec3  occumap_spacing
+
+    float max_voxel_distance;
+    float max_block_distance;
+}
 
 Inspired implementation: 
 https://www.youtube.com/watch?v=rh7nWk1v4-8&ab_channel=TimurVizaev
@@ -118,4 +119,5 @@ Future Implementations
 7. Implement automatic heart structure segmentation
 
 
-
+For heart failure:
+1. 3D chamber visualization (especially left ventricle) for structure assessment.

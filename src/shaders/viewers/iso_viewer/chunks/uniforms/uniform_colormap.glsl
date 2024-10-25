@@ -1,8 +1,8 @@
-#ifndef COLORMAP_UNIFORMS
-#define COLORMAP_UNIFORMS
+#ifndef UNIFORM_COLORMAP
+#define UNIFORM_COLORMAP
 
 // struct to hold colormap uniforms
-struct uniforms_colormap 
+struct Colormap 
 {
     int name;
     float texture_row;     
@@ -11,7 +11,5 @@ struct uniforms_colormap
     float high;  
     float levels;
 };
-
-uniform uniforms_colormap u_colormap;
 
 #endif

@@ -7,7 +7,7 @@ export default function()
 {
     const uniforms = 
     {
-        u_sampler: new THREE.Uniform
+        textures: new THREE.Uniform
         ({
             volume  : null,
             mask    : null,
@@ -16,7 +16,7 @@ export default function()
             occumaps: null,
         }),
 
-        u_volume : new THREE.Uniform
+        volume : new THREE.Uniform
         ({
             dimensions    : new THREE.Vector3(),
             size          : new THREE.Vector3(),
@@ -26,20 +26,15 @@ export default function()
             inv_spacing   : new THREE.Vector3(),
         }),
 
-        u_raycast: new THREE.Uniform
+        raycast: new THREE.Uniform
         ({
             threshold         : 0.3,
             min_stepping      : 1,
             max_stepping      : 1,
             max_steps         : 1000,
-            spacing_method    : 1,
-            stepping_method   : 1,
-            dithering_method  : 1,
-            dithering_scale   : 0,
-            refinement_method : 2,
         }),
 
-        u_gradient: new THREE.Uniform
+        gradient: new THREE.Uniform
         ({
             min       : new THREE.Vector3(),
             max       : new THREE.Vector3(),
@@ -47,7 +42,7 @@ export default function()
             threshold : 0,
         }),
             
-        u_colormap: new THREE.Uniform
+        colormap: new THREE.Uniform
         ({
             name            : 'cet_d9',
             texture_row     : colormapLocations['cet_d9'].v,
@@ -57,7 +52,7 @@ export default function()
             levels          : 255,
         }),
 
-        u_shading: new THREE.Uniform
+        shading: new THREE.Uniform
         ({
             reflectance_a   : 0.2,
             reflectance_d   : 1,
@@ -68,7 +63,7 @@ export default function()
             model           : 2,
         }),
 
-        u_lighting: new THREE.Uniform
+        lighting: new THREE.Uniform
         ({
             power          : 1.0,
             color_a        : new THREE.Color(0xffffff),
@@ -78,7 +73,7 @@ export default function()
             has_attenuation     : false,
         }),
 
-        u_occupancy: new THREE.Uniform
+        occupancy: new THREE.Uniform
         ({
             max_skips      : 200,
             min_lod        : 0,
@@ -93,7 +88,7 @@ export default function()
             max_position   : new THREE.Vector3(),
         }),
 
-        u_debug: new THREE.Uniform
+        debug: new THREE.Uniform
         ({
             option     : 0,
             number     : 100,
@@ -103,7 +98,18 @@ export default function()
             epsilon    : 0,
             tolerance  : 0,
             texel      : new THREE.Color(0x000000),
-        })
+        }),
+
+        controls: new THREE.Uniform
+        ({
+            number     : 100,
+            scale      : 4,
+            constant   : 0,
+            mixing     : 0.5,
+            epsilon    : 0,
+            tolerance  : 0,
+            texel      : new THREE.Color(0x000000),
+        }),
 
     }
 
