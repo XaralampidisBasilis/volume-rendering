@@ -16,15 +16,15 @@
  */
 
 // find the maximum steps of the ray to ensure proper scaling.
-float max_steps = mmax(u_volume.dimensions);
+float max_step_count = mmax(volume.dimensions);
 
 // find the minimum spacing of the volume's voxels.
-float min_spacing = mmin(u_volume.spacing);
+float min_step_distance = mmin(volume.spacing);
 
 // calculate the ray spacing by dividing the ray's max depth with the max steps,
 // ensure that the spacing is not bellow the minimum allowed value
-ray.spacing = max(ray.max_depth / max_steps, min_spacing);
+ray.step_distance = max(ray.span_distance / max_step_count, min_step_distance);
 
-// compute the minimum and maximum spacing based on the ray spacing and stepping factors.
-ray.min_spacing = ray.spacing * u_raycast.min_stepping;
-ray.max_spacing = ray.spacing * u_raycast.max_stepping;
+// adjust the ray step_distance using the minimum and maximum stepping factors.
+ray.min_step_distance = ray.step_distance * raymarch.min_step_scale;
+ray.max_step_distance = ray.step_distance * raymarch.max_step_scale;

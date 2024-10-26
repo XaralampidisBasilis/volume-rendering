@@ -1,10 +1,10 @@
 
-#if HAS_OCCUPANCY_BBOX == 1  
-    #include "./skipping_occupancy_bbox"
+#if RAY_SKIPPING_BBOX_ENABLED == 1  
+    #include "./modules/skipping_bbox"
 
 #endif // HAS_BBOX
 
-#if HAS_OCCUPANCY_MAPS == 1
-    #include "./skipping_occupancy_maps"
+#if RAY_SKIPPING_OCCUMAPS_ENABLED == 1
+    #include "./modules/skipping_occumaps"
 
 #endif // HAS_SKIPPING

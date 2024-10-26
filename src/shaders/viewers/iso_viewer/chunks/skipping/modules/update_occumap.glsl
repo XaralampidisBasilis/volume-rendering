@@ -1,6 +1,5 @@
-
-// start at the coarsest level of the occumaps
-occumap.lod = occumaps.max_lods - 1;
+// update occumap level of detail
+occumap.lod -= 1;
 occumap.lod_scale = exp2(float(occumap.lod));
 
 // compute occumap dimensions and block spacing

@@ -63,8 +63,8 @@ export default class ComputeOccupancy
         this.viewer.textures.occumaps.magFilter = THREE.LinearFilter
         this.viewer.textures.occumaps.needsUpdate = true
 
-        this.viewer.material.uniforms.occumaps.value.atlas_lods = this.results.atlasLods
-        this.viewer.material.uniforms.occumaps.value.atlas_dimensions.fromArray(this.results.atlasDimensions)
+        this.viewer.material.uniforms.occumaps.value.max_lod = this.results.atlasLods
+        this.viewer.material.uniforms.occumaps.value.dimensions.fromArray(this.results.atlasDimensions)
         this.viewer.material.uniforms.occumaps.value.base_dimensions.fromArray(this.results.baseDimensions)
         this.viewer.material.uniforms.occumaps.value.base_spacing.fromArray(this.results.baseSpacing)
         this.viewer.material.uniforms.occumaps.value.base_size.fromArray(this.results.baseSize)

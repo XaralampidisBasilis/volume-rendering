@@ -42,11 +42,12 @@ export default function()
 
         occumaps: new THREE.Uniform
         ({
-            atlas_lods       : 0,
-            atlas_dimensions : new THREE.Vector3(),
-            base_dimensions  : new THREE.Vector3(),
-            base_spacing     : new THREE.Vector3(),
-            base_size        : new THREE.Vector3(),
+            min_lod        : 0,
+            max_lod        : 0,
+            dimensions     : new THREE.Vector3(),
+            base_dimensions: new THREE.Vector3(),
+            base_spacing   : new THREE.Vector3(),
+            base_size      : new THREE.Vector3(),
         }),
 
         colormap: new THREE.Uniform({
@@ -91,34 +92,33 @@ export default function()
 
     const defines = 
     {
-        VOLUME_GRADIENTS_METHOD : 1,
-        VOLUME_SMOOTHING_METHOD : 1,
-        VOLUME_SMOOTHING_RADIUS : 2,
+        VOLUME_GRADIENTS_METHOD       : 1,
+        VOLUME_SMOOTHING_METHOD       : 1,
+        VOLUME_SMOOTHING_RADIUS       : 2,
+  
+        RAY_DITHERING_ENABLED         : 1,
+        RAY_DITHERING_METHOD          : 1,
+        RAY_STEPPING_METHOD           : 1,
+        RAY_REFINEMENT_ENABLED        : 1,
+        RAY_REFINEMENT_METHOD         : 2,
+        RAY_GRADIENTS_ENABLED         : 1,
+        RAY_GRADIENTS_METHOD          : 1,
+        RAY_SKIPPING_BBOX_ENABLED     : 1,
+        RAY_SKIPPING_OCCUMAPS_ENABLED : 1,
  
-        RAY_DITHERING_ENABLED     : 1,
-        RAY_DITHERING_METHOD      : 1,
-        RAY_STEPPING_METHOD       : 1,
-        RAY_REFINEMENT_ENABLED    : 1,
-        RAY_REFINEMENT_METHOD     : 2,
-        RAY_GRADIENTS_ENABLED     : 1,
-        RAY_GRADIENTS_METHOD      : 1,
-        RAY_SMOOTHING_ENABLED     : 1,
-        RAY_SMOOTHING_METHOD      : 1,
-        RAY_SKIPPING_BBOX_ENABLED : 1,
-        RAY_SKIPPING_BLOCK_ENABLED: 1,
+        TRACE_DITHERING_ENABLED       : 0,
+        TRACE_DITHERING_METHOD        : 1,
+        TRACE_SCALING_ENABLED         : 10,
+        TRACE_SCALING_METHOD          : 10,
+        TRACE_DERIVATIVES_METHOD      : 1,
+        TRACE_SKIPPING_OMAPS_ENABLED  : 1,
+ 
+        LIGHTING_ATTENUATION_ENABLED  : 0,
+        LIGHTING_ATTENUATION_METHOD   : 0,
 
-        TRACE_DITHERING_ENABLED     : 0,
-        TRACE_DITHERING_METHOD      : 1,
-        TRACE_SCALING_METHOD        : 10,
-        TRACE_DERIVATIVES_METHOD    : 1,
-        TRACE_SKIPPING_BLOCK_ENABLED: 1,
+        SHADING_METHOD                : 0,
 
-        LIGHTING_ATTENUATION_ENABLED : 0,
-        LIGHTING_ATTENUATION_METHOD  : 0,
-
-        SHADING_METHOD: 0,
-
-        DEBUG_DISCARDING_ENABLED : 1,
+        DEBUG_DISCARDING_ENABLED      : 1,
     }
 
     const material = new THREE.ShaderMaterial({

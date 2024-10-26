@@ -9,6 +9,8 @@ struct Ray
     vec3  origin_position;      // origin position of the ray in 3d model coordinates 
     vec3  start_position;       // starting position of the ray in 3d model coordinates for raymarching
     vec3  end_position;         // ending position of the ray in 3d model coordinates for raymarching
+    vec3  min_position;         // min allowed position of the ray due to volume size, in 3d model coordinates
+    vec3  max_position;         // max allowed position of the ray due to volume size, in 3d model coordinates
 
     vec3  step_direction;       // direction vector for each step along the ray
     float step_distance;        // fixed step distance for each ray 
@@ -33,25 +35,27 @@ struct Ray
 Ray Ray()
 {
     Ray ray;
-    ray.step_direction = vec3(0.0);
-    ray.step_distance = 0.0;
-    ray.min_step_distance = 0.0;
-    ray.max_step_distance = 0.0;
-    ray.max_step_count = 0;
-    ray.max_skip_count = 0;
-    ray.origin_position = vec3(0.0);
-    ray.start_position = vec3(0.0);
-    ray.end_position = vec3(0.0);
-    ray.rand_distance = 0.0;
-    ray.start_distance = 0.0;
-    ray.end_distance = 0.0;
-    ray.span_distance = 0.0;
+    ray.step_direction     = vec3(0.0);
+    ray.step_distance      = 0.0;
+    ray.min_step_distance  = 0.0;
+    ray.max_step_distance  = 0.0;
+    ray.max_step_count     = 0;
+    ray.max_skip_count     = 0;
+    ray.origin_position    = vec3(0.0);
+    ray.start_position     = vec3(0.0);
+    ray.end_position       = vec3(0.0);
+    ray.min_position       = vec3(0.0);
+    ray.max_position       = vec3(0.0);
+    ray.rand_distance      = 0.0;
+    ray.start_distance     = 0.0;
+    ray.end_distance       = 0.0;
+    ray.span_distance      = 0.0;
     ray.min_start_distance = 0.0;
-    ray.max_end_distance = 0.0;
-    ray.max_span_distance = 0.0;
+    ray.max_end_distance   = 0.0;
+    ray.max_span_distance  = 0.0;
     ray.max_voxel_distance = 0.0;
     ray.max_block_distance = 0.0;
-    ray.intersected = false;
+    ray.intersected        = false;
     return ray;
 }
 

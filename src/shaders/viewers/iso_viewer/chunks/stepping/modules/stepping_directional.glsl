@@ -15,11 +15,11 @@
  */
 
 // compute the adjusted direction by scaling the ray's absolute direction with the inverse spacing of the volume.
-vec3 adjusted_direction = abs(ray.direction) * u_volume.inv_spacing;
+vec3 directional_spacing = abs(ray.step_direction) * volume.inv_spacing;
 
 // calculate the ray spacing as the mean value of ray depths from all parallel rays intersecting the voxel aabb.
-ray.spacing = 1.0 / sum(adjusted_direction);
+ray.step_distance = 1.0 / sum(directional_spacing);
 
-// compute the minimum and maximum spacing based on the ray spacing and stepping factors.
-ray.min_spacing = ray.spacing * u_raycast.min_stepping;
-ray.max_spacing = ray.spacing * u_raycast.max_stepping;
+// adjust the ray step_distance using the minimum and maximum stepping factors.
+ray.min_step_distance = ray.step_distance * raymarch.min_step_scale;
+ray.max_step_distance = ray.step_distance * raymarch.max_step_scale;

@@ -1,6 +1,7 @@
 
-// setup raycasting parameters and precompute variables
-#include "./modules/setup_raycasting"
+
+#include "./modules/setup_occumap"
+#include "./modules/setup_ray"
 
 // skip initial volume empty space 
 #include "../skipping/compute_skipping"

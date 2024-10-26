@@ -29,6 +29,7 @@
 #include "./outside_box"
 #include "./outside_box_inclusive"
 #include "./sdf_box"
+#include "./box_bounds"
 #include "./intersect_box"
 #include "./intersect_box_max"
 #include "./intersect_box_min"
