@@ -1,6 +1,6 @@
 
 // start at the coarsest level of the occumaps
-occumap.lod = max(occumap.lod, raymarch.max_skip_lod);
+occumap.lod = min(occumaps.lods - 1, raymarch.max_skip_lod);
 occumap.lod_scale = exp2(float(occumap.lod));
 
 // compute occumap dimensions and block spacing
@@ -17,7 +17,7 @@ if (occumap.lod > 0) {
 // compute the max number of skips based on the currect occumap
 ray.max_block_distance = length(occumap.spacing);
 ray.max_skip_count = mmax(occumap.dimensions);
-ray.max_skip_count = min(ray.max_skip_count, raymarch.max_step_count);
+ray.max_skip_count = min(ray.max_skip_count, raymarch.max_skip_count);
 
 // update trace block level of detail
 trace.block_lod = occumap.lod;
