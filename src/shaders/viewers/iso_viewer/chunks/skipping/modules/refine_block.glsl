@@ -10,7 +10,7 @@ trace.distance = max(trace.distance, ray.start_distance);
 
 // update trace positional data
 trace.position = ray.origin_position + ray.step_direction * trace.distance;
-trace.voxel_coords = int(trace.position * volume.inv_spacing);
+trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * volume.inv_size;
 
 // update ray start

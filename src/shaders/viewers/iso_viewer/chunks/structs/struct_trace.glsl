@@ -18,6 +18,7 @@ struct Trace
     float stepped_distance;     // total stepped distance from ray start
     float skipped_distance;     // total skipped distance from ray start
 
+    vec4 sample_data;           // sampled data at the current position
     float sample_value;         // sampled value at the current position
     float sample_error;         // sampled error associated with the difference of the sample value from the threshold
 
@@ -55,6 +56,7 @@ Trace set_trace()
     trace.spanned_distance = 0.0;
     trace.stepped_distance = 0.0;
     trace.skipped_distance = 0.0;
+    trace.sample_data = vec4(0.0);
     trace.sample_value = 0.0;
     trace.sample_error = 0.0;
     trace.voxel_coords = ivec3(0);
@@ -69,8 +71,8 @@ Trace set_trace()
     trace.derivative_1st = 0.0;
     trace.derivative_2nd = 0.0;
     trace.derivative_3rd = 0.0;
-    trace.mapped_color = vec4(0.0);
-    trace.shaded_color = vec4(0.0);
+    trace.mapped_color = vec4(vec3(0.0), 1.0);
+    trace.shaded_color = vec4(vec3(0.0), 1.0);
     return trace;
 }
 

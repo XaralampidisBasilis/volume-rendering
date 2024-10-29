@@ -30,7 +30,7 @@ void main()
     #include "./chunks/colormapping/compute_colormapping"
     #include "./chunks/shading/compute_shading"
 
-    fragColor = vec4(trace.shaded_color, 1.0);
+    fragColor = trace.shaded_color;
     #include "./chunks/compute_frag_depth"
     // #include "./chunks/debug/compute_debug"
 

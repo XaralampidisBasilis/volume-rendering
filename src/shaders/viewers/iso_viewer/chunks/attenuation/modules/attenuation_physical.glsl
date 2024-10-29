@@ -7,5 +7,4 @@ float light_distance = length(light_vector);
 vec3 light_distance_pows = vec3(1.0, light_distance, light_distance*light_distance);
 
 float attenuation = 1.0 / dot(attenuation_coefficients, light_distance_pows);
-attenuation= clamp(mix(1.0, attenuation, lighting.LIGHTING_ATTENUATION_ENABLED), 0.0, 1.0);
 

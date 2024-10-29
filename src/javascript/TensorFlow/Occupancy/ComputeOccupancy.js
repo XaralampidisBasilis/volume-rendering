@@ -15,8 +15,7 @@ export default class ComputeOccupancy
     {               
         tf.tidy(() => 
         {
-            // const spacing = [...this.parameters.volume.spacing.toArray().toReversed(), 1]
-            const spacing = this.parameters.volume.spacing.toArray().toReversed().push(1)
+            const spacing = this.parameters.volume.spacing.toArray().toReversed().concat(1)
             const condition = this.viewer.tensors.volume.greater([this.threshold])
 
             const [minCoords, maxCoords] = this.argRange4d(condition)
@@ -53,7 +52,7 @@ export default class ComputeOccupancy
     {
         if (this.viewer.textures.occumaps) 
             this.viewer.textures.occumaps.dispose()
-        this.viewer.textures.occumaps = new THREE.Data3DTexture(this.results.data, ...this.results.dimensions)     
+        this.viewer.textures.occumaps = new THREE.Data3DTexture(this.results.data, ...this.results.atlasDimensions)     
         this.viewer.textures.occumaps.type = THREE.UnsignedByteType
         this.viewer.textures.occumaps.format = THREE.RedFormat
         this.viewer.textures.occumaps.wrapS = THREE.ClampToEdgeWrapping

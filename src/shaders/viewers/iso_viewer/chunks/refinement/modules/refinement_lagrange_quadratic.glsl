@@ -44,17 +44,8 @@ t_roots = clamp(t_roots, ray.start_distance, ray.end_distance);
 // Compute distance and position in solution
 trace.distance = mmin(t_roots);
 trace.position = ray.origin_position + ray.step_direction * trace.distance;
+trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * volume.inv_size;
 
-// Extract intensity value from volume data
-vec4 volume_data = texture(textures.volume, trace.voxel_texture_coords);
-trace.sample_value = volume_data.r;
-trace.sample_error = trace.sample_value - raymarch.sample_threshold;
-
-// Extract gradient from volume data
-trace.gradient = mix(volume.min_gradient, volume.max_gradient, volume_data.gba);
-trace.gradient_magnitude = length(trace.gradient);
-trace.normal = - normalize(trace.gradient);
-trace.derivative_1st = dot(trace.gradient, ray.step_direction);
-
-trace.voxel_coords = floor(trace.position * volume.inv_spacing);
+// sample volume
+#include "./sample_volume

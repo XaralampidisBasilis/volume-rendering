@@ -3,7 +3,6 @@
 
 struct Debug 
 {
-    int option;
 };
 
 #endif

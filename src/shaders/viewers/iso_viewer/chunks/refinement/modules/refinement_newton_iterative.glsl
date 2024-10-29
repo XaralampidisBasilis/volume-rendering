@@ -20,8 +20,6 @@ distances = clamp(distances, ray.start_distance, ray.end_distance);
 float s_linear = map(trace_prev.sample_value, trace.sample_value, raymarch.sample_threshold);
 trace.distance = mix(distances.x, distances.y, s_linear);
 
-vec4 volume_data;
-
 #pragma unroll_loop_start
 for (int i = 0; i < 5; i++, trace.step_count++) 
 {
@@ -30,12 +28,12 @@ for (int i = 0; i < 5; i++, trace.step_count++)
     trace.voxel_texture_coords = trace.position * volume.inv_size;
 
     // Extract intensity value from volume data
-    volume_data = texture(textures.volume, trace.voxel_texture_coords);
-    trace.sample_value = volume_data.r;
+    trace.sample_data = texture(textures.volume, trace.voxel_texture_coords);
+    trace.sample_value = trace.sample_data.r;
     trace.sample_error = trace.sample_value - raymarch.sample_threshold;
 
     // Extract gradient from volume data
-    trace.gradient = mix(volume.min_gradient, volume.max_gradient, volume_data.gba);
+    trace.gradient = mix(volume.min_gradient, volume.max_gradient, trace.sample_data.gba);
     trace.gradient_magnitude = length(trace.gradient);
     trace.normal = - normalize(trace.gradient);
     trace.derivative_1st = dot(trace.gradient, ray.step_direction);

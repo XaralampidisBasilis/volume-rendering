@@ -32,5 +32,5 @@ ray.span_distance = max(ray.span_distance, 0.0);
 // update trace 
 trace.distance = ray.start_distance;
 trace.position = ray.start_position;
-trace.voxel_coords = int(trace.position * volume.inv_spacing);
+trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * volume.inv_size;

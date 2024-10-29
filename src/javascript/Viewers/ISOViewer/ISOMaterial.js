@@ -114,8 +114,8 @@ export default function()
         TRACE_SKIP_OMAP_ENABLED      : 1,
 
         LIGHTING_ATTENUATION_ENABLED : 0,
-        LIGHTING_ATTENUATION_METHOD  : 0,
-        SHADING_METHOD               : 0,
+        LIGHTING_ATTENUATION_METHOD  : 1,
+        SHADING_METHOD               : 1,
     }
 
     const material = new THREE.ShaderMaterial({

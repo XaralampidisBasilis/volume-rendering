@@ -16,7 +16,6 @@ trace = trace_prev;
 
 // calculate the refined substep
 float sub_spacing = trace.step_distance / 6.0;  
-vec4 volume_data;
 
 // perform additional sampling steps to refine the hit point 
 for (int i = 0; i < 5; i++, trace.step_count++) 
@@ -26,8 +25,8 @@ for (int i = 0; i < 5; i++, trace.step_count++)
     trace.voxel_texture_coords = trace.position * volume.inv_size;
 
     // Extract intensity value from volume data
-    volume_data = texture(textures.volume, trace.voxel_texture_coords);
-    trace.sample_value = volume_data.r;
+    trace.sample_data = texture(textures.volume, trace.voxel_texture_coords);
+    trace.sample_value = trace.sample_data.r;
     trace.sample_error = trace.sample_value - raymarch.sample_threshold;
 
     // if the sampled value exceeds the threshold, return early
@@ -35,7 +34,7 @@ for (int i = 0; i < 5; i++, trace.step_count++)
 }
 
 // extract gradient and distance
-trace.gradient = mix(volume.min_gradient, volume.max_gradient, volume_data.gba);
+trace.gradient = mix(volume.min_gradient, volume.max_gradient, trace.sample_data.gba);
 trace.gradient_magnitude = length(trace.gradient);
 trace.normal = - normalize(trace.gradient);
 trace.derivative_1st = dot(trace.gradient, ray.step_direction);

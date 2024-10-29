@@ -15,7 +15,8 @@ uniform int volume_count;
 uniform vec3 volume_size;
 uniform ivec3 volume_dimensions;  
 uniform vec3 volume_inv_dimensions;  
-uniform vec3 volume_inv_spacing;  
+uniform vec3 volume.inv_spacing
+;  
 uniform ivec2 computation_dimensions; 
 
 void main()

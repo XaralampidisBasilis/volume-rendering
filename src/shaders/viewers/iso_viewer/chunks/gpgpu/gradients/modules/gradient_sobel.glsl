@@ -96,7 +96,8 @@ for (int i = 0; i < 27; i++)
 gradient /= 16.0;
 
 // Adjust gradient to physical space 
-gradient *= 0.5 * volume_inv_spacing;
+gradient *= 0.5 * volume.inv_spacing
+;
 
 // Combine results
 gl_FragColor = vec4(gradient, length(gradient));
