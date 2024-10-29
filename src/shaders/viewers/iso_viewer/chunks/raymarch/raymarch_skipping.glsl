@@ -15,10 +15,10 @@ for (trace.steps = 0; trace.steps < ray.max_steps; trace.steps++)
     if (block.occupied) {
 
         #include "./modules/sample_volume"
-        ray.intersected = trace.error > 0.0 && trace.gradient_norm > gradient_threshold;
+        ray.intersected = trace.sample_error > 0.0 && trace.gradient_magnitude > gradient_threshold;
         if (ray.intersected) break;
 
-        prev_trace = trace;
+        trace_prev = trace;
         #include "./modules/update_trace"
     } 
     else
@@ -29,12 +29,12 @@ for (trace.steps = 0; trace.steps < ray.max_steps; trace.steps++)
         block.max_position = block.min_position + occumap.spacing;
 
         // intersect ray with block to find the skipping distance
-        block.skipping = intersect_box_max(block.min_position, block.max_position, trace.position, ray.direction);
+        block.skipping = intersect_box_max(block.min_position, block.max_position, trace.position, ray.step_direction);
         block.skipping += length(occumap.spacing) * MILLI_TOL; // add small values to avoid numerical instabilities in block boundaries
 
         #include "./modules/update_block_position"
     }
 
-    if (trace.distance > ray.max_distance) break;
+    if (trace.distance > ray.end_distance) break;
 }   
 

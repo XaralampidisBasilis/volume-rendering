@@ -36,7 +36,7 @@ vec3 is_outside;
 #pragma unroll_loop_start
 for (int i = 0; i < 4; i++)
 {
-    sample_texel = trace.texel + texel_step * sample_offset[i];
+    sample_texel = trace.voxel_texture_coords + texel_step * sample_offset[i];
     sample_value[i] = texture(u_sampler.volume, sample_texel).r;
     
     // correct edge cases due to trillinear interpolation and clamp to edge wrapping   
@@ -53,8 +53,8 @@ trace.gradient *= u_volume.inv_spacing * 0.5; // // adjust gradient to physical 
 trace.gradient *= 8.0; // get integer kernel values from trilinear sampling
 trace.gradient /= 8.0; // normalize the kernel values
 
-trace.gradient_norm = length(trace.gradient);
+trace.gradient_magnitude = length(trace.gradient);
 trace.normal = - normalize(trace.gradient);
-trace.derivative = dot(trace.gradient, ray.direction);
+trace.derivative_1st = dot(trace.gradient, ray.step_direction);
 
 

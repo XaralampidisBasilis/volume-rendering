@@ -15,7 +15,7 @@ for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++) {
 
             // Calculate the sample offset and texel position
             sample_offset = ivec3(x, y, z);
-            sample_texel = trace.texel + texel_step * vec3(sample_offset);
+            sample_texel = trace.voxel_texture_coords + texel_step * vec3(sample_offset);
 
             // Check if the sample is zero offset
             is_zero = float(all(equal(sample_offset, ivec3(0))));
@@ -30,7 +30,7 @@ for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++) {
 }
 
 // Normalize the final trace value
-trace.value = clamp(trace.value, min_value, max_value);
+trace.sample = clamp(trace.sample, min_value, max_value);
 
 // Compute trace error relative to the raycast threshold
-trace.error = trace.value - u_raycast.threshold;
+trace.sample_error = trace.sample - raymarch.sample_threshold;

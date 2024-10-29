@@ -15,4 +15,4 @@ trace.voxel_texture_coords = trace.position * volume.inv_size;
 
 // update ray start
 ray.start_distance = trace.distance;
-ray.span_distance = max(ray.max_distance - ray.start_distance, 0.0);
+ray.span_distance = max(ray.end_distance - ray.start_distance, 0.0);

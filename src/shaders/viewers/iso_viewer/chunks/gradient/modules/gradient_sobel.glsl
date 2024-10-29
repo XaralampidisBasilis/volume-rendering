@@ -75,7 +75,7 @@ vec3 box_max = 1.0 - box_min;
 #pragma unroll_loop_start
 for (int i = 0; i < 27; i++)
 {
-    sample_texel = trace.texel + texel_step * sample_offset[i];
+    sample_texel = trace.voxel_texture_coords + texel_step * sample_offset[i];
     sample_value[i] = texture(u_sampler.volume, sample_texel).r;
     sample_value[i] *= inside_box(box_min, box_max, sample_texel);
 }
@@ -95,6 +95,6 @@ for (int i = 0; i < 27; i++)
 
 trace.gradient /= 16.0; // normalize the kernel values
 trace.gradient *= u_volume.inv_spacing * 0.5; // // adjust gradient to physical space 
-trace.gradient_norm = length(trace.gradient);
+trace.gradient_magnitude = length(trace.gradient);
 trace.normal = - normalize(trace.gradient);
-trace.derivative = dot(trace.gradient, ray.direction);
+trace.derivative_1st = dot(trace.gradient, ray.step_direction);

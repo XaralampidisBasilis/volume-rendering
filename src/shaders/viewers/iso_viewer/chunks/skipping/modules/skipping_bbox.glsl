@@ -12,7 +12,7 @@ vec2 ray_distances = intersect_box(volume_min_position, volume_max_position, ray
 ray_distances = max(ray_distances, 0.0); 
 ray.start_distance = ray_distances.x;
 ray.end_distance = ray_distances.y;
-ray.span_distance = ray.max_distance - ray.min_distance;
+ray.span_distance = ray.end_distance - ray.start_distance;
 ray.span_distance = max(ray.span_distance, 0.0);
 
 // update trace 

@@ -16,7 +16,7 @@ for (int i = 0; i <= SMOOTHING_RADIUS; i++)
     kernel[i] = coeff * besseli(i, sigma2);
 
 // Initialize loop
-trace.value = 0.0;        
+trace.sample = 0.0;        
 
 for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++)  {
     float kernel_x = kernel[abs(x)];
@@ -29,7 +29,7 @@ for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++)  {
 
             // Compute sample texel position
             sample_offset = vec3(x, y, z);
-            sample_texel = trace.texel + texel_step * sample_offset;
+            sample_texel = trace.voxel_texture_coords + texel_step * sample_offset;
             
             // Compute the modified bessel of the first kind kernel value
             // Apply the boundary check to the kernel value
@@ -39,14 +39,14 @@ for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++)  {
             sample_value = textureLod(u_sampler.volume, sample_texel, 0.0).r;
 
             // Accumulate the weighted sample and kernel sum
-            trace.value += sample_kernel * sample_value;
+            trace.sample += sample_kernel * sample_value;
             kernel_sum += sample_kernel;
         }
     }
 }
 
 // Normalize the final trace value
-trace.value /= kernel_sum;
+trace.sample /= kernel_sum;
 
 // Compute trace error relative to threshold
-trace.error = trace.value - u_raycast.threshold;
+trace.sample_error = trace.sample - raymarch.sample_threshold;

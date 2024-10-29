@@ -4,10 +4,10 @@
  * Generates dithering based on the world-space position of the ray's mean distance
  * This is used to add randomness to the ray's sampling step size for smoother results.
  *
- * @input ray.min_distance   : minimum distance along the ray (float)
- * @input ray.max_distance   : maximum distance along the ray (float)
- * @input ray.origin         : the starting point of the ray (vec3)
- * @input ray.direction      : the normalized direction vector of the ray (vec3)
+ * @input ray.start_distance   : minimum distance along the ray (float)
+ * @input ray.end_distance   : maximum distance along the ray (float)
+ * @input ray.origin_position         : the starting point of the ray (vec3)
+ * @input ray.step_direction      : the normalized direction vector of the ray (vec3)
  * @input v_model_view_matrix: the model-view matrix for transforming from model to world coordinates (mat4)
  * @input ray.max_spacing    : the maximum spacing for raymarching steps (float)
  *
@@ -30,5 +30,5 @@ ray.rand_distance *= ray.step_distance * 0.5;
 // update ray
 ray.start_distance += ray.rand_distance;
 ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
-ray.span_distance = ray.max_distance - ray.min_distance;
+ray.span_distance = ray.end_distance - ray.start_distance;
 ray.span_distance = max(ray.span_distance, 0.0);

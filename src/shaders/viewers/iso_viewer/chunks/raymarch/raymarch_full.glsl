@@ -14,6 +14,6 @@ for (trace.step_count = 0; trace.step_count < ray.max_step_count; trace.step_cou
 
     trace_prev = trace;
     #include "./modules/update_trace"
-    if (trace.distance > ray.max_distance) break;
+    if (trace.distance > ray.end_distance) break;
 }   
 

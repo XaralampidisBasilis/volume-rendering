@@ -1,7 +1,7 @@
 /**
  * Refines the hit point by performing additional sampling steps.
  *
- * @param u_raycast: struct containing raycast-related uniforms.
+ * @param raymarch: struct containing raycast-related uniforms.
  * @param u_gradient: struct containing gradient-related uniforms.
  * @param u_sampler: struct containing volume-related uniforms.
  * @param ray_step: step vector for raycasting increments.
@@ -14,50 +14,56 @@
 Trace trace_tmp = trace;
 
 // define the bisection intervals
-vec2 samples = vec2(trace_prev.sample, trace.sample);
-vec2 distances = vec2(trace_prev.distance, trace.distance);
-distances = clamp(distances, ray.min_distance, ray.max_distance);
+vec2 trace_samples = vec2(trace_prev.sample, trace.sample);
+vec2 trace_distances = vec2(trace_prev.distance, trace.distance);
+trace_distances = clamp(trace_distances, ray.start_distance, ray.end_distance);
 
-float mix_error;
-float is_positive;
-vec4 volume_data;
+float sample_lerp;
+float select_interval;
+vec4 volume_texture_data;
 
 #pragma unroll_loop_start
 for (int i = 0; i < 5; i++, trace.steps++) 
 {
-    // compute interpolation factor
-    mix_error = map(samples.x, samples.y, u_raycast.threshold);
+    // compute sample linear interpolation factor
+    sample_lerp = map(trace_samples.x, trace_samples.y, raymarch.sample_threshold);
 
-    // compute position
-    trace.distance = mix(distances.x, distances.y, mix_error);
-    trace.position = ray.origin + ray.direction * trace.distance;
-    trace.texel = trace.position * u_volume.inv_size;
+    // linearly interpolate positions based on sample 
+    trace.distance = mix(trace_distances.x, trace_distances.y, sample_lerp);
+    trace.position = ray.origin_position + ray.step_direction * trace.distance;
+    trace.voxel_texture_coords = trace.position * volume.inv_size;
 
     // sample the intensity at the interpolated position
-    volume_data = texture(u_sampler.volume, trace.texel);
-    trace.sample = volume_data.r;
-    trace.error = trace.sample - u_raycast.threshold;
+    volume_texture_data = texture(textures.volume, trace.voxel_texture_coords);
+    trace.sample = volume_texture_data.r;
+    trace.sample_error = trace.sample - raymarch.sample_threshold;
 
-    // Update position and value based on error
-    is_positive = step(0.0, trace.error);
-    samples = mix(vec2(trace.sample, samples.y), vec2(samples.x, trace.sample), is_positive);
-    distances = mix(vec2(trace.distance, distances.y), vec2(distances.x, trace.distance), is_positive);
-    trace.steps++;
+    // update bisection interval based on sample error sign
+    select_interval = step(0.0, trace.sample_error);
+
+    trace_samples = mix(
+        vec2(trace.sample, trace_samples.y), 
+        vec2(trace_samples.x, trace.sample), 
+    select_interval);
+
+    trace_distances = mix(
+        vec2(trace.distance, trace_distances.y), 
+        vec2(trace_distances.x, trace.distance), 
+    select_interval);
 }
 #pragma unroll_loop_end
 
-// Compute the gradient and additional properties
-trace.gradient = mix(u_gradient.min, u_gradient.max, volume_data.gba);
-trace.gradient_norm = length(trace.gradient);
-trace.normal = - normalize(trace.gradient);
-trace.derivative = dot(trace.gradient, ray.direction);
+// update trace
+trace.voxel_coords = int(trace.position * volume.inv_spacing);
+trace.voxel_texture_coords = trace.position * volume.inv_size;
 
-trace.coords = floor(trace.position * u_volume.inv_spacing);
-trace.depth = trace.distance - ray.min_distance;
+trace.gradient = mix(volume.min_gradient, volume.max_gradient, volume_texture_data.gba);
+trace.gradient_magnitude = length(trace.gradient);
+trace.gradient_direction = normalize(trace.gradient);
+trace.normal = -trace.gradient_direction;
+#include "../../derivatives/compute_derivatives"
 
 // if we do not have any improvement with refinement go to previous solution
-if (abs(trace.error) > abs(trace_tmp.error)) {
-    trace = trace_tmp;
-}
+if (abs(trace.sample_error) > abs(trace_tmp.sample_error)) trace = trace_tmp;
 
 

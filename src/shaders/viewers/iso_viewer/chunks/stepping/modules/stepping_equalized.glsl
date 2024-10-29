@@ -7,10 +7,10 @@
  * @input u_volume.dimensions     : The dimensions of the volume (vec3)
  * @input u_volume.spacing        : The spacing of the volume's voxels (vec3)
  * @input ray.max_depth           : The maximum depth of the ray (float)
- * @input u_raycast.min_stepping  : The minimum allowable stepping factor (float)
- * @input u_raycast.max_stepping  : The maximum allowable stepping factor (float)
+ * @input raymarch.min_step_scale  : The minimum allowable stepping factor (float)
+ * @input raymarch.max_step_scale  : The maximum allowable stepping factor (float)
  *
- * @output ray.spacing            : The computed ray spacing as the mean depth for voxel AABB intersections (float)
+ * @output ray.step_distance            : The computed ray spacing as the mean depth for voxel AABB intersections (float)
  * @output ray.min_spacing        : The minimum ray spacing based on the computed spacing (float)
  * @output ray.max_spacing        : The maximum ray spacing based on the computed spacing (float)
  */
@@ -30,5 +30,5 @@ ray.min_step_distance = ray.step_distance * raymarch.min_step_scale;
 ray.max_step_distance = ray.step_distance * raymarch.max_step_scale;
 
 // coumpute the maximum allowed number of steps based on min step distance
-ray.max_step_count = int(floor(ray.span_distance / ray.min_step_distance));
+ray.max_step_count = int(ceil(ray.span_distance / ray.min_step_distance));
 ray.max_step_count = min(ray.max_step_count, raymarch.max_step_count);

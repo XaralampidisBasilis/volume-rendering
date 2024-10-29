@@ -6,9 +6,9 @@
  * This function transforms the ray's minimum distance position into normalized device coordinates (NDC),
  * scales the NDC position, and samples a noise texture to generate dithering.
  *
- * @input ray.origin                    : the starting point of the ray
- * @input ray.direction                 : the direction vector of the ray (normalized)
- * @input ray.min_distance              : minimum distance along the ray
+ * @input ray.origin_position                    : the starting point of the ray
+ * @input ray.step_direction                 : the direction vector of the ray (normalized)
+ * @input ray.start_distance              : minimum distance along the ray
  * @input v_projection_model_view_matrix: the matrix for transforming from model to NDC space
  * @input ray.max_spacing               : the maximum spacing for raymarching steps
  * @input u_sampler.noisemap            : 2D noise texture sampler
@@ -38,5 +38,5 @@ ray.rand_distance *= ray.step_distance * 0.5;
 // update ray
 ray.start_distance += ray.rand_distance;
 ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
-ray.span_distance = ray.max_distance - ray.min_distance;
+ray.span_distance = ray.end_distance - ray.start_distance;
 ray.span_distance = max(ray.span_distance, 0.0);
