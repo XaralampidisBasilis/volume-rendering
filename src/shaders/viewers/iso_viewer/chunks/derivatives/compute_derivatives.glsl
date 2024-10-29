@@ -4,17 +4,17 @@
 #if TRACE_DERIVATIVES_METHOD == 1  
     #include "./modules/derivatives_hermite_cubic"   
 
-// derivatives_hermite_rational21
+// derivatives_hermite_21
 #elif TRACE_DERIVATIVES_METHOD == 2  
-    #include "./modules/derivatives_hermite_rational21"   
+    #include "./modules/derivatives_hermite_21"   
 
-// derivatives_hermite_rational12
+// derivatives_hermite_12
 #elif TRACE_DERIVATIVES_METHOD == 3  
-    #include "./modules/derivatives_hermite_rational12"  
+    #include "./modules/derivatives_hermite_12"  
 
-// derivatives_hermite_rational12
+// derivatives_hermite_22p
 #elif TRACE_DERIVATIVES_METHOD == 4  
-    #include "./modules/derivatives_hermite_rational22_nopoles" 
+    #include "./modules/derivatives_hermite_22p" 
 
 // derivatives_linear
 #elif TRACE_DERIVATIVES_METHOD == 5

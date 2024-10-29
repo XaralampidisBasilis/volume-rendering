@@ -18,29 +18,29 @@
 #elif TRACE_SCALING_METHOD == 3  
     #include "./modules/scaling_taylor_cubic"  
 
-// scaling_pade_rational11
+// scaling_taylor_11
 #elif TRACE_SCALING_METHOD == 4
-    #include "./modules/scaling_pade_rational11" 
+    #include "./modules/scaling_taylor_11" 
 
-// scaling_pade_rational02
+// scaling_taylor_02
 #elif TRACE_SCALING_METHOD == 5
-    #include "./modules/scaling_pade_rational02" 
+    #include "./modules/scaling_taylor_02" 
 
-// scaling_pade_rational21
+// scaling_taylor_21
 #elif TRACE_SCALING_METHOD == 6
-    #include "./modules/scaling_pade_rational21" 
+    #include "./modules/scaling_taylor_21" 
 
-// scaling_pade_rational12
+// scaling_taylor_12
 #elif TRACE_SCALING_METHOD == 7
-    #include "./modules/scaling_pade_rational12" 
+    #include "./modules/scaling_taylor_12" 
 
-// scaling_pade_rational03
+// scaling_taylor_03
 #elif TRACE_SCALING_METHOD == 8
-    #include "./modules/scaling_pade_rational03" 
+    #include "./modules/scaling_taylor_03" 
 
-// scaling_pade_rational22
+// scaling_taylor_22
 #elif TRACE_SCALING_METHOD == 9
-    #include "./modules/scaling_pade_rational22" 
+    #include "./modules/scaling_taylor_22" 
 
 // scaling_uniform
 #elif TRACE_SCALING_METHOD == 10

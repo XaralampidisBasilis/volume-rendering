@@ -14,9 +14,9 @@ struct Trace
 
     vec3  position;             // current position in 3d model coordinates
     float distance;             // current distance traveled from camera
-    float spanned_distance;     // total spanned distance from ray start including stepping and skipping
-    float stepped_distance;     // total stepped distance from ray start
-    float skipped_distance;     // total skipped distance from ray start
+    float spanned_distance;     // total spanned distance from ray start
+    float stepped_distance;     // total stepped distance 
+    float skipped_distance;     // total skipped distance 
 
     vec4  sample_data;          // sampled data at the current position
     float sample_value;         // sampled value at the current position

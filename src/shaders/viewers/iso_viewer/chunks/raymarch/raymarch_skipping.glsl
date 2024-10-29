@@ -1,6 +1,6 @@
 
 // initialize raymarch
-#include "./modules/start_trace_previous"
+#include "./modules/start_trace"
 
 vec3 occumap_texel_offset = vec3(occumap.offset) / vec3(occupancy_dimensions);
 

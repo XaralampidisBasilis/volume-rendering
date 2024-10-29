@@ -16,15 +16,15 @@
 
 vec2 taylor_coeffs = vec2(trace.sample_error, trace.derivative_1st);
 
-// make change of variable to directly compute the next stepping and not spacing
+// make change of variable to directly compute the next scaling and not step distance
 taylor_coeffs *= vec2(1.0, ray.step_distance);
 
 // calculate the spacing size as the ratio between error and the derivative.
-int num_roots; float next_stepping = linear_roots(taylor_coeffs, num_roots);
+int num_roots; float trace_step_scaling = linear_roots(taylor_coeffs, num_roots);
 
 // filter unwanted stepping values (negative or non-solvable) and set them to max stepping.
-next_stepping = mix(raymarch.max_step_scale, next_stepping, next_stepping > 0.0);
-next_stepping = mix(raymarch.max_step_scale, next_stepping, num_roots > 0);
+trace_step_scaling = mix(raymarch.max_step_scale, trace_step_scaling, trace_step_scaling > 0.0);
+trace_step_scaling = mix(raymarch.max_step_scale, trace_step_scaling, num_roots > 0);
 
 // choose the minimum valid solution and clamp the result between the allowable stepping range.
-trace.step_scaling = clamp(next_stepping, raymarch.min_step_scale, raymarch.max_step_scale);
+trace.step_scaling = clamp(trace_step_scaling, raymarch.min_step_scale, raymarch.max_step_scale);

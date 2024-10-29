@@ -1,6 +1,6 @@
 
 // initialize raymarch
-#include "./modules/start_trace_previous"
+#include "./modules/start_trace"
 
 float gradient_threshold = raymarch.gradient_threshold * volume.max_gradient_magnitude;
 

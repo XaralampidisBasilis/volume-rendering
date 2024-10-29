@@ -3,15 +3,15 @@
 
     // refinement_sub_sampling
     #if RAY_REFINEMENT_METHOD == 1  
-        #include "./modules/refinement_sub_sampling"
+        #include "./modules/refinement_sampling"
 
     // refinement_bisection_iterative
     #elif RAY_REFINEMENT_METHOD == 2
-        #include "./modules/refinement_bisection_iterative"
+        #include "./modules/refinement_bisection"
 
     // refinement_newton_iterative
     #elif RAY_REFINEMENT_METHOD == 3
-        #include "./modules/refinement_newton_iterative"
+        #include "./modules/refinement_newton"
 
     // refinement_linear
     #elif RAY_REFINEMENT_METHOD == 4

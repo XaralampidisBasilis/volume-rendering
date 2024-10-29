@@ -16,7 +16,7 @@
  */
 
 // find the maximum steps of the ray to ensure proper scaling.
-float max_step_count = mmax(volume.dimensions);
+float max_step_count = mmax(vec3(volume.dimensions));
 
 // find the minimum spacing of the volume's voxels.
 float min_step_distance = mmin(volume.spacing);

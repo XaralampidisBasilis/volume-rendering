@@ -40,10 +40,10 @@ trace.normal = - normalize(trace.gradient);
 trace.derivative_1st = dot(trace.gradient, ray.step_direction);
 
 trace.distance = dot(trace.position - ray.origin_position, ray.step_direction);
-trace.voxel_coords = floor(trace.position * volume.inv_spacing);
+trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
 
 // if there was not any refinement copy the final trace
-if (abs(trace.sample_error) > abs(trace_tmp.error)) trace = trace_tmp;
+if (abs(trace.sample_error) > abs(trace_tmp.sample_error)) trace = trace_tmp;
 
 
 

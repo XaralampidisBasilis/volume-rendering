@@ -15,14 +15,22 @@ float s_linear = map(trace_prev.sample_value, trace.sample_value, raymarch.sampl
 vec2 s_sample = mix(vec2(0.25, s_linear), vec2(s_linear, 0.75), 0.5);
 
 // sample distances and values at samples
-vec3 mix_texel_x = mix(trace_prev.texel, trace.voxel_texture_coords, s_sample.x);
-vec3 mix_texel_y = mix(trace_prev.texel, trace.voxel_texture_coords, s_sample.y);
-vec2 mix_distances = mix(vec2(trace_prev.distance), vec2(trace.distance), s_sample);
-vec2 mix_values = vec2(texture(textures.volume, mix_texel_x).r, texture(textures.volume, mix_texel_y).r);
+vec3 voxel_texture_coords_x = mix(trace_prev.voxel_texture_coords, trace.voxel_texture_coords, s_sample.x);
+vec3 voxel_texture_coords_y = mix(trace_prev.voxel_texture_coords, trace.voxel_texture_coords, s_sample.y);
+
+vec2 trace_distances = mix(
+    vec2(trace_prev.distance), 
+    vec2(trace.distance), 
+s_sample);
+
+vec2 trace_sample_values = vec2(
+    texture(textures.volume, voxel_texture_coords_x).r, 
+    texture(textures.volume, voxel_texture_coords_y).r
+);
 
 // Define symbolic vectors
-vec4 f = vec4(trace_prev.sample_value, mix_values, trace.sample_value);
-vec4 t = vec4(trace_prev.distance, mix_distances, trace.distance);
+vec4 f = vec4(trace_prev.sample_value, trace_sample_values, trace.sample_value);
+vec4 t = vec4(trace_prev.distance, trace_distances, trace.distance);
 vec4 s = vec4(0.0, s_sample, 1.0);
 
 // Compute cubic hermite coefficients

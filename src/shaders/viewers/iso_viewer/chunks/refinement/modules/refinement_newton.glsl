@@ -11,7 +11,7 @@
  */
  
 // save not refined solution
-Trace temp_trace = trace;
+Trace trace_tmp = trace;
 
 // begin at initial guess and iterate from there
 vec2 distances = vec2(trace_prev.distance, trace.distance);
@@ -39,15 +39,14 @@ for (int i = 0; i < 5; i++, trace.step_count++)
     trace.derivative_1st = dot(trace.gradient, ray.step_direction);
 
     // newton–raphson method to approximate next distance
-    trace.distance -= trace.sample_error / stabilize(trace.derivative_1st);
+    trace.distance -= trace.sample_error / trace.derivative_1st;
     trace.distance = clamp(trace.distance, distances.x, distances.y);
 }
 #pragma unroll_loop_end
 
-trace.voxel_coords = floor(trace.position * volume.inv_spacing);
+trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
 
 // if we do not have any improvement with refinement go to previous solution
-if (abs(trace.sample_error) > abs(temp_trace.error)) {
-    trace = temp_trace;
-}
+if (abs(trace.sample_error) > abs(trace_tmp.sample_error)) trace = trace_tmp;
+
 

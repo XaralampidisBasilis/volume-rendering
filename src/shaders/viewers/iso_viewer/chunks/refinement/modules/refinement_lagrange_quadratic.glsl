@@ -16,13 +16,13 @@
 float s_linear = map(trace_prev.sample_value, trace.sample_value, raymarch.sample_threshold);
 float s_sample = mix(0.5, s_linear, 0.5);
 
-vec3 mix_texel = mix(trace_prev.texel, trace.voxel_texture_coords, s_sample);
-float mix_distance = mix(trace_prev.distance, trace.distance, s_sample);
-float mix_value = texture(textures.volume, mix_texel).r;
+vec3 trace_voxel_texture_coords = mix(trace_prev.voxel_texture_coords, trace.voxel_texture_coords, s_sample);
+float trace_distance = mix(trace_prev.distance, trace.distance, s_sample);
+float trace_sample_value = texture(textures.volume, trace_voxel_texture_coords).r;
 
 // Define symbolic vectors
-vec3 f = vec3(trace_prev.sample_value, mix_value, trace.sample_value);
-vec3 t = vec3(trace_prev.distance, mix_distance, trace.distance);
+vec3 f = vec3(trace_prev.sample_value, trace_sample_value, trace.sample_value);
+vec3 t = vec3(trace_prev.distance, trace_distance, trace.distance);
 vec3 s = vec3(0.0, s_sample, 1.0);
 
 // Compute cubic lagrange coefficients

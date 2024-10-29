@@ -7,11 +7,14 @@ vec3 volume_max_position = volume.max_position + volume.spacing * MILLI_TOL;
 volume_min_position = max(volume_min_position, ray.min_position);
 volume_max_position = min(volume_max_position, ray.max_position);
 
+// save ray start distance for later computations
+float ray_start_distance = ray.start_distance;
+
 // compute ray intersection distances with the volume bounding box
-vec2 ray_distances = intersect_box(volume_min_position, volume_max_position, ray.origin_position, ray.step_direction, ray.start_position, ray.end_position);
-ray_distances = max(ray_distances, 0.0); 
-ray.start_distance = ray_distances.x;
-ray.end_distance = ray_distances.y;
+vec2 ray_distances_bbox = intersect_box(volume_min_position, volume_max_position, ray.origin_position, ray.step_direction, ray.start_position, ray.end_position);
+ray_distances_bbox = max(ray_distances_bbox, 0.0); 
+ray.start_distance = ray_distances_bbox.x;
+ray.end_distance = ray_distances_bbox.y;
 ray.span_distance = ray.end_distance - ray.start_distance;
 ray.span_distance = max(ray.span_distance, 0.0);
 
@@ -20,5 +23,8 @@ trace.distance = ray.start_distance;
 trace.position = ray.start_position;
 trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * volume.inv_size;
-trace.skipped_distance = ray.start_distance - ray.min_start_distance;
-trace.skipped_distance = max(trace.skipped_distance, 0.0);
+
+// compute skipped distance
+trace.skip_distance = max(ray.start_distance - ray_start_distance, 0.0);
+trace.skipped_distance += trace.skip_distance;
+

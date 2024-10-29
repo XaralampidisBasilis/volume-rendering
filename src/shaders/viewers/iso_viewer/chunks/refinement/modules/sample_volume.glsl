@@ -9,4 +9,3 @@ trace.gradient = mix(volume.min_gradient, volume.max_gradient, trace.sample_data
 trace.gradient_magnitude = length(trace.gradient);
 trace.gradient_direction = normalize(trace.gradient);
 trace.normal = -trace.gradient_direction;
-#include "../../derivatives/compute_derivatives"
