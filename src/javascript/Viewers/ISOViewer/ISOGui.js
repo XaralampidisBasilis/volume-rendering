@@ -108,7 +108,8 @@ export default class ISOGui
             maxStepScale      : folder.add(uniforms, 'max_step_scale').min(0.001).max(5).step(0.001),
             maxStepCount      : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
             maxSkipCount      : folder.add(uniforms, 'max_skip_count').min(0).max(100).step(1),
-            skipLod           : folder.add(uniforms, 'skip_lod').min(0).max(10).step(1),
+            minSkipLod        : folder.add(uniforms, 'min_skip_lod').min(0).max(10).step(1),
+            maxSkipLod        : folder.add(uniforms, 'max_skip_lod').min(0).max(10).step(1),
 
             spacingMethod     : folder.add(defines, 'RAY_STEPPING_METHOD').name('stepping_method').options(options.RAY_STEPPING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             scalingMethod     : folder.add(defines, 'TRACE_SCALING_METHOD').name('scaling_method').options(options.TRACE_SCALING_METHOD).onFinishChange(() => { material.needsUpdate = true }),

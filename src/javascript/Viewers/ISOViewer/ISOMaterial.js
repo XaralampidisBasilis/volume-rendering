@@ -42,8 +42,7 @@ export default function()
 
         occumaps: new THREE.Uniform
         ({
-            min_lod        : 0,
-            max_lod        : 0,
+            lods           : 0,
             dimensions     : new THREE.Vector3(),
             base_dimensions: new THREE.Vector3(),
             base_spacing   : new THREE.Vector3(),
@@ -82,7 +81,8 @@ export default function()
             max_step_scale     : 1.0,
             max_step_count     : 1000,
             max_skip_count     : 200,
-            skip_lod           : 0,
+            min_skip_lod       : 0,
+            max_skip_lod       : 0,
             debug_option       : 0,
         }),
     }
@@ -98,7 +98,7 @@ export default function()
         RAY_DITHERING_ENABLED        : 0,
         RAY_DITHERING_METHOD         : 1,
         RAY_STEPPING_METHOD          : 1,
-        RAY_REFINEMENT_ENABLED       : 1,
+        RAY_REFINEMENT_ENABLED       : 0,
         RAY_REFINEMENT_METHOD        : 2,
         RAY_GRADIENTS_ENABLED        : 0,
         RAY_GRADIENTS_METHOD         : 1,

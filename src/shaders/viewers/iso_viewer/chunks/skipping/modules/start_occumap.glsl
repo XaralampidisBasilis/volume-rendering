@@ -1,6 +1,6 @@
 
 // start at the coarsest level of the occumaps
-occumap.lod = occumaps.lods - 1;
+occumap.lod = max(occumap.lod, raymarch.max_skip_lod);
 occumap.lod_scale = exp2(float(occumap.lod));
 
 // compute occumap dimensions and block spacing

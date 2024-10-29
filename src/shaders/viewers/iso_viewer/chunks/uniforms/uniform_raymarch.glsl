@@ -10,7 +10,8 @@ struct Raymarch
     float max_step_scale;     
     int   max_step_count;     
     int   max_skip_count;   
-    int   skip_lod;
+    int   min_skip_lod;
+    int   max_skip_lod;
     int   debug_option;  
 };
 

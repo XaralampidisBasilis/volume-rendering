@@ -14,11 +14,11 @@
 Trace trace_tmp = trace;
 
 // begin at initial guess and iterate from there
-vec2 distances = vec2(trace_prev.distance, trace.distance);
-distances = clamp(distances, ray.start_distance, ray.end_distance);
+vec2 trace_distances = vec2(trace_prev.distance, trace.distance);
+trace_distances = clamp(trace_distances, ray.start_distance, ray.end_distance);
 
 float s_linear = map(trace_prev.sample_value, trace.sample_value, raymarch.sample_threshold);
-trace.distance = mix(distances.x, distances.y, s_linear);
+trace.distance = mix(trace_distances.x, trace_distances.y, s_linear);
 
 #pragma unroll_loop_start
 for (int i = 0; i < 5; i++, trace.step_count++) 
@@ -40,7 +40,7 @@ for (int i = 0; i < 5; i++, trace.step_count++)
 
     // newton–raphson method to approximate next distance
     trace.distance -= trace.sample_error / trace.derivative_1st;
-    trace.distance = clamp(trace.distance, distances.x, distances.y);
+    trace.distance = clamp(trace.distance, trace_distances.x, trace_distances.y);
 }
 #pragma unroll_loop_end
 

@@ -15,13 +15,13 @@ Trace trace_tmp = trace;
 trace = trace_prev;
 
 // calculate the refined substep
-float sub_spacing = trace.step_distance / 6.0;  
+float trace_step_distance = trace.step_distance / 6.0;  
 
 // perform additional sampling steps to refine the hit point 
 for (int i = 0; i < 5; i++, trace.step_count++) 
 {
     // move position forward by substep and sample the volume
-    trace.position += sub_spacing * ray.step_direction;  
+    trace.position += trace_step_distance * ray.step_direction;  
     trace.voxel_texture_coords = trace.position * volume.inv_size;
 
     // Extract intensity value from volume data

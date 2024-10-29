@@ -33,7 +33,7 @@ seed_position *= 1000.0;
 
 // sample the noise map texture at the xy coordinates to generate dithering.
 ray.rand_distance = texture(textures.noisemap, seed_position.xy).r;
-ray.rand_distance *= ray.step_distance * 0.5;
+ray.rand_distance *= ray.max_step_distance;
 
 // update ray
 ray.start_distance += ray.rand_distance;

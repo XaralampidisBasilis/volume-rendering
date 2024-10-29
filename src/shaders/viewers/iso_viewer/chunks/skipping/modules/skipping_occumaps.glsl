@@ -1,6 +1,5 @@
 
-
-int min_lod = clamp(occumaps.min_lod, 0, occumaps.max_lod);
+#include "./start_occumap"
 
 for (trace.skip_count = 0; trace.skip_count < ray.max_skip_count; trace.skip_count++) 
 {
@@ -8,7 +7,7 @@ for (trace.skip_count = 0; trace.skip_count < ray.max_skip_count; trace.skip_cou
 
     if (trace.block_occupied)  
     {
-        if (occumap.lod == min_lod) 
+        if (occumap.lod == raymarch.min_skip_lod) 
         {
             #include "./refine_block"
             break;

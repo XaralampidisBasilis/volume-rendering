@@ -62,7 +62,7 @@ export default class ComputeOccupancy
         this.viewer.textures.occumaps.magFilter = THREE.LinearFilter
         this.viewer.textures.occumaps.needsUpdate = true
 
-        this.viewer.material.uniforms.occumaps.value.max_lod = this.results.atlasLods
+        this.viewer.material.uniforms.occumaps.value.lods = this.results.atlasLods
         this.viewer.material.uniforms.occumaps.value.dimensions.fromArray(this.results.atlasDimensions)
         this.viewer.material.uniforms.occumaps.value.base_dimensions.fromArray(this.results.baseDimensions)
         this.viewer.material.uniforms.occumaps.value.base_spacing.fromArray(this.results.baseSpacing)
@@ -72,6 +72,8 @@ export default class ComputeOccupancy
         this.viewer.material.uniforms.volume.value.max_coords.fromArray(this.results.maxCoords)
         this.viewer.material.uniforms.volume.value.min_position.fromArray(this.results.minPosition)
         this.viewer.material.uniforms.volume.value.max_position.fromArray(this.results.maxPosition)
+
+        this.viewer.material.uniforms.raymarch.value.max_lod = this.results.atlasLods - 1;
 
         this.viewer.material.uniforms.textures.value.occumaps = this.viewer.textures.occumaps
         this.viewer.material.needsUpdate = true
