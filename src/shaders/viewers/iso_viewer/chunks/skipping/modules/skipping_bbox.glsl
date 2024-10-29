@@ -15,8 +15,10 @@ ray.end_distance = ray_distances.y;
 ray.span_distance = ray.max_distance - ray.min_distance;
 ray.span_distance = max(ray.span_distance, 0.0);
 
-// update trace start position 
+// update trace 
 trace.distance = ray.start_distance;
 trace.position = ray.start_position;
 trace.voxel_coords = int(trace.position * volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * volume.inv_size;
+trace.skipped_distance = ray.start_distance - ray.min_start_distance;
+trace.skipped_distance = max(trace.skipped_distance, 0.0);

@@ -81,20 +81,20 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.raymarch.value
         const defines = this.viewer.material.defines
         const objects = { 
-            RAYMARCH_DITHERING_ENABLED : Boolean(defines.RAYMARCH_DITHERING_ENABLED),
-            RAYMARCH_REFINEMENT_ENABLED: Boolean(defines.RAYMARCH_REFINEMENT_ENABLED),
-            RAYMARCH_SKIPPING_ENABLED  : Boolean(defines.RAYMARCH_SKIPPING_ENABLED),
-            RAYMARCH_GRADIENTS_ENABLED : Boolean(defines.RAYMARCH_GRADIENTS_ENABLED),
-            RAYMARCH_SMOOTHING_ENABLED : Boolean(defines.RAYMARCH_SMOOTHING_ENABLED),
+            RAY_DITHERING_ENABLED  : Boolean(defines.RAY_DITHERING_ENABLED),
+            RAY_REFINEMENT_ENABLED : Boolean(defines.RAY_REFINEMENT_ENABLED),
+            TRACE_SKIP_OMAP_ENABLED: Boolean(defines.TRACE_SKIP_OMAP_ENABLED),
+            RAY_GRADIENTS_ENABLED  : Boolean(defines.RAY_GRADIENTS_ENABLED),
+            RAY_SMOOTHING_ENABLED  : Boolean(defines.RAY_SMOOTHING_ENABLED),
         }
         const options = {
-            RAYMARCH_DITHERING_METHOD  : { generative: 1, texture: 2, },
-            RAYMARCH_STEPPING_METHOD   : { isotropic: 1, directional: 2, equalized: 3 },
-            RAYMARCH_SCALING_METHOD    : { taylor10: 1, taylor20: 2, taylor30: 3, pade11: 4, pade02: 5, pade21: 6, pade12: 7, pade03: 8, pade22: 9, uniform: 10, },
-            RAYMARCH_REFINEMENT_METHOD : { sub_sampling: 1, bisection_iterative: 2, newtons_iterative: 3, linear: 4, lagrange_quadratic: 5, lagrange_cubic: 6, hermite_cubic: 7 },
-            RAYMARCH_DERIVATIVES_METHOD: { hermite30: 1, hermite21: 2, hermite12: 3, hermite22_nopoles: 4, linear: 5, },
-            RAYMARCH_GRADIENTS_METHOD  : { tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 },
-            RAYMARCH_SMOOTHING_METHOD  : { bessel: 1, gaussian: 2, average: 3 },
+            RAY_DITHERING_METHOD    : { generative: 1, texture: 2, },
+            RAY_STEPPING_METHOD     : { isotropic: 1, directional: 2, equalized: 3 },
+            TRACE_SCALING_METHOD    : { taylor10: 1, taylor20: 2, taylor30: 3, pade11: 4, pade02: 5, pade21: 6, pade12: 7, pade03: 8, pade22: 9, uniform: 10, },
+            RAY_REFINEMENT_METHOD   : { sub_sampling: 1, bisection_iterative: 2, newtons_iterative: 3, linear: 4, lagrange_quadratic: 5, lagrange_cubic: 6, hermite_cubic: 7 },
+            TRACE_DERIVATIVES_METHOD: { hermite30: 1, hermite21: 2, hermite12: 3, hermite22_nopoles: 4, linear: 5, },
+            RAY_GRADIENTS_METHOD    : { tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 },
+            RAY_SMOOTHING_METHOD    : { bessel: 1, gaussian: 2, average: 3 },
         }
 
         const controls = this.subfolders.raycast.addFolder('raymarch').close()
@@ -111,19 +111,19 @@ export default class ISOGui
             maxSkipCount      : controls.add(uniforms, 'max_skip_count').min(0).max(100).step(1),
             minSkipLod        : controls.add(uniforms, 'min_skip_lod').min(0).max(10).step(1),
 
-            spacingMethod     : methods.add(defines, 'RAYMARCH_STEPPING_METHOD').name('stepping_method').options(options.RAYMARCH_STEPPING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            scalingMethod     : methods.add(defines, 'RAYMARCH_SCALING_METHOD').name('stepping_method').options(options.RAYMARCH_SCALING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            ditheringMethod   : methods.add(defines, 'RAYMARCH_DITHERING_METHOD').name('dithering_method').options(options.RAYMARCH_DITHERING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            refinementMethod  : methods.add(defines, 'RAYMARCH_REFINEMENT_METHOD').name('refinement_method').options(options.RAYMARCH_REFINEMENT_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            derivativeMethod  : methods.add(defines, 'RAYMARCH_DERIVATIVES_METHOD').name('derivatives_method').options(options.RAYMARCH_DERIVATIVES_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            gradientsMethod   : methods.add(defines, 'RAYMARCH_GRADIENTS_METHOD').name('refinement_method').options(options.RAYMARCH_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            smoothingMethod   : methods.add(defines, 'RAYMARCH_SMOOTHING_METHOD').name('refinement_method').options(options.RAYMARCH_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            spacingMethod     : methods.add(defines, 'RAY_STEPPING_METHOD').name('stepping_method').options(options.RAY_STEPPING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            scalingMethod     : methods.add(defines, 'TRACE_SCALING_METHOD').name('stepping_method').options(options.TRACE_SCALING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            ditheringMethod   : methods.add(defines, 'RAY_DITHERING_METHOD').name('dithering_method').options(options.RAY_DITHERING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            refinementMethod  : methods.add(defines, 'RAY_REFINEMENT_METHOD').name('refinement_method').options(options.RAY_REFINEMENT_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            derivativeMethod  : methods.add(defines, 'TRACE_DERIVATIVES_METHOD').name('derivatives_method').options(options.TRACE_DERIVATIVES_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            gradientsMethod   : methods.add(defines, 'RAY_GRADIENTS_METHOD').name('refinement_method').options(options.RAY_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            smoothingMethod   : methods.add(defines, 'RAY_SMOOTHING_METHOD').name('refinement_method').options(options.RAY_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             
-            enableDithering   : enablers.add(objects, 'RAYMARCH_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAYMARCH_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableRefinement  : enablers.add(objects, 'RAYMARCH_REFINEMENT_ENABLED').name('enable_refinement').onFinishChange((value) => { defines.RAYMARCH_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
-            enableSkipping    : enablers.add(objects, 'RAYMARCH_SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.RAYMARCH_SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableGradients   : enablers.add(objects, 'RAYMARCH_GRADIENTS_ENABLED').name('enable_gradients').onFinishChange((value) => { defines.RAYMARCH_GRADIENTS_ENABLED = Number(value), material.needsUpdate = true }),
-            enableSmoothing   : enablers.add(objects, 'RAYMARCH_SMOOTHING_ENABLED').name('enable_smoothing').onFinishChange((value) => { defines.RAYMARCH_SMOOTHING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableDithering   : enablers.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableRefinement  : enablers.add(objects, 'RAY_REFINEMENT_ENABLED').name('enable_refinement').onFinishChange((value) => { defines.RAY_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipping    : enablers.add(objects, 'TRACE_SKIP_OMAP_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.TRACE_SKIP_OMAP_ENABLED = Number(value), material.needsUpdate = true }),
+            enableGradients   : enablers.add(objects, 'RAY_GRADIENTS_ENABLED').name('enable_gradients').onFinishChange((value) => { defines.RAY_GRADIENTS_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSmoothing   : enablers.add(objects, 'RAY_SMOOTHING_ENABLED').name('enable_smoothing').onFinishChange((value) => { defines.RAY_SMOOTHING_ENABLED = Number(value), material.needsUpdate = true }),
         }
 
     }
@@ -134,8 +134,8 @@ export default class ISOGui
         const material = this.viewer.material
         const defines = this.viewer.material.defines
         const objects = { 
-            VOLUME_BOUNDING_BOX_ENABLED: Boolean(defines.VOLUME_BOUNDING_BOX_ENABLED),
-            VOLUME_SKIPPING_ENABLED    : Boolean(defines.VOLUME_SKIPPING_ENABLED),
+            VOLUME_SKIP_BBOX_ENABLED: Boolean(defines.VOLUME_SKIP_BBOX_ENABLED),
+            VOLUME_SKIP_OMAPS_ENABLED    : Boolean(defines.VOLUME_SKIP_OMAPS_ENABLED),
         }
         const options = {
             VOLUME_GRADIENTS_METHOD: { scharr: 1, sobel: 2, prewitt: 3, tetrahedron: 4, central: 5 },
@@ -147,8 +147,8 @@ export default class ISOGui
             smoothingRadius: folder.add(defines, 'VOLUME_SMOOTHING_RADIUS').name('smoothing_radius').min(0).max(5).step(1).onFinishChange(() => { this.viewer.computeSmoothing() }),
             smoothingMethod: folder.add(defines, 'VOLUME_SMOOTHING_METHOD').name('smoothing_method').options(options.VOLUME_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             gradientsMethod: folder.add(defines, 'VOLUME_GRADIENTS_METHOD').name('gradients_method').options(options.VOLUME_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            enableBbox     : folder.add(objects, 'VOLUME_BOUNDING_BOX_ENABLED').name('enable_bbox').onFinishChange((value) => { defines.VOLUME_BOUNDING_BOX_ENABLED = Number(value), material.needsUpdate = true }),
-            enableSkipping : folder.add(objects, 'VOLUME_SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.VOLUME_SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipBbox : folder.add(objects, 'VOLUME_SKIP_BBOX_ENABLED').name('enable_bbox').onFinishChange((value) => { defines.VOLUME_SKIP_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipOmaps: folder.add(objects, 'VOLUME_SKIP_OMAPS_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.VOLUME_SKIP_OMAPS_ENABLED = Number(value), material.needsUpdate = true }),
             enableVolume   : folder.add(material, 'visible').name('enable_volume')
         }
 

@@ -1,7 +1,7 @@
 
 // due to linear filtering of the volume texture, samples are non zero at boundaries 
 // even if the occupancy is zero, so we need to take a backstep
-trace.skip_distance = 2.0 * ray.max_voxel_distance; 
+trace.skip_distance = ray.max_voxel_distance * 2.0; 
 trace.skipped_distance -= trace.skip_distance;
 
 // update trace distance and avoid goind outside ray bounds

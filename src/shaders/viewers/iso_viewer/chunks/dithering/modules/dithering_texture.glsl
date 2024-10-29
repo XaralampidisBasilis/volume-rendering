@@ -17,7 +17,7 @@
  */
 
 // calculate the minimum distance position along the ray.
-vec3 ray_min_position = ray.origin + ray.direction * ray.min_distance;
+vec3 ray_min_start_position = ray.origin_position + ray.step_direction * ray.min_start_distance;
 
 // compute the position value by transforming it with the projection-model-view matrix.
 vec4 seed_position = v_projection_model_view_matrix * vec4(ray_min_position, 1.0);
@@ -32,6 +32,11 @@ seed_position = (seed_position + 1.0) * 0.5;
 seed_position *= 1000.0;
 
 // sample the noise map texture at the xy coordinates to generate dithering.
-ray.dithering = texture(u_sampler.noisemap, seed_position.xy).r;
-ray.dithering = clamp(ray.dithering, 0.0 + MILLI_TOL, 1.0 - MILLI_TOL);
-ray.dithering *= ray.spacing;
+ray.rand_distance = texture(u_sampler.noisemap, seed_position.xy).r;
+ray.rand_distance *= ray.step_distance * 0.5;
+
+// update ray
+ray.start_distance += ray.rand_distance;
+ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
+ray.span_distance = ray.max_distance - ray.min_distance;
+ray.span_distance = max(ray.span_distance, 0.0);

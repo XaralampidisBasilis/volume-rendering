@@ -1,13 +1,14 @@
 
-int occumap_min_lod = clamp(occumaps.min_lod, 0, occumaps.max_lod);
+
+int occumap_mid_lod = clamp(occumaps.min_lod, 0, occumaps.max_lod);
 
 for (trace.skip_count = 0; trace.skip_count < ray.max_skip_count; trace.skip_count++) 
 {
-    #include "./update_block"
+    #include "./sample_occumap"
 
     if (trace.block_occupied)  
     {
-        if (occumap.lod == occumap_min_lod) 
+        if (occumap.lod == occumap_mid_lod) 
         {
             #include "./refine_block"
             break;
@@ -16,7 +17,7 @@ for (trace.skip_count = 0; trace.skip_count < ray.max_skip_count; trace.skip_cou
         continue;
     }
 
-    #include "./skip_block"
+    #include "./update_block"
 
     if (trace.distance > ray.end_distance) break;
 }

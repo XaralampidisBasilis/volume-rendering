@@ -2,16 +2,18 @@
 // initialize raymarch
 #include "./modules/start_trace_previous"
 
-// raymarch loop to traverse through the volume
-for (trace.steps = 0; trace.steps < ray.max_steps; trace.steps++) 
-{
-    #include "./modules/update_trace_sample"
+float gradient_threshold = raymarch.gradient_threshold * volume.max_gradient_magnitude;
 
-    ray.intersected = trace.error > 0.0 && trace.gradient_norm > gradient_threshold;
+// raymarch loop to traverse through the volume
+for (trace.step_count = 0; trace.step_count < ray.max_step_count; trace.step_count++) 
+{
+    #include "./modules/sample_volume"
+
+    ray.intersected = trace.sample_error > 0.0 && trace.gradient_magnitude > gradient_threshold;
     if (ray.intersected) break;
 
-    prev_trace = trace;
-    #include "./modules/update_trace_position"
+    trace_prev = trace;
+    #include "./modules/update_trace"
     if (trace.distance > ray.max_distance) break;
 }   
 

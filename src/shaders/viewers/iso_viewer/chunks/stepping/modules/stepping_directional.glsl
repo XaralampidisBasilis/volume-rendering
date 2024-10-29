@@ -23,3 +23,7 @@ ray.step_distance = 1.0 / sum(directional_spacing);
 // adjust the ray step_distance using the minimum and maximum stepping factors.
 ray.min_step_distance = ray.step_distance * raymarch.min_step_scale;
 ray.max_step_distance = ray.step_distance * raymarch.max_step_scale;
+
+// coumpute the maximum allowed number of steps based on min step distance
+ray.max_step_count = int(floor(ray.span_distance / ray.min_step_distance));
+ray.max_step_count = min(ray.max_step_count, raymarch.max_step_count);

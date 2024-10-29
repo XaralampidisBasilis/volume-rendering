@@ -1,27 +1,27 @@
 
 // COMPUTE_DITHERING
 /**
- * Includes the appropriate dithering module based on the `DITHERING_METHOD` macro,
- * provided that `HAS_DITHERING` is enabled.
+ * Includes the appropriate dithering module based on the `RAY_DITHERING_METHOD` macro,
+ * provided that `RAY_DITHERING_ENABLED` is enabled.
  *
- * @macro HAS_DITHERING     : Flag to enable or disable dithering (1 to enable)
- * @macro DITHERING_METHOD  : The method used to compute dithering
+ * @macro RAY_DITHERING_ENABLED: Flag to enable or disable dithering (1 to enable)
+ * @macro RAY_DITHERING_METHOD : The method used to compute dithering
  */
 
-#if HAS_DITHERING == 1
+#if RAY_DITHERING_ENABLED == 1
 
     // dithering_generative
-    #if DITHERING_METHOD == 1  
+    #if RAY_DITHERING_METHOD == 1  
         #include "./modules/dithering_generative"  
 
     // dithering_texture
-    #elif DITHERING_METHOD == 2
+    #elif RAY_DITHERING_METHOD == 2
         #include "./modules/dithering_texture"  
 
     // unknown dithering method
     #else  
-        #error "Unknown DITHERING_METHOD: Valid values are 1 or 2."
+        #error "Unknown RAY_DITHERING_METHOD: Valid values are 1 or 2."
 
-    #endif // DITHERING_METHOD
+    #endif // RAY_DITHERING_METHOD
 
-#endif // HAS_DITHERING
+#endif // RAY_DITHERING_ENABLED

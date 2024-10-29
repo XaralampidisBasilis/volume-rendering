@@ -2,7 +2,7 @@
 
 #include "./modules/debug"      
 
-switch (u_debug.option)
+switch (raymarch.debug_option)
 {
     case  1: fragColor = debug.trace_position;       break;
     case  2: fragColor = debug.trace_coords;         break;

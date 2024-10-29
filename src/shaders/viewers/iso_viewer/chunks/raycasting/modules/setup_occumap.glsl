@@ -14,7 +14,7 @@ if (occumap.lod > 0) {
     occumap.start_coords.z = occumaps.base_dimensions.z;
 }
 
-// compute the max number of skips based on the currect occupam
+// compute the max number of skips based on the currect occumap
 ray.max_block_distance = length(occumap.spacing);
 ray.max_skip_count = mmax(occumap.dimensions);
 ray.max_skip_count = min(ray.max_skip_count, raymarch.max_step_count);

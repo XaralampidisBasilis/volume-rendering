@@ -5,7 +5,6 @@
 #include "./uniform_colormap"
 #include "./uniform_shading"
 #include "./uniform_lighting"
-#include "./uniform_debug"
 
 uniform Textures textures;
 uniform Colormap colormap;
@@ -14,4 +13,3 @@ uniform Occumaps occumaps;
 uniform Raymarch raymarch;
 uniform Lighting lighting;
 uniform Shading  shading;
-uniform Debug    debug;

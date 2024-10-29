@@ -14,12 +14,12 @@ for (trace.steps = 0; trace.steps < ray.max_steps; trace.steps++)
 
     if (block.occupied) {
 
-        #include "./modules/update_trace_sample"
+        #include "./modules/sample_volume"
         ray.intersected = trace.error > 0.0 && trace.gradient_norm > gradient_threshold;
         if (ray.intersected) break;
 
         prev_trace = trace;
-        #include "./modules/update_trace_position"
+        #include "./modules/update_trace"
     } 
     else
     {

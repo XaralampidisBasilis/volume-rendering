@@ -11,11 +11,11 @@
  */
 
 // save not refined solution
-parameters_trace temp_trace = trace;
+Trace trace_tmp = trace;
 
 // define the bisection intervals
-vec2 values = vec2(prev_trace.value, trace.value);
-vec2 distances = vec2(prev_trace.distance, trace.distance);
+vec2 samples = vec2(trace_prev.sample, trace.sample);
+vec2 distances = vec2(trace_prev.distance, trace.distance);
 distances = clamp(distances, ray.min_distance, ray.max_distance);
 
 float mix_error;
@@ -26,7 +26,7 @@ vec4 volume_data;
 for (int i = 0; i < 5; i++, trace.steps++) 
 {
     // compute interpolation factor
-    mix_error = map(values.x, values.y, u_raycast.threshold);
+    mix_error = map(samples.x, samples.y, u_raycast.threshold);
 
     // compute position
     trace.distance = mix(distances.x, distances.y, mix_error);
@@ -35,12 +35,12 @@ for (int i = 0; i < 5; i++, trace.steps++)
 
     // sample the intensity at the interpolated position
     volume_data = texture(u_sampler.volume, trace.texel);
-    trace.value = volume_data.r;
-    trace.error = trace.value - u_raycast.threshold;
+    trace.sample = volume_data.r;
+    trace.error = trace.sample - u_raycast.threshold;
 
     // Update position and value based on error
     is_positive = step(0.0, trace.error);
-    values = mix(vec2(trace.value, values.y), vec2(values.x, trace.value), is_positive);
+    samples = mix(vec2(trace.sample, samples.y), vec2(samples.x, trace.sample), is_positive);
     distances = mix(vec2(trace.distance, distances.y), vec2(distances.x, trace.distance), is_positive);
     trace.steps++;
 }
@@ -56,8 +56,8 @@ trace.coords = floor(trace.position * u_volume.inv_spacing);
 trace.depth = trace.distance - ray.min_distance;
 
 // if we do not have any improvement with refinement go to previous solution
-if (abs(trace.error) > abs(temp_trace.error)) {
-    trace = temp_trace;
+if (abs(trace.error) > abs(trace_tmp.error)) {
+    trace = trace_tmp;
 }
 
 

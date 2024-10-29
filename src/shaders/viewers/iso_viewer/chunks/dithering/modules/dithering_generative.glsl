@@ -15,15 +15,20 @@
  */
 
 // calculate the mean distance along the ray.
-float ray_mean_distance = mean(ray.min_distance, ray.max_distance);
+float ray_mean_distance = mean(ray.min_start_distance, ray.max_end_distance);
 
 // calculate the sample position based on the mean distance.
-vec3 seed_position = ray.origin + ray.direction * ray_mean_distance;
+vec3 seed_position = ray.origin_position + ray.step_direction * ray_mean_distance;
 
 // transform the sample position to world coordinates.
 seed_position = vec3(v_model_view_matrix * vec4(seed_position, 1.0));
 
 // generate a random number based on the world-space position and apply dithering.
-ray.dithering = random(seed_position);
-ray.dithering = clamp(ray.dithering, 0.0 + MILLI_TOL, 1.0 - MILLI_TOL);
-ray.dithering *= ray.spacing;
+ray.rand_distance = random(seed_position);
+ray.rand_distance *= ray.step_distance * 0.5;
+
+// update ray
+ray.start_distance += ray.rand_distance;
+ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
+ray.span_distance = ray.max_distance - ray.min_distance;
+ray.span_distance = max(ray.span_distance, 0.0);

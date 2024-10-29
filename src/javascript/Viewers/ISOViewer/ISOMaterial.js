@@ -82,43 +82,40 @@ export default function()
             max_step_scale     : 1.0,
             max_step_count     : 1000,
             max_skip_count     : 200,
-            min_skip_lod       : 0,
-        }),
-
-        debug: new THREE.Uniform({
-            option : 0,
+            skip_lod           : 0,
+            debug_option       : 0,
         }),
     }
 
     const defines = 
     {
-        VOLUME_GRADIENTS_METHOD       : 1,
-        VOLUME_SMOOTHING_METHOD       : 1,
-        VOLUME_SMOOTHING_RADIUS       : 2,
-  
-        RAY_DITHERING_ENABLED         : 1,
-        RAY_DITHERING_METHOD          : 1,
-        RAY_STEPPING_METHOD           : 1,
-        RAY_REFINEMENT_ENABLED        : 1,
-        RAY_REFINEMENT_METHOD         : 2,
-        RAY_GRADIENTS_ENABLED         : 1,
-        RAY_GRADIENTS_METHOD          : 1,
-        RAY_SKIPPING_BBOX_ENABLED     : 1,
-        RAY_SKIPPING_OCCUMAPS_ENABLED : 1,
- 
-        TRACE_DITHERING_ENABLED       : 0,
-        TRACE_DITHERING_METHOD        : 1,
-        TRACE_SCALING_ENABLED         : 10,
-        TRACE_SCALING_METHOD          : 10,
-        TRACE_DERIVATIVES_METHOD      : 1,
-        TRACE_SKIPPING_OMAPS_ENABLED  : 1,
- 
-        LIGHTING_ATTENUATION_ENABLED  : 0,
-        LIGHTING_ATTENUATION_METHOD   : 0,
+        VOLUME_GRADIENTS_METHOD      : 1,
+        VOLUME_SMOOTHING_METHOD      : 1,
+        VOLUME_SMOOTHING_RADIUS      : 2,
+        VOLUME_SKIP_BBOX_ENABLED     : 2,
+        VOLUME_SKIP_OMAPS_ENABLED    : 2,
 
-        SHADING_METHOD                : 0,
+        RAY_DITHERING_ENABLED        : 1,
+        RAY_DITHERING_METHOD         : 1,
+        RAY_STEPPING_METHOD          : 1,
+        RAY_REFINEMENT_ENABLED       : 1,
+        RAY_REFINEMENT_METHOD        : 2,
+        RAY_GRADIENTS_ENABLED        : 1,
+        RAY_GRADIENTS_METHOD         : 1,
+        RAY_SMOOTHING_ENABLED        : 1,
+        RAY_SMOOTHING_METHOD         : 1,
+        RAY_DISCARDING_ENABLED       : 1,
 
-        DEBUG_DISCARDING_ENABLED      : 1,
+        TRACE_DITHERING_ENABLED      : 0,
+        TRACE_DITHERING_METHOD       : 1,
+        TRACE_SCALING_ENABLED        : 10,
+        TRACE_SCALING_METHOD         : 10,
+        TRACE_DERIVATIVES_METHOD     : 1,
+        TRACE_SKIP_OMAP_ENABLED      : 1,
+
+        LIGHTING_ATTENUATION_ENABLED : 0,
+        LIGHTING_ATTENUATION_METHOD  : 0,
+        SHADING_METHOD               : 0,
     }
 
     const material = new THREE.ShaderMaterial({
