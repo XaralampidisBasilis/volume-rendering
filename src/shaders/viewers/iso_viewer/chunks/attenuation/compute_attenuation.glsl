@@ -1,7 +1,5 @@
 // COMPUTE_ATTENUATION
 
-float attenuation = 1.0;
-
 #if LIGHTING_ATTENUATION_ENABLED == 1
 
     // attenuation_smoothstep
@@ -16,5 +14,8 @@ float attenuation = 1.0;
         #error "unknown: LIGHTING_ATTENUATION_METHOD"
 
     #endif // LIGHTING_ATTENUATION_METHOD
+
+#else
+    float attenuation = 1.0;
 
 #endif // LIGHTING_ATTENUATION_ENABLED

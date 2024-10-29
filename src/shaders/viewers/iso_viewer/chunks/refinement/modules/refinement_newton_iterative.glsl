@@ -11,7 +11,7 @@
  */
  
 // save not refined solution
-parameters_trace temp_trace = trace;
+Trace temp_trace = trace;
 
 // begin at initial guess and iterate from there
 vec2 distances = vec2(trace_prev.distance, trace.distance);

@@ -161,11 +161,11 @@ export default class ISOGui
     
         this.controllers.colormap = 
         {
-            name        : folder.add(uniforms, 'name').options(Object.keys(colormapLocations)).onChange(this.updateColormap),
+            name        : folder.add(uniforms, 'name').options(Object.keys(colormapLocations)).onChange(() => this.updateColormap()),
             minThreshold: folder.add(uniforms.thresholds, 'x').name('min_threshold').min(0).max(1).step(0.001),
             maxThreshold: folder.add(uniforms.thresholds, 'y').name('max_threshold').min(0).max(1).step(0.001),
             levels      : folder.add(uniforms, 'levels').min(1).max(255).step(1),
-            flip        : folder.add(objects, 'flip').onChange(this.flipColormap)
+            flip        : folder.add(objects, 'flip').onChange(() => this.flipColormap())
         }
 
     }
@@ -219,7 +219,7 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.raymarch.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
-        const objects = { DEBUG_DISCARDING_ENABLED: Boolean(defines.DEBUG_DISCARDING_ENABLED) }
+        const objects = { RAY_DISCARDING_ENABLED: Boolean(defines.RAY_DISCARDING_ENABLED) }
 
         this.controllers.debug = 
         {
@@ -267,7 +267,7 @@ export default class ISOGui
                 variable3          : 40,
             }),
 
-            enable_discarding: folder.add(objects, 'DEBUG_DISCARDING_ENABLED').name('enable_discarding').onFinishChange((value) => { defines.DEBUG_DISCARDING_ENABLED = Number(value), material.needsUpdate = true }),
+            enable_discarding: folder.add(objects, 'RAY_DISCARDING_ENABLED').name('enable_discarding').onFinishChange((value) => { defines.RAY_DISCARDING_ENABLED = Number(value), material.needsUpdate = true }),
         }
     }
     
@@ -373,9 +373,9 @@ export default class ISOGui
 
     flipColormap()
     {
-        const colormap = this.viewer.material.uniforms.colormap.value
-        [colormap.start_coords.x, colormap.end_coords.x] = 
-        [colormap.end_coords.x, colormap.start_coords.x]      
+        // let colormap = this.viewer.material.uniforms.colormap.value
+        [this.viewer.material.uniforms.colormap.value.start_coords.x, this.viewer.material.uniforms.colormap.value.end_coords.x] = 
+        [this.viewer.material.uniforms.colormap.value.end_coords.x, this.viewer.material.uniforms.colormap.value.start_coords.x]      
     }
 
     updateColormap()

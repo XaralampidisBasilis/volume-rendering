@@ -9,9 +9,9 @@
  * @input ray.origin_position         : the starting point of the ray (vec3)
  * @input ray.step_direction      : the normalized direction vector of the ray (vec3)
  * @input v_model_view_matrix: the model-view matrix for transforming from model to world coordinates (mat4)
- * @input ray.max_spacing    : the maximum spacing for raymarching steps (float)
+ * @input ray.max_step_distance    : the maximum spacing for raymarching steps (float)
  *
- * @output ray.dithering : a small random offset in the range [0, ray.max_spacing] subtracted from the ray's start distance (float)
+ * @output ray.dithering : a small random offset in the range [0, ray.max_step_distance] subtracted from the ray's start distance (float)
  */
 
 // calculate the mean distance along the ray.

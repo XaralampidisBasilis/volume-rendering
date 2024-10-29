@@ -19,3 +19,5 @@ ray.max_block_distance = length(occumap.spacing);
 ray.max_skip_count = mmax(occumap.dimensions);
 ray.max_skip_count = min(ray.max_skip_count, raymarch.max_step_count);
 
+// update trace block level of detail
+trace.block_lod = occumap.lod;

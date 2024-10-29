@@ -10,10 +10,10 @@
  * @input ray.step_direction                 : the direction vector of the ray (normalized)
  * @input ray.start_distance              : minimum distance along the ray
  * @input v_projection_model_view_matrix: the matrix for transforming from model to NDC space
- * @input ray.max_spacing               : the maximum spacing for raymarching steps
+ * @input ray.max_step_distance               : the maximum spacing for raymarching steps
  * @input textures.noisemap            : 2D noise texture sampler
  *
- * @output ray.dithering : a small random offset in the range [0, ray.max_spacing] subtracted from the ray's start distance
+ * @output ray.dithering : a small random offset in the range [0, ray.max_step_distance] subtracted from the ray's start distance
  */
 
 // calculate the minimum distance position along the ray.

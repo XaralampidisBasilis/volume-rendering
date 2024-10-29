@@ -11,7 +11,7 @@
  */
 
 // take a backstep to do a refined traverse
-parameters_trace trace_tmp = trace;
+Trace trace_tmp = trace;
 trace = trace_prev;
 
 // calculate the refined substep

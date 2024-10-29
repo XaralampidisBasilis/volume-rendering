@@ -16,7 +16,7 @@ float trace_color_value = map(colormap.thresholds.x, colormap.thresholds.y, trac
 trace_color_value = posterize(trace_color_value, float(colormap.levels));
 
 // interpolate the u-coordinate within the colormap texture columns
-float trace_color_column = mix(colormap.start_coords.x, colormap.end_coords.y, trace_color_value);
+float trace_color_column = mix(colormap.start_coords.x, colormap.end_coords.x, trace_color_value);
 
 // Create the UV coordinates for the texture lookup
 vec2 trace_color_uv = vec2(trace_color_column, colormap.start_coords.y);

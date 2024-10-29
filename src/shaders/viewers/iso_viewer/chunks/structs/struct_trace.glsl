@@ -18,7 +18,7 @@ struct Trace
     float stepped_distance;     // total stepped distance from ray start
     float skipped_distance;     // total skipped distance from ray start
 
-    vec4 sample_data;           // sampled data at the current position
+    vec4  sample_data;          // sampled data at the current position
     float sample_value;         // sampled value at the current position
     float sample_error;         // sampled error associated with the difference of the sample value from the threshold
 
@@ -28,6 +28,7 @@ struct Trace
     bool  block_occupied;       // whether the trace's current block is occupied
     ivec3 block_coords;         // integer coordinates of the current block
     vec3  block_texture_coords; // normalized texture coordinates of the block
+    int   block_lod;            // the current occumap block level of detail
 
     vec3  normal;               // normal vector
     vec3  gradient;             // gradient vector
@@ -64,6 +65,7 @@ Trace set_trace()
     trace.block_occupied = false;
     trace.block_coords = ivec3(0);
     trace.block_texture_coords = vec3(0.0);
+    trace.block_lod = 0;
     trace.normal = vec3(0.0);
     trace.gradient = vec3(0.0);
     trace.gradient_direction = vec3(0.0);

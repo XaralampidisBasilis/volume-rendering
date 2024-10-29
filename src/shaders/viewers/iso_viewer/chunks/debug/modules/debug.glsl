@@ -8,7 +8,7 @@
 #include "./debug_trace_steps"         
 #include "./debug_trace_error"         
 #include "./debug_trace_abs_error"     
-#include "./debug_trace_value"         
+#include "./debug_trace_sample_value"         
 #include "./debug_trace_color"         
 #include "./debug_trace_shading"       
 #include "./debug_trace_luminance"     

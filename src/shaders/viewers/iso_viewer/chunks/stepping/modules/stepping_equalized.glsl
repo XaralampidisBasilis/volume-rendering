@@ -6,13 +6,13 @@
  *
  * @input volume.dimensions     : The dimensions of the volume (vec3)
  * @input volume.spacing        : The spacing of the volume's voxels (vec3)
- * @input ray.max_depth           : The maximum depth of the ray (float)
+ * @input ray.span_distance           : The maximum depth of the ray (float)
  * @input raymarch.min_step_scale  : The minimum allowable stepping factor (float)
  * @input raymarch.max_step_scale  : The maximum allowable stepping factor (float)
  *
  * @output ray.step_distance            : The computed ray spacing as the mean depth for voxel AABB intersections (float)
  * @output ray.min_spacing        : The minimum ray spacing based on the computed spacing (float)
- * @output ray.max_spacing        : The maximum ray spacing based on the computed spacing (float)
+ * @output ray.max_step_distance        : The maximum ray spacing based on the computed spacing (float)
  */
 
 // find the maximum steps of the ray to ensure proper scaling.

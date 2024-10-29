@@ -11,7 +11,7 @@
  *
  * @output ray.step_distance            : The computed ray spacing as the mean depth for voxel AABB intersections (float)
  * @output ray.min_spacing        : The minimum ray spacing based on the computed spacing (float)
- * @output ray.max_spacing        : The maximum ray spacing based on the computed spacing (float)
+ * @output ray.max_step_distance        : The maximum ray spacing based on the computed spacing (float)
  */
 
 // compute the adjusted direction by scaling the ray's absolute direction with the inverse spacing of the volume.
