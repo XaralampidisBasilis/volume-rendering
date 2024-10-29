@@ -32,7 +32,7 @@ struct Ray
     float max_block_distance;   // maximum distance that can be spanned inside an occupancy block
 };
 
-Ray Ray()
+Ray set_ray()
 {
     Ray ray;
     ray.step_direction     = vec3(0.0);

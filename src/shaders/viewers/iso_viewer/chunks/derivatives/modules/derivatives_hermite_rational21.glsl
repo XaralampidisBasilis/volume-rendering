@@ -2,7 +2,7 @@
 trace.derivative_1st = dot(trace.gradient, ray.step_direction);
 
 // compute the approximate second and third derivatives using pade two point [2,1] rational interpolation.
-float trace_slope = (trace.sample - trace_prev.sample) / trace.step_distance;
+float trace_slope = (trace.sample_value - trace_prev.sample_value) / trace.step_distance;
 vec2 trace_diff = vec2(trace.derivative_1st, trace_prev.derivative_1st)  - trace_slope;
 float ratio = trace_diff.x / trace_diff.y;
 

@@ -5,7 +5,7 @@ vec3 sample_texel;
 float sample_value, is_zero;
 
 // Main loop through kernel offsets
-vec3 texel_step = u_volume.inv_dimensions;
+vec3 texel_step = volume.inv_dimensions;
 float min_value = 1.0;
 float max_value = 0.0;
 
@@ -21,7 +21,7 @@ for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++) {
             is_zero = float(all(equal(sample_offset, ivec3(0))));
 
             // Sample the value from the texture
-            sample_value = textureLod(u_sampler.volume, sample_texel, 0.0).r;
+            sample_value = textureLod(textures.volume, sample_texel, 0.0).r;
             
             min_value = min(min_value, mix(sample_value, 1.0, is_zero));
             max_value = max(max_value, mix(sample_value, 0.0, is_zero));
@@ -30,7 +30,7 @@ for (int x = -SMOOTHING_RADIUS; x <= SMOOTHING_RADIUS; x++) {
 }
 
 // Normalize the final trace value
-trace.sample = clamp(trace.sample, min_value, max_value);
+trace.sample_value = clamp(trace.sample_value, min_value, max_value);
 
 // Compute trace error relative to the raycast threshold
-trace.sample_error = trace.sample - raymarch.sample_threshold;
+trace.sample_error = trace.sample_value - raymarch.sample_threshold;

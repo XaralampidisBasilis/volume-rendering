@@ -1,52 +1,52 @@
 
 // COMPUTE_STEPPING
 /**
- * Includes the appropriate stepping module based on the `STEPPING_METHOD` macro.
+ * Includes the appropriate scaling module based on the `TRACE_SCALING_METHOD` macro.
  *
- * @macro STEPPING_METHOD : The method used to compute the stepping size
+ * @macro TRACE_SCALING_METHOD : The method used to compute the scaling size
  */
 
-// stepping_taylor_linear
-#if STEPPING_METHOD == 1  
-    #include "./modules/stepping_taylor_linear"   
+// scaling_taylor_linear
+#if TRACE_SCALING_METHOD == 1  
+    #include "./modules/scaling_taylor_linear"   
 
-// stepping_taylor_quadratic
-#elif STEPPING_METHOD == 2  
-    #include "./modules/stepping_taylor_quadratic"   
+// scaling_taylor_quadratic
+#elif TRACE_SCALING_METHOD == 2  
+    #include "./modules/scaling_taylor_quadratic"   
 
-// stepping_taylor_cubic
-#elif STEPPING_METHOD == 3  
-    #include "./modules/stepping_taylor_cubic"  
+// scaling_taylor_cubic
+#elif TRACE_SCALING_METHOD == 3  
+    #include "./modules/scaling_taylor_cubic"  
 
-// stepping_pade_rational11
-#elif STEPPING_METHOD == 4
-    #include "./modules/stepping_pade_rational11" 
+// scaling_pade_rational11
+#elif TRACE_SCALING_METHOD == 4
+    #include "./modules/scaling_pade_rational11" 
 
-// stepping_pade_rational02
-#elif STEPPING_METHOD == 5
-    #include "./modules/stepping_pade_rational02" 
+// scaling_pade_rational02
+#elif TRACE_SCALING_METHOD == 5
+    #include "./modules/scaling_pade_rational02" 
 
-// stepping_pade_rational21
-#elif STEPPING_METHOD == 6
-    #include "./modules/stepping_pade_rational21" 
+// scaling_pade_rational21
+#elif TRACE_SCALING_METHOD == 6
+    #include "./modules/scaling_pade_rational21" 
 
-// stepping_pade_rational12
-#elif STEPPING_METHOD == 7
-    #include "./modules/stepping_pade_rational12" 
+// scaling_pade_rational12
+#elif TRACE_SCALING_METHOD == 7
+    #include "./modules/scaling_pade_rational12" 
 
-// stepping_pade_rational03
-#elif STEPPING_METHOD == 8
-    #include "./modules/stepping_pade_rational03" 
+// scaling_pade_rational03
+#elif TRACE_SCALING_METHOD == 8
+    #include "./modules/scaling_pade_rational03" 
 
-// stepping_pade_rational22
-#elif STEPPING_METHOD == 9
-    #include "./modules/stepping_pade_rational22" 
+// scaling_pade_rational22
+#elif TRACE_SCALING_METHOD == 9
+    #include "./modules/scaling_pade_rational22" 
 
-// stepping_uniform
-#elif STEPPING_METHOD == 10
-    #include "./modules/stepping_uniform"   
+// scaling_uniform
+#elif TRACE_SCALING_METHOD == 10
+    #include "./modules/scaling_uniform"   
 
 #else  
-    #error "Unknown STEPPING_METHOD."
+    #error "Unknown TRACE_SCALING_METHOD."
 
-#endif // STEPPING_METHOD
+#endif // TRACE_SCALING_METHOD

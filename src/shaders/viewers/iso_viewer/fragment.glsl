@@ -20,19 +20,19 @@ out vec4 fragColor;
 
 void main() 
 {
-    Ray ray = Ray();  
-    Trace trace = Trace();
-    Trace trace_prev = Trace();
-    Occumap occumap = Occumap();
-    Debug debug = Debug();
+    Ray ray = set_ray();  
+    Trace trace = set_trace();
+    Trace trace_prev = set_trace();
+    Occumap occumap = set_occumap();
+    Debug debug = set_debug();
 
     #include "./chunks/raycasting/compute_raycasting"
     #include "./chunks/colormapping/compute_colormapping"
     #include "./chunks/shading/compute_shading"
 
-    fragColor = vec4(trace.shading, 1.0);
+    fragColor = vec4(trace.shaded_color, 1.0);
     #include "./chunks/compute_frag_depth"
-    #include "./chunks/debug/compute_debug"
+    // #include "./chunks/debug/compute_debug"
 
     #if RAY_DISCARDING_ENABLED == 0
         if (!ray.intersected) discard;  

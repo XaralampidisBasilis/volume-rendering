@@ -25,7 +25,7 @@ const vec3 sample_offset[4] = vec3[4]
 );
 
 // Sample values at the neighboring points
-vec3 texel_step = u_volume.inv_dimensions * 0.5;
+vec3 texel_step = volume.inv_dimensions * 0.5;
 float sample_value[4];
 vec3 sample_texel;
 
@@ -37,7 +37,7 @@ vec3 is_outside;
 for (int i = 0; i < 4; i++)
 {
     sample_texel = trace.voxel_texture_coords + texel_step * sample_offset[i];
-    sample_value[i] = texture(u_sampler.volume, sample_texel).r;
+    sample_value[i] = texture(textures.volume, sample_texel).r;
     
     // correct edge cases due to trillinear interpolation and clamp to edge wrapping   
     is_outside = outside(box_min, box_max, sample_texel);
@@ -49,7 +49,7 @@ for (int i = 0; i < 4; i++)
 trace.gradient.x = sample_value[2] + sample_value[3] - sample_value[0] - sample_value[1];
 trace.gradient.y = sample_value[1] + sample_value[3] - sample_value[0] - sample_value[2];
 trace.gradient.z = sample_value[1] + sample_value[2] - sample_value[0] - sample_value[3];
-trace.gradient *= u_volume.inv_spacing * 0.5; // // adjust gradient to physical space 
+trace.gradient *= volume.inv_spacing * 0.5; // // adjust gradient to physical space 
 trace.gradient *= 8.0; // get integer kernel values from trilinear sampling
 trace.gradient /= 8.0; // normalize the kernel values
 

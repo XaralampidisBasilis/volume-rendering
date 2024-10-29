@@ -15,10 +15,10 @@
  */
 
 // clamp the trace derivative to ensure non-negative values.
-float mapped_derivative = max(trace.derivative_1st, 0.0);
+float derivative_scaling = max(trace.derivative_1st, 0.0);
 
 // map the derivative value into the range defined by the gradient norms to get a value between 0 and 1
-mapped_derivative = map(0.0, volume.max_gradient_magnitude, mapped_derivative);
+derivative_scaling = map(0.0, volume.max_gradient_magnitude, derivative_scaling);
 
 // interpolate between max_stepping and min_stepping based on the mapped derivative.
-trace.step_scaling = mix(raymarch.max_step_scale, raymarch.min_step_scale, mapped_derivative);
+trace.step_scaling = mix(raymarch.max_step_scale, raymarch.min_step_scale, derivative_scaling);

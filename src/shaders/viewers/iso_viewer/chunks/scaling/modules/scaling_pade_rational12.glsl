@@ -1,9 +1,9 @@
 
 // solve the equation of pade[1,2](x) == fc to find the next_spacing, this equation results in a quadratic
 vec3 mixed_terms = vec3(
-    trace.derivative_2nd * trace.sample - 2.0 * trace.derivative_1st * trace.derivative_1st,
-    3.0 * trace.derivative_2nd * trace.derivative_1st - trace.derivative_3rd * trace.sample,
-    3.0 * trace.derivative_2nd * trace.derivative_2nd - 2.0 * trace.derivative_3rd * trace.sample
+    trace.derivative_2nd * trace.sample_value - 2.0 * trace.derivative_1st * trace.derivative_1st,
+    3.0 * trace.derivative_2nd * trace.derivative_1st - trace.derivative_3rd * trace.sample_value,
+    3.0 * trace.derivative_2nd * trace.derivative_2nd - 2.0 * trace.derivative_3rd * trace.sample_value
 );
 
 vec3 pade_coeffs = vec3(

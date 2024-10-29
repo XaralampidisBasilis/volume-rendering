@@ -1,5 +1,5 @@
 // calculate vectors
-vec3 light_position = lighting.offset_position * u_volume.size + ray.origin_position;
+vec3 light_position = lighting.offset_position * volume.size + ray.origin_position;
 vec3 light_vector = light_position - trace.position;
 vec3 view_vector = ray.origin_position - trace.position;
 vec3 normal_vector = trace.normal;
@@ -32,5 +32,5 @@ normal_vector = normalize(normal_vector);
 vec3 directional_component = mix(diffuse_component, specular_component, specular);
 directional_component *= mmin(shadows_fading, edge_fading, attenuation);
 
-trace.shading = ambient_component + directional_component;
-trace.shading *= lighting.power;
+trace.shaded_color = ambient_component + directional_component;
+trace.shaded_color *= lighting.intensity;

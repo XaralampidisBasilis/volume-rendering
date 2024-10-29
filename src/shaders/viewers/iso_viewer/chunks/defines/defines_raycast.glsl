@@ -25,8 +25,8 @@
 #endif
 
 // { taylor1: 1, taylor2: 2, derivative: 3, normal: 4, gradient_norm: 5, uniform: 6 }
-#ifndef STEPPING_METHOD
-#define STEPPING_METHOD 1
+#ifndef TRACE_SCALING_METHOD
+#define TRACE_SCALING_METHOD 1
 #endif
 
 // { sub_sampling: 1, bisection_iterative: 2, newtons_iterative: 3, linear: 4, lagrange_quadratic: 5, lagrange_cubic: 6, hermite_cubic: 7 }

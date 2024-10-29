@@ -1,2 +1,2 @@
 
-debug.trace_shading = vec4(trace.shading, 1.0);
+debug.trace_shading = vec4(trace.shaded_color, 1.0);

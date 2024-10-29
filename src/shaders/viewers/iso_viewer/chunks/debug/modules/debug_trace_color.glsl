@@ -1,2 +1,2 @@
 
-debug.trace_color = vec4(trace.color, 1.0);
+debug.trace_color = vec4(trace.mapped_color, 1.0);

@@ -47,7 +47,7 @@ struct Debug
     vec4 variable3;  
 };
 
-Debug Debug()
+Debug set_debug()
 {
     Debug debug;
     debug.trace_position      = vec4(0.0);

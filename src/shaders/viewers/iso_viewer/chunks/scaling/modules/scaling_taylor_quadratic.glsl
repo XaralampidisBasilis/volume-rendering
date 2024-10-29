@@ -4,10 +4,10 @@
  * Uses Hermitian cubic interpolation to approximate the second derivative at the trace position 
  * and computes the quadratic Taylor approximation to solve for the stepping value.
  *
- * @input trace.sample              : current trace value at the ray's position (float)
+ * @input trace.sample_value              : current trace value at the ray's position (float)
  * @input trace.derivative_1st         : current derivative at the trace position (float)
  * @input trace.step_distance            : spacing between the current and previous trace (float)
- * @input trace_prev.sample         : previous trace value (float)
+ * @input trace_prev.sample_value         : previous trace value (float)
  * @input trace_prev.derivative_1st    : previous derivative at the trace position (float)
  * @input ray.step_distance              : the spacing size for ray marching steps (float)
  * @input raymarch.max_step_scale   : the maximum allowable stepping size (float)

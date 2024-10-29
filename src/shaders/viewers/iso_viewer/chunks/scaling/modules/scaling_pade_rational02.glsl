@@ -1,9 +1,9 @@
 
 // solve the equation of pade[0,2](x) == fc to find the next_spacing, this equation results in a quadratic
 vec3 pade_coeffs = vec3(
-    2.0 * trace.sample * trace.sample * trace.sample_error, 
-    2.0 * trace.sample * trace.derivative_1st * raymarch.sample_threshold,
-   (trace.sample * trace.derivative_2nd - 2.0 * trace.derivative_1st * trace.derivative_1st) * raymarch.sample_threshold
+    2.0 * trace.sample_value * trace.sample_value * trace.sample_error, 
+    2.0 * trace.sample_value * trace.derivative_1st * raymarch.sample_threshold,
+   (trace.sample_value * trace.derivative_2nd - 2.0 * trace.derivative_1st * trace.derivative_1st) * raymarch.sample_threshold
 );
 
 // make change of variable to directly compute the next stepping and not spacing

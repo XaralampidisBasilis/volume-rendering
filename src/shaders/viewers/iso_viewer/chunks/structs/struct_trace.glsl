@@ -18,7 +18,7 @@ struct Trace
     float stepped_distance;     // total stepped distance from ray start
     float skipped_distance;     // total skipped distance from ray start
 
-    float sample;               // sampled value at the current position
+    float sample_value;         // sampled value at the current position
     float sample_error;         // sampled error associated with the difference of the sample value from the threshold
 
     ivec3 voxel_coords;         // integer voxel coordinates in 3d space
@@ -41,7 +41,7 @@ struct Trace
     vec4  shaded_color;         // color after shading has been applied
 };
 
-Trace Trace()
+Trace set_trace()
 {
     Trace trace;
     trace.step_count = 0;
@@ -55,7 +55,7 @@ Trace Trace()
     trace.spanned_distance = 0.0;
     trace.stepped_distance = 0.0;
     trace.skipped_distance = 0.0;
-    trace.sample = 0.0;
+    trace.sample_value = 0.0;
     trace.sample_error = 0.0;
     trace.voxel_coords = ivec3(0);
     trace.voxel_texture_coords = vec3(0.0);

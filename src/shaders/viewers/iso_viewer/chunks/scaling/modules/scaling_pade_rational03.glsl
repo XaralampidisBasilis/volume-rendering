@@ -1,15 +1,15 @@
 
 // solve the equation of pade[0,3](x) == fc to find the next_spacing, this equation results in a cubic
 vec2 mixed_terms = vec2(
-    trace.derivative_2nd * trace.sample - 2.0 * trace.derivative_1st * trace.derivative_1st,
-    trace.derivative_3rd * trace.sample - 3.0 * trace.derivative_2nd * trace.derivative_1st
+    trace.derivative_2nd * trace.sample_value - 2.0 * trace.derivative_1st * trace.derivative_1st,
+    trace.derivative_3rd * trace.sample_value - 3.0 * trace.derivative_2nd * trace.derivative_1st
 );
 
 vec4 pade_coeffs = vec4(
-    6.0 * pow3(trace.sample) * trace.sample_error, 
-    6.0 * pow2(trace.sample) * trace.derivative_1st * raymarch.sample_threshold, 
-    3.0 * trace.sample * mixed_terms.x * raymarch.sample_threshold,
-    (trace.sample * mixed_terms.y - 3.0 * trace.derivative_1st * mixed_terms.x) * raymarch.sample_threshold
+    6.0 * pow3(trace.sample_value) * trace.sample_error, 
+    6.0 * pow2(trace.sample_value) * trace.derivative_1st * raymarch.sample_threshold, 
+    3.0 * trace.sample_value * mixed_terms.x * raymarch.sample_threshold,
+    (trace.sample_value * mixed_terms.y - 3.0 * trace.derivative_1st * mixed_terms.x) * raymarch.sample_threshold
 );
 
 // make change of variable to directly compute the next stepping and not spacing

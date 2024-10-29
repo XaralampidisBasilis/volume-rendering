@@ -4,7 +4,7 @@
  * Calculates the ray spacing as the mean value of ray depths for all parallel rays 
  * intersecting a voxel's axis-aligned bounding box (aabb).
  *
- * @input u_volume.inv_spacing    : The inverse of the volume's voxel spacing in each direction (vec3)
+ * @input volume.inv_spacing    : The inverse of the volume's voxel spacing in each direction (vec3)
  * @input ray.step_direction           : The normalized direction vector of the ray (vec3)
  * @input raymarch.min_step_scale  : The minimum allowable stepping factor (float)
  * @input raymarch.max_step_scale  : The maximum allowable stepping factor (float)

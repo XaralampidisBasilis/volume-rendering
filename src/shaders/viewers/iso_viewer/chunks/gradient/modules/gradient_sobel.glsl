@@ -65,7 +65,7 @@ const vec3[27] sample_offset = vec3[27]
 );
 
 // Sample values at the neighboring points
-vec3 texel_step = u_volume.inv_dimensions;
+vec3 texel_step = volume.inv_dimensions;
 float sample_value[27];
 vec3 sample_texel;
 
@@ -76,7 +76,7 @@ vec3 box_max = 1.0 - box_min;
 for (int i = 0; i < 27; i++)
 {
     sample_texel = trace.voxel_texture_coords + texel_step * sample_offset[i];
-    sample_value[i] = texture(u_sampler.volume, sample_texel).r;
+    sample_value[i] = texture(textures.volume, sample_texel).r;
     sample_value[i] *= inside_box(box_min, box_max, sample_texel);
 }
 #pragma unroll_loop_end
@@ -94,7 +94,7 @@ for (int i = 0; i < 27; i++)
 #pragma unroll_loop_end
 
 trace.gradient /= 16.0; // normalize the kernel values
-trace.gradient *= u_volume.inv_spacing * 0.5; // // adjust gradient to physical space 
+trace.gradient *= volume.inv_spacing * 0.5; // // adjust gradient to physical space 
 trace.gradient_magnitude = length(trace.gradient);
 trace.normal = - normalize(trace.gradient);
 trace.derivative_1st = dot(trace.gradient, ray.step_direction);

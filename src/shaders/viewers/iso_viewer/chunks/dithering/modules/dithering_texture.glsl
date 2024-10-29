@@ -11,7 +11,7 @@
  * @input ray.start_distance              : minimum distance along the ray
  * @input v_projection_model_view_matrix: the matrix for transforming from model to NDC space
  * @input ray.max_spacing               : the maximum spacing for raymarching steps
- * @input u_sampler.noisemap            : 2D noise texture sampler
+ * @input textures.noisemap            : 2D noise texture sampler
  *
  * @output ray.dithering : a small random offset in the range [0, ray.max_spacing] subtracted from the ray's start distance
  */
@@ -32,7 +32,7 @@ seed_position = (seed_position + 1.0) * 0.5;
 seed_position *= 1000.0;
 
 // sample the noise map texture at the xy coordinates to generate dithering.
-ray.rand_distance = texture(u_sampler.noisemap, seed_position.xy).r;
+ray.rand_distance = texture(textures.noisemap, seed_position.xy).r;
 ray.rand_distance *= ray.step_distance * 0.5;
 
 // update ray

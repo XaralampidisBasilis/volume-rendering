@@ -1,6 +1,6 @@
 
 block.coords = ivec3(trace.position / occumap.spacing);
-block.occupied = texelFetch(u_sampler.occumaps, occumap.offset + block.coords, 0).r > 0.0;
+trace.block_occupied = texelFetch(textures.occumaps, occumap.offset + block.coords, 0).r > 0.0;
 
 // compute block min and max positions in space
 block.min_position = vec3(block.coords) * occumap.spacing;

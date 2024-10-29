@@ -4,8 +4,8 @@
  * Calculates the ray spacing for equalized stepping in each direction, 
  * based on the volume's dimensions and spacing.
  *
- * @input u_volume.dimensions     : The dimensions of the volume (vec3)
- * @input u_volume.spacing        : The spacing of the volume's voxels (vec3)
+ * @input volume.dimensions     : The dimensions of the volume (vec3)
+ * @input volume.spacing        : The spacing of the volume's voxels (vec3)
  * @input ray.max_depth           : The maximum depth of the ray (float)
  * @input raymarch.min_step_scale  : The minimum allowable stepping factor (float)
  * @input raymarch.max_step_scale  : The maximum allowable stepping factor (float)
