@@ -1,7 +1,7 @@
 
-// find block coords
+// find block coords in current occumap
 trace.block_coords = ivec3(trace.position / occumap.spacing);
 
-// sample block occupancy 
+// convert occumap coords to atlas coords and sample the atlas
 ivec3 occumaps_coords = occumap.start_coords + trace.block_coords;
-trace.block_occupied = 0.0 < texelFetch(textures.occumaps, occumaps_coords, 0).r;
+trace.block_occupied = texelFetch(textures.occumaps, occumaps_coords, 0).r > 0.0;

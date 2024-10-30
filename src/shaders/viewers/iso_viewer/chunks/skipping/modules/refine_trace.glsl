@@ -1,7 +1,16 @@
 
+trace.block_coords = ivec3(trace.position / occumap.spacing);
+
+// compute occupied block min and max positions in space
+vec3 block_min_position = vec3(trace.block_coords) * occumap.spacing;
+vec3 block_max_position = block_min_position + occumap.spacing;
+
+// take backstep to get in the start of the occupied block
+trace.skip_distance = intersect_box_max(block_min_position, block_max_position, trace.position, -ray.step_direction);
+
 // due to linear filtering of the volume texture, samples are non zero at boundaries 
 // even if the occupancy is zero, so we need to take a backstep
-trace.skip_distance = ray.max_voxel_distance * 2.0; 
+trace.skip_distance += ray.max_voxel_distance * 2.0; 
 trace.skipped_distance -= trace.skip_distance;
 
 // update trace distance and avoid goind outside ray bounds

@@ -1,9 +1,9 @@
 
-#if HAS_SKIPPING == 0
-    #include "./raymarch_full"
+#if TRACE_SKIP_OCCUMAPS_ENABLED == 1
+    // #include "./raymarch_skipping"
 
-#elif HAS_SKIPPING == 1
-    #include "./raymarch_skipping"
+#else
+    #include "./raymarch_full"
 
 #endif
 

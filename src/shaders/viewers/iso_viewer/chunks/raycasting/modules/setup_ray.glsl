@@ -1,6 +1,5 @@
 
 // start ray intersection flag, origin, direction
-ray.intersected = false;
 ray.origin_position = v_camera;
 ray.step_direction = normalize(v_direction);
 ray.max_voxel_distance = length(volume.spacing);

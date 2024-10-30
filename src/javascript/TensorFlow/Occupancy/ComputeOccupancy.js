@@ -28,7 +28,7 @@ export default class ComputeOccupancy
             const baseOccumap = tf.maxPool3d(occupancy, [2, 2, 2], [2, 2, 2], 'same')
             occupancy.dispose()
             
-            const [atlasOccumaps, atlasLods] = this.buildAtlasLod(baseOccumap)
+            const [atlasOccumaps, atlasLods] = this.occumapsAtlas(baseOccumap)
             baseOccumap.dispose()
       
             this.results = {
@@ -58,8 +58,8 @@ export default class ComputeOccupancy
         this.viewer.textures.occumaps.wrapS = THREE.ClampToEdgeWrapping
         this.viewer.textures.occumaps.wrapT = THREE.ClampToEdgeWrapping
         this.viewer.textures.occumaps.wrapR = THREE.ClampToEdgeWrapping
-        this.viewer.textures.occumaps.minFilter = THREE.LinearFilter
-        this.viewer.textures.occumaps.magFilter = THREE.LinearFilter
+        this.viewer.textures.occumaps.minFilter = THREE.NearestFilter
+        this.viewer.textures.occumaps.magFilter = THREE.NearestFilter
         this.viewer.textures.occumaps.needsUpdate = true
 
         this.viewer.material.uniforms.occumaps.value.lods = this.results.atlasLods
@@ -73,7 +73,7 @@ export default class ComputeOccupancy
         this.viewer.material.uniforms.volume.value.min_position.fromArray(this.results.minPosition)
         this.viewer.material.uniforms.volume.value.max_position.fromArray(this.results.maxPosition)
 
-        this.viewer.material.uniforms.raymarch.value.max_lod = this.results.atlasLods - 1;
+        this.viewer.material.uniforms.raymarch.value.max_skip_lod = this.results.atlasLods - 1;
 
         this.viewer.material.uniforms.textures.value.occumaps = this.viewer.textures.occumaps
         this.viewer.material.needsUpdate = true
@@ -136,7 +136,7 @@ export default class ComputeOccupancy
         return padded
     }
 
-    buildAtlasLod(tensor)
+    occumapsAtlas(tensor)
     {
         let subTensor = tensor
         let atlasTensor = subTensor.pad([[0, subTensor.shape[0] / 2], [0, 0], [0, 0], [0, 0] ])

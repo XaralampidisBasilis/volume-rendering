@@ -3,6 +3,7 @@
 #include "./modules/start_trace"
 
 vec3 occumap_texel_offset = vec3(occumap.offset) / vec3(occupancy_dimensions);
+float gradient_threshold = raymarch.gradient_threshold;
 
 // raymarch loop to traverse through the volume
 for (trace.step_count = 0; trace.step_count < ray.max_step_count; trace.step_count++) 

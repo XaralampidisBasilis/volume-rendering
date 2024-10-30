@@ -34,12 +34,14 @@ export default class ISOViewer extends EventEmitter
             this.setGeometry()
             this.setMaterial()
             this.setMesh()
-            this.precompute()
 
-            if (this.debug.active) 
-                this.gui = new ISOGui(this)
-
-            this.trigger('ready')
+            this.precompute().then(() =>
+            {
+                if (this.debug.active) 
+                    this.gui = new ISOGui(this)
+    
+                this.trigger('ready')
+            })
         })
         
     }

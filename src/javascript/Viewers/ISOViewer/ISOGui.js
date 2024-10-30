@@ -82,7 +82,7 @@ export default class ISOGui
         const objects = { 
             RAY_DITHERING_ENABLED  : Boolean(defines.RAY_DITHERING_ENABLED),
             RAY_REFINEMENT_ENABLED : Boolean(defines.RAY_REFINEMENT_ENABLED),
-            TRACE_SKIP_OMAP_ENABLED: Boolean(defines.TRACE_SKIP_OMAP_ENABLED),
+            TRACE_SKIP_OCCUMAPS_ENABLED: Boolean(defines.TRACE_SKIP_OCCUMAPS_ENABLED),
             RAY_GRADIENTS_ENABLED  : Boolean(defines.RAY_GRADIENTS_ENABLED),
             RAY_SMOOTHING_ENABLED  : Boolean(defines.RAY_SMOOTHING_ENABLED),
         }
@@ -103,13 +103,13 @@ export default class ISOGui
         this.controllers.raymarch = 
         {
             sampleThreshold   : folder.add(uniforms, 'sample_threshold').min(0).max(1).step(0.0001).onFinishChange(() => { this.viewer.computeOccupancy() }),
-            gradientThreshold : folder.add(uniforms, 'gradient_threshold').min(0).max(1).step(0.0001),
+            gradientThreshold : folder.add(uniforms, 'gradient_threshold').min(0).max(material.uniforms.volume.value.max_gradient_magnitude).step(0.0001),
             minStepScale      : folder.add(uniforms, 'min_step_scale').min(0.001).max(5).step(0.001),
             maxStepScale      : folder.add(uniforms, 'max_step_scale').min(0.001).max(5).step(0.001),
             maxStepCount      : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
-            maxSkipCount      : folder.add(uniforms, 'max_skip_count').min(0).max(100).step(1),
-            minSkipLod        : folder.add(uniforms, 'min_skip_lod').min(0).max(10).step(1),
-            maxSkipLod        : folder.add(uniforms, 'max_skip_lod').min(0).max(10).step(1),
+            maxSkipCount      : folder.add(uniforms, 'max_skip_count').min(0).max(2000).step(1),
+            minSkipLod        : folder.add(uniforms, 'min_skip_lod').min(0).max(material.uniforms.occumaps.value.lods - 1).step(1),
+            maxSkipLod        : folder.add(uniforms, 'max_skip_lod').min(0).max(material.uniforms.occumaps.value.lods - 1).step(1),
 
             spacingMethod     : folder.add(defines, 'RAY_STEPPING_METHOD').name('stepping_method').options(options.RAY_STEPPING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             scalingMethod     : folder.add(defines, 'TRACE_SCALING_METHOD').name('scaling_method').options(options.TRACE_SCALING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
@@ -121,7 +121,7 @@ export default class ISOGui
             
             enableDithering   : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
             enableRefinement  : folder.add(objects, 'RAY_REFINEMENT_ENABLED').name('enable_refinement').onFinishChange((value) => { defines.RAY_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
-            enableSkipping    : folder.add(objects, 'TRACE_SKIP_OMAP_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.TRACE_SKIP_OMAP_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipping    : folder.add(objects, 'TRACE_SKIP_OCCUMAPS_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.TRACE_SKIP_OCCUMAPS_ENABLED = Number(value), material.needsUpdate = true }),
             enableGradients   : folder.add(objects, 'RAY_GRADIENTS_ENABLED').name('enable_gradients').onFinishChange((value) => { defines.RAY_GRADIENTS_ENABLED = Number(value), material.needsUpdate = true }),
             enableSmoothing   : folder.add(objects, 'RAY_SMOOTHING_ENABLED').name('enable_smoothing').onFinishChange((value) => { defines.RAY_SMOOTHING_ENABLED = Number(value), material.needsUpdate = true }),
         }
@@ -135,7 +135,7 @@ export default class ISOGui
         const defines = this.viewer.material.defines
         const objects = { 
             VOLUME_SKIP_BBOX_ENABLED: Boolean(defines.VOLUME_SKIP_BBOX_ENABLED),
-            VOLUME_SKIP_OMAPS_ENABLED    : Boolean(defines.VOLUME_SKIP_OMAPS_ENABLED),
+            VOLUME_SKIP_OCCUMAPS_ENABLED    : Boolean(defines.VOLUME_SKIP_OCCUMAPS_ENABLED),
         }
         const options = {
             VOLUME_GRADIENTS_METHOD: { scharr: 1, sobel: 2, prewitt: 3, tetrahedron: 4, central: 5 },
@@ -148,7 +148,7 @@ export default class ISOGui
             smoothingMethod: folder.add(defines, 'VOLUME_SMOOTHING_METHOD').name('smoothing_method').options(options.VOLUME_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             gradientsMethod: folder.add(defines, 'VOLUME_GRADIENTS_METHOD').name('gradients_method').options(options.VOLUME_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             enableSkipBbox : folder.add(objects, 'VOLUME_SKIP_BBOX_ENABLED').name('enable_bbox').onFinishChange((value) => { defines.VOLUME_SKIP_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
-            enableSkipOmaps: folder.add(objects, 'VOLUME_SKIP_OMAPS_ENABLED').name('enable_omaps').onFinishChange((value) => { defines.VOLUME_SKIP_OMAPS_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipOmaps: folder.add(objects, 'VOLUME_SKIP_OCCUMAPS_ENABLED').name('enable_omaps').onFinishChange((value) => { defines.VOLUME_SKIP_OCCUMAPS_ENABLED = Number(value), material.needsUpdate = true }),
             enableVolume   : folder.add(material, 'visible').name('enable_volume')
         }
 
@@ -220,7 +220,7 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.raymarch.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
-        const objects = { RAY_DISCARDING_ENABLED: Boolean(defines.RAY_DISCARDING_ENABLED) }
+        const objects = { RAY_DISCARDING_DISABLED: Boolean(defines.RAY_DISCARDING_DISABLED) }
 
         this.controllers.debug = 
         {
@@ -269,7 +269,7 @@ export default class ISOGui
                 variable3                : 41,
             }),
 
-            enable_discarding: folder.add(objects, 'RAY_DISCARDING_ENABLED').name('enable_discarding').onFinishChange((value) => { defines.RAY_DISCARDING_ENABLED = Number(value), material.needsUpdate = true }),
+            disable_discarding: folder.add(objects, 'RAY_DISCARDING_DISABLED').name('disable_discarding').onFinishChange((value) => { defines.RAY_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }
     }
     
