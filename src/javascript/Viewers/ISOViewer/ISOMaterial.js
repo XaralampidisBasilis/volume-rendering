@@ -44,6 +44,7 @@ export default function()
         ({
             lods           : 0,
             dimensions     : new THREE.Vector3(),
+            inv_dimensions : new THREE.Vector3(),
             base_dimensions: new THREE.Vector3(),
             base_spacing   : new THREE.Vector3(),
             base_size      : new THREE.Vector3(),
@@ -83,7 +84,13 @@ export default function()
             max_skip_count     : 200,
             min_skip_lod       : 0,
             max_skip_lod       : 0,
-            debug_option       : 0,
+        }),
+
+        debugging: new THREE.Uniform({
+            option    : 0,
+            variable1 : 0,
+            variable2 : 0,
+            variable3 : 0,
         }),
     }
 

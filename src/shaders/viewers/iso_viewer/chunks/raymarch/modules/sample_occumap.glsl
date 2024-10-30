@@ -1,12 +1,6 @@
 
-block.coords = ivec3(trace.position / occumap.spacing);
-trace.block_occupied = texelFetch(textures.occumaps, occumap.offset + block.coords, 0).r > 0.0;
+trace.block_coords = ivec3(trace.position / occumap.spacing);
 
-// compute block min and max positions in space
-block.min_position = vec3(block.coords) * occumap.spacing;
-block.max_position = block.min_position + occumap.spacing;
-
-// intersect ray with block to find the skipping distance
-block.skipping = intersect_box_max(block.min_position, block.max_position, trace.position, ray.step_direction);
-block.skipping += length(occumap.spacing) * MILLI_TOL; // add small values to avoid numerical instabilities in block boundaries
-
+// convert occumap coords to atlas coords and sample the atlas
+ivec3 occumaps_coords = occumap.start_coords + trace.block_coords;
+trace.block_occupied = texelFetch(textures.occumaps, occumaps_coords, 0).r > 0.0;

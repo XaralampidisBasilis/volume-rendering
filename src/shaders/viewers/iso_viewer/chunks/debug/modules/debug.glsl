@@ -10,6 +10,7 @@
 #include "./debug_ray_step_distance"
 #include "./debug_trace_block_coords"
 #include "./debug_trace_block_lod"
+#include "./debug_trace_block_occupancy"
 #include "./debug_trace_block_occupied"
 #include "./debug_trace_derivative_1st"
 #include "./debug_trace_derivative_2nd"

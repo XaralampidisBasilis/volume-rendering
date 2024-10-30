@@ -25,8 +25,13 @@ export default class ComputeOccupancy
             condition.dispose()
 
             // compute the occupancy density of each block
-            const baseOccumap = tf.maxPool3d(occupancy, [2, 2, 2], [2, 2, 2], 'same')
+            const baseOccupancy = tf.maxPool3d(occupancy, [2, 2, 2], [2, 2, 2], 'same')
             occupancy.dispose()
+            
+
+            // convert boolean true value to uint8 255
+            const baseOccumap = baseOccupancy.mul([255])
+            baseOccupancy.dispose()
             
             const [atlasOccumaps, atlasLods] = this.occumapsAtlas(baseOccumap)
             baseOccumap.dispose()
@@ -58,12 +63,13 @@ export default class ComputeOccupancy
         this.viewer.textures.occumaps.wrapS = THREE.ClampToEdgeWrapping
         this.viewer.textures.occumaps.wrapT = THREE.ClampToEdgeWrapping
         this.viewer.textures.occumaps.wrapR = THREE.ClampToEdgeWrapping
-        this.viewer.textures.occumaps.minFilter = THREE.NearestFilter
-        this.viewer.textures.occumaps.magFilter = THREE.NearestFilter
+        this.viewer.textures.occumaps.minFilter = THREE.LinearFilter
+        this.viewer.textures.occumaps.magFilter = THREE.LinearFilter
         this.viewer.textures.occumaps.needsUpdate = true
 
         this.viewer.material.uniforms.occumaps.value.lods = this.results.atlasLods
         this.viewer.material.uniforms.occumaps.value.dimensions.fromArray(this.results.atlasDimensions)
+        this.viewer.material.uniforms.occumaps.value.inv_dimensions.fromArray(this.results.atlasDimensions.map((dim) => 1/dim))
         this.viewer.material.uniforms.occumaps.value.base_dimensions.fromArray(this.results.baseDimensions)
         this.viewer.material.uniforms.occumaps.value.base_spacing.fromArray(this.results.baseSpacing)
         this.viewer.material.uniforms.occumaps.value.base_size.fromArray(this.results.baseSize)
@@ -78,7 +84,7 @@ export default class ComputeOccupancy
         this.viewer.material.uniforms.textures.value.occumaps = this.viewer.textures.occumaps
         this.viewer.material.needsUpdate = true
 
-        this.results.data = null
+        console.log(this.results)
     }
 
     update()

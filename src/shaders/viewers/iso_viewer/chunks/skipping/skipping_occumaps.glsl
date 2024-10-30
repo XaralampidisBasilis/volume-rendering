@@ -3,7 +3,7 @@
 
 for (trace.skip_count = 0; trace.skip_count < raymarch.max_skip_count; trace.skip_count++) 
 {
-    #include "./modules/sample_occumap"
+    #include "./modules/sample_occumaps"
 
     if (trace.block_occupied)  
     {
@@ -20,3 +20,4 @@ for (trace.skip_count = 0; trace.skip_count < raymarch.max_skip_count; trace.ski
 
     if (trace.distance > ray.end_distance) break;
 }
+

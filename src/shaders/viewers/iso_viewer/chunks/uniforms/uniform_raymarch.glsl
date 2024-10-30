@@ -12,7 +12,6 @@ struct Raymarch
     int   max_skip_count;   
     int   min_skip_lod;
     int   max_skip_lod;
-    int   debug_option;  
 };
 
 #endif // UNIFORM_RAYMARCH

@@ -1,7 +1,4 @@
 
-// compute current occupancy block coordinates
-trace.block_coords = ivec3(trace.position / occumap.spacing);
-
 // compute occupied block min and max positions in space
 vec3 block_min_position = vec3(trace.block_coords) * occumap.spacing;
 vec3 block_max_position = block_min_position + occumap.spacing;
@@ -14,7 +11,7 @@ trace.skip_distance = intersect_box_max(block_min_position, block_max_position, 
 trace.skip_distance += ray.max_voxel_distance; 
 trace.skipped_distance -= trace.skip_distance;
 
-// take a trace backstep
+// take a trace backstep 
 trace.distance -= trace.skip_distance;
 trace.distance = max(trace.distance, ray.start_distance);
 
@@ -22,8 +19,3 @@ trace.distance = max(trace.distance, ray.start_distance);
 trace.position = ray.origin_position + ray.step_direction * trace.distance;
 trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * volume.inv_size;
-
-// update ray
-ray.start_distance = trace.distance;
-ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
-ray.span_distance = max(ray.end_distance - ray.start_distance, 0.0);

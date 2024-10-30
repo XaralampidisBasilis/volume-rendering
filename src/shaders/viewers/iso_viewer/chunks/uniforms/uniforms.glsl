@@ -5,11 +5,13 @@
 #include "./uniform_colormap"
 #include "./uniform_shading"
 #include "./uniform_lighting"
+#include "./uniform_debugging"
 
-uniform Textures textures;
-uniform Colormap colormap;
-uniform Volume   volume;
-uniform Occumaps occumaps;
-uniform Raymarch raymarch;
-uniform Lighting lighting;
-uniform Shading  shading;
+uniform Textures  textures;
+uniform Colormap  colormap;
+uniform Volume    volume;
+uniform Occumaps  occumaps;
+uniform Raymarch  raymarch;
+uniform Lighting  lighting;
+uniform Shading   shading;
+uniform Debugging debugging;

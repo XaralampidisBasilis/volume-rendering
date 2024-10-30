@@ -10,5 +10,6 @@ trace.stepped_distance += trace.step_distance;
 trace.distance += trace.step_distance;
 trace.spanned_distance += trace.step_distance;
 trace.position += ray.step_direction * trace.step_distance;
+trace.block_coords = ivec3(trace.position / occumap.spacing);
 trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * volume.inv_size;

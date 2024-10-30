@@ -217,14 +217,14 @@ export default class ISOGui
     addControllersDebug()
     {
         const folder = this.subfolders.debug
-        const uniforms = this.viewer.material.uniforms.raymarch.value
+        const uniforms = this.viewer.material.uniforms.debugging.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
         const objects = { RAY_DISCARDING_DISABLED: Boolean(defines.RAY_DISCARDING_DISABLED) }
 
         this.controllers.debug = 
         {
-            option: folder.add(uniforms, 'debug_option').options({ 
+            option: folder.add(uniforms, 'option').options({ 
                 default                  :  0,
                 frag_depth               :  1,
                 ray_end_distance         :  2,
@@ -238,37 +238,41 @@ export default class ISOGui
                 ray_step_distance        : 10,
                 trace_block_coords       : 11,
                 trace_block_lod          : 12,
-                trace_block_occupied     : 13,
-                trace_derivative_1st     : 14,
-                trace_derivative_2nd     : 15,
-                trace_derivative_3rd     : 16,
-                trace_distance           : 17,
-                trace_gradient_magnitude : 18,
-                trace_gradient           : 19,
-                trace_luminance          : 20,
-                trace_mapped_color       : 21,
-                trace_mean_step_distance : 22,
-                trace_normal             : 23,
-                trace_outside            : 24,
-                trace_position           : 25,
-                trace_sample_abs_error   : 26,
-                trace_sample_error       : 27,
-                trace_sample_value       : 28,
-                trace_shaded_color       : 29,
-                trace_skip_count         : 30,
-                trace_skip_distance      : 31,
-                trace_skipped_distance   : 32,
-                trace_spanned_distance   : 33,
-                trace_step_count         : 34,
-                trace_step_distance      : 35,
-                trace_step_scaling       : 36,
-                trace_stepped_distance   : 37,
-                trace_voxel_coords       : 38,
-                variable1                : 39,
-                variable2                : 40,
-                variable3                : 41,
+                trace_block_occupancy    : 13,
+                trace_block_occupied     : 14,
+                trace_derivative_1st     : 15,
+                trace_derivative_2nd     : 16,
+                trace_derivative_3rd     : 17,
+                trace_distance           : 18,
+                trace_gradient_magnitude : 19,
+                trace_gradient           : 20,
+                trace_luminance          : 21,
+                trace_mapped_color       : 22,
+                trace_mean_step_distance : 23,
+                trace_normal             : 24,
+                trace_outside            : 25,
+                trace_position           : 26,
+                trace_sample_abs_error   : 27,
+                trace_sample_error       : 28,
+                trace_sample_value       : 29,
+                trace_shaded_color       : 30,
+                trace_skip_count         : 31,
+                trace_skip_distance      : 32,
+                trace_skipped_distance   : 33,
+                trace_spanned_distance   : 34,
+                trace_step_count         : 35,
+                trace_step_distance      : 36,
+                trace_step_scaling       : 37,
+                trace_stepped_distance   : 38,
+                trace_voxel_coords       : 39,
+                variable1                : 40,
+                variable2                : 41,
+                variable3                : 42,
             }),
 
+            variable1         : folder.add(uniforms, 'variable1').min(-1).max(1).step(0.00001),
+            variable2         : folder.add(uniforms, 'variable2').min(-1).max(1).step(0.00001),
+            variable3         : folder.add(uniforms, 'variable3').min(-1).max(1).step(0.00001),
             disable_discarding: folder.add(objects, 'RAY_DISCARDING_DISABLED').name('disable_discarding').onFinishChange((value) => { defines.RAY_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }
     }

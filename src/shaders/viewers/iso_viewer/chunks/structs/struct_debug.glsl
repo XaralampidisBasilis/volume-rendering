@@ -16,6 +16,7 @@ struct Debug
     vec4 ray_step_distance;
     vec4 trace_block_coords;
     vec4 trace_block_lod;
+    vec4 trace_block_occupancy;
     vec4 trace_block_occupied;
     vec4 trace_derivative_1st;
     vec4 trace_derivative_2nd;
@@ -62,6 +63,7 @@ Debug set_debug()
     debug.ray_step_distance        = vec4(0.0);
     debug.trace_block_coords       = vec4(0.0);
     debug.trace_block_lod          = vec4(0.0);
+    debug.trace_block_occupancy    = vec4(0.0);
     debug.trace_block_occupied     = vec4(0.0);
     debug.trace_derivative_1st     = vec4(0.0);
     debug.trace_derivative_2nd     = vec4(0.0);
