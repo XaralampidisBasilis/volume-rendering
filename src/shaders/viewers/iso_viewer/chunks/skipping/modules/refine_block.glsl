@@ -10,7 +10,7 @@ trace.skip_distance = intersect_box_max(block_min_position, block_max_position, 
 
 // due to linear filtering of the volume texture, samples are non zero at boundaries 
 // even if the occupancy is zero, so we need to take a backstep
-trace.skip_distance += ray.max_voxel_distance * 2.0; 
+trace.skip_distance += ray.max_voxel_distance; 
 trace.skipped_distance -= trace.skip_distance;
 
 // update trace distance and avoid goind outside ray bounds
@@ -22,6 +22,7 @@ trace.position = ray.origin_position + ray.step_direction * trace.distance;
 trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * volume.inv_size;
 
-// update ray start
+// update ray
 ray.start_distance = trace.distance;
+ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
 ray.span_distance = max(ray.end_distance - ray.start_distance, 0.0);

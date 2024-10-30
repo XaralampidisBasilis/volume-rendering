@@ -9,7 +9,7 @@ for (trace.skip_count = 0; trace.skip_count < raymarch.max_skip_count; trace.ski
     {
         if (occumap.lod == raymarch.min_skip_lod) 
         {
-            #include "./modules/refine_trace"
+            #include "./modules/refine_block"
             break;
         }
         #include "./modules/update_occumap"
