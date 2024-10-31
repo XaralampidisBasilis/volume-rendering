@@ -44,7 +44,8 @@ switch (debugging.option)
     case 38: fragColor = debug.trace_step_scaling;       break;
     case 39: fragColor = debug.trace_stepped_distance;   break;
     case 40: fragColor = debug.trace_voxel_coords;       break;
-    case 41: fragColor = debug.variable1;                break;
-    case 42: fragColor = debug.variable2;                break;
-    case 43: fragColor = debug.variable3;                break;
+    case 41: fragColor = debug.trace_total_count;        break;
+    case 42: fragColor = debug.variable1;                break;
+    case 43: fragColor = debug.variable2;                break;
+    case 44: fragColor = debug.variable3;                break;
 }

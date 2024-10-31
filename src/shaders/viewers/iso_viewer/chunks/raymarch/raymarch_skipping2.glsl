@@ -2,27 +2,26 @@
 // initialize raymarch
 #include "./modules/start_occumap"
 #include "./modules/start_ray"
-#include "./modules/start_trace"
 
-float resample_distance; 
+float resample_distance = 0.0;
 
-// raymarch loop to traverse through the volume
-for (trace.step_count = 0; trace.step_count < ray.max_step_count; trace.step_count++) 
+for (trace.step_count = 0; trace.step_count < ray.max_step_count && trace.skip_count < raymarch.max_skip_count; ) 
 {
-    if (trace.distance > resample_distance) 
+    if(trace.distance > resample_distance)
     {
         #include "./modules/sample_occumaps"
 
         if (trace.block_occupied) 
         {
-            #include "./modules/refine_block"
-        } 
-        else 
+            #include "./modules/regress_block"
+        }
+        else
         {
             #include "./modules/update_block"
+            continue;
         }
     }
-   
-    #include "./modules/update_ray"
-}   
 
+    #include "./modules/sample_volume"
+    #include "./modules/update_trace"
+}   

@@ -38,3 +38,5 @@
 #include "./debug_trace_step_scaling"
 #include "./debug_trace_stepped_distance"
 #include "./debug_trace_voxel_coords"
+#include "./debug_trace_total_count"
+

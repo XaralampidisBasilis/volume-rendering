@@ -13,11 +13,9 @@ for (trace.skip_count = 0; trace.skip_count < raymarch.max_skip_count; trace.ski
             break;
         }
         #include "./modules/update_occumap"
+        continue;
     }
-    else
-    {
-        #include "./modules/update_block"
-        if (trace.distance > ray.end_distance) break;
-    }
+
+    #include "./modules/update_block"
 }
 

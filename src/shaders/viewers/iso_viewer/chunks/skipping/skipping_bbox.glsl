@@ -1,9 +1,10 @@
 
-// make volume bounding box a tad bigger to avoid boundary numerical instabilities
 vec3 volume_min_position = volume.min_position;
 vec3 volume_max_position = volume.max_position;
-volume_min_position -= volume.spacing * MILLI_TOL;
-volume_max_position += volume.spacing * MILLI_TOL;
+
+// make volume bounding box a voxel bigger to account for linear filtering
+volume_min_position -= volume.spacing;
+volume_max_position += volume.spacing;
 
 // make sure volume bounding box is not bigger than ray bounding box
 volume_min_position = max(volume_min_position, ray.min_position);

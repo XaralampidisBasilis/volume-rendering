@@ -36,7 +36,7 @@ ray.rand_distance = texture(textures.noisemap, seed_position.xy).r;
 ray.rand_distance *= ray.max_step_distance;
 
 // update ray
-ray.start_distance += ray.rand_distance;
+ray.start_distance -= ray.rand_distance;
 ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
 ray.span_distance = ray.end_distance - ray.start_distance;
 ray.span_distance = max(ray.span_distance, 0.0);

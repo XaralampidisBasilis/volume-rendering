@@ -44,6 +44,7 @@ struct Debug
     vec4 trace_step_scaling;
     vec4 trace_stepped_distance;
     vec4 trace_voxel_coords;
+    vec4 trace_total_count;
     vec4 variable1;
     vec4 variable2;
     vec4 variable3;
@@ -92,6 +93,7 @@ Debug set_debug()
     debug.trace_step_scaling       = vec4(0.0);
     debug.trace_stepped_distance   = vec4(0.0);
     debug.trace_voxel_coords       = vec4(0.0);
+    debug.trace_total_count        = vec4(0.0);
     debug.variable1                = vec4(0.0);
     debug.variable2                = vec4(0.0);
     debug.variable3                = vec4(0.0);

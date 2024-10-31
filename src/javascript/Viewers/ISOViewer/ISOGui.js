@@ -266,9 +266,10 @@ export default class ISOGui
                 trace_step_scaling       : 38,
                 trace_stepped_distance   : 39,
                 trace_voxel_coords       : 40,
-                debug_variable1          : 41,
-                debug_variable2          : 42,
-                debug_variable3          : 43,
+                trace_total_count        : 41,
+                debug_variable1          : 42,
+                debug_variable2          : 43,
+                debug_variable3          : 44,
             }),
 
             variable1         : folder.add(uniforms, 'variable1').min(-5).max(5).step(0.00000001),
