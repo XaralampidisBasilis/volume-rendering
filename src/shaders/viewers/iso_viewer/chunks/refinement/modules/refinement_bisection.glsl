@@ -19,7 +19,7 @@ vec2 trace_distances = vec2(trace_prev.distance, trace.distance);
 trace_distances = clamp(trace_distances, ray.start_distance, ray.end_distance);
 
 // #pragma unroll_loop_start
-for (int i = 0; i < 5; i++, trace.step_count++) 
+for (int i = 0; i < 10; i++, trace.step_count++) 
 {
     // compute sample linear interpolation factor
     float lerp_threshold = map(trace_samples.x, trace_samples.y, raymarch.sample_threshold);
