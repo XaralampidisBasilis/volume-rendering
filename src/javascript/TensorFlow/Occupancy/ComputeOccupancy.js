@@ -28,7 +28,6 @@ export default class ComputeOccupancy
             const baseOccupancy = tf.maxPool3d(occupancy, [2, 2, 2], [2, 2, 2], 'same')
             occupancy.dispose()
             
-
             // convert boolean true value to uint8 255
             const baseOccumap = baseOccupancy.mul([255])
             baseOccupancy.dispose()
@@ -84,7 +83,7 @@ export default class ComputeOccupancy
         this.viewer.material.uniforms.textures.value.occumaps = this.viewer.textures.occumaps
         this.viewer.material.needsUpdate = true
 
-        console.log(this.results)
+        // console.log(this.results)
     }
 
     update()

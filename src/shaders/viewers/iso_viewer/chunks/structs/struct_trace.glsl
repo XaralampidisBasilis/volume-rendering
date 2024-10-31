@@ -9,6 +9,7 @@ struct Trace
 
     float step_scaling;         // scaling factor for step size
     float step_distance;        // distance to be covered
+    float backstep_distance;    // distance to backstep
     float skip_distance;        // distance to be skipped
     float rand_distance;        // random distance for dithering
 
@@ -51,6 +52,7 @@ Trace set_trace()
     trace.skip_count = 0;
     trace.step_scaling = 1.0;
     trace.step_distance = 0.0;
+    trace.backstep_distance = 0.0;
     trace.skip_distance = 0.0;
     trace.rand_distance = 0.0;
     trace.position = vec3(0.0);

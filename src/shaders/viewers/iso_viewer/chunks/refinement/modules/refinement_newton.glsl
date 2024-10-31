@@ -44,7 +44,7 @@ for (int i = 0; i < 5; i++, trace.step_count++)
 }
 #pragma unroll_loop_end
 
-trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
+trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
 
 // if we do not have any improvement with refinement go to previous solution
 if (abs(trace.sample_error) > abs(trace_tmp.sample_error)) trace = trace_tmp;

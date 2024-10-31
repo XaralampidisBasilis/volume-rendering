@@ -22,12 +22,12 @@ trace_distances = clamp(trace_distances, ray.start_distance, ray.end_distance);
 for (int i = 0; i < 5; i++, trace.step_count++) 
 {
     // compute sample linear interpolation factor
-    float sample_lerp = map(trace_samples.x, trace_samples.y, raymarch.sample_threshold);
+    float lerp_threshold = map(trace_samples.x, trace_samples.y, raymarch.sample_threshold);
 
     // linearly interpolate positions based on sample 
-    trace.distance = mix(trace_distances.x, trace_distances.y, sample_lerp);
+    trace.distance = mix(trace_distances.x, trace_distances.y, lerp_threshold);
     trace.position = ray.origin_position + ray.step_direction * trace.distance;
-    trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
+    trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
     trace.voxel_texture_coords = trace.position * volume.inv_size;
 
     // sample the intensity at the interpolated position

@@ -16,6 +16,7 @@
 #include "./debug_trace_derivative_2nd"
 #include "./debug_trace_derivative_3rd"
 #include "./debug_trace_distance"
+#include "./debug_trace_distance_error"
 #include "./debug_trace_gradient_magnitude"
 #include "./debug_trace_gradient"
 #include "./debug_trace_luminance"

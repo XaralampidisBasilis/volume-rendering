@@ -1,11 +1,13 @@
 
 // start at the coarsest level of the occumaps
 occumap.lod = occumaps.lods - 1;
-occumap.lod_scale = exp2(float(occumap.lod));
+occumap.lod_scale = floor(exp2(float(occumap.lod)));
 
 // compute occumap dimensions and block spacing
 occumap.dimensions = occumaps.base_dimensions / int(occumap.lod_scale);
 occumap.spacing = occumaps.base_spacing * occumap.lod_scale;
+occumap.inv_dimensions = 1.0 / vec3(occumap.dimensions);
+occumap.inv_spacing = 1.0 / occumap.spacing;
 
 // compute the occumap start coordinates in the occumaps atlas texture
 occumap.start_coords.y = occumaps.base_dimensions.y  - 2 * occumap.dimensions.y;

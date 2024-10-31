@@ -4,14 +4,14 @@
 #include "./modules/start_ray"
 #include "./modules/start_trace"
 
-ivec3 block_coords = ivec3(-1);
+float resample_distance; 
 
 // raymarch loop to traverse through the volume
 for (trace.step_count = 0; trace.step_count < ray.max_step_count; trace.step_count++) 
 {
-    if (any(notEqual(trace.block_coords, block_coords))) 
+    if (trace.distance > resample_distance) 
     {
-        #include "./modules/sample_occumap"
+        #include "./modules/sample_occumaps"
 
         if (trace.block_occupied) 
         {

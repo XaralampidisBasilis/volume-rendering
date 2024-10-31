@@ -21,15 +21,20 @@ ray.max_span_distance = ray.max_end_distance - ray.min_start_distance;
 ray.max_span_distance = max(ray.max_span_distance, 0.0);
 
 // compute ray intersection distances with the ray bounding box
-vec2 ray_distances = intersect_box(ray.min_position, ray.max_position, ray.origin_position, ray.step_direction, ray.start_position, ray.end_position);
+vec2 ray_distances = intersect_box(ray.min_position, ray.max_position, ray.origin_position, ray.step_direction);
 ray_distances = max(ray_distances, 0.0); 
 ray.start_distance = ray_distances.x;
 ray.end_distance = ray_distances.y;
 ray.span_distance = ray.end_distance - ray.start_distance;
 ray.span_distance = max(ray.span_distance, 0.0);
 
+// compute start end positions
+ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
+ray.end_position = ray.origin_position + ray.step_direction * ray.end_distance;
+
 // update trace 
 trace.distance = ray.start_distance;
 trace.position = ray.start_position;
-trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
+trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
 trace.voxel_texture_coords = trace.position * volume.inv_size;
+

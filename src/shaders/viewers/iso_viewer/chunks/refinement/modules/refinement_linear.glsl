@@ -34,7 +34,7 @@ t_root = clamp(t_root, ray.start_distance, ray.end_distance);
 // Compute distance and position in solution
 trace.distance = t_root;
 trace.position = ray.origin_position + ray.step_direction * trace.distance;
-trace.voxel_coords = ivec3(trace.position * volume.inv_spacing);
+trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
 trace.voxel_texture_coords = trace.position * volume.inv_size;
 
 // sample volume

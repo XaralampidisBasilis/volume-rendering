@@ -13,4 +13,4 @@
  */
 
 // set the stepping size to the mean of the minimum and maximum stepping values.
-trace.step_scaling = mean(raymarch.min_step_scale, raymarch.max_step_scale);
+trace.step_scaling = min(raymarch.min_step_scale, raymarch.max_step_scale);

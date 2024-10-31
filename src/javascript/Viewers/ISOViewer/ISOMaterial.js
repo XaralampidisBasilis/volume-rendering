@@ -81,7 +81,7 @@ export default function()
             min_step_scale     : 1.0,
             max_step_scale     : 1.0,
             max_step_count     : 1000,
-            max_skip_count     : 200,
+            max_skip_count     : 500,
             min_skip_lod       : 0,
             max_skip_lod       : 0,
         }),
