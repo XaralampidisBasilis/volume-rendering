@@ -12,5 +12,5 @@ for (trace.step_count = 0; trace.step_count < ray.max_step_count; )
 
 if (!ray.intersected)
 {
-    #include "./modules/terminate_trace"
+    #include "./modules/end_trace"
 }
