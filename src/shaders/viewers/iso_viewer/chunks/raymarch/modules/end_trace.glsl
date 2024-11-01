@@ -20,4 +20,4 @@ trace.normal = -trace.gradient_direction;
 
 // compute skipped distance
 trace.spanned_distance = ray.box_span_distance;
-trace.skipped_distance = ray.box_span_distance;
+trace.stepped_distance = ray.box_span_distance;

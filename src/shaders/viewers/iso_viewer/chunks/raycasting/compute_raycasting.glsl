@@ -2,6 +2,7 @@
 // setup occumap and ray
 #include "./modules/setup_occumap"
 #include "./modules/setup_ray"
+#include "./modules/setup_trace"
 
 // skip volume empty space 
 #include "../skipping/compute_skipping"
@@ -11,9 +12,6 @@
 
 // apply dithering step to avoid artifacts.
 #include "../dithering/compute_dithering"
-
-// setup trace after changes
-#include "./modules/setup_trace"
 
 // raycasting loop to traverse through the volume and find intersections.
 #include "../raymarch/compute_raymarch"

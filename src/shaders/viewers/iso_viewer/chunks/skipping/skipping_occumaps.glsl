@@ -35,7 +35,7 @@ if (trace.block_occupied)
 
     // compute the distance to get to the start of the occupied block
     trace.skip_distance = intersect_box_max(block_min_position, block_max_position, trace.position, -ray.step_direction);
-    // trace.skip_distance += length(volume.spacing);
+    trace.skip_distance += length(volume.spacing);
     trace.skipped_distance -= trace.skip_distance;
 
     // update trace position
