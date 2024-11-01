@@ -3,7 +3,7 @@
 #include "./modules/start_occumap"
 #include "./modules/start_ray"
 
-for (trace.step_count = 0; trace.step_count < ray.max_step_count; ) 
+for (trace.step_count = 0; trace.step_count < ray.max_step_count; /*trace.step_count++*/) 
 {
     #include "./modules/sample_occumaps"
 
@@ -18,3 +18,10 @@ for (trace.step_count = 0; trace.step_count < ray.max_step_count; )
     }
 }   
 
+#include "./modules/regress_block"
+
+for (/*trace.step_count = 0*/; trace.step_count < ray.max_step_count; /*trace.step_count++*/) 
+{
+    #include "./modules/sample_volume"
+    #include "./modules/update_trace"
+}   

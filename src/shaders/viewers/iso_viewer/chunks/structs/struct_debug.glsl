@@ -23,6 +23,7 @@ struct Debug
     vec4 trace_derivative_3rd;
     vec4 trace_distance;
     vec4 trace_distance_error;
+    vec4 trace_distance_diff;
     vec4 trace_gradient_magnitude;
     vec4 trace_gradient;
     vec4 trace_luminance;
@@ -72,6 +73,7 @@ Debug set_debug()
     debug.trace_derivative_3rd     = vec4(0.0);
     debug.trace_distance           = vec4(0.0);
     debug.trace_distance_error     = vec4(0.0);
+    debug.trace_distance_diff      = vec4(0.0);
     debug.trace_gradient_magnitude = vec4(0.0);
     debug.trace_gradient           = vec4(0.0);
     debug.trace_luminance          = vec4(0.0);

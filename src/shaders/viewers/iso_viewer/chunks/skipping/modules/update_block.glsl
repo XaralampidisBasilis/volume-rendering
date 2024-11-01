@@ -7,6 +7,7 @@ block_max_position *= occumap.spacing;
 
 // intersect ray with block to find the skipping distance
 trace.skip_distance = intersect_box_max(block_min_position, block_max_position, trace.position, ray.step_direction);
+// trace.skip_distance = max(trace.skip_distance, ray.min_step_distance);
 trace.skipped_distance += trace.skip_distance;
 
 // update trace
