@@ -5,6 +5,7 @@
 struct Debug 
 {
     vec4 frag_depth;
+    vec4 ray_intersected;
     vec4 ray_end_distance;
     vec4 ray_end_position;
     vec4 ray_max_step_count;
@@ -55,6 +56,7 @@ Debug set_debug()
 {
     Debug debug;
     debug.frag_depth               = vec4(0.0);
+    debug.ray_intersected          = vec4(0.0);
     debug.ray_end_distance         = vec4(0.0);
     debug.ray_end_position         = vec4(0.0);
     debug.ray_max_step_count       = vec4(0.0);

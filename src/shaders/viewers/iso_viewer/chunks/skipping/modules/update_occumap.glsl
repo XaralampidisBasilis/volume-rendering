@@ -1,3 +1,5 @@
+if (occumap.lod == raymarch.min_skip_lod) break;
+
 // update occumap level of detail
 occumap.lod -= 1;
 occumap.lod_scale = exp2(float(occumap.lod));

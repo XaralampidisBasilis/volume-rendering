@@ -13,6 +13,9 @@
 // save not refined solution
 Trace trace_tmp = trace;
 
+// make sure previous trace has a sample value
+trace_prev.sample_value = texture(textures.volume, trace_prev.voxel_texture_coords).r;
+
 // define the bisection intervals
 vec2 trace_samples = vec2(trace_prev.sample_value, trace.sample_value);
 vec2 trace_distances = vec2(trace_prev.distance, trace.distance);

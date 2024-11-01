@@ -1,4 +1,5 @@
 #include "./debug_frag_depth"
+#include "./debug_ray_intersected"
 #include "./debug_ray_end_distance"
 #include "./debug_ray_end_position"
 #include "./debug_ray_max_step_count"

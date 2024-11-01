@@ -9,10 +9,10 @@ struct Ray
     vec3  origin_position;      // origin position of the ray in 3d model coordinates 
     vec3  start_position;       // starting position of the ray in 3d model coordinates for raymarching
     vec3  end_position;         // ending position of the ray in 3d model coordinates for raymarching
-    vec3  min_position;         // min allowed position of the ray due to volume size, in 3d model coordinates
-    vec3  max_position;         // max allowed position of the ray due to volume size, in 3d model coordinates
-    float min_distance;         // min allowed distance of the ray due to volume size, in 3d model coordinates
-    float max_distance;         // max allowed distance of the ray due to volume size, in 3d model coordinates
+    vec3  min_position;         // min allowed position across all rays due to volume size, in 3d model coordinates
+    vec3  max_position;         // max allowed position across all rays due to volume size, in 3d model coordinates
+    float min_distance;         // min allowed distance across all rays due to volume size, in 3d model coordinates
+    float max_distance;         // max allowed distance across all rays due to volume size, in 3d model coordinates
 
     vec3  step_direction;       // direction vector for each step along the ray
     float step_distance;        // fixed step distance for each ray 
@@ -26,10 +26,12 @@ struct Ray
 
     float min_step_distance;    // minimum step distance for adaptive stepping
     float max_step_distance;    // maximum step distance for adaptive stepping
-    float min_start_distance;   // minimum allowed starting distance for each ray
-    float max_end_distance;     // maximum allowed ending distance for each ray
-    float max_span_distance;    // maximum allowed span distance for each ray
-    
+    float min_start_distance;   // minimum allowed starting distance for each ray due to volume size
+    float max_end_distance;     // maximum allowed ending distance for each ray due to volume size
+    float max_span_distance;    // maximum allowed span distance for each ray due to volume size
+    vec3  min_start_position;   // minimum allowed starting distance for each ray due to volume size
+    vec3  max_end_position;     // maximum allowed ending distance for each ray due to volume size
+
     float max_voxel_distance;   // maximum distance that can be spanned inside a voxel
     float max_block_distance;   // maximum distance that can be spanned inside an occupancy block
 };
@@ -57,6 +59,10 @@ Ray set_ray()
     ray.min_start_distance = 0.0;
     ray.max_end_distance   = 0.0;
     ray.max_span_distance  = 0.0;
+    ray.min_start_position = vec3(0.0);
+    ray.max_end_position   = vec3(0.0);
+    ray.min_distance       = 0.0;
+    ray.max_distance       = 0.0;
     ray.max_voxel_distance = 0.0;
     ray.max_block_distance = 0.0;
     ray.intersected        = false;

@@ -18,10 +18,15 @@ for (trace.step_count = 0; trace.step_count < ray.max_step_count; /*trace.step_c
     }
 }   
 
-#include "./modules/regress_block"
+#include "./modules/refine_block"
 
 for (/*trace.step_count = 0*/; trace.step_count < ray.max_step_count; /*trace.step_count++*/) 
 {
     #include "./modules/sample_volume"
     #include "./modules/update_trace"
 }   
+
+if (!ray.intersected)
+{
+    #include "./modules/terminate_trace"
+}

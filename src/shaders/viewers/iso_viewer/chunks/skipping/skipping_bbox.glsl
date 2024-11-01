@@ -15,23 +15,46 @@ float ray_start_distance = ray.start_distance;
 
 // compute ray intersection distances with the volume bounding box
 vec2 ray_distances_bbox = intersect_box(volume_min_position, volume_max_position, ray.origin_position, ray.step_direction);
-ray_distances_bbox = max(ray_distances_bbox, 0.0); 
-ray.start_distance = ray_distances_bbox.x;
-ray.end_distance = ray_distances_bbox.y;
-ray.span_distance = ray.end_distance - ray.start_distance;
-ray.span_distance = max(ray.span_distance, 0.0);
+ray_distances_bbox = max(ray_distances_bbox, 0.0);
+bool intersected_bbox = ray_distances_bbox.x < ray_distances_bbox.y;
 
-// compute start end positions
-ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
-ray.end_position = ray.origin_position + ray.step_direction * ray.end_distance;
+// if there is intersection with bbox update ray and trace
+if (intersected_bbox)
+{
+    // compute start end positions
+    ray.start_distance = ray_distances_bbox.x;
+    ray.end_distance = ray_distances_bbox.y;
+    ray.span_distance = ray.end_distance - ray.start_distance;
+    ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
+    ray.end_position = ray.origin_position + ray.step_direction * ray.end_distance;
 
-// update trace 
-trace.distance = ray.start_distance;
-trace.position = ray.start_position;
-trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
-trace.voxel_texture_coords = trace.position * volume.inv_size;
+    // update trace 
+    trace_prev = trace;
+    trace.distance = ray.start_distance;
+    trace.position = ray.start_position;
+    trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
+    trace.voxel_texture_coords = trace.position * volume.inv_size;
 
-// compute skipped distance
-trace.skip_distance = max(ray.start_distance - ray_start_distance, 0.0);
-trace.skipped_distance += trace.skip_distance;
+    // compute skipped distance
+    trace.skip_distance = max(ray.start_distance - ray_start_distance, 0.0);
+    trace.skipped_distance += trace.skip_distance;
+}
+else
+{
+    // compute start end positions
+    ray.start_distance = ray.max_end_distance;
+    ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
+    ray.span_distance = 0.0;
+
+    // update trace 
+    trace_prev = trace;
+    trace.distance = ray.start_distance;
+    trace.position = ray.start_position;
+    trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
+    trace.voxel_texture_coords = trace.position * volume.inv_size;
+
+    // compute skipped distance
+    trace.spanned_distance = ray.max_span_distance;
+    trace.skipped_distance = ray.max_span_distance;
+}
 
