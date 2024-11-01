@@ -6,15 +6,21 @@ struct Debug
 {
     vec4 frag_depth;
     vec4 ray_intersected;
-    vec4 ray_end_distance;
-    vec4 ray_end_position;
-    vec4 ray_max_step_count;
-    vec4 ray_rand_distance;
-    vec4 ray_span_distance;
-    vec4 ray_start_distance;
-    vec4 ray_start_position;
     vec4 ray_step_direction;
     vec4 ray_step_distance;
+    vec4 ray_rand_distance;
+    vec4 ray_start_distance;
+    vec4 ray_end_distance;
+    vec4 ray_span_distance;
+    vec4 ray_start_position;
+    vec4 ray_end_position;
+    vec4 ray_max_step_count;
+    vec4 ray_max_skip_count;
+    vec4 ray_box_start_distance;
+    vec4 ray_box_end_distance;
+    vec4 ray_box_span_distance;
+    vec4 ray_box_start_position;
+    vec4 ray_box_end_position;
     vec4 trace_block_coords;
     vec4 trace_block_lod;
     vec4 trace_block_occupancy;
@@ -47,6 +53,7 @@ struct Debug
     vec4 trace_stepped_distance;
     vec4 trace_voxel_coords;
     vec4 trace_total_count;
+
     vec4 variable1;
     vec4 variable2;
     vec4 variable3;
@@ -59,13 +66,19 @@ Debug set_debug()
     debug.ray_intersected          = vec4(0.0);
     debug.ray_end_distance         = vec4(0.0);
     debug.ray_end_position         = vec4(0.0);
-    debug.ray_max_step_count       = vec4(0.0);
     debug.ray_rand_distance        = vec4(0.0);
     debug.ray_span_distance        = vec4(0.0);
     debug.ray_start_distance       = vec4(0.0);
     debug.ray_start_position       = vec4(0.0);
     debug.ray_step_direction       = vec4(0.0);
     debug.ray_step_distance        = vec4(0.0);
+    debug.ray_box_start_distance   = vec4(0.0);
+    debug.ray_box_end_distance     = vec4(0.0);
+    debug.ray_box_span_distance    = vec4(0.0);
+    debug.ray_box_start_position   = vec4(0.0);
+    debug.ray_box_end_position     = vec4(0.0);
+    debug.ray_max_step_count       = vec4(0.0);
+    debug.ray_max_skip_count       = vec4(0.0);
     debug.trace_block_coords       = vec4(0.0);
     debug.trace_block_lod          = vec4(0.0);
     debug.trace_block_occupancy    = vec4(0.0);

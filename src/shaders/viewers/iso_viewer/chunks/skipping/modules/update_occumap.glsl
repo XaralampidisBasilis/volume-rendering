@@ -18,7 +18,6 @@ if (occumap.lod == 0) occumap.start_coords = ivec3(0);
 occumap.start_texture_coords = vec3(occumap.start_coords) * occumaps.inv_dimensions;
 
 // compute the max number of skips based on the currect occupam
-ray.max_block_distance = length(occumap.spacing);
 ray.max_skip_count = mmax(occumap.dimensions);
 ray.max_skip_count = min(ray.max_skip_count, raymarch.max_step_count);
 

@@ -1,7 +1,7 @@
 
 // terminate trace position
 trace_prev = trace;
-trace.distance = ray.max_end_distance;
+trace.distance = ray.box_end_distance;
 trace.position = ray.origin_position + ray.step_direction * trace.distance;
 trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
 trace.voxel_texture_coords = trace.position * volume.inv_size;
@@ -19,5 +19,5 @@ trace.normal = -trace.gradient_direction;
 #include "../../derivatives/compute_derivatives"
 
 // compute skipped distance
-trace.spanned_distance = ray.max_span_distance;
-trace.skipped_distance = ray.max_span_distance;
+trace.spanned_distance = ray.box_span_distance;
+trace.skipped_distance = ray.box_span_distance;

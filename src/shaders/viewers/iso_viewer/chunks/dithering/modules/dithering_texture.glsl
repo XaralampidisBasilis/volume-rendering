@@ -17,7 +17,7 @@
  */
 
 // calculate the minimum distance position along the ray.
-vec3 ray_min_start_position = ray.origin_position + ray.step_direction * ray.min_distance;
+vec3 ray_box_start_position = ray.origin_position + ray.step_direction * ray.box_min_distance;
 
 // compute the position value by transforming it with the projection-model-view matrix.
 vec4 seed_position = v_projection_model_view_matrix * vec4(ray_min_position, 1.0);

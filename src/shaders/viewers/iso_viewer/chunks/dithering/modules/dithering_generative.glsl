@@ -15,7 +15,7 @@
  */
 
 // calculate the mean distance along the ray.
-float ray_mean_distance = mean(ray.min_distance, ray.max_distance);
+float ray_mean_distance = mean(ray.box_min_distance, ray.box_max_distance);
 
 // calculate the sample position based on the mean distance.
 vec3 seed_position = ray.origin_position + ray.step_direction * ray_mean_distance;
