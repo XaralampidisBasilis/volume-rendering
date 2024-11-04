@@ -7,6 +7,7 @@ struct Debug
     vec4 frag_depth;
     vec4 ray_intersected;
     vec4 ray_step_direction;
+    vec4 ray_step_tapering;
     vec4 ray_step_distance;
     vec4 ray_rand_distance;
     vec4 ray_start_distance;
@@ -71,6 +72,7 @@ Debug set_debug()
     debug.ray_start_distance       = vec4(0.0);
     debug.ray_start_position       = vec4(0.0);
     debug.ray_step_direction       = vec4(0.0);
+    debug.ray_step_tapering        = vec4(0.0);
     debug.ray_step_distance        = vec4(0.0);
     debug.ray_box_start_distance   = vec4(0.0);
     debug.ray_box_end_distance     = vec4(0.0);

@@ -6,8 +6,8 @@
  *
  * @input volume.inv_spacing    : The inverse of the volume's voxel spacing in each direction (vec3)
  * @input ray.step_direction           : The normalized direction vector of the ray (vec3)
- * @input raymarch.min_step_scale  : The minimum allowable stepping factor (float)
- * @input raymarch.max_step_scale  : The maximum allowable stepping factor (float)
+ * @input ray.min_step_scaling  : The minimum allowable stepping factor (float)
+ * @input ray.max_step_scaling  : The maximum allowable stepping factor (float)
  *
  * @output ray.step_distance            : The computed ray spacing as the mean depth for voxel AABB intersections (float)
  * @output ray.min_spacing        : The minimum ray spacing based on the computed spacing (float)
@@ -21,6 +21,6 @@ vec3 directional_spacing = abs(ray.step_direction) * volume.inv_spacing;
 ray.step_distance = 1.0 / sum(directional_spacing);
 
 // adjust the ray step_distance using the minimum and maximum stepping factors.
-ray.min_step_distance = ray.step_distance * raymarch.min_step_scale;
-ray.max_step_distance = ray.step_distance * raymarch.max_step_scale;
+ray.min_step_distance = ray.step_distance * ray.min_step_scaling;
+ray.max_step_distance = ray.step_distance * ray.max_step_scaling;
 

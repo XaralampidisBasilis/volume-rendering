@@ -7,6 +7,7 @@ struct Ray
     bool  intersected;          // flag indicating if the ray intersected an object
 
     vec3  step_direction;       // direction vector for each step along the ray
+    float step_tapering;         // fixed step tapering for distance based adaptive stepping
     float step_distance;        // fixed step distance for each ray 
     float rand_distance;        // random distance for dithering
    
@@ -19,9 +20,12 @@ struct Ray
 
     int   max_step_count;       // maximum number of steps allowed
     int   max_skip_count;       // maximum number of skips allowed
+    float min_step_scaling;     // minimum step scaling for adaptive stepping
+    float max_step_scaling;     // maximum step scaling for adaptive stepping
+    float max_step_tapering;    // maximum step tapering for distance based adaptive stepping
     float min_step_distance;    // minimum step distance for adaptive stepping
     float max_step_distance;    // maximum step distance for adaptive stepping
-
+  
     vec3  box_start_position;   // minimum allowed starting distance for current ray due to volume box
     vec3  box_end_position;     // maximum allowed ending distance for current ray due to volume box
     float box_start_distance;   // minimum allowed starting distance for current ray due to volume box
@@ -38,6 +42,7 @@ Ray set_ray()
     Ray ray;
     ray.intersected        = false;
     ray.step_direction     = vec3(0.0);
+    ray.step_tapering      = 0.0;
     ray.step_distance      = 0.0;
     ray.rand_distance      = 0.0;
     ray.origin_position    = vec3(0.0);

@@ -76,14 +76,15 @@ export default function()
         }),
 
         raymarch: new THREE.Uniform({
-            sample_threshold   : 0.3,
-            gradient_threshold : 0.0,
-            min_step_scale     : 1.0,
-            max_step_scale     : 1.0,
-            max_step_count     : 1000,
-            max_skip_count     : 500,
-            min_skip_lod       : 0,
-            max_skip_lod       : 0,
+            sample_threshold  : 0.3,
+            gradient_threshold: 0.0,
+            min_step_scaling  : 1.0,
+            max_step_scaling  : 1.0,
+            max_step_tapering : 5.0,
+            max_step_count    : 1000,
+            max_skip_count    : 500,
+            min_skip_lod      : 0,
+            max_skip_lod      : 0,
         }),
 
         debugging: new THREE.Uniform({
@@ -112,6 +113,7 @@ export default function()
         RAY_SMOOTHING_ENABLED         : 0,
         RAY_SMOOTHING_METHOD          : 1,
         RAY_DISCARDING_DISABLED       : 0,
+        RAY_TAPERING_METHOD           : 1,
 
         TRACE_DITHERING_ENABLED       : 0,
         TRACE_DITHERING_METHOD        : 1,

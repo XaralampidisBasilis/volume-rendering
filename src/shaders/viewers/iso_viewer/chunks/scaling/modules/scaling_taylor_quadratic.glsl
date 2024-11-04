@@ -10,8 +10,8 @@
  * @input trace_prev.sample_value         : previous trace value (float)
  * @input trace_prev.derivative_1st    : previous derivative at the trace position (float)
  * @input ray.step_distance              : the spacing size for ray marching steps (float)
- * @input raymarch.max_step_scale   : the maximum allowable stepping size (float)
- * @input raymarch.min_step_scale   : the minimum allowable stepping size (float)
+ * @input ray.max_step_scaling   : the maximum allowable stepping size (float)
+ * @input ray.min_step_scaling   : the minimum allowable stepping size (float)
  *
  * @output trace.step_scaling          : the adjusted trace stepping size (float)
  */
@@ -26,9 +26,9 @@ taylor_coeffs *= vec3(1.0, ray.step_distance, pow2(ray.step_distance));
 int num_roots; vec2 next_stepping = quadratic_roots(taylor_coeffs, num_roots);
 
 // filter unwanted stepping values (negative or non-solvable) and set them to max stepping.
-next_stepping = mix(vec2(raymarch.max_step_scale), next_stepping, greaterThan(next_stepping, vec2(0.0)));
-next_stepping = mix(vec2(raymarch.max_step_scale), next_stepping, bvec2(num_roots > 0));
+next_stepping = mix(vec2(ray.max_step_scaling), next_stepping, greaterThan(next_stepping, vec2(0.0)));
+next_stepping = mix(vec2(ray.max_step_scaling), next_stepping, bvec2(num_roots > 0));
 
 // choose the minimum valid solution and clamp the result between the allowable stepping range.
 trace.step_scaling = mmin(next_stepping);
-trace.step_scaling = clamp(trace.step_scaling, raymarch.min_step_scale, raymarch.max_step_scale);
+trace.step_scaling = clamp(trace.step_scaling, ray.min_step_scaling, ray.max_step_scaling);

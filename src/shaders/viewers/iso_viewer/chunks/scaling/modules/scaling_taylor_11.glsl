@@ -12,9 +12,9 @@ pade_coeffs *= vec2(1.0, ray.step_distance);
 int num_roots; float next_stepping = linear_roots(pade_coeffs, num_roots);
 
 // filter unwanted stepping values (negative or non-solvable) and set them to max stepping.
-next_stepping = mix(raymarch.max_step_scale, next_stepping, next_stepping > 0.0);
-next_stepping = mix(raymarch.max_step_scale, next_stepping, num_roots > 0);
+next_stepping = mix(ray.max_step_scaling, next_stepping, next_stepping > 0.0);
+next_stepping = mix(ray.max_step_scaling, next_stepping, num_roots > 0);
 
 // choose the minimum valid solution and clamp the result between the allowable stepping range.
-trace.step_scaling = clamp(next_stepping, raymarch.min_step_scale, raymarch.max_step_scale);
+trace.step_scaling = clamp(next_stepping, ray.min_step_scaling, ray.max_step_scaling);
 

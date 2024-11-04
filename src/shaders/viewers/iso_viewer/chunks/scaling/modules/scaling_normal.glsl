@@ -7,8 +7,8 @@
  *
  * @input trace.normal             : the current surface normal at the trace position (vec3)
  * @input ray.step_direction            : the normalized direction vector of the ray (float)
- * @input raymarch.min_step_scale   : the minimum stepping size for raymarching (float)
- * @input raymarch.max_step_scale   : the maximum stepping size for raymarching (float)
+ * @input ray.min_step_scaling   : the minimum stepping size for raymarching (float)
+ * @input ray.max_step_scaling   : the maximum stepping size for raymarching (float)
  *
  * @output trace.step_scaling          : the adjusted ray stepping size (float)
  */
@@ -17,4 +17,4 @@
 float normal_alignment = max(dot(-trace.normal, ray.step_direction), 0.0);
 
 // interpolate between max_stepping and min_stepping based on the normal's alignment.
-trace.step_scaling = mix(raymarch.max_step_scale, raymarch.min_step_scale, normal_alignment);
+trace.step_scaling = mix(ray.max_step_scaling, ray.min_step_scaling, normal_alignment);

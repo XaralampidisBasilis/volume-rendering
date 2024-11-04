@@ -7,14 +7,17 @@
 // skip volume empty space 
 #include "../skipping/compute_skipping"
 
+// compute step tapering baced on ray start distance
+#include "../tapering/compute_tapering"
+
 // compute the ray step distance
 #include "../stepping/compute_stepping"
 
 // apply dithering step to avoid artifacts.
 #include "../dithering/compute_dithering"
 
-// raycasting loop to traverse through the volume and find intersections.
-#include "../raymarch/compute_raymarch"
+// ray marching loop to traverse through the volume
+#include "../marching/compute_marching"
 
 // apply last refinements 
 #include "../refinement/compute_refinement"

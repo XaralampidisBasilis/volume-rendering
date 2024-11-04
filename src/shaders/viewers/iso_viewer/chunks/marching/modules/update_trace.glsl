@@ -6,6 +6,7 @@ trace_prev = trace;
 trace.step_distance = trace.step_scaling * ray.step_distance;
 trace.stepped_distance += trace.step_distance;
 trace.spanned_distance += trace.step_distance;
+trace.step_count += 1;
 
 // update trace position
 trace.distance += trace.step_distance;
