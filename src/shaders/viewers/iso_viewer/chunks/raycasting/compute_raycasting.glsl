@@ -7,11 +7,11 @@
 // skip volume empty space 
 #include "../skipping/compute_skipping"
 
-// compute step tapering baced on ray start distance
-#include "../tapering/compute_tapering"
-
 // compute the ray step distance
 #include "../stepping/compute_stepping"
+
+// compute step tapering baced on ray start distance
+#include "../tapering/compute_tapering"
 
 // apply dithering step to avoid artifacts.
 #include "../dithering/compute_dithering"
