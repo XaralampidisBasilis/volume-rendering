@@ -9,9 +9,7 @@ trace.gradient = mix(volume.min_gradient, volume.max_gradient, trace.sample_data
 trace.gradient_magnitude = length(trace.gradient);
 trace.gradient_direction = normalize(trace.gradient);
 trace.normal = -trace.gradient_direction;
-
-// approximate trace step dericatives
-#include "../../derivatives/compute_derivatives"
+trace.derivative_1st = dot(trace.gradient, ray.step_direction);
 
 // check for intersection
 ray.intersected = trace.sample_error > 0.0 && trace.gradient_magnitude > raymarch.gradient_threshold;
