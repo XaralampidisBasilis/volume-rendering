@@ -4,14 +4,10 @@ vec3 light_vector = light_position - trace.position;
 vec3 view_vector = ray.origin_position - trace.position;
 vec3 normal_vector = trace.normal;
 
-// Calculate attenuation frading
-#include "../modules/attenuation/compute_attenuation"
-
 // normalize shading vectors
-light_vector = normalize(light_vector);
-view_vector = normalize(view_vector);
 normal_vector = normalize(normal_vector);
-// normal_vector = -faceforward(normal_vector, view_vector, normal_vector); // ensure the normal points towards the viewer
+light_vector  = normalize(light_vector);
+view_vector   = normalize(view_vector);
 
 // Calculate ambient component
 #include "./modules/compute_ambient"
@@ -30,7 +26,7 @@ normal_vector = normalize(normal_vector);
 
 // Compose the final color
 vec3 directional_component = mix(diffuse_component, specular_component, specular);
-directional_component *= mmin(shadows_fading, edge_fading, attenuation);
+directional_component *= min(shadows_fading, edge_fading);
 
 trace.shaded_color.rgb = ambient_component + directional_component;
 trace.shaded_color.rgb *= lighting.intensity;

@@ -80,26 +80,15 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.raymarch.value
         const defines = this.viewer.material.defines
         const objects = { 
-            RAY_DITHERING_ENABLED  : Boolean(defines.RAY_DITHERING_ENABLED),
-            RAY_REFINEMENT_ENABLED : Boolean(defines.RAY_REFINEMENT_ENABLED),
-            TRACE_SKIP_OCCUMAPS_ENABLED: Boolean(defines.TRACE_SKIP_OCCUMAPS_ENABLED),
-            RAY_GRADIENTS_ENABLED  : Boolean(defines.RAY_GRADIENTS_ENABLED),
-            RAY_SMOOTHING_ENABLED  : Boolean(defines.RAY_SMOOTHING_ENABLED),
+            RAY_DITHERING_ENABLED       : Boolean(defines.RAY_DITHERING_ENABLED),
+            RAY_REFINEMENT_ENABLED      : Boolean(defines.RAY_REFINEMENT_ENABLED),
+            RAY_GRADIENTS_ENABLED       : Boolean(defines.RAY_GRADIENTS_ENABLED),
+            RAY_SMOOTHING_ENABLED       : Boolean(defines.RAY_SMOOTHING_ENABLED),
+            TRACE_SKIP_OCCUMAPS_ENABLED : Boolean(defines.TRACE_SKIP_OCCUMAPS_ENABLED),
         }
         const options = {
-            RAY_DITHERING_METHOD    : { generative: 1, texture: 2, },
-            RAY_STEPPING_METHOD     : { isotropic: 1, directional: 2, equalized: 3 },
-            RAY_STRETCHING_METHOD     : { const: 1, log: 2, sqrt: 3, linear: 4, smoothstep: 5, exp: 6 },
-            TRACE_SCALING_METHOD    : { taylor_linear: 1, taylor_quadratic: 2, taylor_cubic: 3, taylor_11: 4, taylor_02: 5, taylor_21: 6, taylor_12: 7, taylor_03: 8, taylor_22: 9, uniform: 10, },
-            RAY_REFINEMENT_METHOD   : { sampling: 1, bisection: 2, newtons: 3, linear: 4, lagrange_quadratic: 5, lagrange_cubic: 6, hermite_cubic: 7 },
-            TRACE_DERIVATIVES_METHOD: { hermite_cubic: 1, hermite_21: 2, hermite_12: 3, hermite_22p: 4, linear: 5, },
-            RAY_GRADIENTS_METHOD    : { tetrahedron_trilinear: 1, central: 2, sobel_trilinear: 3, tetrahedron: 4, prewitt: 5, sobel: 6, scharr: 7 },
-            RAY_SMOOTHING_METHOD    : { bessel: 1, gaussian: 2, average: 3 },
+            RAY_STRETCHING_METHOD  : { const: 1, log: 2, sqrt: 3, linear: 4, smoothstep: 5, exp: 6 },
         }
-
-        // const controls = this.subfolders.raymarch.addFolder('controls').close()
-        // const methods  = this.subfolders.raymarch.addFolder('methods').close()
-        // const enablers = this.subfolders.raymarch.addFolder('enablers').close()
 
         this.controllers.raymarch = 
         {
@@ -113,20 +102,13 @@ export default class ISOGui
             minSkipLod        : folder.add(uniforms, 'min_skip_lod').min(0).max(material.uniforms.occumaps.value.lods - 1).step(1),
             maxSkipLod        : folder.add(uniforms, 'max_skip_lod').min(0).max(material.uniforms.occumaps.value.lods - 1).step(1),
 
-            spacingMethod     : folder.add(defines, 'RAY_STEPPING_METHOD').name('stepping_method').options(options.RAY_STEPPING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            scalingMethod     : folder.add(defines, 'TRACE_SCALING_METHOD').name('scaling_method').options(options.TRACE_SCALING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             stretchingMethod  : folder.add(defines, 'RAY_STRETCHING_METHOD').name('stretching_method').options(options.RAY_STRETCHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            ditheringMethod   : folder.add(defines, 'RAY_DITHERING_METHOD').name('dithering_method').options(options.RAY_DITHERING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            refinementMethod  : folder.add(defines, 'RAY_REFINEMENT_METHOD').name('refinement_method').options(options.RAY_REFINEMENT_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            derivativeMethod  : folder.add(defines, 'TRACE_DERIVATIVES_METHOD').name('derivatives_method').options(options.TRACE_DERIVATIVES_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            gradientsMethod   : folder.add(defines, 'RAY_GRADIENTS_METHOD').name('gradients_method').options(options.RAY_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            smoothingMethod   : folder.add(defines, 'RAY_SMOOTHING_METHOD').name('smoothing_method').options(options.RAY_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             
             enableDithering   : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
             enableRefinement  : folder.add(objects, 'RAY_REFINEMENT_ENABLED').name('enable_refinement').onFinishChange((value) => { defines.RAY_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
-            enableSkipping    : folder.add(objects, 'TRACE_SKIP_OCCUMAPS_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.TRACE_SKIP_OCCUMAPS_ENABLED = Number(value), material.needsUpdate = true }),
             enableGradients   : folder.add(objects, 'RAY_GRADIENTS_ENABLED').name('enable_gradients').onFinishChange((value) => { defines.RAY_GRADIENTS_ENABLED = Number(value), material.needsUpdate = true }),
             enableSmoothing   : folder.add(objects, 'RAY_SMOOTHING_ENABLED').name('enable_smoothing').onFinishChange((value) => { defines.RAY_SMOOTHING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipping    : folder.add(objects, 'TRACE_SKIP_OCCUMAPS_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.TRACE_SKIP_OCCUMAPS_ENABLED = Number(value), material.needsUpdate = true }),
         }
 
     }
@@ -180,7 +162,6 @@ export default class ISOGui
         const material = this.viewer.material
         const uniforms = this.viewer.material.uniforms.shading.value
         const defines = this.viewer.material.defines
-        const options = { SHADING_METHOD: { blinn : 1, phong : 2} }
 
         this.controllers.shading = 
         {
@@ -189,7 +170,6 @@ export default class ISOGui
             specularReflectance: folder.add(uniforms, 'specular_reflectance').min(0).max(1).step(0.001),
             shininess          : folder.add(uniforms, 'shininess').min(0).max(40.0).step(0.2),
             edgeContrast       : folder.add(uniforms, 'edge_contrast').min(0).max(1).step(0.001),
-            shadingMethod      : folder.add(defines, 'SHADING_METHOD').name('shading_method').options(options.SHADING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
         }
     }
 

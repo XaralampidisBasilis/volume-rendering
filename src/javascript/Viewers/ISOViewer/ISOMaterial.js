@@ -102,29 +102,20 @@ export default function()
         VOLUME_SMOOTHING_RADIUS       : 2,
         VOLUME_SKIP_BBOX_ENABLED      : 0,
         VOLUME_SKIP_OCCUMAPS_ENABLED  : 0,
-
-        RAY_DITHERING_ENABLED         : 0,
-        RAY_DITHERING_METHOD          : 1,
-        RAY_STEPPING_METHOD           : 1,
-        RAY_REFINEMENT_ENABLED        : 0,
-        RAY_REFINEMENT_METHOD         : 2,
-        RAY_GRADIENTS_ENABLED         : 0,
-        RAY_GRADIENTS_METHOD          : 1,
-        RAY_SMOOTHING_ENABLED         : 0,
-        RAY_SMOOTHING_METHOD          : 1,
-        RAY_DISCARDING_DISABLED       : 0,
+        
         RAY_STRETCHING_METHOD         : 1,
+        
+        RAY_DITHERING_ENABLED         : 0,
+        RAY_REFINEMENT_ENABLED        : 0,
+        RAY_GRADIENTS_ENABLED         : 0,
+        RAY_SMOOTHING_ENABLED         : 0,
+        RAY_DISCARDING_DISABLED       : 0,
 
-        TRACE_DITHERING_ENABLED       : 0,
-        TRACE_DITHERING_METHOD        : 1,
         TRACE_SCALING_ENABLED         : 1,
-        TRACE_SCALING_METHOD          : 10,
-        TRACE_DERIVATIVES_METHOD      : 1,
         TRACE_SKIP_OCCUMAPS_ENABLED   : 0,
 
         LIGHTING_ATTENUATION_ENABLED  : 0,
         LIGHTING_ATTENUATION_METHOD   : 1,
-        SHADING_METHOD                : 1,
     }
 
     const material = new THREE.ShaderMaterial({

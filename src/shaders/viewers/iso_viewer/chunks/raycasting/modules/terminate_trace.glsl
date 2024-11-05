@@ -16,7 +16,7 @@ trace.gradient = mix(volume.min_gradient, volume.max_gradient, trace.sample_data
 trace.gradient_magnitude = length(trace.gradient);
 trace.gradient_direction = normalize(trace.gradient);
 trace.normal = -trace.gradient_direction;
-#include "../../derivatives/compute_derivatives"
+trace.derivative_1st = dot(trace.gradient, ray.step_direction);
 
 // compute skipped distance
 trace.spanned_distance = ray.box_span_distance;

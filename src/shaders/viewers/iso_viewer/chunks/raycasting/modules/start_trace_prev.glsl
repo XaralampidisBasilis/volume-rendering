@@ -17,5 +17,3 @@ trace_prev.gradient_magnitude = length(trace_prev.gradient);
 trace_prev.gradient_direction = normalize(trace_prev.gradient);
 trace_prev.normal = -trace_prev.gradient_direction;
 trace_prev.derivative_1st = dot(trace_prev.gradient, ray.step_direction);
-trace_prev.derivative_2nd = 0.0;
-trace_prev.derivative_3rd = 0.0;

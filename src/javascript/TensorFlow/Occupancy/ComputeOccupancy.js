@@ -24,7 +24,7 @@ export default class ComputeOccupancy
             const occupancy = this.padPow2(condition)
             condition.dispose()
 
-            // compute the occupancy density of each block
+            // compute the occupancy density of each block  
             const baseOccupancy = tf.maxPool3d(occupancy, [2, 2, 2], [2, 2, 2], 'same')
             occupancy.dispose()
             

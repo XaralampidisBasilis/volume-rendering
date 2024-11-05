@@ -72,52 +72,6 @@ export default class ComputeGradients
         return { gradX: this.gradX, gradY: this.gradY, gradZ: this.gradZ, minGrad: this.minGrad, maxGrad: this.maxGrad, maxNorm: this.maxNorm, } 
     }
 
-    // async compute2() 
-    // {
-    //     tf.tidy(() => 
-    //     {
-    //         const volume = this.viewer.tensors.volume
-    //         const spacing = this.parameters.volume.spacing
-
-    //         // compute gradients
-    //         const gradientX = this.convolute(volume, this.filter.kernelX, spacing.x)
-    //         const gradientY = this.convolute(volume, this.filter.kernelY, spacing.y)
-    //         const gradientZ = this.convolute(volume, this.filter.kernelZ, spacing.z)
-
-    //         // concatenate normalized gradients
-    //         const gradients = tf.concat([gradientX, gradientY, gradientZ], 3)
-    //         gradientX.dispose()
-    //         gradientY.dispose()
-    //         gradientZ.dispose() 
-
-    //         // normalize gradients based on max norm
-    //         const gradientsNorm = tf.norm(gradients, 'euclidean', 3)
-    //         const maxNorm = this.percentile(gradientsNorm, 99.9)
-
-    //         const scaled = gradients.div(maxNorm)
-    //         gradients.dispose()
-
-    //         const shifted = scaled.add([1])
-    //         scaled.dispose()
-
-    //         const normalized = shifted.mul([255 / 2])
-    //         shifted.dispose()
-
-    //         // quantize normalized gradients
-    //         const quantized = this.quantize(normalized)
-    //         normalized.dispose()
-
-    //         // extract the tensor data as an array of uint8
-    //         this.data = new Uint8Array(quantized.dataSync())
-    //         quantized.dispose()
-
-    //         // extract max norm
-    //         this.maxNorm = maxNorm.arraySync()
-    //     })
-
-    //     return { data: this.data, maxNorm: this.maxNorm } 
-    // }
-
     dataSync()
     {
         for (let i = 0; i < this.parameters.volume.count; i++) 
@@ -165,7 +119,7 @@ export default class ComputeGradients
     gradient(tensor, kernel, spacing)
     {
         const gradient = this.convolute(tensor, kernel, spacing)
-        const [min, max] = [gradient.min(), gradient.max()]
+        const [min, max] = this.rangeFast(gradient)
 
         const normalized = this.normalize(gradient, min, max)
         const quantized = this.quantize(normalized)
@@ -215,7 +169,6 @@ export default class ComputeGradients
     percentile(tensor, percentage)
     {
         const array = tensor.reshape([-1])
-        tensor.dispose()
         const k = Math.floor(array.size * (1 - percentage / 100))
         const topK = tf.topk(array, k, true) 
         array.dispose() 
@@ -223,6 +176,60 @@ export default class ComputeGradients
         topK.values.dispose() 
         topK.indices.dispose()
         return percentile
+    }
+
+    range(tensor)
+    {
+        return [tensor.min(), tensor.max()]
+    }
+
+    rangeRobust(tensor)
+    {
+        const percentage = 99.9
+        const arrayMax = tensor.reshape([-1])
+        const arrayMin = arrayMax.mul([-1])
+        const k = Math.floor(arrayMax.size * (1 - percentage / 100))
+
+        const maxK = tf.topk(arrayMax, k, true) 
+        const max = maxK.values.min()
+        maxK.values.dispose() 
+        maxK.indices.dispose()
+        arrayMax.dispose()
+
+        const minK = tf.topk(arrayMin, k, true) 
+        const min = minK.values.min().mul([-1])
+        minK.values.dispose() 
+        minK.indices.dispose()
+        arrayMin.dispose() 
+
+        return [min, max]    
+    }
+
+    rangeFast(tensor)
+    {
+        const percentile = 99.9
+        const sampleRate = 0.01
+
+        const array = tensor.reshape([-1])
+        const sampleSize = Math.max(1, Math.floor(array.size * sampleRate))
+        const indices = tf.randomUniform([sampleSize], 0, array.size, 'int32')
+        const subArray = tf.gather(array, indices)
+        array.dispose()
+
+        const negArray = subArray.mul([-1])
+        const k = Math.floor(subArray.size * (1 - percentile / 100))
+
+        const topK = tf.topk(subArray, k, true) 
+        const max = topK.values.min()   
+        subArray.dispose()
+
+        const botK = tf.topk(negArray, k, true) 
+        const min = botK.values.min().mul([-1])
+        negArray.dispose() 
+
+        tf.dispose([botK, topK]) 
+ 
+        return [min, max]    
     }
 
 }
