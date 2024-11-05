@@ -4,10 +4,11 @@
 // struct to hold information about the current ray trace 
 struct Trace 
 {
-    int step_count;             // number of steps taken along the ray
-    int skip_count;             // number of skipped steps along the ray
+    int   step_count;           // number of steps taken along the ray
+    int   skip_count;           // number of skipped steps along the ray
 
     float step_scaling;         // scaling factor for step size
+    float step_stretching;      // streching factor for step size
     float step_distance;        // distance to be covered
     float backstep_distance;    // distance to backstep
     float skip_distance;        // distance to be skipped
@@ -50,7 +51,8 @@ Trace set_trace()
     Trace trace;
     trace.step_count = 0;
     trace.skip_count = 0;
-    trace.step_scaling = 1.0;
+    trace.step_scaling = 1.0;     
+    trace.step_stretching = 1.0;     
     trace.step_distance = 0.0;
     trace.backstep_distance = 0.0;
     trace.skip_distance = 0.0;

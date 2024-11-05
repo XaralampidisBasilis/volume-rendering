@@ -8,7 +8,7 @@ struct Raymarch
     float gradient_threshold; 
     float min_step_scaling;     
     float max_step_scaling;     
-    float max_step_tapering;     
+    float max_step_stretching;     
     int   max_step_count;     
     int   max_skip_count;   
     int   min_skip_lod;

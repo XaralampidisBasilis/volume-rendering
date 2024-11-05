@@ -15,4 +15,3 @@ trace.normal = -trace.gradient_direction;
 
 // check for intersection
 ray.intersected = trace.sample_error > 0.0 && trace.gradient_magnitude > raymarch.gradient_threshold;
-if (ray.intersected) break;

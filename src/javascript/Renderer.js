@@ -30,12 +30,7 @@ export default class Renderer
         this.instance.setPixelRatio(this.sizes.pixelRatio)
         this.instance.xr.enabled = true;
         this.instance.shadowMap.enabled = false
-        
-
-        // extra
-        // this.instance.toneMapping = THREE.CineonToneMapping
-        // this.instance.toneMappingExposure = 1.75
-        // this.instance.shadowMap.type = THREE.PCFSoftShadowMap
+    
     }
 
     resize()

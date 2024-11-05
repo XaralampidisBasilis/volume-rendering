@@ -10,19 +10,31 @@
 // compute the ray step distance
 #include "../stepping/compute_stepping"
 
-// compute step tapering baced on ray start distance
-#include "../tapering/compute_tapering"
-
 // apply dithering step to avoid artifacts.
 #include "../dithering/compute_dithering"
+
+// start structs before marching
+#include "./modules/start_occumap"
+#include "./modules/start_ray"
+#include "./modules/start_trace_prev"
 
 // ray marching loop to traverse through the volume
 #include "../marching/compute_marching"
 
-// apply last refinements 
-#include "../refinement/compute_refinement"
-#include "../gradient/compute_gradient"
-// #include "../smoothing/compute_smoothing"
+if (ray.intersected) 
+{
+    #include "../refinement/compute_refinement"
+    #include "../gradient/compute_gradient"
+    // #include "../smoothing/compute_smoothing"
+}
+else
+{
+    #include "./modules/terminate_trace"
+    #if RAY_DISCARDING_DISABLED == 0
+    discard;  
+    #endif
+}
+
 
 
 

@@ -33,8 +33,4 @@ void main()
     fragColor = trace.shaded_color;
     #include "./chunks/compute_frag_depth"
     #include "./chunks/debug/compute_debug"
-
-    #if RAY_DISCARDING_DISABLED == 0
-        if (!ray.intersected) discard;  
-    #endif
 }
