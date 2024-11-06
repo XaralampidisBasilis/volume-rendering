@@ -10,11 +10,12 @@
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
 
+
 // save not refined solution
 Trace trace_tmp = trace;
 
-// make sure previous trace has a sample value
-trace_prev.sample_value = texture(textures.volume, trace_prev.voxel_texture_coords).r;
+// sample the volume at previous step distance
+#include "./update_trace_prev"
 
 // define the bisection intervals
 vec2 trace_samples = vec2(trace_prev.sample_value, trace.sample_value);
@@ -38,7 +39,7 @@ for (int i = 0; i < 10; i++, trace.step_count++)
     trace.voxel_texture_coords = trace.position * volume.inv_size;
 
     // sample the intensity at the interpolated position
-    #include "./modules/sample_volume"
+    #include "./sample_volume"
 
     // update bisection interval based on sample error sign
     float select_interval = step(0.0, trace.sample_error);
@@ -53,7 +54,7 @@ for (int i = 0; i < 10; i++, trace.step_count++)
         vec2(trace_distances.x, trace.distance), 
     select_interval);
 
-    if (i >= refinement_count) break;
+    // if (i >= refinement_count) break;
 }
 // #pragma unroll_loop_end
 

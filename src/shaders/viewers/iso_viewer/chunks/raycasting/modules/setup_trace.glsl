@@ -15,3 +15,8 @@ trace.skipped_distance = 0.0;
 // set counters
 trace.step_count = 0;
 trace.skip_count = 0;
+
+// set states
+trace.terminated = false;
+trace.suspended = false;
+trace.intersected = false;

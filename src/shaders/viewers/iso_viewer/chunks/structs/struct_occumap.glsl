@@ -13,6 +13,10 @@ struct Occumap
     ivec3 start_coords;          // occupancy map offset inside occupamp atlas
     vec3  start_texture_coords;  // occupancy map offset inside occupamp atlas in normalized texture coords
     ivec3 block_dimensions;      // occupancy block dimensions in voxels
+    ivec3 block_coords;
+    vec3  block_texture_coords;
+    float block_occupancy;
+    bool  block_occupied;
 };
 
 Occumap set_occumap()
@@ -27,6 +31,10 @@ Occumap set_occumap()
     occumap.start_coords         = ivec3(0);
     occumap.start_texture_coords = vec3(0.0);
     occumap.block_dimensions     = ivec3(0);
+    occumap.block_coords         = ivec3(0);
+    occumap.block_texture_coords = vec3(0.0);
+    occumap.block_occupancy      = 0.0;
+    occumap.block_occupied       = false;
     return occumap;
 }
 

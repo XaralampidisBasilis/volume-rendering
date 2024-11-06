@@ -8,6 +8,5 @@ trace.sample_error = trace.sample_value - raymarch.sample_threshold;
 trace.gradient = mix(volume.min_gradient, volume.max_gradient, trace.sample_data.gba);
 trace.gradient_magnitude = length(trace.gradient);
 trace.gradient_direction = normalize(trace.gradient);
-trace.normal = -trace.gradient_direction;
 trace.derivative_1st = dot(trace.gradient, ray.step_direction);
-
+trace.normal = -trace.gradient_direction;

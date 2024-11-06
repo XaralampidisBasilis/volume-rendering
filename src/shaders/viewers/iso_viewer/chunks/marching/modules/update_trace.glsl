@@ -1,9 +1,6 @@
-// save trace
-trace_prev = trace;
-
 // compute step sclaing and streching factors
-#include "./compute_scaling"
-#include "../../stretching/compute_stretching"
+#include "./compute_trace_step_scaling"
+#include "./compute_trace_step_streching"
 
 // update trace step distance
 trace.step_distance = ray.step_distance * trace.step_scaling * trace.step_stretching;

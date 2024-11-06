@@ -5,9 +5,9 @@
 struct Debug 
 {
     vec4 frag_depth;
-    vec4 ray_intersected;
-    vec4 ray_terminated;
-    vec4 ray_depleted;
+    vec4 trace_intersected;
+    vec4 trace_terminated;
+    vec4 trace_suspended;
     vec4 ray_step_direction;
     vec4 ray_step_distance;
     vec4 ray_rand_distance;
@@ -65,9 +65,9 @@ Debug set_debug()
 {
     Debug debug;
     debug.frag_depth               = vec4(vec3(0.0), 1.0);
-    debug.ray_intersected          = vec4(vec3(0.0), 1.0);
-    debug.ray_terminated           = vec4(vec3(0.0), 1.0);
-    debug.ray_depleted             = vec4(vec3(0.0), 1.0);
+    debug.trace_intersected          = vec4(vec3(0.0), 1.0);
+    debug.trace_terminated           = vec4(vec3(0.0), 1.0);
+    debug.trace_suspended             = vec4(vec3(0.0), 1.0);
     debug.ray_end_distance         = vec4(vec3(0.0), 1.0);
     debug.ray_end_position         = vec4(vec3(0.0), 1.0);
     debug.ray_rand_distance        = vec4(vec3(0.0), 1.0);

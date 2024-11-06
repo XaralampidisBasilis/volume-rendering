@@ -1,11 +1,9 @@
 
-ivec3 block_coords; bool block_occupied;
-
-for (int n; n < raymarch.max_skip_count && ray.start_distance < ray.end_distance; n++) 
+for (int i; i < raymarch.max_skip_count && ray.start_distance < ray.end_distance; i++) 
 {
     #include "./sample_occumap"
 
-    if (block_occupied)  
+    if (occumap.block_occupied)  
     {
         if (occumap.lod == raymarch.min_skip_lod) break;
 
@@ -17,7 +15,11 @@ for (int n; n < raymarch.max_skip_count && ray.start_distance < ray.end_distance
     }
 }
 
-if (block_occupied)  
+if (occumap.block_occupied)  
 {
-   #include "./refine_block"
+    #include "./refine_ray"
+}
+else
+{
+    #include "./terminate_ray"
 }

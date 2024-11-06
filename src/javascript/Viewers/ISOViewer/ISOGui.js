@@ -80,10 +80,12 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.raymarch.value
         const defines = this.viewer.material.defines
         const objects = { 
-            RAY_DITHERING_ENABLED       : Boolean(defines.RAY_DITHERING_ENABLED),
-            RAY_REFINEMENT_ENABLED      : Boolean(defines.RAY_REFINEMENT_ENABLED),
-            RAY_GRADIENTS_ENABLED       : Boolean(defines.RAY_GRADIENTS_ENABLED),
-            TRACE_SKIP_OCCUMAPS_ENABLED : Boolean(defines.TRACE_SKIP_OCCUMAPS_ENABLED),
+            RAY_BBOX_INTERSECTION_ENABLED: Boolean(defines.RAY_BBOX_INTERSECTION_ENABLED),
+            RAY_BVH_INTERSECTION_ENABLED : Boolean(defines.RAY_BVH_INTERSECTION_ENABLED),
+            RAY_DITHERING_ENABLED        : Boolean(defines.RAY_DITHERING_ENABLED),
+            RAY_REFINEMENT_ENABLED       : Boolean(defines.RAY_REFINEMENT_ENABLED),
+            RAY_GRADIENTS_ENABLED        : Boolean(defines.RAY_GRADIENTS_ENABLED),
+            TRACE_SKIP_OCCUMAPS_ENABLED  : Boolean(defines.TRACE_SKIP_OCCUMAPS_ENABLED),
         }
         const options = {
             RAY_STRETCHING_METHOD  : { const: 1, log: 2, sqrt: 3, linear: 4, smoothstep: 5, exp: 6 },
@@ -102,6 +104,8 @@ export default class ISOGui
 
             stretchingMethod  : folder.add(defines, 'RAY_STRETCHING_METHOD').name('stretching_method').options(options.RAY_STRETCHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             
+            enableBboxInters  : folder.add(objects, 'RAY_BBOX_INTERSECTION_ENABLED').name('enable_bbox_intersection').onFinishChange((value) => { defines.RAY_BBOX_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
+            enableBVHInters   : folder.add(objects, 'RAY_BVH_INTERSECTION_ENABLED').name('enable_bvh_intersection').onFinishChange((value) => { defines.RAY_BVH_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
             enableDithering   : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
             enableRefinement  : folder.add(objects, 'RAY_REFINEMENT_ENABLED').name('enable_refinement').onFinishChange((value) => { defines.RAY_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
             enableGradients   : folder.add(objects, 'RAY_GRADIENTS_ENABLED').name('enable_gradients').onFinishChange((value) => { defines.RAY_GRADIENTS_ENABLED = Number(value), material.needsUpdate = true }),
@@ -115,10 +119,6 @@ export default class ISOGui
         const folder = this.subfolders.volume
         const material = this.viewer.material
         const defines = this.viewer.material.defines
-        const objects = { 
-            VOLUME_SKIP_BBOX_ENABLED: Boolean(defines.VOLUME_SKIP_BBOX_ENABLED),
-            VOLUME_SKIP_OCCUMAPS_ENABLED    : Boolean(defines.VOLUME_SKIP_OCCUMAPS_ENABLED),
-        }
         const options = {
             VOLUME_GRADIENTS_METHOD: { scharr: 1, sobel: 2, prewitt: 3, tetrahedron: 4, central: 5 },
             VOLUME_SMOOTHING_METHOD: { bessel: 1, gaussian: 2, average: 3 },
@@ -129,8 +129,6 @@ export default class ISOGui
             smoothingRadius: folder.add(defines, 'VOLUME_SMOOTHING_RADIUS').name('smoothing_radius').min(0).max(5).step(1).onFinishChange(() => { this.viewer.computeSmoothing() }),
             smoothingMethod: folder.add(defines, 'VOLUME_SMOOTHING_METHOD').name('smoothing_method').options(options.VOLUME_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             gradientsMethod: folder.add(defines, 'VOLUME_GRADIENTS_METHOD').name('gradients_method').options(options.VOLUME_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            enableSkipBbox : folder.add(objects, 'VOLUME_SKIP_BBOX_ENABLED').name('enable_bbox').onFinishChange((value) => { defines.VOLUME_SKIP_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
-            enableSkipOmaps: folder.add(objects, 'VOLUME_SKIP_OCCUMAPS_ENABLED').name('enable_omaps').onFinishChange((value) => { defines.VOLUME_SKIP_OCCUMAPS_ENABLED = Number(value), material.needsUpdate = true }),
             enableVolume   : folder.add(material, 'visible').name('enable_volume')
         }
 
@@ -207,24 +205,24 @@ export default class ISOGui
             option: folder.add(uniforms, 'option').options({ 
                 default                 :  0,
                 frag_depth              :  1,
-                ray_intersected         :  2,
-                ray_terminated          :  3,
-                ray_depleted            :  4,
-                ray_step_direction      :  5,
-                ray_step_distance       :  6,
-                ray_rand_distance       :  7,
-                ray_start_distance      :  8,
-                ray_end_distance        :  9,
-                ray_span_distance       : 10,
-                ray_start_position      : 11,
-                ray_end_position        : 12,
-                ray_box_start_distance  : 13,
-                ray_box_end_distance    : 14,
-                ray_box_span_distance   : 15,
-                ray_box_start_position  : 16,
-                ray_box_end_position    : 17,
-                ray_max_step_count      : 18,
-                ray_max_skip_count      : 19,
+                ray_step_direction      :  2,
+                ray_step_distance       :  3,
+                ray_rand_distance       :  4,
+                ray_start_distance      :  5,
+                ray_end_distance        :  6,
+                ray_span_distance       :  7,
+                ray_start_position      :  8,
+                ray_end_position        :  9,
+                ray_box_start_distance  : 10,
+                ray_box_end_distance    : 11,
+                ray_box_span_distance   : 12,
+                ray_box_start_position  : 13,
+                ray_box_end_position    : 14,
+                ray_max_step_count      : 15,
+                ray_max_skip_count      : 16,
+                trace_intersected       : 17,
+                trace_terminated        : 18,
+                trace_suspended         : 19,
                 trace_sample_value      : 20,
                 trace_sample_error      : 21,
                 trace_sample_abs_error  : 22,
