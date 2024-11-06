@@ -5,6 +5,8 @@
 struct Ray 
 {
     bool  intersected;          // flag indicating if the ray intersected an object
+    bool  terminated;           // flag indicating if the ray has reached out of bounds
+    bool  depleted;             // flag indicating if the ray has reached the max step count
 
     vec3  step_direction;       // direction vector for each step along the ray
     float step_distance;        // fixed step distance for each ray 
@@ -19,9 +21,6 @@ struct Ray
 
     int   max_step_count;       // maximum number of steps allowed
     int   max_skip_count;       // maximum number of skips allowed
-    float min_step_scaling;     // minimum step scaling for adaptive stepping
-    float max_step_scaling;     // maximum step scaling for adaptive stepping
-    float max_step_stretching;  // maximum step stretching for distance based adaptive stepping
     float min_step_distance;    // minimum step distance for adaptive stepping
     float max_step_distance;    // maximum step distance for adaptive stepping
   
@@ -40,6 +39,8 @@ Ray set_ray()
 {
     Ray ray;
     ray.intersected        = false;
+    ray.terminated         = false;
+    ray.depleted           = false;
     ray.step_direction     = vec3(0.0);
     ray.step_distance      = 0.0;
     ray.rand_distance      = 0.0;

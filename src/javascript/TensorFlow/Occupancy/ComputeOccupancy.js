@@ -15,6 +15,7 @@ export default class ComputeOccupancy
     {               
         tf.tidy(() => 
         {
+            const divisions = 2;
             const spacing = this.parameters.volume.spacing.toArray().toReversed().concat(1)
             const condition = this.viewer.tensors.volume.greater([this.threshold])
 
@@ -25,7 +26,8 @@ export default class ComputeOccupancy
             condition.dispose()
 
             // compute the occupancy density of each block  
-            const baseOccupancy = tf.maxPool3d(occupancy, [2, 2, 2], [2, 2, 2], 'same')
+            const baseDivisions = new Array(3).fill(divisions)
+            const baseOccupancy = tf.maxPool3d(occupancy, baseDivisions, baseDivisions, 'same')
             occupancy.dispose()
             
             // convert boolean true value to uint8 255
@@ -39,7 +41,7 @@ export default class ComputeOccupancy
                 data           : new Uint8Array(atlasOccumaps.dataSync()),
                 atlasDimensions: atlasOccumaps.shape.slice(0, 3).toReversed(),
                 atlasLods      : atlasLods,
-                baseSpacing    : spacing.map((space) => 2 * space).slice(0, 3).toReversed(),
+                baseSpacing    : spacing.map((space) => divisions * space).slice(0, 3).toReversed(),
                 baseDimensions : baseOccumap.shape.slice(0, 3).toReversed(),
                 baseSize       : occupancy.shape.map((dim, i) => dim * spacing[i]).slice(0, 3).toReversed(),
                 minCoords      : minCoords.arraySync().slice(0, 3).toReversed(),

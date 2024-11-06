@@ -9,6 +9,9 @@ for (trace.skip_count = 0; trace.skip_count < raymarch.max_skip_count; )
 
     if (trace.block_occupied)  
     {
+        // cannot update occumap further than the minimum level of detail
+        if (occumap.lod == raymarch.min_skip_lod) break;
+
         // if block is occupied get to a lower level occumap
         #include "./modules/update_occumap"
     }
@@ -16,6 +19,7 @@ for (trace.skip_count = 0; trace.skip_count < raymarch.max_skip_count; )
     {
         // if not occupied block, skip to the next
         #include "./modules/update_block"
+        if (trace.distance > ray.end_distance) break;
     }
 }
 
@@ -55,20 +59,6 @@ if (trace.block_occupied)
 }
 else
 {
-    // terminate ray
-    ray.start_distance = ray.box_end_distance;
-    ray.start_position = ray.box_end_position;
-    ray.span_distance = 0.0;
-
-    // terminate trace
-    trace.distance = ray.box_end_distance;
-    trace.position = ray.box_end_position;
-    trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
-    trace.voxel_texture_coords = trace.position * volume.inv_size;
-
-    // terminate accumulated distances
-    trace.stepped_distance = 0.0;
-    trace.spanned_distance = ray.box_span_distance;
-    trace.skipped_distance = ray.box_span_distance;
+    #include "./modules/terminate_ray"
 }
 

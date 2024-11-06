@@ -1,9 +1,4 @@
 
-/* Termination condition */
-
-    // cannot update occumap further than the minimum level of detail
-    if (occumap.lod == raymarch.min_skip_lod) break;
-
 /* Update occumap */
 
     // get into one level of detail lower

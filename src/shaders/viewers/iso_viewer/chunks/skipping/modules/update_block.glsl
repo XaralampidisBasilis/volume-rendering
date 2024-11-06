@@ -22,10 +22,3 @@
     // compute trace volume texture coordinates
     trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
     trace.voxel_texture_coords = trace.position * volume.inv_size;
-
-/* Termination condition */
-
-    // if trace goes outside of the ray end distance terminate
-    if (trace.distance > ray.end_distance) break;
-
-

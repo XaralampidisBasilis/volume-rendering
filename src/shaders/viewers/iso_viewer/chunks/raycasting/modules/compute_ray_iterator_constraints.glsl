@@ -1,6 +1,4 @@
 
-ray.intersected = false;
-
 // coumpute the maximum allowed number of steps based on the min ray step distance
 ray.max_step_count = int(ceil(ray.span_distance / ray.min_step_distance));
 ray.max_step_count = min(ray.max_step_count, raymarch.max_step_count);

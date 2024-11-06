@@ -11,5 +11,3 @@ trace.gradient_direction = normalize(trace.gradient);
 trace.normal = -trace.gradient_direction;
 trace.derivative_1st = dot(trace.gradient, ray.step_direction);
 
-// check for intersection
-ray.intersected = trace.sample_error > 0.0 && trace.gradient_magnitude > raymarch.gradient_threshold;

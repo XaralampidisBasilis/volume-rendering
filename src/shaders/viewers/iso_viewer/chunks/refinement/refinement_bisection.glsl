@@ -26,7 +26,7 @@ int refinement_count = int(ceil(log2((trace_distances.y - trace_distances.x) / (
 refinement_count = min(refinement_count, 10);
 
 // #pragma unroll_loop_start
-for (int i = 0; i < refinement_count; i++) 
+for (int i = 0; i < 10; i++, trace.step_count++) 
 {
     // compute sample linear interpolation factor
     float lerp_threshold = map(trace_samples.x, trace_samples.y, raymarch.sample_threshold);
@@ -52,6 +52,8 @@ for (int i = 0; i < refinement_count; i++)
         vec2(trace.distance, trace_distances.y), 
         vec2(trace_distances.x, trace.distance), 
     select_interval);
+
+    if (i >= refinement_count) break;
 }
 // #pragma unroll_loop_end
 

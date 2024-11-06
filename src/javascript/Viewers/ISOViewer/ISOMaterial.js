@@ -108,8 +108,8 @@ export default function()
         RAY_DITHERING_ENABLED         : 0,
         RAY_REFINEMENT_ENABLED        : 0,
         RAY_GRADIENTS_ENABLED         : 0,
-        RAY_SMOOTHING_ENABLED         : 0,
         RAY_DISCARDING_DISABLED       : 0,
+        RAY_MAX_STEP_COUNT            : 500,
 
         TRACE_SCALING_ENABLED         : 1,
         TRACE_SKIP_OCCUMAPS_ENABLED   : 0,
