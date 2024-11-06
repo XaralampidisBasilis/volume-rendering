@@ -1,5 +1,5 @@
 // calculate vectors
-vec3 light_position = lighting.position_offset * u_volume.size + ray.origin_position;
+vec3 light_position = lighting.position_offset * volume.size + ray.origin_position;
 vec3 light_vector = light_position - trace.position;
 vec3 view_vector = ray.origin_position - trace.position;
 vec3 normal_vector = trace.normal;
