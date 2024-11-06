@@ -26,16 +26,16 @@ struct Ray
     float min_step_distance;    // minimum step distance for adaptive stepping
     float max_step_distance;    // maximum step distance for adaptive stepping
   
-    vec3  box_start_position;   // minimum allowed starting distance for current ray due to volume box
-    vec3  box_end_position;     // maximum allowed ending distance for current ray due to volume box
-    float box_start_distance;   // minimum allowed starting distance for current ray due to volume box
-    float box_end_distance;     // maximum allowed ending distance for current ray due to volume box
-    float box_span_distance;    // maximum allowed span distance for current ray due to volume box
+    vec3  box_start_position;   // minimum allowed starting distance for current ray due to u_volume box
+    vec3  box_end_position;     // maximum allowed ending distance for current ray due to u_volume box
+    float box_start_distance;   // minimum allowed starting distance for current ray due to u_volume box
+    float box_end_distance;     // maximum allowed ending distance for current ray due to u_volume box
+    float box_span_distance;    // maximum allowed span distance for current ray due to u_volume box
 
-    vec3  box_min_position;     // min allowed position across all rays due to volume box, in 3d model coordinates
-    vec3  box_max_position;     // max allowed position across all rays due to volume box, in 3d model coordinates
-    float box_min_distance;     // min allowed distance across all rays due to volume box, in 3d model coordinates
-    float box_max_distance;     // max allowed distance across all rays due to volume box, in 3d model coordinates
+    vec3  box_min_position;     // min allowed position across all rays due to u_volume box, in 3d model coordinates
+    vec3  box_max_position;     // max allowed position across all rays due to u_volume box, in 3d model coordinates
+    float box_min_distance;     // min allowed distance across all rays due to u_volume box, in 3d model coordinates
+    float box_max_distance;     // max allowed distance across all rays due to u_volume box, in 3d model coordinates
 };
 Ray set_ray()
 {

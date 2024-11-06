@@ -4,8 +4,8 @@
 // struct to hold information about the current ray trace 
 struct Trace 
 {
-    bool  intersected;          // flag indicating if the trace intersected with the volume
-    bool  terminated;           // flag indicating if the trace has reached out of volume bounds
+    bool  intersected;          // flag indicating if the trace intersected with the u_volume
+    bool  terminated;           // flag indicating if the trace has reached out of u_volume bounds
     bool  suspended;            // flag indicating if the trace has reached the max step count
 
     int   step_count;           // number of steps taken along the ray
