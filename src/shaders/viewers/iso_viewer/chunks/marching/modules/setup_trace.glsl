@@ -7,6 +7,11 @@ trace.position = ray.start_position;
 trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
 trace.voxel_texture_coords = trace.position * volume.inv_size;
     
+// set step
+trace.step_distance = ray.min_step_distance;
+trace.step_scaling = 1.0;
+trace.step_stretching = 1.0;
+
 // set cummulative distances
 trace.stepped_distance = 0.0;
 trace.spanned_distance = 0.0;

@@ -25,7 +25,7 @@ void main()
     Occumap occumap = set_occumap();
     Debug debug = set_debug();
 
-    #include "./chunks/raycasting/compute_raycasting"
+    #include "./chunks/raycasting/compute_ray_casting"
     #include "./chunks/colormapping/compute_colormapping"
     #include "./chunks/shading/compute_shading"
 

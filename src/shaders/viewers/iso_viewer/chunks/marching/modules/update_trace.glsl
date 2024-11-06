@@ -1,6 +1,12 @@
-// compute step sclaing and streching factors
+// compute step sclaling factor based on gradients
+#if TRACE_STEP_SCALING_ENABLED == 1
 #include "./compute_trace_step_scaling"
+#endif
+
+// compute step stretching factor based on distance
+#if TRACE_STEP_STRETCHING_ENABLED == 1
 #include "./compute_trace_step_streching"
+#endif
 
 // update trace step distance
 trace.step_distance = ray.step_distance * trace.step_scaling * trace.step_stretching;

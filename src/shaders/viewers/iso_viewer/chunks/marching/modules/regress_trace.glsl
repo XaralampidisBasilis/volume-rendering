@@ -1,7 +1,7 @@
 
 // compute block min and max positions in space
-vec3 block_min_position = vec3(trace.block_coords + 0);
-vec3 block_max_position = vec3(trace.block_coords + 1);
+vec3 block_min_position = vec3(occumap.block_coords + 0);
+vec3 block_max_position = vec3(occumap.block_coords + 1);
 block_min_position *= occumap.spacing;
 block_max_position *= occumap.spacing;
 
