@@ -77,10 +77,8 @@ export default function()
 
         u_raymarch: new THREE.Uniform({
             sample_threshold  : 0.3,
-            gradient_threshold: 0.0,
             min_step_scaling  : 1.0,
             max_step_scaling  : 1.0,
-            max_step_stretching : 5.0,
             max_step_count    : 1000,
             max_skip_count    : 500,
             min_skip_lod      : 0,
@@ -99,28 +97,18 @@ export default function()
     {
         VOLUME_GRADIENTS_METHOD       : 1,
         VOLUME_SMOOTHING_METHOD       : 1,
-        VOLUME_SMOOTHING_RADIUS       : 2,
-        
-        RAY_STRETCHING_METHOD         : 1,
-        
+        VOLUME_SMOOTHING_RADIUS       : 1,
+                
         RAY_BBOX_INTERSECTION_ENABLED: 0,
         RAY_BVH_INTERSECTION_ENABLED : 0,
         RAY_DITHERING_ENABLED        : 0,
-        RAY_MAX_STEP_COUNT           : 500,
-        RAY_MAX_SKIP_COUNT           : 500,
 
-        TRACE_SCALING_ENABLED        : 1,
-        TRACE_SKIP_OCCUMAPS_ENABLED  : 0,
-
+        TRACE_STEP_SCALING_ENABLED       : 0,   
+        TRACE_STEP_STRETCHING_ENABLED    : 0,
         TRACE_BVH_MARCHING_ENABLED       : 0,
-        TRACE_STEP_SCALING_ENABLED       : 1,
-        TRACE_STEP_STRETCHING_ENABLED    : 1,
-        TRACE_POSITION_REFINEMENT_ENABLED: 1,
+        TRACE_POSITION_REFINEMENT_ENABLED: 0,
         TRACE_GRADIENT_REFINEMENT_ENABLED: 0,
-        TRACE_DISCARDING_DISABLED        : 1,
-
-        LIGHTING_ATTENUATION_ENABLED  : 0,
-        LIGHTING_ATTENUATION_METHOD   : 1,
+        TRACE_DISCARDING_DISABLED        : 0,
     }
 
     const material = new THREE.ShaderMaterial({

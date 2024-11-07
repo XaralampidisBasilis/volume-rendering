@@ -80,36 +80,34 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.u_raymarch.value
         const defines = this.viewer.material.defines
         const objects = { 
-            RAY_BBOX_INTERSECTION_ENABLED: Boolean(defines.RAY_BBOX_INTERSECTION_ENABLED),
-            RAY_BVH_INTERSECTION_ENABLED : Boolean(defines.RAY_BVH_INTERSECTION_ENABLED),
-            RAY_DITHERING_ENABLED        : Boolean(defines.RAY_DITHERING_ENABLED),
-            RAY_REFINEMENT_ENABLED       : Boolean(defines.RAY_REFINEMENT_ENABLED),
-            RAY_GRADIENTS_ENABLED        : Boolean(defines.RAY_GRADIENTS_ENABLED),
-            TRACE_SKIP_OCCUMAPS_ENABLED  : Boolean(defines.TRACE_SKIP_OCCUMAPS_ENABLED),
+            RAY_BBOX_INTERSECTION_ENABLED    : Boolean(defines.RAY_BBOX_INTERSECTION_ENABLED),
+            RAY_BVH_INTERSECTION_ENABLED     : Boolean(defines.RAY_BVH_INTERSECTION_ENABLED),
+            RAY_DITHERING_ENABLED            : Boolean(defines.RAY_DITHERING_ENABLED),
+            TRACE_POSITION_REFINEMENT_ENABLED: Boolean(defines.TRACE_POSITION_REFINEMENT_ENABLED),
+            TRACE_GRADIENT_REFINEMENT_ENABLED: Boolean(defines.TRACE_GRADIENT_REFINEMENT_ENABLED),
+            TRACE_BVH_MARCHING_ENABLED       : Boolean(defines.TRACE_BVH_MARCHING_ENABLED),
+            TRACE_STEP_SCALING_ENABLED       : Boolean(defines.TRACE_STEP_SCALING_ENABLED),
+            TRACE_STEP_STRETCHING_ENABLED    : Boolean(defines.TRACE_STEP_STRETCHING_ENABLED),
         }
-        const options = {
-            RAY_STRETCHING_METHOD  : { const: 1, log: 2, sqrt: 3, linear: 4, smoothstep: 5, exp: 6 },
-        }
+    
 
         this.controllers.raymarch = 
         {
-            sampleThreshold   : folder.add(uniforms, 'sample_threshold').min(0).max(1).step(0.0001).onFinishChange(() => { this.viewer.computeOccupancy() }),
-            minStepScale      : folder.add(uniforms, 'min_step_scaling').min(0.001).max(5).step(0.001),
-            maxStepScale      : folder.add(uniforms, 'max_step_scaling').min(0.001).max(5).step(0.001),
-            maxStepStretching : folder.add(uniforms, 'max_step_stretching').min(1).max(10).step(0.001),
-            maxStepCount      : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
-            maxSkipCount      : folder.add(uniforms, 'max_skip_count').min(0).max(2000).step(1),
-            minSkipLod        : folder.add(uniforms, 'min_skip_lod').min(0).max(material.uniforms.u_occumaps.value.lods - 1).step(1),
-            maxSkipLod        : folder.add(uniforms, 'max_skip_lod').min(0).max(material.uniforms.u_occumaps.value.lods - 1).step(1),
-
-            stretchingMethod  : folder.add(defines, 'RAY_STRETCHING_METHOD').name('stretching_method').options(options.RAY_STRETCHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            
-            enableBboxInters  : folder.add(objects, 'RAY_BBOX_INTERSECTION_ENABLED').name('enable_bbox_intersection').onFinishChange((value) => { defines.RAY_BBOX_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
-            enableBVHInters   : folder.add(objects, 'RAY_BVH_INTERSECTION_ENABLED').name('enable_bvh_intersection').onFinishChange((value) => { defines.RAY_BVH_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
-            enableDithering   : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableRefinement  : folder.add(objects, 'RAY_REFINEMENT_ENABLED').name('enable_refinement').onFinishChange((value) => { defines.RAY_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
-            enableGradients   : folder.add(objects, 'RAY_GRADIENTS_ENABLED').name('enable_gradients').onFinishChange((value) => { defines.RAY_GRADIENTS_ENABLED = Number(value), material.needsUpdate = true }),
-            enableSkipping    : folder.add(objects, 'TRACE_SKIP_OCCUMAPS_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.TRACE_SKIP_OCCUMAPS_ENABLED = Number(value), material.needsUpdate = true }),
+            sampleThreshold       : folder.add(uniforms, 'sample_threshold').min(0).max(1).step(0.0001).onFinishChange(() => { this.viewer.computeOccupancy() }),
+            minStepScale          : folder.add(uniforms, 'min_step_scaling').min(0.001).max(5).step(0.001),
+            maxStepScale          : folder.add(uniforms, 'max_step_scaling').min(0.001).max(5).step(0.001),
+            maxStepCount          : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
+            maxSkipCount          : folder.add(uniforms, 'max_skip_count').min(0).max(2000).step(1),
+            minSkipLod            : folder.add(uniforms, 'min_skip_lod').min(0).max(material.uniforms.u_occumaps.value.lods - 1).step(1),
+            maxSkipLod            : folder.add(uniforms, 'max_skip_lod').min(0).max(material.uniforms.u_occumaps.value.lods - 1).step(1),
+            enableBboxIntersection: folder.add(objects, 'RAY_BBOX_INTERSECTION_ENABLED').name('enable_bbox_intersection').onFinishChange((value) => { defines.RAY_BBOX_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
+            enableBVHIntersection : folder.add(objects, 'RAY_BVH_INTERSECTION_ENABLED').name('enable_bvh_intersection').onFinishChange((value) => { defines.RAY_BVH_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
+            enableDithering       : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
+            enablePosRefinement   : folder.add(objects, 'TRACE_POSITION_REFINEMENT_ENABLED').name('enable_position_refinement').onFinishChange((value) => { defines.TRACE_POSITION_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
+            enableGradRefinement  : folder.add(objects, 'TRACE_GRADIENT_REFINEMENT_ENABLED').name('enable_gradient_refinement').onFinishChange((value) => { defines.TRACE_GRADIENT_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
+            enableBVHMarching     : folder.add(objects, 'TRACE_BVH_MARCHING_ENABLED').name('enable_bvh_marching').onFinishChange((value) => { defines.TRACE_BVH_MARCHING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableStepScaling     : folder.add(objects, 'TRACE_STEP_SCALING_ENABLED').name('enable_step_scaling').onFinishChange((value) => { defines.TRACE_STEP_SCALING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableStepStretching  : folder.add(objects, 'TRACE_STEP_STRETCHING_ENABLED').name('enable_step_stretching').onFinishChange((value) => { defines.TRACE_STEP_STRETCHING_ENABLED = Number(value), material.needsUpdate = true }),
         }
 
     }
@@ -126,9 +124,9 @@ export default class ISOGui
 
         this.controllers.volume = 
         {
-            smoothingRadius: folder.add(defines, 'VOLUME_SMOOTHING_RADIUS').name('smoothing_radius').min(0).max(5).step(1).onFinishChange(() => { this.viewer.computeSmoothing() }),
-            smoothingMethod: folder.add(defines, 'VOLUME_SMOOTHING_METHOD').name('smoothing_method').options(options.VOLUME_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             gradientsMethod: folder.add(defines, 'VOLUME_GRADIENTS_METHOD').name('gradients_method').options(options.VOLUME_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            smoothingMethod: folder.add(defines, 'VOLUME_SMOOTHING_METHOD').name('smoothing_method').options(options.VOLUME_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
+            smoothingRadius: folder.add(defines, 'VOLUME_SMOOTHING_RADIUS').name('smoothing_radius').min(0).max(5).step(1).onFinishChange(() => { this.viewer.computeSmoothing() }),
             enableVolume   : folder.add(material, 'visible').name('enable_volume')
         }
 
@@ -187,8 +185,6 @@ export default class ISOGui
             positionX        : folder.add(uniforms.position_offset, 'x').min(-5).max(5).step(0.01).name('position_x'),
             positionY        : folder.add(uniforms.position_offset, 'y').min(-5).max(5).step(0.01).name('position_y'),
             positionZ        : folder.add(uniforms.position_offset, 'z').min(-5).max(5).step(0.01).name('position_z'),
-            attenuationMethod: folder.add(defines, 'LIGHTING_ATTENUATION_METHOD').name('attenuation_method').options(options.LIGHTING_ATTENUATION_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            enableAttenuation: folder.add(objects, 'LIGHTING_ATTENUATION_ENABLED').name('enable_attenuation').onFinishChange((value) => { defines.LIGHTING_ATTENUATION_ENABLED = Number(value), material.needsUpdate = true }),
         }
     }
     
@@ -198,7 +194,7 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.u_debugging.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
-        const objects = { RAY_DISCARDING_DISABLED: Boolean(defines.RAY_DISCARDING_DISABLED) }
+        const objects = { TRACE_DISCARDING_DISABLED: Boolean(defines.TRACE_DISCARDING_DISABLED) }
 
         this.controllers.debug = 
         {
@@ -264,7 +260,7 @@ export default class ISOGui
             variable1         : folder.add(uniforms, 'variable1').min(-5).max(5).step(0.00000001),
             variable2         : folder.add(uniforms, 'variable2').min(-5).max(5).step(0.00000001),
             variable3         : folder.add(uniforms, 'variable3').min(-1000).max(1000).step(0.00000001),
-            disable_discarding: folder.add(objects, 'RAY_DISCARDING_DISABLED').name('disable_discarding').onFinishChange((value) => { defines.RAY_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
+            disable_discarding: folder.add(objects, 'TRACE_DISCARDING_DISABLED').name('disable_discarding').onFinishChange((value) => { defines.TRACE_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }
     }
     

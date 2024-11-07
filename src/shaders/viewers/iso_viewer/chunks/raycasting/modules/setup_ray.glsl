@@ -19,14 +19,15 @@ ray.step_direction = normalize(v_direction);
 #include "./compute_ray_bvh_intersection.glsl"
 #endif
 
-// Compute ray dithering
-#if RAY_DITHERING_ENABLED == 1
-#include "./compute_ray_start_dithering"
-#endif
-
 // Compute ray step distances 
 #include "./compute_ray_step_distances"
 
 // Compute ray step and skip counts constaints
 #include "./compute_ray_max_counts"
+
+// Compute ray dithering
+#if RAY_DITHERING_ENABLED == 1
+#include "./compute_ray_dithering"
+#endif
+
 
