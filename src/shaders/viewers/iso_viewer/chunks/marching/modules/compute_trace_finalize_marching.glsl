@@ -20,7 +20,7 @@ if (trace.suspended)
 
 if (trace.terminated)
 {
-    #include "./terminate_trace"
+    #include "./terminate_trace_position"
 
     #if TRACE_DISCARDING_DISABLED == 0
     discard;  

@@ -1,7 +1,7 @@
 
 for (int skip_count; skip_count < u_raymarch.max_skip_count && ray.start_distance < ray.end_distance; skip_count++) 
 {
-    #include "./sample_occumap"
+    #include "./update_occumap_sample"
 
     if (occumap.block_occupied)  
     {
@@ -11,15 +11,15 @@ for (int skip_count; skip_count < u_raymarch.max_skip_count && ray.start_distanc
     }
     else
     {
-        #include "./update_block"
+        #include "./update_block_position"
     }
 }
 
 if (occumap.block_occupied)  
 {
-    #include "./regress_ray"
+    #include "./regress_ray_position"
 }
 else
 {
-    #include "./terminate_ray"
+    #include "./terminate_ray_position"
 }

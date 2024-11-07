@@ -15,7 +15,7 @@
 Trace trace_tmp = trace;
 
 // sample the volume at previous step distance
-#include "./update_trace_prev"
+#include "./setup_trace_prev"
 
 // define the bisection intervals
 vec2 trace_samples = vec2(trace_prev.sample_value, trace.sample_value);
