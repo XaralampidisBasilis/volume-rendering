@@ -18,3 +18,9 @@ for (trace.step_count;
         trace.skip_count++;
     }
 }   
+
+if (occumap.block_occupied) 
+{
+    #include "./regress_trace"
+}
+

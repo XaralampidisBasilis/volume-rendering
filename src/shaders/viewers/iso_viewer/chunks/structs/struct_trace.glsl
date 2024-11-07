@@ -34,12 +34,6 @@ struct Trace
     ivec3 voxel_coords;         // integer voxel coordinates in 3d space
     vec3  voxel_texture_coords; // normalized voxel texture coordinates
 
-    float block_occupancy;      // the currents block occupancy value
-    bool  block_occupied;       // whether the trace's current block is occupied
-    ivec3 block_coords;         // integer coordinates of the current block
-    vec3  block_texture_coords; // normalized texture coordinates of the block
-    int   block_lod;            // the current occumap block level of detail
-
     vec3  normal;               // normal vector
     vec3  gradient;             // gradient vector
     vec3  gradient_direction;   // direction of the gradient vector
@@ -77,11 +71,6 @@ Trace set_trace()
     trace.sample_error = 0.0;
     trace.voxel_coords = ivec3(0);
     trace.voxel_texture_coords = vec3(0.0);
-    trace.block_occupancy = 0.0;
-    trace.block_occupied = false;
-    trace.block_coords = ivec3(0);
-    trace.block_texture_coords = vec3(0.0);
-    trace.block_lod = 0;
     trace.normal = vec3(0.0);
     trace.gradient = vec3(0.0);
     trace.gradient_direction = vec3(0.0);

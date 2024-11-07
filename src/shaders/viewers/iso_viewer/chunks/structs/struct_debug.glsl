@@ -23,10 +23,6 @@ struct Debug
     vec4 ray_box_span_distance;
     vec4 ray_box_start_position;
     vec4 ray_box_end_position;
-    vec4 trace_block_coords;
-    vec4 trace_block_lod;
-    vec4 trace_block_occupancy;
-    vec4 trace_block_occupied;
     vec4 trace_derivative;
     vec4 trace_distance;
     vec4 trace_distance_error;
@@ -55,6 +51,10 @@ struct Debug
     vec4 trace_stepped_distance;
     vec4 trace_voxel_coords;
     vec4 trace_total_count;
+    vec4 occumap_lod;      
+    vec4 occumap_block_coords;   
+    vec4 occumap_block_occupancy;
+    vec4 occumap_block_occupied; 
     vec4 variable1;
     vec4 variable2;
     vec4 variable3;
@@ -82,10 +82,6 @@ Debug set_debug()
     debug.ray_box_end_position     = vec4(vec3(0.0), 1.0);
     debug.ray_max_step_count       = vec4(vec3(0.0), 1.0);
     debug.ray_max_skip_count       = vec4(vec3(0.0), 1.0);
-    debug.trace_block_coords       = vec4(vec3(0.0), 1.0);
-    debug.trace_block_lod          = vec4(vec3(0.0), 1.0);
-    debug.trace_block_occupancy    = vec4(vec3(0.0), 1.0);
-    debug.trace_block_occupied     = vec4(vec3(0.0), 1.0);
     debug.trace_derivative         = vec4(vec3(0.0), 1.0);
     debug.trace_distance           = vec4(vec3(0.0), 1.0);
     debug.trace_distance_error     = vec4(vec3(0.0), 1.0);
@@ -114,6 +110,10 @@ Debug set_debug()
     debug.trace_stepped_distance   = vec4(vec3(0.0), 1.0);
     debug.trace_voxel_coords       = vec4(vec3(0.0), 1.0);
     debug.trace_total_count        = vec4(vec3(0.0), 1.0);
+    debug.occumap_lod              = vec4(vec3(0.0), 1.0);
+    debug.occumap_block_coords     = vec4(vec3(0.0), 1.0);
+    debug.occumap_block_occupancy  = vec4(vec3(0.0), 1.0);
+    debug.occumap_block_occupied   = vec4(vec3(0.0), 1.0);
     debug.variable1                = vec4(vec3(0.0), 1.0);
     debug.variable2                = vec4(vec3(0.0), 1.0);
     debug.variable3                = vec4(vec3(0.0), 1.0);
