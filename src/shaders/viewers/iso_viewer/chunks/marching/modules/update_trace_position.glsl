@@ -11,6 +11,7 @@
 // update trace step distance
 trace.step_distance = ray.step_distance * trace.step_scaling * trace.step_stretching;
 trace.step_distance = clamp(ray.min_step_distance, ray.max_step_distance, trace.step_distance);
+trace.step_count++;
 
 // update trace position
 trace.distance += trace.step_distance;

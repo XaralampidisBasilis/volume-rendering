@@ -80,6 +80,7 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.u_raymarch.value
         const defines = this.viewer.material.defines
         const objects = { 
+            sample_threshold                 : 0.0,
             RAY_BBOX_INTERSECTION_ENABLED    : Boolean(defines.RAY_BBOX_INTERSECTION_ENABLED),
             RAY_BVH_INTERSECTION_ENABLED     : Boolean(defines.RAY_BVH_INTERSECTION_ENABLED),
             RAY_DITHERING_ENABLED            : Boolean(defines.RAY_DITHERING_ENABLED),
@@ -93,7 +94,7 @@ export default class ISOGui
 
         this.controllers.raymarch = 
         {
-            sampleThreshold       : folder.add(uniforms, 'sample_threshold').min(0).max(1).step(0.0001).onFinishChange(() => { this.viewer.computeOccupancy() }),
+            sampleThreshold       : folder.add(objects, 'sample_threshold').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.sample_threshold = value, this.viewer.computeOccupancy() }),
             minStepScale          : folder.add(uniforms, 'min_step_scaling').min(0.001).max(5).step(0.001),
             maxStepScale          : folder.add(uniforms, 'max_step_scaling').min(0.001).max(5).step(0.001),
             maxStepCount          : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),

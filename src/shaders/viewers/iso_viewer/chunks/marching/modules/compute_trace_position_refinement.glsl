@@ -39,7 +39,7 @@ for (int i = 0; i < 10; i++, trace.step_count++)
     trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
     // sample the intensity at the interpolated position
-    #include "./sample_volume"
+    #include "./update_volume_sample"
 
     // update bisection interval based on sample error sign
     float select_interval = step(0.0, trace.sample_error);
@@ -53,8 +53,6 @@ for (int i = 0; i < 10; i++, trace.step_count++)
         vec2(trace.distance, trace_distances.y), 
         vec2(trace_distances.x, trace.distance), 
     select_interval);
-
-    // if (i >= refinement_count) break;
 }
 // #pragma unroll_loop_end
 
