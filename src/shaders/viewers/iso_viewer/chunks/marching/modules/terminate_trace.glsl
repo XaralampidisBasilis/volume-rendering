@@ -14,7 +14,7 @@ trace.sample_error = -u_raymarch.sample_threshold;
 trace.gradient = vec3(0.0);
 trace.gradient_magnitude = 0.0;
 trace.gradient_direction = vec3(0.0);
-trace.derivative_1st = 0.0;
+trace.derivative = 0.0;
 trace.normal = -vec3(0.0);
 
 // compute cummulative distances

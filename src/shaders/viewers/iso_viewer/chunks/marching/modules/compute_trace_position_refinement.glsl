@@ -23,7 +23,7 @@ vec2 trace_distances = vec2(trace_prev.distance, trace.distance);
 trace_distances = clamp(trace_distances, ray.start_distance, ray.end_distance);
 
 // adjust the interations based on the total distance to be refined
-int refinement_count = int(ceil(log2((trace_distances.y - trace_distances.x) / (MILLI_TOL * mmin(u_volume.spacing)))));
+int refinement_count = int(ceil(log2((trace_distances.y - trace_distances.x) / (MILLI_TOLERANCE * mmin(u_volume.spacing)))));
 refinement_count = min(refinement_count, 10);
 
 // #pragma unroll_loop_start

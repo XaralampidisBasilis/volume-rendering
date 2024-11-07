@@ -5,7 +5,7 @@
 float linear_roots(in vec2 coeff, out int num_roots) 
 {
     // If it's constant ( (coeff.y close to 0), check if it's solvable (both coefficients are close to 0)
-    if (abs(coeff.y) < PICO_TOL) {
+    if (abs(coeff.y) < PICO_TOLERANCE) {
         num_roots = 0; // if constant is zero, set num_roots (-1.0), otherwise (0.0)
         return 0.0; // For constant case, the root is undefined or any value can work, so we return 0.0 as a placeholder
     }
@@ -19,7 +19,7 @@ float linear_roots(in vec2 coeff, out int num_roots)
 float linear_roots(in vec2 coeff) 
 {    
     // If it's constant (coeff.y close to 0) return zero
-    if (abs(coeff.y) < PICO_TOL) return 0.0;
+    if (abs(coeff.y) < PICO_TOLERANCE) return 0.0;
     
     // For linear equation, it's solvable and compute the root
     return -coeff.x / coeff.y;

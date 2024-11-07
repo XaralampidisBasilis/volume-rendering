@@ -16,7 +16,7 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
     vec3 params = vec3(t, clamp(p_min, p_max, pq.x), pq.y);
     float is_above = step(params.y, x);
     params = mix(params, vec3(1.0) - params, is_above);
-    params = clamp(vec3(MICRO_TOL), vec3(1.0 - MICRO_TOL), params);
+    params = clamp(vec3(MICRO_TOLERANCE), vec3(1.0 - MICRO_TOLERANCE), params);
 
     float g_scaled = (params.z / params.y) * g * 0.5 - 1.0;
     float t_scaled = params.x / params.y;
@@ -29,7 +29,7 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
 float inverse_softstep(const in float edge0, const in float edge1, const in float x, const in float slope)
 {
     float t = map(edge0, edge1, x);
-    float g = 1.0 / max(slope, NANO_TOL);
+    float g = 1.0 / max(slope, NANO_TOLERANCE);
     vec2 pq = vec2(0.5); // best approximation to inverse smoothstep
     float p_max = pq.y * g;
     float p_min = p_max - g + 1.0 ;
@@ -37,7 +37,7 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
     vec3 params = vec3(t, clamp(p_min, p_max, pq.x), pq.y);
     float is_above = step(params.y, x);
     params = mix(params, vec3(1.0) - params, is_above);
-    params = clamp(vec3(NANO_TOL), vec3(1.0 - NANO_TOL), params);
+    params = clamp(vec3(NANO_TOLERANCE), vec3(1.0 - NANO_TOLERANCE), params);
 
     float g_scaled = (params.z / params.y) * g * 0.5 - 1.0;
     float t_scaled = params.x / params.y;
@@ -50,7 +50,7 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
 float inverse_softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_infex)
 {
     float t = map(edge0, edge1, x);
-    float g = 1.0 / max(slope, NANO_TOL);
+    float g = 1.0 / max(slope, NANO_TOLERANCE);
     vec2 pq = vec2(p_infex);
     float p_max = pq.y * g;
     float p_min = p_max - g + 1.0 ;
@@ -58,7 +58,7 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
     vec3 params = vec3(t, clamp(p_min, p_max, pq.x), pq.y);
     float is_above = step(params.y, x);
     params = mix(params, vec3(1.0) - params, is_above);
-    params = clamp(vec3(NANO_TOL), vec3(1.0 - NANO_TOL), params);
+    params = clamp(vec3(NANO_TOLERANCE), vec3(1.0 - NANO_TOLERANCE), params);
 
     float g_scaled = (params.z / params.y) * g * 0.5 - 1.0;
     float t_scaled = params.x / params.y;
@@ -71,7 +71,7 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
 float inverse_softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_infex, const in float q_infex)
 {
     float t = map(edge0, edge1, x);
-    float g = 1.0 / max(slope, NANO_TOL);
+    float g = 1.0 / max(slope, NANO_TOLERANCE);
     vec2 pq = vec2(p_infex, q_infex);
     float p_max = pq.y * g;
     float p_min = p_max - g + 1.0 ;
@@ -79,7 +79,7 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
     vec3 params = vec3(t, clamp(p_min, p_max, pq.x), pq.y);
     float is_above = step(params.y, x);
     params = mix(params, vec3(1.0) - params, is_above);
-    params = clamp(vec3(NANO_TOL), vec3(1.0 - NANO_TOL), params);
+    params = clamp(vec3(NANO_TOLERANCE), vec3(1.0 - NANO_TOLERANCE), params);
 
     float g_scaled = (params.z / params.y) * g * 0.5 - 1.0;
     float t_scaled = params.x / params.y;

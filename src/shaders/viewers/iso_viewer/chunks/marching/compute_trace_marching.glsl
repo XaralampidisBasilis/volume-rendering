@@ -14,4 +14,4 @@ for (trace.step_count;
     #include "./modules/update_trace"
 }   
 
-#include "./modules/compute_trace_final_marching"
+#include "./modules/compute_trace_finalize_marching"

@@ -1,8 +1,8 @@
 
 // compute block min and max positions in model space based on block coordinates
 // make block a bit bigger in order to skip into the next block
-vec3 block_min_position = vec3(occumap.block_coords + 0) - MILLI_TOL;
-vec3 block_max_position = vec3(occumap.block_coords + 1) + MILLI_TOL;
+vec3 block_min_position = vec3(occumap.block_coords + 0) - MILLI_TOLERANCE;
+vec3 block_max_position = vec3(occumap.block_coords + 1) + MILLI_TOLERANCE;
 block_min_position *= occumap.spacing;
 block_max_position *= occumap.spacing;
 

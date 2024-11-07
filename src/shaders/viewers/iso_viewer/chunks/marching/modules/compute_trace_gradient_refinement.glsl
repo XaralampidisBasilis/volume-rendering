@@ -52,7 +52,7 @@ trace.gradient *= 8.0; // get integer kernel values from trilinear sampling
 trace.gradient /= 16.0; // normalize the kernel values
 
 trace.gradient_magnitude = length(trace.gradient);
-trace.derivative_1st = dot(trace.gradient, ray.step_direction);
+trace.derivative = dot(trace.gradient, ray.step_direction);
 trace.normal = - normalize(trace.gradient);
 
 

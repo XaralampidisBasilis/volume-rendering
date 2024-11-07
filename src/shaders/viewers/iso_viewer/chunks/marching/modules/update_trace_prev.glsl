@@ -15,5 +15,5 @@ trace_prev.sample_error = trace_prev.sample_value - u_raymarch.sample_threshold;
 trace_prev.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, trace_prev.sample_data.gba);
 trace_prev.gradient_magnitude = length(trace_prev.gradient);
 trace_prev.gradient_direction = normalize(trace_prev.gradient);
-trace_prev.derivative_1st = dot(trace_prev.gradient, ray.step_direction);
+trace_prev.derivative = dot(trace_prev.gradient, ray.step_direction);
 trace_prev.normal = -trace_prev.gradient_direction;

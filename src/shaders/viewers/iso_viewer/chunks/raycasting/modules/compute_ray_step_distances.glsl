@@ -25,8 +25,8 @@ ray.min_step_scaling = min(u_raymarch.min_step_scaling, u_raymarch.max_step_scal
 ray.max_step_scaling = max(u_raymarch.min_step_scaling, u_raymarch.max_step_scaling);
 
 // Add small tolerance to avoid numerical instabilities when scalings are near
-ray.min_step_scaling -= MICRO_TOL;
-ray.max_step_scaling += MICRO_TOL;
+ray.min_step_scaling -= DECI_TOLERANCE;
+ray.max_step_scaling += DECI_TOLERANCE;
 
 // adjust the ray step_distance using the minimum and maximum stepping factors.
 ray.min_step_distance = ray.step_distance * ray.min_step_scaling;

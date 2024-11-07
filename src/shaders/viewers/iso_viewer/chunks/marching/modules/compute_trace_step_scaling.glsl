@@ -1,6 +1,6 @@
 
 // solve taylor linear equation 
-trace.step_scaling = - trace.sample_error / maxabs(trace.derivative_1st, MICRO_TOL);
+trace.step_scaling = - trace.sample_error / maxabs(trace.derivative, MICRO_TOLERANCE);
 
 // set negative values toto max step scaling.
 trace.step_scaling = mix(ray.max_step_scaling, trace.step_scaling, trace.step_scaling > 0.0);

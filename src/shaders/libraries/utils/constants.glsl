@@ -49,79 +49,89 @@ license:
     #define EULER 2.718281828459045235360287471352
     #endif
 
-    // SI METRIC PREFIX TOLERANCES
-    #ifndef QUETTA_TOL
-    #define QUETTA_TOL 1e+27
+    // TOLERANCES
+    #ifndef QUETTA_TOLERANCE
+    #define QUETTA_TOLERANCE 1e+27
     #endif
-    #ifndef RONNA_TOL
-    #define RONNA_TOL 1e+27
+    #ifndef RONNA_TOLERANCE
+    #define RONNA_TOLERANCE 1e+27
     #endif
-    #ifndef YOTTA_TOL
-    #define YOTTA_TOL 1e+24
+    #ifndef YOTTA_TOLERANCE
+    #define YOTTA_TOLERANCE 1e+24
     #endif
-    #ifndef ZETTA_TOL
-    #define ZETTA_TOL 1e+21
+    #ifndef ZETTA_TOLERANCE
+    #define ZETTA_TOLERANCE 1e+21
     #endif
-    #ifndef EXA_TOL
-    #define EXA_TOL 1e+18
+    #ifndef EXA_TOLERANCE
+    #define EXA_TOLERANCE 1e+18
     #endif
-    #ifndef PETA_TOL
-    #define PETA_TOL 1e+15
+    #ifndef PETA_TOLERANCE
+    #define PETA_TOLERANCE 1e+15
     #endif
-    #ifndef TERA_TOL
-    #define TERA_TOL 1e+12
+    #ifndef TERA_TOLERANCE
+    #define TERA_TOLERANCE 1e+12
     #endif
-    #ifndef GIGA_TOL
-    #define GIGA_TOL 1e+9
+    #ifndef GIGA_TOLERANCE
+    #define GIGA_TOLERANCE 1e+9
     #endif
-    #ifndef MEGA_TOL
-    #define MEGA_TOL 1e+6
+    #ifndef MEGA_TOLERANCE
+    #define MEGA_TOLERANCE 1e+6
     #endif
-    #ifndef KILO_TOL
-    #define KILO_TOL 1e+3
+    #ifndef KILO_TOLERANCE
+    #define KILO_TOLERANCE 1e+3
     #endif
-    #ifndef HECTO_TOL
-    #define HECTO_TOL 1e+2
+    #ifndef HECTO_TOLERANCE
+    #define HECTO_TOLERANCE 1e+2
     #endif
-    #ifndef DEKA_TOL
-    #define DEKA_TOL 1e+1
+    #ifndef DEKA_TOLERANCE
+    #define DEKA_TOLERANCE 1e+1
     #endif
-    #ifndef DECI_TOL
-    #define DECI_TOL 1e-1
+    #ifndef DECI_TOLERANCE
+    #define DECI_TOLERANCE 1e-1
     #endif
-    #ifndef CENTI_TOL
-    #define CENTI_TOL 1e-2
+    #ifndef CENTI_TOLERANCE
+    #define CENTI_TOLERANCE 1e-2
     #endif
-    #ifndef MILLI_TOL
-    #define MILLI_TOL 1e-3
+    #ifndef MILLI_TOLERANCE
+    #define MILLI_TOLERANCE 1e-3
     #endif
-    #ifndef MICRO_TOL
-    #define MICRO_TOL 1e-6
+    #ifndef MICRO_TOLERANCE
+    #define MICRO_TOLERANCE 1e-6
     #endif
-    #ifndef NANO_TOL
-    #define NANO_TOL 1e-9
+    #ifndef NANO_TOLERANCE
+    #define NANO_TOLERANCE 1e-9
     #endif
-    #ifndef PICO_TOL
-    #define PICO_TOL 1e-12
+    #ifndef PICO_TOLERANCE
+    #define PICO_TOLERANCE 1e-12
     #endif
-    #ifndef FEMTO_TOL
-    #define FEMTO_TOL 1e-15
+    #ifndef FEMTO_TOLERANCE
+    #define FEMTO_TOLERANCE 1e-15
     #endif
-    #ifndef ATTO_TOL
-    #define ATTO_TOL 1e-18
+    #ifndef ATTO_TOLERANCE
+    #define ATTO_TOLERANCE 1e-18
     #endif
-    #ifndef ZEPTO_TOL
-    #define ZEPTO_TOL 1e-21
+    #ifndef ZEPTO_TOLERANCE
+    #define ZEPTO_TOLERANCE 1e-21
     #endif
-    #ifndef YOCTO_TOL
-    #define YOCTO_TOL 1e-24
+    #ifndef YOCTO_TOLERANCE
+    #define YOCTO_TOLERANCE 1e-24
     #endif
-    #ifndef RONTO_TOL
-    #define RONTO_TOL 1e-27
+    #ifndef RONTO_TOLERANCE
+    #define RONTO_TOLERANCE 1e-27
     #endif
-    #ifndef QUECTO_TOL
-    #define QUECTO_TOL 1e-30
+    #ifndef QUECTO_TOLERANCE
+    #define QUECTO_TOLERANCE 1e-30
     #endif
+
+    // colors
+    const vec3 BLACK_COLOR   = vec3(0.0, 0.0, 0.0);
+    const vec3 WHITE_COLOR   = vec3(1.0, 1.0, 1.0);
+    const vec3 RED_COLOR     = vec3(1.0, 0.0, 0.0);
+    const vec3 GREEN_COLOR   = vec3(0.0, 1.0, 0.0);
+    const vec3 BLUE_COLOR    = vec3(0.0, 0.0, 1.0);
+    const vec3 CYAN_COLOR    = vec3(0.0, 1.0, 1.0);
+    const vec3 MAGENTA_COLOR = vec3(1.0, 0.0, 1.0);
+    const vec3 YELLOW_COLOR  = vec3(1.0, 1.0, 0.0);
 
 #endif // CONSTANTS
 

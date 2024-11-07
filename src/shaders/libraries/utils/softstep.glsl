@@ -27,7 +27,7 @@ float softstep(const in float edge0, const in float edge1, const in float x)
     vec3 params = vec3(t, pq.x, clamp(q_min, q_max, pq.y));
     float is_above = step(params.y, t);
     params = mix(params, vec3(1.0) - params, is_above);
-    params = clamp(vec3(MICRO_TOL), vec3(1.0 - MICRO_TOL), params);
+    params = clamp(vec3(MICRO_TOLERANCE), vec3(1.0 - MICRO_TOLERANCE), params);
 
     float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
     float t_scaled = params.x / params.y;
@@ -41,7 +41,7 @@ float softstep(const in float edge0, const in float edge1, const in float x)
 float softstep(const in float edge0, const in float edge1, const in float x, const in float slope)
 {
     float t = map(edge0, edge1, x);
-    float g = 1.0 / max(1.0 - slope, MICRO_TOL);
+    float g = 1.0 / max(1.0 - slope, MICRO_TOLERANCE);
     vec2 pq = vec2(0.5); // best approximation to smoothstep
     float q_max = pq.x * g;
     float q_min = q_max - g + 1.0 ;
@@ -49,7 +49,7 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
     vec3 params = vec3(t, pq.x, clamp(q_min, q_max, pq.y));
     float is_above = step(params.y, t);
     params = mix(params, vec3(1.0) - params, is_above);
-    params = clamp(vec3(MICRO_TOL), vec3(1.0 - MICRO_TOL), params);
+    params = clamp(vec3(MICRO_TOLERANCE), vec3(1.0 - MICRO_TOLERANCE), params);
 
     float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
     float t_scaled = params.x / params.y;
@@ -63,7 +63,7 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
 float softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_inflex)
 {
     float t = map(edge0, edge1, x);
-    float g = 1.0 / max(1.0 - slope, MICRO_TOL);
+    float g = 1.0 / max(1.0 - slope, MICRO_TOLERANCE);
     vec2 pq = vec2(p_inflex);
     float q_max = pq.x * g;
     float q_min = q_max - g + 1.0 ;
@@ -71,7 +71,7 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
     vec3 params = vec3(t, pq.x, clamp(q_min, q_max, pq.y));
     float is_above = step(params.y, t);
     params = mix(params, vec3(1.0) - params, is_above);
-    params = clamp(vec3(MICRO_TOL), vec3(1.0 - MICRO_TOL), params);
+    params = clamp(vec3(MICRO_TOLERANCE), vec3(1.0 - MICRO_TOLERANCE), params);
 
     float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
     float t_scaled = params.x / params.y;
@@ -84,7 +84,7 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
 float softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_inflex, const in float q_inflex)
 {
     float t = map(edge0, edge1, x);
-    float g = 1.0 / max(1.0 - slope, MICRO_TOL);
+    float g = 1.0 / max(1.0 - slope, MICRO_TOLERANCE);
     vec2 pq = vec2(p_inflex, q_inflex);
     float q_max = p_inflex * g;
     float q_min = q_max - g + 1.0 ;
@@ -92,7 +92,7 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
     vec3 params = vec3(t, pq.x, clamp(q_min, q_max, pq.y));
     float is_above = step(params.y, t);
     params = mix(params, vec3(1.0) - params, is_above);
-    params = clamp(vec3(MICRO_TOL), vec3(1.0 - MICRO_TOL), params);
+    params = clamp(vec3(MICRO_TOLERANCE), vec3(1.0 - MICRO_TOLERANCE), params);
 
     float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
     float t_scaled = params.x / params.y;

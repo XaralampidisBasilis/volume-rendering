@@ -41,10 +41,8 @@ struct Trace
     vec3  gradient;             // gradient vector
     vec3  gradient_direction;   // direction of the gradient vector
     float gradient_magnitude;   // magnitude of the gradient vector
+    float derivative;           // directional derivative at the sample position
 
-    float derivative_1st;       // first derivative at the sample position
-    float derivative_2nd;       // second derivative at the sample position
-    float derivative_3rd;       // third derivative at the sample position
 
     vec4  mapped_color;         // color mapped from the sample value
     vec4  shaded_color;         // color after shading has been applied
@@ -83,9 +81,7 @@ Trace set_trace()
     trace.gradient = vec3(0.0);
     trace.gradient_direction = vec3(0.0);
     trace.gradient_magnitude = 0.0;
-    trace.derivative_1st = 0.0;
-    trace.derivative_2nd = 0.0;
-    trace.derivative_3rd = 0.0;
+    trace.derivative = 0.0;
     trace.mapped_color = vec4(vec3(0.0), 1.0);
     trace.shaded_color = vec4(vec3(0.0), 1.0);
     return trace;

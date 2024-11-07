@@ -57,7 +57,7 @@ float besseli(int n, float x)
 {
     float bi, bim, bip, tox, ans;
     float ax = abs(x);
-    if (ax < MICRO_TOL) return 0.0;
+    if (ax < MICRO_TOLERANCE) return 0.0;
 
     float bessi0 = besseli0(x);
     if (n == 0) return bessi0;

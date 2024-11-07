@@ -13,8 +13,8 @@ if (trace.intersected)
 
 if (trace.suspended)
 {
-    #if TRACE_GRADIENT_REFINEMENT_ENABLED == 1
-    #include "./compute_trace_gradient_refinement"
+    #if TRACE_DISCARDING_DISABLED == 0
+    discard;  
     #endif
 }
 

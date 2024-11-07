@@ -27,9 +27,7 @@ struct Debug
     vec4 trace_block_lod;
     vec4 trace_block_occupancy;
     vec4 trace_block_occupied;
-    vec4 trace_derivative_1st;
-    vec4 trace_derivative_2nd;
-    vec4 trace_derivative_3rd;
+    vec4 trace_derivative;
     vec4 trace_distance;
     vec4 trace_distance_error;
     vec4 trace_distance_diff;
@@ -65,9 +63,9 @@ Debug set_debug()
 {
     Debug debug;
     debug.frag_depth               = vec4(vec3(0.0), 1.0);
-    debug.trace_intersected          = vec4(vec3(0.0), 1.0);
-    debug.trace_terminated           = vec4(vec3(0.0), 1.0);
-    debug.trace_suspended             = vec4(vec3(0.0), 1.0);
+    debug.trace_intersected        = vec4(vec3(0.0), 1.0);
+    debug.trace_terminated         = vec4(vec3(0.0), 1.0);
+    debug.trace_suspended          = vec4(vec3(0.0), 1.0);
     debug.ray_end_distance         = vec4(vec3(0.0), 1.0);
     debug.ray_end_position         = vec4(vec3(0.0), 1.0);
     debug.ray_rand_distance        = vec4(vec3(0.0), 1.0);
@@ -87,9 +85,7 @@ Debug set_debug()
     debug.trace_block_lod          = vec4(vec3(0.0), 1.0);
     debug.trace_block_occupancy    = vec4(vec3(0.0), 1.0);
     debug.trace_block_occupied     = vec4(vec3(0.0), 1.0);
-    debug.trace_derivative_1st     = vec4(vec3(0.0), 1.0);
-    debug.trace_derivative_2nd     = vec4(vec3(0.0), 1.0);
-    debug.trace_derivative_3rd     = vec4(vec3(0.0), 1.0);
+    debug.trace_derivative         = vec4(vec3(0.0), 1.0);
     debug.trace_distance           = vec4(vec3(0.0), 1.0);
     debug.trace_distance_error     = vec4(vec3(0.0), 1.0);
     debug.trace_distance_diff      = vec4(vec3(0.0), 1.0);
