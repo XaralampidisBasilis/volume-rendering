@@ -5,13 +5,13 @@
 #endif
 
 for (trace.step_count; 
-     trace.step_count < ray.max_step_count && trace.distance < ray.end_distance; 
-     trace.step_count++) 
+     trace.step_count < ray.max_step_count && trace.distance < ray.end_distance; ) 
 {
     #include "./modules/sample_volume"
     if (trace.sample_value > u_raymarch.sample_threshold) break;
         
     #include "./modules/update_trace"
+    trace.step_count++;
 }   
 
 #include "./modules/compute_trace_finalize_marching"

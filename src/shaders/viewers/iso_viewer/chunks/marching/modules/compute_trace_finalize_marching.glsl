@@ -26,3 +26,7 @@ if (trace.terminated)
     discard;  
     #endif
 }
+
+// update mean cummulative values
+trace.mean_step_scaling /= float(trace.step_count);
+trace.mean_step_distance /= float(trace.step_count);

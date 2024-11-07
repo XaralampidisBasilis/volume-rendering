@@ -19,5 +19,7 @@ trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
 trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
 // update trace cumulative parameters
+trace.mean_step_scaling += trace.step_scaling;
+trace.mean_step_distance += trace.step_distance;
 trace.stepped_distance += trace.step_distance;
 trace.spanned_distance += trace.step_distance;

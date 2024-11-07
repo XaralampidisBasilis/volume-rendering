@@ -35,6 +35,7 @@ struct Debug
     vec4 trace_gradient;
     vec4 trace_luminance;
     vec4 trace_mapped_color;
+    vec4 trace_mean_step_scaling;
     vec4 trace_mean_step_distance;
     vec4 trace_normal;
     vec4 trace_outside;
@@ -93,6 +94,7 @@ Debug set_debug()
     debug.trace_gradient           = vec4(vec3(0.0), 1.0);
     debug.trace_luminance          = vec4(vec3(0.0), 1.0);
     debug.trace_mapped_color       = vec4(vec3(0.0), 1.0);
+    debug.trace_mean_step_scaling  = vec4(vec3(0.0), 1.0);
     debug.trace_mean_step_distance = vec4(vec3(0.0), 1.0);
     debug.trace_normal             = vec4(vec3(0.0), 1.0);
     debug.trace_outside            = vec4(vec3(0.0), 1.0);

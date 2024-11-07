@@ -1,7 +1,6 @@
 
 for (trace.step_count; 
-     trace.step_count < ray.max_step_count && trace.distance < ray.end_distance; 
-     trace.step_count++) 
+     trace.step_count < ray.max_step_count && trace.distance < ray.end_distance; ) 
 {
     #include "./sample_occumap"
 
@@ -11,9 +10,11 @@ for (trace.step_count;
         if (trace.sample_value > u_raymarch.sample_threshold) break;
 
         #include "./update_trace"
+        trace.step_count++;
     }
     else
     {
         #include "./update_block"
+        trace.skip_count++;
     }
 }   
