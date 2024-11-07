@@ -8,7 +8,7 @@ for (trace.step_count;
     if (occumap.block_occupied) 
     {
         #include "./sample_volume"
-        if (trace.sample_value > raymarch.sample_threshold) break;
+        if (trace.sample_value > u_raymarch.sample_threshold) break;
 
         #include "./update_trace"
     }

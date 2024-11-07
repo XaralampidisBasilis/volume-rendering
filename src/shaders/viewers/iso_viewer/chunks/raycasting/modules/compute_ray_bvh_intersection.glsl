@@ -1,11 +1,11 @@
 
-for (int skip_count; skip_count < raymarch.max_skip_count && ray.start_distance < ray.end_distance; skip_count++) 
+for (int skip_count; skip_count < u_raymarch.max_skip_count && ray.start_distance < ray.end_distance; skip_count++) 
 {
     #include "./sample_occumap"
 
     if (occumap.block_occupied)  
     {
-        if (occumap.lod == raymarch.min_skip_lod) break;
+        if (occumap.lod == u_raymarch.min_skip_lod) break;
 
         #include "./update_occumap"
     }

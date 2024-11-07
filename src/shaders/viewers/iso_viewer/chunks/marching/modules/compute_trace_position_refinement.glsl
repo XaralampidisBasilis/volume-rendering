@@ -23,20 +23,20 @@ vec2 trace_distances = vec2(trace_prev.distance, trace.distance);
 trace_distances = clamp(trace_distances, ray.start_distance, ray.end_distance);
 
 // adjust the interations based on the total distance to be refined
-int refinement_count = int(ceil(log2((trace_distances.y - trace_distances.x) / (MILLI_TOL * mmin(volume.spacing)))));
+int refinement_count = int(ceil(log2((trace_distances.y - trace_distances.x) / (MILLI_TOL * mmin(u_volume.spacing)))));
 refinement_count = min(refinement_count, 10);
 
 // #pragma unroll_loop_start
 for (int i = 0; i < 10; i++, trace.step_count++) 
 {
     // compute sample linear interpolation factor
-    float lerp_threshold = map(trace_samples.x, trace_samples.y, raymarch.sample_threshold);
+    float lerp_threshold = map(trace_samples.x, trace_samples.y, u_raymarch.sample_threshold);
 
     // linearly interpolate positions based on sample 
     trace.distance = mix(trace_distances.x, trace_distances.y, lerp_threshold);
     trace.position = ray.origin_position + ray.step_direction * trace.distance;
-    trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
-    trace.voxel_texture_coords = trace.position * volume.inv_size;
+    trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
+    trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
     // sample the intensity at the interpolated position
     #include "./sample_volume"

@@ -8,7 +8,7 @@ export default class ComputeOccupancy
     { 
         this.viewer = viewer
         this.parameters = this.viewer.parameters
-        this.threshold = this.viewer.material.uniforms.raymarch.value.sample_threshold
+        this.threshold = this.viewer.material.uniforms.u_raymarch.value.sample_threshold
     }
 
     async compute()
@@ -68,21 +68,21 @@ export default class ComputeOccupancy
         this.viewer.textures.occumaps.magFilter = THREE.LinearFilter
         this.viewer.textures.occumaps.needsUpdate = true
 
-        this.viewer.material.uniforms.occumaps.value.lods = this.results.atlasLods
-        this.viewer.material.uniforms.occumaps.value.dimensions.fromArray(this.results.atlasDimensions)
-        this.viewer.material.uniforms.occumaps.value.inv_dimensions.fromArray(this.results.atlasDimensions.map((dim) => 1/dim))
-        this.viewer.material.uniforms.occumaps.value.base_dimensions.fromArray(this.results.baseDimensions)
-        this.viewer.material.uniforms.occumaps.value.base_spacing.fromArray(this.results.baseSpacing)
-        this.viewer.material.uniforms.occumaps.value.base_size.fromArray(this.results.baseSize)
+        this.viewer.material.uniforms.u_occumaps.value.lods = this.results.atlasLods
+        this.viewer.material.uniforms.u_occumaps.value.dimensions.fromArray(this.results.atlasDimensions)
+        this.viewer.material.uniforms.u_occumaps.value.inv_dimensions.fromArray(this.results.atlasDimensions.map((dim) => 1/dim))
+        this.viewer.material.uniforms.u_occumaps.value.base_dimensions.fromArray(this.results.baseDimensions)
+        this.viewer.material.uniforms.u_occumaps.value.base_spacing.fromArray(this.results.baseSpacing)
+        this.viewer.material.uniforms.u_occumaps.value.base_size.fromArray(this.results.baseSize)
 
-        this.viewer.material.uniforms.volume.value.min_coords.fromArray(this.results.minCoords)
-        this.viewer.material.uniforms.volume.value.max_coords.fromArray(this.results.maxCoords)
-        this.viewer.material.uniforms.volume.value.min_position.fromArray(this.results.minPosition)
-        this.viewer.material.uniforms.volume.value.max_position.fromArray(this.results.maxPosition)
+        this.viewer.material.uniforms.u_volume.value.min_coords.fromArray(this.results.minCoords)
+        this.viewer.material.uniforms.u_volume.value.max_coords.fromArray(this.results.maxCoords)
+        this.viewer.material.uniforms.u_volume.value.min_position.fromArray(this.results.minPosition)
+        this.viewer.material.uniforms.u_volume.value.max_position.fromArray(this.results.maxPosition)
 
-        this.viewer.material.uniforms.raymarch.value.max_skip_lod = this.results.atlasLods - 1;
+        this.viewer.material.uniforms.u_raymarch.value.max_skip_lod = this.results.atlasLods - 1;
 
-        this.viewer.material.uniforms.textures.value.occumaps = this.viewer.textures.occumaps
+        this.viewer.material.uniforms.u_textures.value.occumaps = this.viewer.textures.occumaps
         this.viewer.material.needsUpdate = true
 
         // console.log(this.results)
@@ -90,7 +90,7 @@ export default class ComputeOccupancy
 
     update()
     {
-        this.threshold = this.viewer.material.uniforms.raymarch.value.sample_threshold
+        this.threshold = this.viewer.material.uniforms.u_raymarch.value.sample_threshold
     }
 
     destroy() 

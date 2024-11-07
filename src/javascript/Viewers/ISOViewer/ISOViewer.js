@@ -184,19 +184,19 @@ export default class ISOViewer extends EventEmitter
     {
         this.material = new ISOMaterial()
 
-        this.material.uniforms.volume.value.dimensions.copy(this.parameters.volume.dimensions)
-        this.material.uniforms.volume.value.size.copy(this.parameters.volume.size)
-        this.material.uniforms.volume.value.spacing.copy(this.parameters.volume.spacing)
-        this.material.uniforms.volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
-        this.material.uniforms.volume.value.inv_size.copy(this.parameters.volume.invSize)
-        this.material.uniforms.volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
-        this.material.uniforms.volume.value.min_position.setScalar(0)
-        this.material.uniforms.volume.value.max_position.copy(this.parameters.volume.size)
+        this.material.uniforms.u_volume.value.dimensions.copy(this.parameters.volume.dimensions)
+        this.material.uniforms.u_volume.value.size.copy(this.parameters.volume.size)
+        this.material.uniforms.u_volume.value.spacing.copy(this.parameters.volume.spacing)
+        this.material.uniforms.u_volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
+        this.material.uniforms.u_volume.value.inv_size.copy(this.parameters.volume.invSize)
+        this.material.uniforms.u_volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
+        this.material.uniforms.u_volume.value.min_position.setScalar(0)
+        this.material.uniforms.u_volume.value.max_position.copy(this.parameters.volume.size)
 
-        this.material.uniforms.textures.value.volume = this.textures.volume
-        this.material.uniforms.textures.value.mask = this.textures.mask
-        this.material.uniforms.textures.value.colormaps = this.textures.colormaps    
-        this.material.uniforms.textures.value.noisemap = this.textures.noisemap
+        this.material.uniforms.u_textures.value.volume = this.textures.volume
+        this.material.uniforms.u_textures.value.mask = this.textures.mask
+        this.material.uniforms.u_textures.value.colormaps = this.textures.colormaps    
+        this.material.uniforms.u_textures.value.noisemap = this.textures.noisemap
     }
 
     setMesh()

@@ -9,7 +9,7 @@ for (trace.step_count;
      trace.step_count++) 
 {
     #include "./modules/sample_volume"
-    if (trace.sample_value > raymarch.sample_threshold) break;
+    if (trace.sample_value > u_raymarch.sample_threshold) break;
         
     #include "./modules/update_trace"
 }   

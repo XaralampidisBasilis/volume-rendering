@@ -6,4 +6,4 @@ trace.terminated = abs(ray.span_distance) < PICO_TOL || trace.distance > ray.end
 trace.suspended = !trace.terminated && trace.step_count >= ray.max_step_count;
 
 // if trace sample value exceeds the sample threshold then we assume there was an intersection
-trace.intersected = trace.sample_value > raymarch.sample_threshold;
+trace.intersected = trace.sample_value > u_raymarch.sample_threshold;

@@ -77,7 +77,7 @@ export default class ISOGui
     {
         const folder = this.subfolders.raymarch
         const material = this.viewer.material
-        const uniforms = this.viewer.material.uniforms.raymarch.value
+        const uniforms = this.viewer.material.uniforms.u_raymarch.value
         const defines = this.viewer.material.defines
         const objects = { 
             RAY_BBOX_INTERSECTION_ENABLED: Boolean(defines.RAY_BBOX_INTERSECTION_ENABLED),
@@ -99,8 +99,8 @@ export default class ISOGui
             maxStepStretching : folder.add(uniforms, 'max_step_stretching').min(1).max(10).step(0.001),
             maxStepCount      : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
             maxSkipCount      : folder.add(uniforms, 'max_skip_count').min(0).max(2000).step(1),
-            minSkipLod        : folder.add(uniforms, 'min_skip_lod').min(0).max(material.uniforms.occumaps.value.lods - 1).step(1),
-            maxSkipLod        : folder.add(uniforms, 'max_skip_lod').min(0).max(material.uniforms.occumaps.value.lods - 1).step(1),
+            minSkipLod        : folder.add(uniforms, 'min_skip_lod').min(0).max(material.uniforms.u_occumaps.value.lods - 1).step(1),
+            maxSkipLod        : folder.add(uniforms, 'max_skip_lod').min(0).max(material.uniforms.u_occumaps.value.lods - 1).step(1),
 
             stretchingMethod  : folder.add(defines, 'RAY_STRETCHING_METHOD').name('stretching_method').options(options.RAY_STRETCHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
             
@@ -137,7 +137,7 @@ export default class ISOGui
     addControllersColormap() 
     {
         const folder = this.subfolders.colormap
-        const uniforms = this.viewer.material.uniforms.colormap.value
+        const uniforms = this.viewer.material.uniforms.u_colormap.value
         const objects = { flip: false }
     
         this.controllers.colormap = 
@@ -155,7 +155,7 @@ export default class ISOGui
     {
         const folder = this.subfolders.shading
         const material = this.viewer.material
-        const uniforms = this.viewer.material.uniforms.shading.value
+        const uniforms = this.viewer.material.uniforms.u_shading.value
         const defines = this.viewer.material.defines
 
         this.controllers.shading = 
@@ -172,7 +172,7 @@ export default class ISOGui
     {
         const folder = this.subfolders.lighting
         const material = this.viewer.material
-        const uniforms = this.viewer.material.uniforms.lighting.value
+        const uniforms = this.viewer.material.uniforms.u_lighting.value
         const defines = this.viewer.material.defines
         const objects = { LIGHTING_ATTENUATION_ENABLED: Boolean(defines.LIGHTING_ATTENUATION_ENABLED) }
         const options = { LIGHTING_ATTENUATION_METHOD: { softstep: 1, physical: 2} }
@@ -195,7 +195,7 @@ export default class ISOGui
     addControllersDebug()
     {
         const folder = this.subfolders.debug
-        const uniforms = this.viewer.material.uniforms.debugging.value
+        const uniforms = this.viewer.material.uniforms.u_debugging.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
         const objects = { RAY_DISCARDING_DISABLED: Boolean(defines.RAY_DISCARDING_DISABLED) }
@@ -370,16 +370,16 @@ export default class ISOGui
 
     flipColormap()
     {
-        // let colormap = this.viewer.material.uniforms.colormap.value
-        [this.viewer.material.uniforms.colormap.value.start_coords.x, this.viewer.material.uniforms.colormap.value.end_coords.x] = 
-        [this.viewer.material.uniforms.colormap.value.end_coords.x, this.viewer.material.uniforms.colormap.value.start_coords.x]      
+        // let colormap = this.viewer.material.uniforms.u_colormap.value
+        [this.viewer.material.uniforms.u_colormap.value.start_coords.x, this.viewer.material.uniforms.u_colormap.value.end_coords.x] = 
+        [this.viewer.material.uniforms.u_colormap.value.end_coords.x, this.viewer.material.uniforms.u_colormap.value.start_coords.x]      
     }
 
     updateColormap()
     {
         let { x_start, x_end, y } = colormapLocations[this.controllers.colormap.name.getValue()]
-        this.viewer.material.uniforms.colormap.value.start_coords.set(x_start, y)
-        this.viewer.material.uniforms.colormap.value.end_coords.set(x_end, y)      
+        this.viewer.material.uniforms.u_colormap.value.start_coords.set(x_start, y)
+        this.viewer.material.uniforms.u_colormap.value.end_coords.set(x_end, y)      
     }
 
     dispose() {

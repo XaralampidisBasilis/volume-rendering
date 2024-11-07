@@ -2,13 +2,13 @@
 // terminate trace position
 trace.distance = ray.box_end_distance;
 trace.position = ray.box_end_position;
-trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
-trace.voxel_texture_coords = trace.position * volume.inv_size;
+trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
+trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
 // terminate trace sample
 trace.sample_data = vec4(0.0);
 trace.sample_value = 0.0;
-trace.sample_error = -raymarch.sample_threshold;
+trace.sample_error = -u_raymarch.sample_threshold;
 
 // terminate trace gradient
 trace.gradient = vec3(0.0);

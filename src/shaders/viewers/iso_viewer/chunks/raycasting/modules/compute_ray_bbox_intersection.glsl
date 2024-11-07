@@ -1,11 +1,11 @@
 
 // get volume bounding box in model space
-vec3 bbox_min_position = volume.min_position;
-vec3 bbox_max_position = volume.max_position;
+vec3 bbox_min_position = u_volume.min_position;
+vec3 bbox_max_position = u_volume.max_position;
 
 // elarge volume bounding box by a voxel to include linear filtering values
-bbox_min_position -= volume.spacing;
-bbox_max_position += volume.spacing;
+bbox_min_position -= u_volume.spacing;
+bbox_max_position += u_volume.spacing;
 
 // make sure volume bounding box is not bigger than volume box
 bbox_min_position = max(bbox_min_position, ray.box_min_position);

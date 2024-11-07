@@ -4,25 +4,25 @@
  * Calculates the ray spacing as the mean value of ray depths for all parallel rays 
  * intersecting a voxel's axis-aligned bounding box (aabb).
  *
- * @input volume.inv_spacing    : The inverse of the volume's voxel spacing in each direction (vec3)
+ * @input u_volume.inv_spacing    : The inverse of the volume's voxel spacing in each direction (vec3)
  * @input ray.step_direction           : The normalized direction vector of the ray (vec3)
- * @input raymarch.min_step_scaling  : The minimum allowable stepping factor (float)
- * @input raymarch.max_step_scaling  : The maximum allowable stepping factor (float)
+ * @input u_raymarch.min_step_scaling  : The minimum allowable stepping factor (float)
+ * @input u_raymarch.max_step_scaling  : The maximum allowable stepping factor (float)
  *
  * @output ray.step_distance            : The computed ray spacing as the mean depth for voxel AABB intersections (float)
  * @output ray.min_spacing        : The minimum ray spacing based on the computed spacing (float)
  * @output ray.max_step_distance        : The maximum ray spacing based on the computed spacing (float)
  */
 
-// compute the adjusted direction by scaling the ray's absolute direction with the inverse spacing of the volume.
-vec3 directional_spacing = abs(ray.step_direction) * volume.inv_spacing;
+// compute the adjusted direction by scaling the ray's absolute direction with the inverse spacing of the u_volume.
+vec3 directional_spacing = abs(ray.step_direction) * u_volume.inv_spacing;
 
 // calculate the ray spacing as the mean value of ray depths from all parallel rays intersecting the voxel aabb.
 ray.step_distance = 1.0 / sum(directional_spacing);
 
 // handle the reversed scaling case 
-ray.min_step_scaling = min(raymarch.min_step_scaling, raymarch.max_step_scaling);
-ray.max_step_scaling = max(raymarch.min_step_scaling, raymarch.max_step_scaling);
+ray.min_step_scaling = min(u_raymarch.min_step_scaling, u_raymarch.max_step_scaling);
+ray.max_step_scaling = max(u_raymarch.min_step_scaling, u_raymarch.max_step_scaling);
 
 // Add small tolerance to avoid numerical instabilities when scalings are near
 ray.min_step_scaling -= MICRO_TOL;

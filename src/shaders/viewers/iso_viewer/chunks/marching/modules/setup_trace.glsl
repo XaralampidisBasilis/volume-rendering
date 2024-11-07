@@ -4,8 +4,8 @@ trace.distance = ray.start_distance;
 trace.position = ray.start_position;
 
 // compute volume texture coordinates
-trace.voxel_coords = ivec3(floor(trace.position * volume.inv_spacing));
-trace.voxel_texture_coords = trace.position * volume.inv_size;
+trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
+trace.voxel_texture_coords = trace.position * u_volume.inv_size;
     
 // set step
 trace.step_distance = ray.min_step_distance;
