@@ -1,5 +1,5 @@
 
-for (trace.step_count = 0; 
+for (trace.step_count; 
      trace.step_count < ray.max_step_count && trace.distance < ray.end_distance; 
      trace.step_count++) 
 {

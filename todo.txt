@@ -6,11 +6,7 @@ Add typescript
 Να ψαξω βιβλιογραφία για το πως μπορεί να χρησιμοποιηθεί το εργαλιο για εφαρμογες σε ML και heart hailure
 Και να ολοκληρώσω τα ερωτηματολόγια
 
-Μπορω να δοκιμάσω  depth precision optimization, με την εννοια του, οτι αλλάζω τα 
-min_step_scale, max_step_scale based on the ray start distance. Call this method Tapering
-
-Inspired implementation: 
-https://www.youtube.com/watch?v=rh7nWk1v4-8&ab_channel=TimurVizaev
+Minor problems with compute_trace_bvh_marching
 
 Future Implementations
 1. Direct Volume Rendering (DVR)

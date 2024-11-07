@@ -24,7 +24,6 @@ if (ray_bbox_distances.x < ray_bbox_distances.y)
     ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
     ray.end_position   = ray.origin_position + ray.step_direction * ray.end_distance;
 }
-// terminate ray if there is not an intersection
 else
 {
     #include "./terminate_ray"

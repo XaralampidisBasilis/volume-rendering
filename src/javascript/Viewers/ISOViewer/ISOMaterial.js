@@ -112,7 +112,7 @@ export default function()
         TRACE_SCALING_ENABLED        : 1,
         TRACE_SKIP_OCCUMAPS_ENABLED  : 0,
 
-        TRACE_BVH_MARCHING_ENABLED       : 1,
+        TRACE_BVH_MARCHING_ENABLED       : 0,
         TRACE_STEP_SCALING_ENABLED       : 1,
         TRACE_STEP_STRETCHING_ENABLED    : 1,
         TRACE_POSITION_REFINEMENT_ENABLED: 1,
