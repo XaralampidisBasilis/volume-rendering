@@ -15,7 +15,7 @@ export default class ComputeOccupancy
     {               
         tf.tidy(() => 
         {
-            const divisions = 2;
+            const divisions = 4;
             const spacing = this.parameters.volume.spacing.toArray().toReversed().concat(1)
             const condition = this.viewer.tensors.volume.greater([this.threshold])
 

@@ -22,12 +22,8 @@ vec2 trace_samples = vec2(trace_prev.sample_value, trace.sample_value);
 vec2 trace_distances = vec2(trace_prev.distance, trace.distance);
 trace_distances = clamp(trace_distances, ray.start_distance, ray.end_distance);
 
-// adjust the interations based on the total distance to be refined
-int refinement_count = int(ceil(log2((trace_distances.y - trace_distances.x) / (MILLI_TOLERANCE * mmin(u_volume.spacing)))));
-refinement_count = min(refinement_count, 10);
-
 // #pragma unroll_loop_start
-for (int i = 0; i < 10; i++, trace.step_count++) 
+for (int i = 0; i < 5; i++, trace.step_count++) 
 {
     // compute sample linear interpolation factor
     float lerp_threshold = map(trace_samples.x, trace_samples.y, u_raymarch.sample_threshold);

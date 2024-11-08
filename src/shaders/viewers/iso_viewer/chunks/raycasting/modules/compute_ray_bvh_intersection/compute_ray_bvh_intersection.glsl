@@ -5,7 +5,7 @@ for (int skip_count; skip_count < u_raymarch.max_skip_count && ray.start_distanc
 
     if (occumap.block_occupied)  
     {
-        if (occumap.lod == u_raymarch.min_skip_lod) break;
+        if (occumap.lod == 0) break;
 
         #include "./update_occumap"
     }

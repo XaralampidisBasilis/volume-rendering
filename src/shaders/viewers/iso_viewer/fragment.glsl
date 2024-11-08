@@ -16,6 +16,7 @@ out vec4 fragColor;
 #include "./chunks/uniforms/uniforms"
 #include "./chunks/structs/structs"
 #include "./chunks/utils/utils"
+#include "./chunks/consts/consts"
 
 void main() 
 {
@@ -23,7 +24,6 @@ void main()
     Trace trace = set_trace();
     Trace trace_prev = set_trace();
     Occumap occumap = set_occumap();
-    Debug debug = set_debug();
 
     #include "./chunks/raycasting/compute_raycasting"
     #include "./chunks/colormapping/compute_colormapping"
@@ -31,5 +31,4 @@ void main()
 
     fragColor = trace.shaded_color;
     #include "./chunks/compute_frag_depth"
-    #include "./chunks/debug/compute_debug"
 }

@@ -1,7 +1,7 @@
 
 
 // start at the coarsest level of detail available
-occumap.lod = u_raymarch.max_skip_lod;
+occumap.lod = u_occumaps.lods - 1;
 occumap.lod_scale = floor(exp2(float(occumap.lod)));
 
 // compute occumap parameters
