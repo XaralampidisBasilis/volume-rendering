@@ -1,3 +1,6 @@
+// start count
+trace.step_count = 0;
+trace.skip_count = 0;
 
 // start position
 trace.distance = ray.start_distance;

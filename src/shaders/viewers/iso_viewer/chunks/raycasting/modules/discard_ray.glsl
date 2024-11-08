@@ -8,3 +8,8 @@ ray.span_distance = 0.0;
 // terminate ray positions
 ray.start_position = ray.box_end_position;
 ray.end_position = ray.box_end_position;
+
+// discard fragment
+#if TRACE_DISCARDING_DISABLED == 0
+discard;  
+#endif
