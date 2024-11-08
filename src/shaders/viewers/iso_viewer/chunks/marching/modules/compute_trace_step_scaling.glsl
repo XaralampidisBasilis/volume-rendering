@@ -1,6 +1,9 @@
 
-// solve taylor linear equation 
-trace.step_scaling = - trace.sample_error / maxabs(trace.derivative, MICRO_TOLERANCE);
+// solve taylor linear equation to get trace step distance approximation
+float trace_step_distance = - trace.sample_error / maxabs(trace.derivative, MICRO_TOLERANCE);
+
+// divide by ray step distance to get scaling 
+trace.step_scaling = trace_step_distance / ray.step_distance;
 
 // set negative values toto max step scaling.
 trace.step_scaling = mix(ray.max_step_scaling, trace.step_scaling, trace.step_scaling > 0.0);

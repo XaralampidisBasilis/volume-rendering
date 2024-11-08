@@ -18,7 +18,7 @@ for (trace.step_count = 0;
     }
 }   
 
-if (occumap.block_occupied && trace.skip_count > 1)
+if (trace.skip_count > 1)
 {
     #include "./modules/regress_trace"
 
