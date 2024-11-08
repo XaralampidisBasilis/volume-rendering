@@ -26,5 +26,5 @@ if (ray_bbox_distances.x < ray_bbox_distances.y)
 }
 else
 {
-    #include "./terminate_ray_position"
+    #include "./end_ray"
 }

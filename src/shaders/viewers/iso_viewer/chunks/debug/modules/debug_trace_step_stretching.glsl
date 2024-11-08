@@ -1,4 +1,2 @@
 
-float debug_trace_step_stretching = trace.step_stretching;
-
-debug.trace_step_stretching = vec4(vec3(debug_trace_step_stretching), 1.0);
+debug.trace_step_stretching = vec4(vec3(trace.step_stretching), 1.0);

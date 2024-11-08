@@ -15,16 +15,12 @@
 Trace trace_tmp = trace;
 
 // sample the volume at previous step distance
-#include "./setup_trace_prev"
+#include "./start_trace_prev"
 
 // define the bisection intervals
 vec2 trace_samples = vec2(trace_prev.sample_value, trace.sample_value);
 vec2 trace_distances = vec2(trace_prev.distance, trace.distance);
 trace_distances = clamp(trace_distances, ray.start_distance, ray.end_distance);
-
-// adjust the interations based on the total distance to be refined
-int refinement_count = int(ceil(log2((trace_distances.y - trace_distances.x) / (MILLI_TOLERANCE * mmin(u_volume.spacing)))));
-refinement_count = min(refinement_count, 10);
 
 // #pragma unroll_loop_start
 for (int i = 0; i < 5; i++) 
@@ -39,7 +35,16 @@ for (int i = 0; i < 5; i++)
     trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
     // sample the intensity at the interpolated position
-    #include "./update_volume_sample"
+    trace.sample_data = texture(u_textures.volume, trace.voxel_texture_coords);
+    trace.sample_value = trace.sample_data.r;
+    trace.sample_error = trace.sample_value - u_raymarch.sample_threshold;
+
+    // sample the gradient at the interpolated position
+    trace.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, trace.sample_data.gba);
+    trace.gradient_magnitude = length(trace.gradient);
+    trace.gradient_direction = normalize(trace.gradient);
+    trace.derivative = dot(trace.gradient, ray.step_direction);
+    trace.normal = -trace.gradient_direction;
 
     // update bisection interval based on sample error sign
     float select_interval = step(0.0, trace.sample_error);

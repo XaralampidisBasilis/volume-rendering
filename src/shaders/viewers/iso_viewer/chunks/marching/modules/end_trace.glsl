@@ -1,30 +1,28 @@
-#include "./modules/compute_trace_states"
 
+// case trace intersecred
 if (trace.intersected) 
 {
     #if TRACE_POSITION_REFINEMENT_ENABLED == 1
-    #include "./modules/compute_trace_position_refinement"
+    #include "./refine_trace_position"
     #endif
 
     #if TRACE_GRADIENT_REFINEMENT_ENABLED == 1
-    #include "./modules/compute_trace_gradient_refinement"
+    #include "./refine_trace_gradient"
     #endif
 }
 
+// case trace suspended
 if (trace.suspended)
 {
-    #if TRACE_DISCARDING_DISABLED == 0
-    discard;  
+    #if TRACE_GRADIENT_REFINEMENT_ENABLED == 1
+    #include "./refine_trace_gradient"
     #endif
 }
 
+// case trace terminated
 if (trace.terminated)
 {
-    #include "./modules/terminate_trace_position"
-
-    #if TRACE_DISCARDING_DISABLED == 0
-    discard;  
-    #endif
+    #include "./discard_trace"
 }
 
 // update mean cummulative values

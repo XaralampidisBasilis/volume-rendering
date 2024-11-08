@@ -7,6 +7,7 @@ struct Trace
     bool  intersected;          // flag indicating if the trace intersected with the u_volume
     bool  terminated;           // flag indicating if the trace has reached out of u_volume bounds
     bool  suspended;            // flag indicating if the trace has reached the max step count
+    bool  update;               // flag indicating if the trace can continue marching
 
     int   step_count;           // number of steps taken along the ray
     int   skip_count;           // number of skipped steps along the ray
@@ -51,6 +52,7 @@ Trace set_trace()
     trace.intersected = false;
     trace.terminated = false;
     trace.suspended = false;
+    trace.update = false;
     trace.step_count = 0;
     trace.skip_count = 0;
     trace.step_scaling = 1.0;     

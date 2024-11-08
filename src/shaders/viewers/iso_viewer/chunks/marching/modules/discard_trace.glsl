@@ -19,3 +19,8 @@ trace.normal = -vec3(0.0);
 
 // compute cummulative distances
 trace.spanned_distance = ray.box_span_distance;
+
+// discard fragment
+#if TRACE_DISCARDING_DISABLED == 0
+discard;  
+#endif
