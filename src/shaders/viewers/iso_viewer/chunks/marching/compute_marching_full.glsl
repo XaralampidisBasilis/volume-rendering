@@ -9,4 +9,4 @@ for (trace.step_count = 0;
     #include "./modules/update_trace_position"
 }   
 
-#include "./modules/finalize_marching"
+#include "./finalize_marching"

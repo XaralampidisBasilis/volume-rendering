@@ -21,5 +21,5 @@ if (occumap.block_occupied)
 }
 else
 {
-    #include "./terminate_ray_position"
+    #include "../terminate_ray_position"
 }

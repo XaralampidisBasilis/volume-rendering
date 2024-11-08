@@ -31,6 +31,6 @@ if (occumap.block_occupied && trace.skip_count > 1)
     }   
 }
 
-#include "./modules/finalize_marching"
+#include "./finalize_marching"
 
 

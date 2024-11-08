@@ -16,7 +16,7 @@ ray.step_direction = normalize(v_direction);
 
 // Compute intersection of ray with bounding volume hierarchy
 #if RAY_BVH_INTERSECTION_ENABLED == 1
-#include "./modules/compute_ray_bvh_intersection.glsl"
+#include "./modules/compute_ray_bvh_intersection/compute_ray_bvh_intersection.glsl"
 #endif
 
 // Compute ray step distances 
