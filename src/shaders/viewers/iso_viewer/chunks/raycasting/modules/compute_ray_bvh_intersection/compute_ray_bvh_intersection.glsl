@@ -16,11 +16,15 @@ for (ray.skip_count = 0;
     }
 }
 
-if (occumap.block_occupied)  
+if (ray.skip_count > 0)
 {
-    #include "./regress_ray_position"
-}
-else
-{
-    #include "../terminate_ray_position"
+    if (occumap.block_occupied)  
+    {
+        #include "./regress_ray_position"
+    }
+    
+    if (ray.start_distance > ray.end_distance)
+    {
+        #include "../terminate_ray_position"
+    }
 }

@@ -16,6 +16,7 @@ struct Debug
     vec4 ray_span_distance;
     vec4 ray_start_position;
     vec4 ray_end_position;
+    vec4 ray_skip_count;
     vec4 ray_max_step_count;
     vec4 ray_max_skip_count;
     vec4 ray_box_start_distance;
@@ -80,6 +81,7 @@ Debug set_debug()
     debug.ray_box_span_distance    = vec4(vec3(0.0), 1.0);
     debug.ray_box_start_position   = vec4(vec3(0.0), 1.0);
     debug.ray_box_end_position     = vec4(vec3(0.0), 1.0);
+    debug.ray_skip_count           = vec4(vec3(0.0), 1.0);
     debug.ray_max_step_count       = vec4(vec3(0.0), 1.0);
     debug.ray_max_skip_count       = vec4(vec3(0.0), 1.0);
     debug.trace_derivative         = vec4(vec3(0.0), 1.0);
