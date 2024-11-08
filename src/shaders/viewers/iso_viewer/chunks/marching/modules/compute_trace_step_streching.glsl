@@ -1,4 +1,3 @@
 
-float trace_stretching_scale = 0.3 * length(u_volume.size);
-trace.step_stretching = 1.0 + trace.distance / trace_stretching_scale;
-
+// trace.step_stretching = 1.0 + 2.0 * trace.distance * u_volume.inv_size_length);
+trace.step_stretching = exp(2.0 * trace.distance * u_volume.inv_size_length);

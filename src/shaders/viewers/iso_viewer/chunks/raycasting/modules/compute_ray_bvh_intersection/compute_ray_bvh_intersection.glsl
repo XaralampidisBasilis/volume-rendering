@@ -1,5 +1,6 @@
 
-for (int skip_count; skip_count < u_raymarch.max_skip_count && ray.start_distance < ray.end_distance; skip_count++) 
+for (ray.skip_count = 0; 
+     ray.skip_count < u_raymarch.max_skip_count && ray.start_distance < ray.end_distance; ) 
 {
     #include "./update_occumap_sample"
 

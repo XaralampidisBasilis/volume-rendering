@@ -190,6 +190,11 @@ export default class ISOViewer extends EventEmitter
         this.material.uniforms.u_volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
         this.material.uniforms.u_volume.value.inv_size.copy(this.parameters.volume.invSize)
         this.material.uniforms.u_volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
+        this.material.uniforms.u_volume.value.size_length = this.parameters.volume.size.length()
+        this.material.uniforms.u_volume.value.spacing_length = this.parameters.volume.spacing.length()
+        this.material.uniforms.u_volume.value.inv_size_length = this.parameters.volume.invSize.length()
+        this.material.uniforms.u_volume.value.inv_spacing_length = this.parameters.volume.invSpacing.length()
+
         this.material.uniforms.u_volume.value.min_position.setScalar(0)
         this.material.uniforms.u_volume.value.max_position.copy(this.parameters.volume.size)
 

@@ -6,6 +6,7 @@ occumap.lod_scale = floor(exp2(float(occumap.lod)));
 // compute current occumap parameters
 occumap.dimensions = u_occumaps.base_dimensions / int(occumap.lod_scale);
 occumap.spacing = u_occumaps.base_spacing * occumap.lod_scale;
+occumap.inv_spacing = 1.0 / occumap.spacing;
 
 // compute occumap start texture coordinates inside occumaps atlas
 occumap.start_coords.y = u_occumaps.base_dimensions.y  - 2 * occumap.dimensions.y;

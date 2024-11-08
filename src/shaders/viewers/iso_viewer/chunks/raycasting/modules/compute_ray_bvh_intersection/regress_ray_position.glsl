@@ -6,7 +6,7 @@ block_max_position *= occumap.spacing;
 
 // compute the distance to get to the start of the occupied block
 float ray_backstep_distance = intersect_box_max(block_min_position, block_max_position, ray.start_position, -ray.step_direction);
-ray_backstep_distance += length(u_volume.spacing) * 3.0;
+ray_backstep_distance += u_volume.spacing_length * 3.0;
 
 // updata ray start distance and position
 ray.start_distance -= ray_backstep_distance;
