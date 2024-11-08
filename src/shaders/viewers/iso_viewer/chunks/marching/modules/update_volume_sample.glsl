@@ -10,3 +10,5 @@ trace.gradient_magnitude = length(trace.gradient);
 trace.gradient_direction = normalize(trace.gradient);
 trace.derivative = dot(trace.gradient, ray.step_direction);
 trace.normal = -trace.gradient_direction;
+
+// #include "./compute_trace_gradient2"

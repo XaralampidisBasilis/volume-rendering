@@ -14,31 +14,21 @@
 
 // Sample values at the neighboring points
 float sample_value[8];
-vec3 sample_texel;
-
-vec3 box_min = 0.0 - u_volume.inv_dimensions * 0.25;
-vec3 box_max = 1.0 - box_min;
-vec3 is_outside;
+vec3 base_texture_coords = trace.voxel_texture_coords - u_volume.inv_dimensions * 0.5;
 
 #pragma unroll_loop_start
 for (int i = 0; i < 8; i++)
 {
-    sample_texel = trace.voxel_texture_coords + u_volume.inv_dimensions * centered_offsets[i];
-    sample_value[i] = texture(u_textures.volume, sample_texel).r;
-
-    // correct edge cases due to trillinear interpolation and clamp to edge wrapping   
-    is_outside = outside(box_min, box_max, sample_texel);
-    sample_value[i] /= exp2(sum(is_outside)); 
+    sample_value[i] = textureOffset(u_textures.volume, base_texture_coords, base_offsets[i]).r;
 }
 #pragma unroll_loop_end
+
 
 // calculate gradient based on the sampled values 
 trace.gradient.x = sample_value[4] + sample_value[5] + sample_value[6] + sample_value[7] - sample_value[0] - sample_value[1] - sample_value[2] - sample_value[3];
 trace.gradient.y = sample_value[2] + sample_value[3] + sample_value[6] + sample_value[7] - sample_value[0] - sample_value[1] - sample_value[4] - sample_value[5];
 trace.gradient.z = sample_value[1] + sample_value[3] + sample_value[5] + sample_value[7] - sample_value[0] - sample_value[2] - sample_value[4] - sample_value[6];
-trace.gradient *= u_volume.inv_spacing * 0.5; // // adjust gradient to physical space 
-trace.gradient *= 8.0; // get integer kernel values from trilinear sampling
-trace.gradient /= 16.0; // normalize the kernel values
+trace.gradient *= u_volume.inv_spacing * 0.25;
 
 trace.gradient_direction = normalize(trace.gradient);
 trace.gradient_magnitude = length(trace.gradient);

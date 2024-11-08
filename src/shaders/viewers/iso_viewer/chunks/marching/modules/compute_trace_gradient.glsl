@@ -11,7 +11,7 @@
  *
  * @return vec4: Gradient vector at the given position as rgb and smoothed sample as alpha
  */
-
+    
 // Sample values at the neighboring points
 float sample_value[8];
 vec3 sample_texel;
@@ -32,13 +32,12 @@ for (int i = 0; i < 8; i++)
 }
 #pragma unroll_loop_end
 
+
 // calculate gradient based on the sampled values 
 trace.gradient.x = sample_value[4] + sample_value[5] + sample_value[6] + sample_value[7] - sample_value[0] - sample_value[1] - sample_value[2] - sample_value[3];
 trace.gradient.y = sample_value[2] + sample_value[3] + sample_value[6] + sample_value[7] - sample_value[0] - sample_value[1] - sample_value[4] - sample_value[5];
 trace.gradient.z = sample_value[1] + sample_value[3] + sample_value[5] + sample_value[7] - sample_value[0] - sample_value[2] - sample_value[4] - sample_value[6];
-trace.gradient *= u_volume.inv_spacing * 0.5; // // adjust gradient to physical space 
-trace.gradient *= 8.0; // get integer kernel values from trilinear sampling
-trace.gradient /= 16.0; // normalize the kernel values
+trace.gradient *= u_volume.inv_spacing * 0.25;
 
 trace.gradient_direction = normalize(trace.gradient);
 trace.gradient_magnitude = length(trace.gradient);

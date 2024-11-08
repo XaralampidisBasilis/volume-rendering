@@ -16,6 +16,7 @@ out vec4 fragColor;
 #include "./chunks/uniforms/uniforms"
 #include "./chunks/structs/structs"
 #include "./chunks/utils/utils"
+#include "./chunks/consts/consts"
 
 void main() 
 {
