@@ -17,3 +17,9 @@ const vec3 centered_offsets[8] = vec3[8]
     centered_offset.yxx, centered_offset.yxy,
     centered_offset.yyx, centered_offset.yyy 
 );
+
+
+const int RAY_MAX_STEP_COUNT = 1000;
+const int RAY_MAX_SKIP_COUNT = 100;
+const float RAY_MIN_STEP_SCALING = 0.1;
+const float RAY_MAX_STEP_SCALING = 2.0;

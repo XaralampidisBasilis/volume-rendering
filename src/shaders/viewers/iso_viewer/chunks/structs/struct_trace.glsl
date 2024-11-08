@@ -41,7 +41,6 @@ struct Trace
     float gradient_magnitude;   // magnitude of the gradient vector
     float derivative;           // directional derivative at the sample position
 
-
     vec4  mapped_color;         // color mapped from the sample value
     vec4  shaded_color;         // color after shading has been applied
 };
@@ -52,7 +51,7 @@ Trace set_trace()
     trace.intersected = false;
     trace.terminated = false;
     trace.suspended = false;
-    trace.update = false;
+    trace.update = true;
     trace.step_count = 0;
     trace.skip_count = 0;
     trace.step_scaling = 1.0;     

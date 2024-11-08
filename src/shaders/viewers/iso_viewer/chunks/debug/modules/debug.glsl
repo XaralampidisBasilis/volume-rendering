@@ -1,6 +1,7 @@
 #include "./debug_frag_depth"               
 #include "./debug_ray_step_direction"       
 #include "./debug_ray_step_distance"        
+#include "./debug_ray_max_step_scaling"        
 #include "./debug_ray_rand_distance"        
 #include "./debug_ray_start_distance"       
 #include "./debug_ray_end_distance"         
