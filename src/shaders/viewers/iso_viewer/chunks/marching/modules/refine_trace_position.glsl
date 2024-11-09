@@ -26,10 +26,10 @@ trace_distances = clamp(trace_distances, ray.start_distance, ray.end_distance);
 for (int i = 0; i < 5; i++) 
 {
     // compute sample linear interpolation factor
-    float lerp_threshold = map(trace_samples.x, trace_samples.y, u_raymarch.sample_threshold);
+    float lerp = map(trace_samples.x, trace_samples.y, u_raymarch.sample_threshold);
 
     // linearly interpolate positions based on sample 
-    trace.distance = mix(trace_distances.x, trace_distances.y, lerp_threshold);
+    trace.distance = mix(trace_distances.x, trace_distances.y, lerp);
     trace.position = ray.origin_position + ray.step_direction * trace.distance;
     trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
     trace.voxel_texture_coords = trace.position * u_volume.inv_size;
@@ -47,17 +47,17 @@ for (int i = 0; i < 5; i++)
     trace.normal = -trace.gradient_direction;
 
     // update bisection interval based on sample error sign
-    float select_interval = step(0.0, trace.sample_error);
+    float select = step(0.0, trace.sample_error);
 
     trace_samples = mix(
         vec2(trace.sample_value, trace_samples.y), 
         vec2(trace_samples.x, trace.sample_value), 
-    select_interval);
+    select);
 
     trace_distances = mix(
         vec2(trace.distance, trace_distances.y), 
         vec2(trace_distances.x, trace.distance), 
-    select_interval);
+    select);
 
     trace.step_count++;
 }

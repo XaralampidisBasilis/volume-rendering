@@ -25,5 +25,7 @@
 #include "./intersect_box_min"
 #include "./posterize"
 #include "./softstep"
+#include "./softstep_cases"
+
 
 

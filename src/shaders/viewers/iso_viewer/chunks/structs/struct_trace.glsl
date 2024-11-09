@@ -13,7 +13,7 @@ struct Trace
     int   skip_count;           // number of skipped steps along the ray
 
     float step_scaling;         // scaling factor for step size
-    float step_stretching;      // streching factor for step size
+    float step_stretching;      // stretching factor for step size
     float step_distance;        // distance to be covered
     float backstep_distance;    // distance to backstep
     float skip_distance;        // distance to be skipped

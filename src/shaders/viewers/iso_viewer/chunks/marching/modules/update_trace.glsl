@@ -1,6 +1,6 @@
 // compute step stretching factor based on distance
 #if TRACE_STEP_STRETCHING_ENABLED == 1
-#include "./compute_trace_step_streching"
+#include "./compute_trace_step_stretching"
 #endif
 
 // compute step sclaling factor based on gradients

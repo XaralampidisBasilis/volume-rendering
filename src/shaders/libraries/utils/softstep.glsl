@@ -29,14 +29,13 @@ float softstep(const in float edge0, const in float edge1, const in float x)
     params = mix(params, vec3(1.0) - params, is_above);
     params = clamp(vec3(MICRO_TOLERANCE), vec3(1.0 - MICRO_TOLERANCE), params);
 
-    float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
+    float g_scaled = (params.y / params.z) * g - 2.0;
     float t_scaled = params.x / params.y;
-    float y = params.z * pow2(t_scaled);
-    y /= (1.0 - t_scaled) * g_scaled * 2.0 + 1.0;
+    float s = params.z * pow2(t_scaled);
+    s /= (1.0 - t_scaled) * g_scaled + 1.0;
 
-    return mix(y, 1.0 - y, is_above);
+    return mix(s, 1.0 - s, is_above);
 }
-
 
 float softstep(const in float edge0, const in float edge1, const in float x, const in float slope)
 {
@@ -51,14 +50,13 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
     params = mix(params, vec3(1.0) - params, is_above);
     params = clamp(vec3(MICRO_TOLERANCE), vec3(1.0 - MICRO_TOLERANCE), params);
 
-    float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
+    float g_scaled = (params.y / params.z) * g - 2.0;
     float t_scaled = params.x / params.y;
-    float y = params.z * pow2(t_scaled);
-    y /= (1.0 - t_scaled) * g_scaled * 2.0 + 1.0;
+    float s = params.z * pow2(t_scaled);
+    s /= (1.0 - t_scaled) * g_scaled + 1.0;
 
-    return mix(y, 1.0 - y, is_above);
+    return mix(s, 1.0 - s, is_above);
 }
-
 
 float softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_inflex)
 {
@@ -73,12 +71,12 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
     params = mix(params, vec3(1.0) - params, is_above);
     params = clamp(vec3(MICRO_TOLERANCE), vec3(1.0 - MICRO_TOLERANCE), params);
 
-    float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
+    float g_scaled = (params.y / params.z) * g - 2.0;
     float t_scaled = params.x / params.y;
-    float y = params.z * pow2(t_scaled);
-    y /= (1.0 - t_scaled) * g_scaled * 2.0 + 1.0;
+    float s = params.z * pow2(t_scaled);
+    s /= (1.0 - t_scaled) * g_scaled + 1.0;
 
-    return mix(y, 1.0 - y, is_above);
+    return mix(s, 1.0 - s, is_above);
 }
 
 float softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_inflex, const in float q_inflex)
@@ -94,12 +92,12 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
     params = mix(params, vec3(1.0) - params, is_above);
     params = clamp(vec3(MICRO_TOLERANCE), vec3(1.0 - MICRO_TOLERANCE), params);
 
-    float g_scaled = (params.y / params.z) * g * 0.5 - 1.0;
+    float g_scaled = (params.y / params.z) * g - 2.0;
     float t_scaled = params.x / params.y;
-    float y = params.z * pow2(t_scaled);
-    y /= (1.0 - t_scaled) * g_scaled * 2.0 + 1.0;
+    float s = params.z * pow2(t_scaled);
+    s /= (1.0 - t_scaled) * g_scaled + 1.0;
 
-    return mix(y, 1.0 - y, is_above);
+    return mix(s, 1.0 - s, is_above);
 }
 
 #endif // SOFTSTEP

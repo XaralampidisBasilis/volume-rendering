@@ -14,7 +14,7 @@
 
 // Sample values at the neighboring points
 float sample_value[8];
-vec3 sample_texel;
+vec3 sample_texture_coords;
 
 vec3 box_min = 0.0 - u_volume.inv_dimensions * 0.25;
 vec3 box_max = 1.0 - box_min;
@@ -23,11 +23,11 @@ vec3 is_outside;
 #pragma unroll_loop_start
 for (int i = 0; i < 8; i++)
 {
-    sample_texel = trace.voxel_texture_coords + u_volume.inv_dimensions * centered_offsets[i];
-    sample_value[i] = texture(u_textures.volume, sample_texel).r;
+    sample_texture_coords = trace.voxel_texture_coords + u_volume.inv_dimensions * centered_offsets[i];
+    sample_value[i] = texture(u_textures.volume, sample_texture_coords).r;
 
     // correct edge cases due to trillinear interpolation and clamp to edge wrapping   
-    is_outside = outside(box_min, box_max, sample_texel);
+    is_outside = outside(box_min, box_max, sample_texture_coords);
     sample_value[i] /= exp2(sum(is_outside)); 
 }
 #pragma unroll_loop_end
