@@ -1,7 +1,5 @@
 
-// find ray start
-ray.skip_count = 0;
-
+// from ray start skip blocks untill you find an occupied block at the lowest lod
 while (ray.start_distance < ray.end_distance && ray.skip_count < u_raymarch.max_skip_count) 
 {
     #include "./sample_occumap_at_ray_start"
@@ -18,23 +16,14 @@ while (ray.start_distance < ray.end_distance && ray.skip_count < u_raymarch.max_
     }
 }
 
-if (ray.skip_count > 0)
+// when you find and occupied block take a backstep 
+if (occumap.block_occupied)  
 {
-    if (occumap.block_occupied)  
-    {
-        #include "./refine_ray_start"
-    }
-    
-    if (ray.start_distance > ray.end_distance)
-    {
-        #include "../discard_ray"
-    }
+    #include "./refine_ray_start"
 }
 
-// find ray end
-ray.skip_count = 0;
-
-while (ray.end_distance > ray.start_distance && ray.skip_count < u_raymarch.max_skip_count) 
+// from ray end skip blocks untill you find an occupied block at the lowest lod
+while (ray.start_distance < ray.end_distance && ray.skip_count < u_raymarch.max_skip_count) 
 {
     #include "./sample_occumap_at_ray_end"
 
@@ -50,11 +39,15 @@ while (ray.end_distance > ray.start_distance && ray.skip_count < u_raymarch.max_
     }
 }
 
-if (ray.skip_count > 0)
+// when you find and occupied block take a frontstep 
+if (occumap.block_occupied)  
 {
-    if (occumap.block_occupied)  
-    {
-        #include "./refine_ray_end"
-    }
+    #include "./refine_ray_end"
 }
 
+
+// discard rays that did not find any occupied block
+if (ray.start_distance > ray.end_distance)
+{
+    #include "../discard_ray"
+}

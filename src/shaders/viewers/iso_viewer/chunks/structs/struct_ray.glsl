@@ -10,6 +10,7 @@ struct Ray
 
     vec3  step_direction;       // direction vector for each step along the ray
     float step_distance;        // fixed step distance for each ray 
+    float skip_distance;        // skip distance for the ray start
     float rand_distance;        // random distance for dithering
    
     vec3  origin_position;      // origin position of the current ray in 3d model coordinates 
@@ -50,6 +51,7 @@ Ray set_ray()
     ray.suspended            = false;
     ray.step_direction       = vec3(0.0);
     ray.step_distance        = 0.0;
+    ray.skip_distance        = 0.0;
     ray.rand_distance        = 0.0;
     ray.origin_position      = vec3(0.0);
     ray.start_position       = vec3(0.0);
