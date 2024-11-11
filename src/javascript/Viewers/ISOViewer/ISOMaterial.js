@@ -90,7 +90,7 @@ export default function()
             max_skip_lod      : 0,
         }),
 
-        u_debugging: new THREE.Uniform({
+        u_debugger: new THREE.Uniform({
             option    : 0,
             variable1 : 0,
             variable2 : 0,

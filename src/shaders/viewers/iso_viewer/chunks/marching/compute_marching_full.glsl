@@ -1,9 +1,8 @@
 #include "./modules/start_trace"
 
-while (trace.step_count < u_raymarch.max_step_count) 
+while (trace.update) 
 {
     #include "./modules/update_trace" 
-    if (!trace.update) break;
 }   
 
 #include "./modules/end_trace"

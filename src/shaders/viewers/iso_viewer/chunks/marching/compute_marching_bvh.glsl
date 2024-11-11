@@ -1,31 +1,29 @@
 #include "./modules/start_trace"
+#include "./modules/marching_bvh/start_occumap"
 
-while(trace.step_count < u_raymarch.max_step_count) 
+while(trace.update) 
 {
-    #include "./modules/sample_occumap"
+    #include "./modules/marching_bvh/sample_occumap"
 
     if (occumap.block_occupied) 
     {
         #include "./modules/update_trace" 
-        if (!trace.update) break;
     }
     else
     {
-        #include "./modules/skip_block"
-        if (!trace.update) break;
+        #include "./modules/marching_bvh/skip_block"
     }
 }   
 
-if (trace.skip_count > 1)
+if (occumap.block_occupied)
 {
-    #include "./modules/backstep_trace"
-
-    while(trace.step_count < u_raymarch.max_step_count) 
-    {
-        #include "./modules/update_trace" 
-        if (!trace.update) break;
-    }   
+    #include "./modules/marching_bvh/refine_trace"
 }
+
+while(trace.update) 
+{
+    #include "./modules/update_trace" 
+}  
 
 #include "./modules/end_trace" 
 

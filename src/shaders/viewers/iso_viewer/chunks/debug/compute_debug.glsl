@@ -2,7 +2,7 @@
 
 #include "./modules/debug"
 
-switch (u_debugging.option)
+switch (u_debugger.option)
 {
     case  1: fragColor = debug.frag_depth;               break;
     case  2: fragColor = debug.ray_step_direction;       break;

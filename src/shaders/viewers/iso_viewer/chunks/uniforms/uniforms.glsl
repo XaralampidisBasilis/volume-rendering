@@ -14,4 +14,4 @@ uniform Occumaps  u_occumaps;
 uniform Raymarch  u_raymarch;
 uniform Lighting  u_lighting;
 uniform Shading   u_shading;
-uniform Debugging u_debugging;
+uniform Debugging u_debugger;

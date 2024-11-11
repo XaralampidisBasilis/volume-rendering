@@ -4,7 +4,7 @@ ray.origin_position = v_camera;
 ray.step_direction = normalize(v_direction);
 
 // Compute bounds of ray with the volume box
-#include "./modules/compute_ray_box_bounds.glsl"
+#include "./modules/compute_ray_distance_bounds.glsl"
 
 // Compute intersection of ray with the volume box
 #include "./modules/compute_ray_box_intersection.glsl"

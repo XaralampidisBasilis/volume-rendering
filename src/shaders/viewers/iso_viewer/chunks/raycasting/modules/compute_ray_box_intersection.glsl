@@ -1,6 +1,6 @@
 
 // compute current ray intersection distances with the volume box
-vec2 ray_box_distances = intersect_box(ray.box_min_position, ray.box_max_position, ray.origin_position, ray.step_direction);
+vec2 ray_box_distances = intersect_box(ray.min_position, ray.max_position, ray.origin_position, ray.step_direction);
 ray_box_distances = max(ray_box_distances, 0.0);
 
 // updata ray if there is an intersection

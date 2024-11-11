@@ -186,7 +186,7 @@ export default class ISOGui
     addControllersDebug()
     {
         const folder = this.subfolders.debug
-        const uniforms = this.viewer.material.uniforms.u_debugging.value
+        const uniforms = this.viewer.material.uniforms.u_debugger.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
         const objects = { TRACE_DISCARDING_DISABLED: Boolean(defines.TRACE_DISCARDING_DISABLED) }
@@ -250,9 +250,9 @@ export default class ISOGui
                 occumap_block_coords    : 53,
                 occumap_block_occupancy : 54,
                 occumap_block_occupied  : 55,
-                variable1               : 56,
-                variable2               : 57,
-                variable3               : 58,
+                debug_variable1         : 56,
+                debug_variable2         : 57,
+                debug_variable3         : 58,
             }),
 
             variable1         : folder.add(uniforms, 'variable1').min(0).max(1).step(0.00000001),
