@@ -6,6 +6,7 @@ float select_lod = ray.span_distance / ray.max_span_distance;
 
 // start at the coarsest level of detail available
 occumap.lod = int(mix(marching_min_lod, marching_max_lod, select_lod));
+occumap.lod = u_raymarch.max_skip_lod;
 occumap.lod_scale = floor(exp2(float(occumap.lod)));
 
 // compute occumap parameters

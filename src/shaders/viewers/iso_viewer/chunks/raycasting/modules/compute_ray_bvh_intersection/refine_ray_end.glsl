@@ -11,6 +11,7 @@ block_max_position += u_volume.spacing;
 
 // compute the distance to get to the start of the occupied block
 float ray_refine_distance = intersect_box_max(block_min_position, block_max_position, ray.end_position, ray.step_direction);
+ray_refine_distance += u_volume.spacing_length * 2.0;  
 ray_refine_distance = max(ray_refine_distance, ray.step_distance);  
 
 // updata ray start distance and position

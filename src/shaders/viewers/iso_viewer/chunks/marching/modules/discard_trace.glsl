@@ -21,6 +21,6 @@ trace.normal = -vec3(0.0);
 trace.spanned_distance = ray.box_span_distance;
 
 // discard fragment
-#if TRACE_DISCARDING_DISABLED == 0
+#if FRAGMENT_DISCARDING_DISABLED == 0
 discard;  
 #endif

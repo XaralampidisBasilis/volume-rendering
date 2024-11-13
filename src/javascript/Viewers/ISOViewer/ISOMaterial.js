@@ -113,7 +113,8 @@ export default function()
         TRACE_BVH_MARCHING_ENABLED       : 0,
         TRACE_POSITION_REFINEMENT_ENABLED: 0,
         TRACE_GRADIENT_REFINEMENT_ENABLED: 0,
-        TRACE_DISCARDING_DISABLED        : 0,
+
+        FRAGMENT_DISCARDING_DISABLED     : 0,
     }
 
     const material = new THREE.ShaderMaterial({

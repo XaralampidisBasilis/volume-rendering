@@ -189,7 +189,7 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.u_debugger.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
-        const objects = { TRACE_DISCARDING_DISABLED: Boolean(defines.TRACE_DISCARDING_DISABLED) }
+        const objects = { FRAGMENT_DISCARDING_DISABLED: Boolean(defines.FRAGMENT_DISCARDING_DISABLED) }
 
         this.controllers.debug = 
         {
@@ -255,10 +255,10 @@ export default class ISOGui
                 debug_variable3         : 58,
             }),
 
-            variable1         : folder.add(uniforms, 'variable1').min(0).max(1).step(0.00000001),
-            variable2         : folder.add(uniforms, 'variable2').min(0).max(5).step(0.00000001),
-            variable3         : folder.add(uniforms, 'variable3').min(-1000).max(1000).step(0.00000001),
-            disable_discarding: folder.add(objects, 'TRACE_DISCARDING_DISABLED').name('disable_discarding').onFinishChange((value) => { defines.TRACE_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
+            variable1 : folder.add(uniforms, 'variable1').min(0).max(1).step(0.00000001),
+            variable2 : folder.add(uniforms, 'variable2').min(0).max(5).step(0.00000001),
+            variable3 : folder.add(uniforms, 'variable3').min(-1000).max(1000).step(0.00000001),
+            discarding: folder.add(objects, 'FRAGMENT_DISCARDING_DISABLED').name('discarding').onFinishChange((value) => { defines.FRAGMENT_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }
     }
     

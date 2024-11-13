@@ -11,7 +11,7 @@ trace_backstep_distance += u_volume.spacing_length * 2.0;
 
 // take a backstep 
 trace.distance -= trace_backstep_distance;
-trace.distance = max(trace.distance, ray.start_distance);
+trace.distance = max(trace.distance, ray.box_start_distance);
 trace.position = ray.origin_position + ray.step_direction * trace.distance;
 trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
 trace.voxel_texture_coords = trace.position * u_volume.inv_size;
@@ -36,5 +36,4 @@ trace.step_count--;
 
 // check conditions
 trace.intersected = trace.sample_value > u_raymarch.sample_threshold;
-trace.terminated = trace.distance > ray.end_distance || ray.span_distance < ray.min_step_distance;
-trace.update = !(trace.intersected || trace.terminated);
+trace.update = !trace.intersected;

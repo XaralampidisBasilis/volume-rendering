@@ -3,6 +3,6 @@
 ray = set_ray();
 
 // discard fragment
-#if TRACE_DISCARDING_DISABLED == 0
+#if FRAGMENT_DISCARDING_DISABLED == 0
 discard;  
 #endif
