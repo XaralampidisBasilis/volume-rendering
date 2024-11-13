@@ -1,7 +1,7 @@
 trace_prev = trace;
 
 // update distance
-trace_prev.distance -= clamp(trace.step_distance, ray.min_step_distance, ray.max_step_distance);
+trace_prev.distance -= ray.max_step_distance;
 trace_prev.distance = max(trace_prev.distance, ray.box_start_distance);
 
 // take a backstep in order to compute the previouse trace 

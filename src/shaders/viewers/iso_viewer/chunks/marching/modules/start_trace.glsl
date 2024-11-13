@@ -8,8 +8,7 @@ trace.position = ray.start_position;
 trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
 trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
-// sample trace
-#include "./sample_trace"
-
-// prepare for next step
-#include "./prepare_trace" 
+// update trace sample
+#include "./update_trace_sample"
+#include "./update_trace_step"
+#include "./update_trace_states"

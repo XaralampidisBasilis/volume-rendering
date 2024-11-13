@@ -1,14 +1,10 @@
-
 trace.skip_count++;
 
 // compute block min and max positions in space
-vec3 block_min_position = vec3(occumap.block_coords + 0);
-vec3 block_max_position = vec3(occumap.block_coords + 1);
+vec3 block_min_position = vec3(occumap.block_coords + 0) - MILLI_TOLERANCE;
+vec3 block_max_position = vec3(occumap.block_coords + 1) + MILLI_TOLERANCE;
 block_min_position *= occumap.spacing;
 block_max_position *= occumap.spacing;
-
-block_min_position += u_volume.spacing;
-block_max_position -= u_volume.spacing;
 
 // find block skip distance in order to exit the block
 trace.skip_distance = intersect_box_max(block_min_position, block_max_position, trace.position, ray.step_direction);
@@ -22,7 +18,9 @@ trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
 trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
 // prepare trace
-trace.step_scaling = u_raymarch.min_step_scaling;
-trace.step_distance = ray.step_distance * trace.step_scaling;
-trace.mean_step_scaling += trace.step_scaling;
-trace.mean_step_distance += trace.step_distance;
+// trace.step_scaling = u_raymarch.min_step_scaling;
+// trace.step_distance = ray.step_distance * u_raymarch.min_step_scaling;
+// trace.mean_step_scaling += u_raymarch.min_step_scaling;
+// trace.mean_step_distance += trace.step_distance;
+
+#include "../update_trace_states" 

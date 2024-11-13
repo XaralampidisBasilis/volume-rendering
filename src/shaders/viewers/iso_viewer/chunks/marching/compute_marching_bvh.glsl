@@ -1,10 +1,9 @@
 #include "./modules/start_trace"
-#include "./modules/marching_bvh/start_occumap"
-#include "./modules/update_condition" 
+#include "./modules/compute_marching_bvh/start_occumap"
 
 while(trace.update) 
 {
-    #include "./modules/marching_bvh/sample_occumap"
+    #include "./modules/compute_marching_bvh/sample_occumap"
 
     if (occumap.block_occupied) 
     {
@@ -12,20 +11,19 @@ while(trace.update)
     }
     else
     {
-        #include "./modules/marching_bvh/skip_block"
+        #include "./modules/compute_marching_bvh/skip_trace"
     }
-
-    #include "./modules/update_condition" 
 }   
 
-#include "./modules/marching_bvh/refine_trace"
-#include "./modules/update_condition" 
-
-while(trace.update) 
+if (occumap.block_occupied)
 {
-    #include "./modules/update_trace" 
-    #include "./modules/update_condition" 
-}  
+    #include "./modules/compute_marching_bvh/refine_trace"
+
+    while(trace.update) 
+    {
+        #include "./modules/update_trace" 
+    }  
+}
 
 #include "./modules/end_trace" 
 

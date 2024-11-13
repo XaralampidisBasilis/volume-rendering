@@ -22,5 +22,3 @@ if (occumap.lod == 0) occumap.start_coords = ivec3(0);
 
 // compute occumap start texture coordinates inside occumaps atlas
 occumap.start_texture_coords = vec3(occumap.start_coords) * u_occumaps.inv_dimensions;
-
-#include "./sample_occumap"

@@ -15,7 +15,6 @@ trace.skipped_distance -= backstep;
 trace.stepped_distance -= backstep;
 
 // sample trace
-#include "../sample_trace"
-
-// prepare for next step
-#include "../prepare_trace" 
+#include "../update_trace_sample"
+#include "../update_trace_step" 
+#include "../update_trace_states" 

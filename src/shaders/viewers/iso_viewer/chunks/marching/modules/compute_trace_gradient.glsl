@@ -11,24 +11,15 @@
  *
  * @return vec4: Gradient vector at the given position as rgb and smoothed sample as alpha
  */
-    
+
 // Sample values at the neighboring points
 float sample_value[8];
-vec3 sample_texel;
-
-vec3 box_min = 0.0 - u_volume.inv_dimensions * 0.25;
-vec3 box_max = 1.0 - box_min;
-vec3 is_outside;
+vec3 base_coords = trace.voxel_texture_coords - u_volume.inv_dimensions * 0.5;
 
 #pragma unroll_loop_start
 for (int i = 0; i < 8; i++)
 {
-    sample_texel = trace.voxel_texture_coords + u_volume.inv_dimensions * centered_offsets[i];
-    sample_value[i] = texture(u_textures.volume, sample_texel).r;
-
-    // correct edge cases due to trillinear interpolation and clamp to edge wrapping   
-    is_outside = outside(box_min, box_max, sample_texel);
-    sample_value[i] /= exp2(sum(is_outside)); 
+    sample_value[i] = textureOffset(u_textures.volume, base_coords, base_offsets[i]).r;
 }
 #pragma unroll_loop_end
 

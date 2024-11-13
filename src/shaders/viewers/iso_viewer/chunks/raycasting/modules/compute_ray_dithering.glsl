@@ -25,7 +25,7 @@ seed_position = vec3(v_model_view_matrix * vec4(seed_position, 1.0));
 
 // generate a random number based on the world-space position and apply dithering.
 ray.rand_distance = random(seed_position);
-ray.rand_distance *= ray.step_distance;
+ray.rand_distance *= ray.max_step_distance;
 
 // update ray
 ray.start_distance -= ray.rand_distance;

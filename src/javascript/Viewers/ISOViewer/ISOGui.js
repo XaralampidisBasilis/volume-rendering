@@ -257,7 +257,7 @@ export default class ISOGui
 
             variable1 : folder.add(uniforms, 'variable1').min(0).max(1).step(0.00000001),
             variable2 : folder.add(uniforms, 'variable2').min(0).max(5).step(0.00000001),
-            variable3 : folder.add(uniforms, 'variable3').min(-1000).max(1000).step(0.00000001),
+            variable3 : folder.add(uniforms, 'variable3').min(0).max(10).step(1),
             discarding: folder.add(objects, 'FRAGMENT_DISCARDING_DISABLED').name('discarding').onFinishChange((value) => { defines.FRAGMENT_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }
     }
