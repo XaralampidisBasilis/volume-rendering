@@ -16,8 +16,3 @@ trace.distance += trace.skip_distance;
 trace.position = ray.origin_position + ray.step_direction * trace.distance;
 trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
 trace.voxel_texture_coords = trace.position * u_volume.inv_size;
-
-// check conditions
-trace.terminated = trace.distance > ray.end_distance;
-trace.suspended = trace.step_count > u_raymarch.max_step_count;
-trace.update = !(trace.terminated || trace.suspended);

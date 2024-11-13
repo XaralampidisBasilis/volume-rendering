@@ -1,5 +1,6 @@
 #include "./modules/start_trace"
 #include "./modules/marching_bvh/start_occumap"
+#include "./modules/update_condition" 
 
 while(trace.update) 
 {
@@ -13,16 +14,20 @@ while(trace.update)
     {
         #include "./modules/marching_bvh/skip_block"
     }
+
+    #include "./modules/update_condition" 
 }   
 
 if (occumap.block_occupied)
 {
     #include "./modules/marching_bvh/refine_trace"
+    #include "./modules/update_condition" 
 }
 
 while(trace.update) 
 {
     #include "./modules/update_trace" 
+    #include "./modules/update_condition" 
 }  
 
 #include "./modules/end_trace" 
