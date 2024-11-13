@@ -1,10 +1,14 @@
+
 trace.skip_count++;
 
 // compute block min and max positions in space
-vec3 block_min_position = vec3(occumap.block_coords + 0) - MILLI_TOLERANCE;
-vec3 block_max_position = vec3(occumap.block_coords + 1) + MILLI_TOLERANCE;
+vec3 block_min_position = vec3(occumap.block_coords + 0);
+vec3 block_max_position = vec3(occumap.block_coords + 1);
 block_min_position *= occumap.spacing;
 block_max_position *= occumap.spacing;
+
+block_min_position += u_volume.spacing;
+block_max_position -= u_volume.spacing;
 
 // find block skip distance in order to exit the block
 trace.skip_distance = intersect_box_max(block_min_position, block_max_position, trace.position, ray.step_direction);
