@@ -7,7 +7,7 @@ block_max_position *= occumap.spacing;
 
 // reverse trace to the start of the block and a bit before
 float trace_backstep_distance = intersect_box_max(block_min_position, block_max_position, trace.position, -ray.step_direction);
-trace_backstep_distance += u_volume.spacing_length * 2.0;  
+trace_backstep_distance += u_volume.spacing_length * u_debugger.variable2;  
 
 // take a backstep 
 trace.distance -= trace_backstep_distance;

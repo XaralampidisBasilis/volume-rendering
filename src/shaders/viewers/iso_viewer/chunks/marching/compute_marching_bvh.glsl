@@ -18,11 +18,8 @@ while(trace.update)
     #include "./modules/update_condition" 
 }   
 
-if (occumap.block_occupied)
-{
-    #include "./modules/marching_bvh/refine_trace"
-    #include "./modules/update_condition" 
-}
+#include "./modules/marching_bvh/refine_trace"
+#include "./modules/update_condition" 
 
 while(trace.update) 
 {
