@@ -16,7 +16,7 @@ trace.position = ray.origin_position + ray.step_direction * trace.distance;
 trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
 trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
-// sample the volume 
+// // sample the volume 
 trace.sample_data = texture(u_textures.volume, trace.voxel_texture_coords);
 trace.sample_value = trace.sample_data.r;
 trace.sample_error = trace.sample_value - u_raymarch.sample_threshold;
@@ -32,8 +32,8 @@ trace.normal = -trace.gradient_direction;
 trace.spanned_distance -= trace_backstep_distance;
 trace.skipped_distance -= trace_backstep_distance;
 trace.stepped_distance -= trace.step_distance;
-trace.step_count--;
 
-// check conditions
+// // check conditions
 trace.intersected = trace.sample_value > u_raymarch.sample_threshold;
-trace.update = !trace.intersected;
+trace.suspended = trace.step_count > u_raymarch.max_step_count;
+trace.update = !(trace.intersected || trace.suspended);

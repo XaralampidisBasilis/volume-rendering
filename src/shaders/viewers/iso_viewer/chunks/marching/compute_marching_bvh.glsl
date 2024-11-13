@@ -1,5 +1,5 @@
 #include "./modules/start_trace"
-// #include "./modules/marching_bvh/start_occumap"
+#include "./modules/marching_bvh/start_occumap"
 
 while(trace.update) 
 {

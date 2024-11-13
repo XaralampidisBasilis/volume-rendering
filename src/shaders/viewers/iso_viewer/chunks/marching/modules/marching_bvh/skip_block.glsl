@@ -20,4 +20,4 @@ trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 // check conditions
 trace.terminated = trace.distance > ray.end_distance;
 trace.suspended = trace.step_count > u_raymarch.max_step_count;
-trace.update = !(trace.intersected || trace.terminated || trace.suspended);
+trace.update = !(trace.terminated || trace.suspended);
