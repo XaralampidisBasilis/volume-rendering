@@ -11,6 +11,6 @@ ivec3 occumaps_coords = occumap.start_coords + occumap.block_coords;
 vec3 occumaps_texture_coords = occumap.start_texture_coords + occumap.block_texture_coords;
 
 // sample the occumaps atlas and check if block is occupied
-occumap.block_occupancy = texelFetch(u_textures.occumaps, occumaps_coords, 0).r;
 // occumap.block_occupancy = textureLod(u_textures.occumaps, occumaps_texture_coords, 0.0).r; 
+occumap.block_occupancy = texelFetch(u_textures.occumaps, occumaps_coords, 0).r;
 occumap.block_occupied = occumap.block_occupancy > 0.0;

@@ -13,6 +13,8 @@ bbox_max_position = min(bbox_max_position, ray.max_position);
 
 // compute ray intersection distances with the volume bounding box
 vec2 ray_bbox_distances = intersect_box(bbox_min_position, bbox_max_position, ray.origin_position, ray.step_direction);
+
+// clamp bbox distances above zero for the case we are inside
 ray_bbox_distances = max(ray_bbox_distances, 0.0);
 
 // updata ray if there is an intersection
