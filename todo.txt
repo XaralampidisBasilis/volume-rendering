@@ -23,6 +23,7 @@ Future Implementations
 7. Implement automatic heart structure segmentation
 8. 3D chamber visualization (especially left ventricle) for structure assessment.
 
+https://observablehq.com/@mroehlig/3d-volume-rendering-with-webgl-three-js
 
 Direct Volume Rendering (DVR)
 Simulated Fluorescence Process (SFP)
@@ -31,4 +32,5 @@ Maximum Intensity Projection (MIP)
 Multi-Planar Reformation (MPR)
 Iso-Surfaces (ISO)
 Emission-Absorption Composition (EA)
+X-RAY (XRAY)
 

@@ -120,7 +120,7 @@ export default function()
     const material = new THREE.ShaderMaterial({
         
         side: THREE.BackSide,
-        transparent: true,
+        transparent: false,
         depthTest: true,
         depthWrite: true,
 

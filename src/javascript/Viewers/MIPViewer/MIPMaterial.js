@@ -63,23 +63,6 @@ export default function()
             end_coords  : new THREE.Vector2(colormapLocations['cet_d9'].x_end,   colormapLocations['cet_d9'].y),
         }),
 
-        u_shading: new THREE.Uniform({
-            ambient_reflectance  : 0.2,
-            diffuse_reflectance  : 1.0,
-            specular_reflectance : 1.0,
-            shininess            : 40.0,
-            edge_contrast        : 0.0,
-        }),
-        
-        u_lighting: new THREE.Uniform({
-            intensity          : 1.0,                         // overall light intensity
-            shadows            : 0.0,                         // threshold for shadow casting
-            ambient_color      : new THREE.Color(0xffffff),   // ambient light color
-            diffuse_color      : new THREE.Color(0xffffff),   // diffuse light color
-            specular_color     : new THREE.Color(0xffffff),   // specular light color
-            position_offset    : new THREE.Vector3(),         // offset position for light source
-        }),
-
         u_raymarch: new THREE.Uniform({
             min_sample_value  : 0.1,
             max_sample_value  : 0.9,
