@@ -1,8 +1,8 @@
 // precision
-precision lowp sampler3D;
-precision lowp sampler2D;
-precision lowp float;
-precision lowp int;
+precision highp sampler3D;
+precision highp sampler2D;
+precision highp float;
+precision highp int;
 
 // varying
 in vec3 v_camera_position;
