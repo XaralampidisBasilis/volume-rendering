@@ -8,19 +8,17 @@ block_max_position *= occumap.spacing;
 
 // find block skip distance in order to exit the block
 trace.skip_distance = intersect_box_max(block_min_position, block_max_position, trace.position, ray.step_direction);
-trace.skip_distance = max(trace.skip_distance, ray.min_step_distance);
 trace.skipped_distance += trace.skip_distance;
 
 // update trace
+trace_prev.distance = trace.distance;
 trace.distance += trace.skip_distance;
 trace.position = ray.camera_position + ray.step_direction * trace.distance;
 trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
-// prepare trace
-// trace.step_scaling = u_raymarch.min_step_scaling;
-// trace.step_distance = ray.step_distance * u_raymarch.min_step_scaling;
-// trace.mean_step_scaling += u_raymarch.min_step_scaling;
-// trace.mean_step_distance += trace.step_distance;
+// dont take step next
+trace.step_distance = 0.0;
 
+// update states
 #include "../update_trace_states" 

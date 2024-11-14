@@ -17,7 +17,7 @@ while(trace.update)
 
 if (occumap.block_occupied)
 {
-    #include "./modules/compute_marching_bvh/refine_trace"
+    #include "./modules/compute_marching_bvh/regress_trace"
 
     while(trace.update) 
     {
