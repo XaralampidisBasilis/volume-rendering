@@ -1,2 +1,2 @@
 
-debug.ray_span_step_stretching = vec4(vec3(ray.span_step_stretching), 1.0);
+debug.trace_range_step_stretching = vec4(vec3(trace.range_step_stretching), 1.0);

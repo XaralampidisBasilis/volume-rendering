@@ -12,13 +12,20 @@ struct Trace
     int   step_count;           // number of steps taken along the ray
     int   skip_count;           // number of skipped steps along the ray
 
-    float step_scaling;         // scaling factor for step size
-    float step_stretching;      // stretching factor for step size
     float step_distance;        // distance to be covered
     float backstep_distance;    // distance to backstep
     float skip_distance;        // distance to be skipped
     float rand_distance;        // random distance for dithering
     
+    float step_scaling;         // scaling factor for step size
+    float min_step_scaling;     // min scaling factor for step size 
+    float max_step_scaling;     // max scaling factor for step size 
+
+    float step_stretching;      // stretching factor for step size 
+    float min_step_stretching;  // min stretching factor for step size 
+    float max_step_stretching;  // max stretching factor for step size 
+    float range_step_stretching;// range stretching factor for step size 
+
     float mean_step_distance;  // mean step distance that is covered
     float mean_step_scaling;   // mean step scaling that is covered
 
@@ -54,14 +61,19 @@ Trace set_trace()
     trace.update = true;
     trace.step_count = 0;
     trace.skip_count = 0;
-    trace.step_scaling = 1.0;     
+    trace.step_scaling = 1.0;      
+    trace.min_step_scaling = 1.0;      
+    trace.max_step_scaling = 1.0;   
+    trace.mean_step_scaling = 0.0;    
     trace.step_stretching = 1.0;     
+    trace.min_step_stretching = 1.0;     
+    trace.max_step_stretching = 1.0;     
+    trace.range_step_stretching = 0.0;   
     trace.step_distance = 0.0;
+    trace.mean_step_distance = 0.0;
     trace.backstep_distance = 0.0;
     trace.skip_distance = 0.0;
     trace.rand_distance = 0.0;
-    trace.mean_step_distance = 0.0;
-    trace.mean_step_scaling = 0.0;
     trace.position = vec3(0.0);
     trace.distance = 0.0;
     trace.spanned_distance = 0.0;

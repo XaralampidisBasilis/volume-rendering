@@ -1,7 +1,8 @@
 
 // Setup ray origin and direction
-ray.origin_position = v_camera;
-ray.step_direction = normalize(v_direction);
+ray.camera_position = v_camera_position;
+ray.camera_direction = normalize(v_camera_direction);
+ray.step_direction = normalize(v_ray_direction);
 
 // Compute ray step and skip counts constaints
 #include "./modules/compute_ray_max_counts"

@@ -3,7 +3,7 @@
 vec3 block_coords = ray.start_position * occumap.inv_spacing;
 
 // find block coords of ray start position in current occumap
-occumap.block_coords = ivec3(floor(block_coords));
+occumap.block_coords = ivec3(block_coords);
 occumap.block_texture_coords = block_coords * u_occumaps.inv_dimensions;
 
 // compute occumaps atlas coordinates for current occumap level of detail

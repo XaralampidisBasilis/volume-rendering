@@ -1,2 +1,2 @@
 
-debug.ray_max_step_stretching = vec4(vec3(ray.max_step_stretching), 1.0);
+debug.trace_max_step_stretching = vec4(vec3(trace.max_step_stretching), 1.0);

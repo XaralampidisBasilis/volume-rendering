@@ -13,8 +13,8 @@ trace.skipped_distance += trace.skip_distance;
 
 // update trace
 trace.distance += trace.skip_distance;
-trace.position = ray.origin_position + ray.step_direction * trace.distance;
-trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
+trace.position = ray.camera_position + ray.step_direction * trace.distance;
+trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
 // prepare trace

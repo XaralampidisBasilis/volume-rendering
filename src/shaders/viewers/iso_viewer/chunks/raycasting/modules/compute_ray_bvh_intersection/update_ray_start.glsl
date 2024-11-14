@@ -7,8 +7,7 @@ block_min_position *= occumap.spacing;
 block_max_position *= occumap.spacing;
 
 // intersect ray with block to find the skip distance
-ray.skip_distance = intersect_box_max(block_min_position, block_max_position, ray.start_position, ray.step_direction);
+ray.start_distance = ray.box_start_distance + intersect_box_max(block_min_position, block_max_position, ray.box_start_position, ray.step_direction);
 
 // updata ray start distance and position
-ray.start_distance += ray.skip_distance;
-ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance; 
+ray.start_position = ray.camera_position + ray.step_direction * ray.start_distance; 

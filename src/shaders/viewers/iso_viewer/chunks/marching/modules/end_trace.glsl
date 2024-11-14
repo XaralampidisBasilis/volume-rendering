@@ -3,11 +3,11 @@
 if (trace.intersected) 
 {
     #if TRACE_POSITION_REFINEMENT_ENABLED == 1
-    #include "./refine_trace_position"
+    #include "./compute_intersection_refinement"
     #endif
 
     #if TRACE_GRADIENT_REFINEMENT_ENABLED == 1
-    #include "./refine_trace_gradient"
+    #include "./compute_gradient_refinement"
     #endif
 }
 
@@ -15,7 +15,7 @@ if (trace.intersected)
 if (trace.suspended)
 {
     #if TRACE_GRADIENT_REFINEMENT_ENABLED == 1
-    #include "./refine_trace_gradient"
+    #include "./compute_gradient_refinement"
     #endif
 }
 

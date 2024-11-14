@@ -6,7 +6,7 @@
  *
  * @input ray.start_distance   : minimum distance along the ray (float)
  * @input ray.end_distance   : maximum distance along the ray (float)
- * @input ray.origin_position         : the starting point of the ray (vec3)
+ * @input ray.camera_position         : the starting point of the ray (vec3)
  * @input ray.step_direction      : the normalized direction vector of the ray (vec3)
  * @input v_model_view_matrix: the model-view matrix for transforming from model to world coordinates (mat4)
  * @input ray.max_step_distance    : the maximum spacing for raymarching steps (float)
@@ -18,7 +18,7 @@
 float ray_mean_distance = mean(ray.min_start_distance, ray.max_end_distance);
 
 // calculate the sample position based on the mean distance.
-vec3 seed_position = ray.origin_position + ray.step_direction * ray_mean_distance;
+vec3 seed_position = ray.camera_position + ray.step_direction * ray_mean_distance;
 
 // transform the sample position to world coordinates.
 seed_position = vec3(v_model_view_matrix * vec4(seed_position, 1.0));
@@ -29,5 +29,5 @@ ray.rand_distance *= ray.max_step_distance;
 
 // update ray
 ray.start_distance -= ray.rand_distance;
-ray.start_position = ray.origin_position + ray.step_direction * ray.start_distance;
+ray.start_position = ray.camera_position + ray.step_direction * ray.start_distance;
 ray.span_distance = ray.end_distance - ray.start_distance;

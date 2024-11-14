@@ -5,8 +5,8 @@ float backstep = u_volume.spacing_length * 2.0;
 // take a backstep 
 trace.distance -= backstep;
 trace.distance = max(trace.distance, ray.box_start_distance);
-trace.position = ray.origin_position + ray.step_direction * trace.distance;
-trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
+trace.position = ray.camera_position + ray.step_direction * trace.distance;
+trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
 // update parameters

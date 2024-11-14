@@ -8,12 +8,12 @@ struct Ray
     bool  terminated;           // flag indicating if the ray has reached out of bounds
     bool  suspended;             // flag indicating if the ray has reached the max step count
 
+    vec3  camera_direction;
     vec3  step_direction;       // direction vector for each step along the ray
     float step_distance;        // fixed step distance for each ray 
-    float skip_distance;        // skip distance for the ray start
     float rand_distance;        // random distance for dithering
    
-    vec3  origin_position;      // origin position of the current ray in 3d model coordinates 
+    vec3  camera_position;      // origin position of the current ray in 3d model coordinates 
     vec3  start_position;       // starting position of the current ray in 3d model coordinates for raymarching
     vec3  end_position;         // ending position of the current ray in 3d model coordinates for raymarching
     float start_distance;       // starting distance along the current ray from origin for raymarching
@@ -27,10 +27,6 @@ struct Ray
     float max_step_scaling;     // maximum step scaling for adaptive stepping
     float min_step_distance;    // minimum step distance for adaptive stepping
     float max_step_distance;    // maximum step distance for adaptive stepping
-
-    float min_step_stretching;   // minimum step scaling for adaptive stretching
-    float max_step_stretching;   // maximum step scaling for adaptive stretching
-    float span_step_stretching;
   
     vec3  box_start_position;   // minimum allowed starting distance for current ray due to u_volume box
     vec3  box_end_position;     // maximum allowed ending distance for current ray due to u_volume box
@@ -47,39 +43,36 @@ struct Ray
 Ray set_ray()
 {
     Ray ray;
-    ray.intersected          = false;
-    ray.terminated           = false;
-    ray.suspended            = false;
-    ray.step_direction       = vec3(0.0);
-    ray.step_distance        = 0.0;
-    ray.skip_distance        = 0.0;
-    ray.rand_distance        = 0.0;
-    ray.origin_position      = vec3(0.0);
-    ray.start_position       = vec3(0.0);
-    ray.end_position         = vec3(0.0);
-    ray.start_distance       = 0.0;
-    ray.end_distance         = 0.0;
-    ray.span_distance        = 0.0;
-    ray.skip_count           = 0;
-    ray.max_step_count       = 0;
-    ray.max_skip_count       = 0;
-    ray.min_step_scaling     = 0.0;
-    ray.max_step_scaling     = 0.0;
-    ray.min_step_distance    = 0.0;
-    ray.max_step_distance    = 0.0;
-    ray.min_step_stretching  = 0.0;
-    ray.max_step_stretching  = 0.0;
-    ray.span_step_stretching = 0.0;
-    ray.box_start_distance   = 0.0;
-    ray.box_end_distance     = 0.0;
-    ray.box_span_distance    = 0.0;
-    ray.box_start_position   = vec3(0.0);
-    ray.box_end_position     = vec3(0.0);
-    ray.min_position         = vec3(0.0);
-    ray.max_position         = vec3(0.0);
-    ray.min_start_distance   = 0.0;
-    ray.max_end_distance     = 0.0;
-    ray.max_span_distance    = 0.0;
+    ray.intersected        = false;
+    ray.terminated         = false;
+    ray.suspended          = false;
+    ray.camera_direction   = vec3(0.0);
+    ray.step_direction     = vec3(0.0);
+    ray.step_distance      = 0.0;
+    ray.rand_distance      = 0.0;
+    ray.camera_position    = vec3(0.0);
+    ray.start_position     = vec3(0.0);
+    ray.end_position       = vec3(0.0);
+    ray.start_distance     = 0.0;
+    ray.end_distance       = 0.0;
+    ray.span_distance      = 0.0;
+    ray.skip_count         = 0;
+    ray.max_step_count     = 0;
+    ray.max_skip_count     = 0;
+    ray.min_step_scaling   = 0.0;
+    ray.max_step_scaling   = 0.0;
+    ray.min_step_distance  = 0.0;
+    ray.max_step_distance  = 0.0;
+    ray.box_start_distance = 0.0;
+    ray.box_end_distance   = 0.0;
+    ray.box_span_distance  = 0.0;
+    ray.box_start_position = vec3(0.0);
+    ray.box_end_position   = vec3(0.0);
+    ray.min_position       = vec3(0.0);
+    ray.max_position       = vec3(0.0);
+    ray.min_start_distance = 0.0;
+    ray.max_end_distance   = 0.0;
+    ray.max_span_distance  = 0.0;
     return ray;
 }
 #endif // STRUCT_RAY

@@ -11,16 +11,17 @@
  */
 
 
-float step_distance = trace.distance - trace_prev.distance;
+trace.step_distance = trace.distance - trace_prev.distance;
 
 // check if previous step is not properly defined 
-if (step_distance > ray.max_step_distance) 
+if (trace.step_distance > ray.step_distance) 
 {
     #include "./start_trace_previous"
+    trace.step_distance = trace.distance - trace_prev.distance;
 }
 
 // compute number of refinements
-int refinements = int(ceil(log2(step_distance / (ray.step_distance * MILLI_TOLERANCE))));
+int refinements = int(ceil(log2(trace.step_distance / (ray.step_distance * MILLI_TOLERANCE))));
 refinements = clamp(1, 10, refinements);
 
 // define the bisection intervals
@@ -39,8 +40,8 @@ for (int count = 0; count < refinements; count++)
 
     // linearly interpolate positions based on sample 
     trace.distance = mix(distance_bounds.x, distance_bounds.y, sample_threshold_mix);
-    trace.position = ray.origin_position + ray.step_direction * trace.distance;
-    trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
+    trace.position = ray.camera_position + ray.step_direction * trace.distance;
+    trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
     trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
     // sample the intensity at the interpolated position
@@ -66,4 +67,4 @@ for (int count = 0; count < refinements; count++)
 // if we do not have any improvement with refinement go to previous solution
 if (abs(trace.sample_error) > abs(trace_tmp.sample_error)) trace = trace_tmp;
 
-
+trace.step_distance = trace.distance - trace_prev.distance;

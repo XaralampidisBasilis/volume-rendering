@@ -2,7 +2,7 @@
 // terminate trace position
 trace.distance = ray.box_end_distance;
 trace.position = ray.box_end_position;
-trace.voxel_coords = ivec3(floor(trace.position * u_volume.inv_spacing));
+trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
 trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
 // terminate trace sample

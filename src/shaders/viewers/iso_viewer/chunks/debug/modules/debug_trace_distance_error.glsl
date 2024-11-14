@@ -1,5 +1,5 @@
 
-float debug_trace_distance_error = trace.distance - dot(trace.position - ray.origin_position, ray.step_direction);
+float debug_trace_distance_error = trace.distance - dot(trace.position - ray.camera_position, ray.step_direction);
 debug_trace_distance_error = map(-1.0, 1.0, debug_trace_distance_error / MICRO_TOLERANCE);
 
 vec2 debug_trace_distance_error_colormap_coords = vec2(mix(0.5 / 256.0, 255.5 / 256.0, debug_trace_distance_error), 67.5 / 256.0); 
