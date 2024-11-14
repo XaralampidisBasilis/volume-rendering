@@ -16,21 +16,17 @@
 float sample_value[8];
 vec3 sample_texture_coords;
 
-vec3 box_min = 0.0 - u_volume.inv_dimensions * 0.25;
-vec3 box_max = 1.0 - box_min;
-vec3 is_outside;
+vec3 texture_min = vec3(0.0) - u_volume.inv_dimensions * 0.25;
+vec3 texture_max = vec3(1.0) + u_volume.inv_dimensions * 0.25;
 
-#pragma unroll_loop_start
 for (int i = 0; i < 8; i++)
 {
     sample_texture_coords = trace.voxel_texture_coords + u_volume.inv_dimensions * centered_offsets[i];
     sample_value[i] = texture(u_textures.volume, sample_texture_coords).r;
 
     // correct edge cases due to trillinear interpolation and clamp to edge wrapping   
-    is_outside = outside(box_min, box_max, sample_texture_coords);
-    sample_value[i] /= exp2(sum(is_outside)); 
+    sample_value[i] /= exp2(sum(outside(texture_min, texture_max, sample_texture_coords))); 
 }
-#pragma unroll_loop_end
 
 // calculate gradient based on the sampled values 
 trace.gradient = vec3(

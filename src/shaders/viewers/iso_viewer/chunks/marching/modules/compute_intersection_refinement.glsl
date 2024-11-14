@@ -26,7 +26,7 @@ refinements = clamp(refinements, 3, 10);
 Trace trace_tmp = trace;
 
 // #pragma unroll_loop_start
-for (int i = 0; i < refinements; i++) 
+for (int i = 0; i < 10; i++) 
 {
     // compute sample linear interpolation factor
     float mix_factor = map(values.x, values.y, u_raymarch.sample_threshold);
@@ -46,6 +46,8 @@ for (int i = 0; i < refinements; i++)
     distances = mix(vec2(trace.distance, distances.y), vec2(distances.x, trace.distance), select_interval);
 
     trace.step_count++;
+
+    if (i >= refinements ) break;
 }
 // #pragma unroll_loop_end
 
