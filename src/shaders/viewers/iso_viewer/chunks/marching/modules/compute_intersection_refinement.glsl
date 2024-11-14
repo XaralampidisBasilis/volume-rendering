@@ -10,16 +10,17 @@
  * @param hit_normal: output vec3 where the refined normal at the intersection will be stored.
  */
 
-
-// compute number of refinements
-trace.step_distance = trace.distance - trace_prev.distance;
-int refinements = int(ceil(log2(trace.step_distance / (ray.step_distance * MILLI_TOLERANCE))));
-refinements = clamp(refinements, 5, 10);
-
 // define the bisection intervals
 // Define the initial bisection intervals
-vec2 sample_bounds = clamp(vec2(trace_prev.sample_value, trace.sample_value), 0.0, 1.0);
-vec2 distance_bounds = clamp(vec2(trace_prev.distance, trace.distance), ray.box_start_distance, ray.box_end_distance);
+vec2 values = vec2(trace_prev.sample_value, trace.sample_value);
+vec2 distances = vec2(trace_prev.distance, trace.distance);
+distances = clamp(distances, ray.box_start_distance, ray.box_end_distance);
+
+// compute number of refinements
+float step_tolerance = ray.step_distance * MILLI_TOLERANCE;
+float step_difference = diff(distances);
+int refinements = int(ceil(log2(step_difference / step_tolerance)));
+refinements = clamp(refinements, 3, 10);
 
 // save the initial trace state for potential rollback
 Trace trace_tmp = trace;
@@ -28,10 +29,10 @@ Trace trace_tmp = trace;
 for (int i = 0; i < refinements; i++) 
 {
     // compute sample linear interpolation factor
-    float mix_factor = map(sample_bounds.x, sample_bounds.y, u_raymarch.sample_threshold);
+    float mix_factor = map(values.x, values.y, u_raymarch.sample_threshold);
 
     // linearly interpolate positions based on sample 
-    trace.distance = mix(distance_bounds.x, distance_bounds.y, mix_factor);
+    trace.distance = mix(distances.x, distances.y, mix_factor);
     trace.position = ray.camera_position + ray.step_direction * trace.distance;
     trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
     trace.voxel_texture_coords = trace.position * u_volume.inv_size;
@@ -39,10 +40,10 @@ for (int i = 0; i < refinements; i++)
     // sample the intensity at the interpolated position
     #include "./update_trace_sample"
     
-     // Adjust bisection intervals based on the sample error sign
-    float select = step(0.0, trace.sample_error);
-    sample_bounds = mix(vec2(trace.sample_value, sample_bounds.y), vec2(sample_bounds.x, trace.sample_value), select);
-    distance_bounds = mix(vec2(trace.distance, distance_bounds.y), vec2(distance_bounds.x, trace.distance), select);
+     // select interval based on sample error 
+    float select_interval = step(0.0, trace.sample_error);
+    values = mix(vec2(trace.sample_value, values.y), vec2(values.x, trace.sample_value), select_interval);
+    distances = mix(vec2(trace.distance, distances.y), vec2(distances.x, trace.distance), select_interval);
 
     trace.step_count++;
 }
