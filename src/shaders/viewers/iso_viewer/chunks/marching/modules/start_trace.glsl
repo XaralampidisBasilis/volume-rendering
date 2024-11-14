@@ -1,10 +1,11 @@
 // start count
-trace.step_count = 0;
 trace.skip_count = 0;
+trace.step_count = 1;
 
-// start step scaling
-trace.min_step_scaling = ray.min_step_scaling;
-trace.max_step_scaling = ray.max_step_scaling;
+// start step
+trace.step_scaling = 1.0;
+trace.step_stretching = 1.0;
+trace.step_distance = ray.step_distance;
 
 // start position
 trace.distance = ray.start_distance;

@@ -33,9 +33,9 @@ struct Ray
     float box_start_distance;   // minimum allowed starting distance for current ray due to u_volume box
     float box_end_distance;     // maximum allowed ending distance for current ray due to u_volume box
     float box_span_distance;    // maximum allowed span distance for current ray due to u_volume box
-
-    vec3  min_position;         // min allowed position across all rays due to u_volume box, in 3d model coordinates
-    vec3  max_position;         // max allowed position across all rays due to u_volume box, in 3d model coordinates
+    vec3  box_min_position;     // min allowed position across all rays due to u_volume box, in 3d model coordinates
+    vec3  box_max_position;     // max allowed position across all rays due to u_volume box, in 3d model coordinates
+    
     float min_start_distance;   // min allowed distance across all rays due to u_volume box, in 3d model coordinates
     float max_end_distance;     // max allowed distance across all rays due to u_volume box, in 3d model coordinates
     float max_span_distance;    // max allowed distance across all rays due to u_volume box, in 3d model coordinates
@@ -68,8 +68,8 @@ Ray set_ray()
     ray.box_span_distance  = 0.0;
     ray.box_start_position = vec3(0.0);
     ray.box_end_position   = vec3(0.0);
-    ray.min_position       = vec3(0.0);
-    ray.max_position       = vec3(0.0);
+    ray.box_min_position   = vec3(0.0);
+    ray.box_max_position   = vec3(0.0);
     ray.min_start_distance = 0.0;
     ray.max_end_distance   = 0.0;
     ray.max_span_distance  = 0.0;

@@ -8,8 +8,8 @@ bbox_min_position -= u_volume.spacing;
 bbox_max_position += u_volume.spacing;
 
 // make sure volume bounding box is not bigger than volume box
-bbox_min_position = max(bbox_min_position, ray.min_position);
-bbox_max_position = min(bbox_max_position, ray.max_position);
+bbox_min_position = max(bbox_min_position, ray.box_min_position);
+bbox_max_position = min(bbox_max_position, ray.box_max_position);
 
 // compute ray intersection distances with the volume bounding box
 vec2 ray_bbox_distances = intersect_box(bbox_min_position, bbox_max_position, ray.camera_position, ray.step_direction);

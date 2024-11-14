@@ -7,11 +7,11 @@ ray.step_direction = normalize(v_ray_direction);
 // Compute ray step and skip counts constaints
 #include "./modules/compute_ray_max_counts"
 
-// Compute bounds of ray with the volume box
-#include "./modules/compute_ray_distance_bounds.glsl"
-
 // Compute intersection of ray with the volume box
 #include "./modules/compute_ray_box_intersection.glsl"
+
+// Compute bounds of ray with the volume box
+#include "./modules/compute_ray_distance_bounds.glsl"
 
 // Compute intersection of ray with the volume bounding box
 #if RAY_BBOX_INTERSECTION_ENABLED == 1
