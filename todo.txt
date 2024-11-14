@@ -22,3 +22,13 @@ Future Implementations
     Measurement tools: Enable distance and area measurements (e.g., valve area, chamber volumes) directly on the heart model or slices.
 7. Implement automatic heart structure segmentation
 8. 3D chamber visualization (especially left ventricle) for structure assessment.
+
+
+Direct Volume Rendering (DVR)
+Simulated Fluorescence Process (SFP)
+Closest Vessel Projection (CVP)
+Maximum Intensity Projection (MIP)
+Multi-Planar Reformation (MPR)
+Iso-Surfaces (ISO)
+Emission-Absorption Composition (EA)
+

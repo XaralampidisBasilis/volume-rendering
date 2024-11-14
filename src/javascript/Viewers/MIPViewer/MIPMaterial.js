@@ -81,7 +81,8 @@ export default function()
         }),
 
         u_raymarch: new THREE.Uniform({
-            sample_threshold  : 0.3,
+            min_sample_value  : 0.1,
+            max_sample_value  : 0.9,
             min_step_scaling  : 0.5,
             max_step_scaling  : 2.0,
             max_step_count    : 500,

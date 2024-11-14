@@ -1,15 +1,15 @@
 import * as THREE from 'three'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
-import ISOMaterial from './ISOMaterial'
-import ISOGui from './ISOGui'
+import MIPMaterial from './MIPMaterial'
+import MIPGui from './MIPGui'
 import ComputeResizing from './TensorFlow/Resizing/ComputeResizing'
 import ComputeGradients from './TensorFlow/Gradients/ComputeGradients'
 import ComputeSmoothing from './TensorFlow/Smoothing/ComputeSmoothing'
 import ComputeOccupancy from './TensorFlow/Occupancy/ComputeOccupancy'
 import * as tf from '@tensorflow/tfjs'
 
-export default class ISOViewer extends EventEmitter
+export default class MIPViewer extends EventEmitter
 {
     constructor()
     {
@@ -38,7 +38,7 @@ export default class ISOViewer extends EventEmitter
             this.precompute().then(() =>
             {
                 if (this.debug.active) 
-                    this.gui = new ISOGui(this)
+                    this.gui = new MIPGui(this)
     
                 this.trigger('ready')
             })
@@ -108,13 +108,13 @@ export default class ISOViewer extends EventEmitter
     setTextures()
     {
         this.textures = {}
-        this.setVolumeTex()
-        this.setMaskTex()
-        this.setNoisemap()
-        this.setColormaps()
+        this.setVolumeTexture()
+        this.setMaskTexture()
+        this.setNoisemapTexture()
+        this.setColormapsTexture()
     }
 
-    setVolumeTex()
+    setVolumeTexture()
     {
         const volumeDimensions = this.parameters.volume.dimensions.toArray()
         this.textures.volume = new THREE.Data3DTexture(this.data.volume, ...volumeDimensions)
@@ -130,7 +130,7 @@ export default class ISOViewer extends EventEmitter
         this.textures.volume.needsUpdate = true   
     }
 
-    setMaskTex()
+    setMaskTexture()
     {
         const maskDimensions = this.parameters.mask.dimensions.toArray()
         this.textures.mask = new THREE.Data3DTexture(this.data.mask, ...maskDimensions)
@@ -146,7 +146,7 @@ export default class ISOViewer extends EventEmitter
         this.textures.mask.needsUpdate = true  
     }
 
-    setNoisemap()
+    setNoisemapTexture()
     {
         this.textures.noisemap = this.resources.items.blue256Noisemap
         this.textures.noisemap.repeat.set(4, 4)
@@ -161,7 +161,7 @@ export default class ISOViewer extends EventEmitter
         this.textures.noisemap.needsUpdate = true         
     }
 
-    setColormaps()
+    setColormapsTexture()
     {        
         this.textures.colormaps = this.resources.items.colormaps                      
         this.textures.colormaps.colorSpace = THREE.SRGBColorSpace
@@ -182,7 +182,7 @@ export default class ISOViewer extends EventEmitter
 
     setMaterial()
     {
-        this.material = new ISOMaterial()
+        this.material = new MIPMaterial()
 
         this.material.uniforms.u_volume.value.dimensions.copy(this.parameters.volume.dimensions)
         this.material.uniforms.u_volume.value.size.copy(this.parameters.volume.size)
@@ -330,7 +330,7 @@ export default class ISOViewer extends EventEmitter
         this.sizes = null
         this.debug = null
     
-        console.log("ISOViewer destroyed")
+        console.log("MIPViewer destroyed")
     }
     
 }
