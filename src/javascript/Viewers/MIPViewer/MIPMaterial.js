@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { colormapLocations } from '../../../../static/textures/colormaps/colormaps.js'
-import vertexShader from '../../../shaders/viewers/iso_viewer/vertex.glsl'
-import fragmentShader from '../../../shaders/viewers/iso_viewer/fragment.glsl'
+import vertexShader from '../../../shaders/viewers/mip_viewer/vertex.glsl'
+import fragmentShader from '../../../shaders/viewers/mip_viewer/fragment.glsl'
 
 export default function()
 {
@@ -57,19 +57,20 @@ export default function()
 
         u_colormap: new THREE.Uniform({
             levels      : 255,
-            name        : 'cet_d9',
+            name        : 'viridis',
             thresholds  : new THREE.Vector2(0, 1),
-            start_coords: new THREE.Vector2(colormapLocations['cet_d9'].x_start, colormapLocations['cet_d9'].y),
-            end_coords  : new THREE.Vector2(colormapLocations['cet_d9'].x_end,   colormapLocations['cet_d9'].y),
+            start_coords: new THREE.Vector2(colormapLocations['viridis'].x_start, colormapLocations['viridis'].y),
+            end_coords  : new THREE.Vector2(colormapLocations['viridis'].x_end,   colormapLocations['viridis'].y),
         }),
 
         u_raymarch: new THREE.Uniform({
-            min_sample_value  : 0.1,
-            max_sample_value  : 0.9,
-            min_step_scaling  : 0.5,
-            max_step_scaling  : 2.0,
-            max_step_count    : 500,
-            max_skip_count    : 100,
+            min_sample_value  : 0,
+            max_sample_value  : 1,
+            step_speed        : 1.0 / 255,
+            min_step_scaling  : 1,
+            max_step_scaling  : 1,
+            max_step_count    : 1000,
+            max_skip_count    : 500,
             min_skip_lod      : 0,
             max_skip_lod      : 0,
         }),
@@ -84,21 +85,14 @@ export default function()
 
     const defines = 
     {
-        VOLUME_GRADIENTS_METHOD       : 1,
-        VOLUME_SMOOTHING_METHOD       : 1,
-        VOLUME_SMOOTHING_RADIUS       : 1,
-                
-        RAY_BBOX_INTERSECTION_ENABLED: 1,
-        RAY_BVH_INTERSECTION_ENABLED : 1,
-        RAY_DITHERING_ENABLED        : 0,
-
-        TRACE_STEP_SCALING_ENABLED       : 1,   
-        TRACE_STEP_STRETCHING_ENABLED    : 1,
-        TRACE_BVH_MARCHING_ENABLED       : 1,
-        TRACE_POSITION_REFINEMENT_ENABLED: 1,
-        TRACE_GRADIENT_REFINEMENT_ENABLED: 1,
-
-        FRAGMENT_DISCARDING_DISABLED     : 0,
+        VOLUME_GRADIENTS_METHOD     : 1,
+        VOLUME_SMOOTHING_METHOD     : 1,
+        VOLUME_SMOOTHING_RADIUS     : 0,
+        RAY_BVH_INTERSECTION_ENABLED: 0,
+        RAY_DITHERING_ENABLED       : 0,
+        TRACE_ADAPTIVE_STEP_ENABLED : 0,
+        TRACE_BVH_MARCHING_ENABLED  : 0,
+        FRAGMENT_DISCARDING_DISABLED: 0,
     }
 
     const material = new THREE.ShaderMaterial({

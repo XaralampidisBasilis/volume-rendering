@@ -1,5 +1,6 @@
 import Experience from '../Experience'
 import ISOViewer from '../Viewers/ISOViewer/ISOViewer'
+import MIPViewer from '../Viewers/MIPViewer/MIPViewer'
 import EventEmitter from '../Utils/EventEmitter'
 
 export default class World extends EventEmitter
@@ -16,7 +17,7 @@ export default class World extends EventEmitter
         // Wait for resources
         this.resources.on('ready', () =>
         {
-            this.viewer = new ISOViewer()
+            this.viewer = new MIPViewer()
             this.camera.instance.position.fromArray(this.resources.items.volumeNifti.size)
 
             this.viewer.on('ready', () => this.trigger('ready'))

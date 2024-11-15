@@ -30,8 +30,6 @@ export default class MIPGui
         this.subfolders.raymarch = this.folders.viewer.addFolder('raymarch').close()
         this.subfolders.volume   = this.folders.viewer.addFolder('volume').close()
         this.subfolders.colormap = this.folders.viewer.addFolder('colormap').close()
-        this.subfolders.shading  = this.folders.viewer.addFolder('shading').close()
-        this.subfolders.lighting = this.folders.viewer.addFolder('lighting').close()
         this.subfolders.debug    = this.folders.viewer.addFolder('debug').close()
 
         this.addToggles()            
@@ -66,8 +64,6 @@ export default class MIPGui
         this.addControllersRaymarch() 
         this.addControllersVolume() 
         this.addControllersColormap() 
-        this.addControllersShading() 
-        this.addControllersLighting() 
         this.addControllersDebug() 
         
         // this.setBindings()  
@@ -80,35 +76,30 @@ export default class MIPGui
         const uniforms = this.viewer.material.uniforms.u_raymarch.value
         const defines = this.viewer.material.defines
         const objects = { 
-            sample_threshold                 : 0.0,
-            RAY_BBOX_INTERSECTION_ENABLED    : Boolean(defines.RAY_BBOX_INTERSECTION_ENABLED),
+            min_sample_value                 : 0.0,
+            max_sample_value                 : 1.0,
             RAY_BVH_INTERSECTION_ENABLED     : Boolean(defines.RAY_BVH_INTERSECTION_ENABLED),
             RAY_DITHERING_ENABLED            : Boolean(defines.RAY_DITHERING_ENABLED),
-            TRACE_POSITION_REFINEMENT_ENABLED: Boolean(defines.TRACE_POSITION_REFINEMENT_ENABLED),
-            TRACE_GRADIENT_REFINEMENT_ENABLED: Boolean(defines.TRACE_GRADIENT_REFINEMENT_ENABLED),
             TRACE_BVH_MARCHING_ENABLED       : Boolean(defines.TRACE_BVH_MARCHING_ENABLED),
-            TRACE_STEP_SCALING_ENABLED       : Boolean(defines.TRACE_STEP_SCALING_ENABLED),
-            TRACE_STEP_STRETCHING_ENABLED    : Boolean(defines.TRACE_STEP_STRETCHING_ENABLED),
+            TRACE_ADAPTIVE_STEP_ENABLED       : Boolean(defines.TRACE_ADAPTIVE_STEP_ENABLED),
         }
     
 
         this.controllers.raymarch = 
         {
-            sampleThreshold       : folder.add(objects, 'sample_threshold').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.sample_threshold = value, this.viewer.computeOccupancy() }),
+            minSampleValue        : folder.add(objects, 'min_sample_value').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.min_sample_value = value, this.viewer.computeOccupancy() }),
+            maxSampleValue        : folder.add(objects, 'max_sample_value').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.max_sample_value = value, this.viewer.computeOccupancy() }),
+            stepSpeed             : folder.add(uniforms, 'step_speed').min(1/255).max(1).step(0.0001),
             minStepScale          : folder.add(uniforms, 'min_step_scaling').min(0.001).max(5).step(0.001),
             maxStepScale          : folder.add(uniforms, 'max_step_scaling').min(0.001).max(5).step(0.001),
             maxStepCount          : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
             maxSkipCount          : folder.add(uniforms, 'max_skip_count').min(0).max(2000).step(1),
             minSkipLod            : folder.add(uniforms, 'min_skip_lod').min(0).max(material.uniforms.u_occumaps.value.lods - 1).step(1),
             maxSkipLod            : folder.add(uniforms, 'max_skip_lod').min(0).max(material.uniforms.u_occumaps.value.lods - 1).step(1),
-            enableBboxIntersection: folder.add(objects, 'RAY_BBOX_INTERSECTION_ENABLED').name('enable_bbox_intersection').onFinishChange((value) => { defines.RAY_BBOX_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
-            enableBVHIntersection : folder.add(objects, 'RAY_BVH_INTERSECTION_ENABLED').name('enable_bvh_intersection').onFinishChange((value) => { defines.RAY_BVH_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
             enableDithering       : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
-            enablePosRefinement   : folder.add(objects, 'TRACE_POSITION_REFINEMENT_ENABLED').name('enable_position_refinement').onFinishChange((value) => { defines.TRACE_POSITION_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
-            enableGradRefinement  : folder.add(objects, 'TRACE_GRADIENT_REFINEMENT_ENABLED').name('enable_gradient_refinement').onFinishChange((value) => { defines.TRACE_GRADIENT_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
+            enableBVHIntersection : folder.add(objects, 'RAY_BVH_INTERSECTION_ENABLED').name('enable_bvh_intersection').onFinishChange((value) => { defines.RAY_BVH_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
             enableBVHMarching     : folder.add(objects, 'TRACE_BVH_MARCHING_ENABLED').name('enable_bvh_marching').onFinishChange((value) => { defines.TRACE_BVH_MARCHING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableStepScaling     : folder.add(objects, 'TRACE_STEP_SCALING_ENABLED').name('enable_step_scaling').onFinishChange((value) => { defines.TRACE_STEP_SCALING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableStepStretching  : folder.add(objects, 'TRACE_STEP_STRETCHING_ENABLED').name('enable_step_stretching').onFinishChange((value) => { defines.TRACE_STEP_STRETCHING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableAdaptiveStep    : folder.add(objects, 'TRACE_ADAPTIVE_STEP_ENABLED').name('enable_adaptive_step').onFinishChange((value) => { defines.TRACE_ADAPTIVE_STEP_ENABLED = Number(value), material.needsUpdate = true }),
         }
 
     }
@@ -148,39 +139,6 @@ export default class MIPGui
             flip        : folder.add(objects, 'flip').onChange(() => this.flipColormap())
         }
 
-    }
-    
-    addControllersShading() 
-    {
-        const folder = this.subfolders.shading
-        const uniforms = this.viewer.material.uniforms.u_shading.value
-
-        this.controllers.shading = 
-        {
-            ambientReflectance : folder.add(uniforms, 'ambient_reflectance').min(0).max(1).step(0.001),
-            diffuseReflectance : folder.add(uniforms, 'diffuse_reflectance').min(0).max(1).step(0.001),
-            specularReflectance: folder.add(uniforms, 'specular_reflectance').min(0).max(1).step(0.001),
-            shininess          : folder.add(uniforms, 'shininess').min(0).max(40.0).step(0.2),
-            edgeContrast       : folder.add(uniforms, 'edge_contrast').min(0).max(1).step(0.001),
-        }
-    }
-
-    addControllersLighting() 
-    {
-        const folder = this.subfolders.lighting
-        const uniforms = this.viewer.material.uniforms.u_lighting.value
-
-        this.controllers.lighting = 
-        {
-            intensity        : folder.add(uniforms, 'intensity').min(0).max(2.0).step(0.001),
-            shadows          : folder.add(uniforms, 'shadows').min(0).max(1.0).step(0.001),
-            ambient_color    : folder.addColor(uniforms, 'ambient_color'),
-            diffuse_color    : folder.addColor(uniforms, 'diffuse_color'),
-            specular_color   : folder.addColor(uniforms, 'specular_color'),
-            positionX        : folder.add(uniforms.position_offset, 'x').min(-5).max(5).step(0.01).name('position_x'),
-            positionY        : folder.add(uniforms.position_offset, 'y').min(-5).max(5).step(0.01).name('position_y'),
-            positionZ        : folder.add(uniforms.position_offset, 'z').min(-5).max(5).step(0.01).name('position_z'),
-        }
     }
     
     addControllersDebug()

@@ -8,7 +8,8 @@ export default class ComputeOccupancy
     { 
         this.viewer = viewer
         this.parameters = this.viewer.parameters
-        this.threshold = this.viewer.material.uniforms.u_raymarch.value.sample_threshold
+        this.minValue = this.viewer.material.uniforms.u_raymarch.value.min_sample_value
+        this.maxValue = this.viewer.material.uniforms.u_raymarch.value.max_sample_value
     }
 
     async compute()
@@ -17,7 +18,12 @@ export default class ComputeOccupancy
         {
             const divisions = 2;
             const spacing = this.parameters.volume.spacing.toArray().toReversed().concat(1)
-            const condition = this.viewer.tensors.volume.greater([this.threshold])
+
+            const minCondition = this.viewer.tensors.volume.greater([this.minValue])
+            const maxCondition = this.viewer.tensors.volume.less([this.maxValue])
+            const condition = tf.logicalAnd(minCondition, maxCondition)
+            minCondition.dispose()
+            maxCondition.dispose()
 
             const [minCoords, maxCoords] = this.argRange4d(condition)
             const [minPosition, maxPosition] = [minCoords.mul(spacing), maxCoords.mul(spacing)]
@@ -90,7 +96,8 @@ export default class ComputeOccupancy
 
     update()
     {
-        this.threshold = this.viewer.material.uniforms.u_raymarch.value.sample_threshold
+        this.minValue = this.viewer.material.uniforms.u_raymarch.value.min_sample_value
+        this.maxValue = this.viewer.material.uniforms.u_raymarch.value.max_sample_value
     }
 
     destroy() 
@@ -99,7 +106,8 @@ export default class ComputeOccupancy
         this.results = null;
         this.viewer = null;
         this.parameters = null;
-        this.threshold = null;
+        this.minValue = null;
+        this.maxValue = null;
 
         console.log('ComputeOccupancy destroyed and resources freed.');
     }

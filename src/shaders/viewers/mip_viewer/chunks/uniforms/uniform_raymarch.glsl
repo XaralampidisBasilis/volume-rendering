@@ -4,8 +4,9 @@
 // struct to hold raycast uniforms
 struct Raymarch 
 {
-    float sample_threshold;   
-    float gradient_threshold; 
+    float min_sample_value;   
+    float max_sample_value;   
+    float step_speed;
     float min_step_scaling;     
     float max_step_scaling;     
     float max_step_stretching;     

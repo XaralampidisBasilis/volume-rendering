@@ -1,3 +1,6 @@
+// coumpute the maximum allowed number of skips based on the current occumap dimensions
+ray.max_skip_count = sum(u_occumaps.base_dimensions) + 1;
+ray.max_skip_count = mmin(ray.max_skip_count, u_raymarch.max_skip_count, MAX_SKIP_COUNT);
 
 // from ray start skip blocks untill you find an occupied block at the lowest lod
 while (ray.skip_count < ray.max_skip_count) 

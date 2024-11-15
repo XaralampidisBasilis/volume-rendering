@@ -24,9 +24,8 @@ void main()
     #include "./chunks/structs/set_structs"
     #include "./chunks/raycasting/compute_raycasting"
     #include "./chunks/colormapping/compute_colormapping"
-    #include "./chunks/shading/compute_shading"
 
-    fragColor = trace.shaded_color;
+    fragColor = trace.mapped_color;
     #include "./chunks/compute_frag_depth"
     #include "./chunks/debug/compute_debug"
 }

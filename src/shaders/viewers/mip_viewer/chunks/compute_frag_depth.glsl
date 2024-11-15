@@ -1,5 +1,5 @@
 // Transform the fragment position to clip space
-vec4 clip_position = v_projection_model_view_matrix * vec4(trace.position, 1.0); 
+vec4 clip_position = v_projection_model_view_matrix * vec4(ray.box_start_position, 1.0); 
 
 // Perform perspective division to get NDC space
 vec3 ndc_position = clip_position.xyz / clip_position.w; 

@@ -3,7 +3,11 @@
 trace_prev.sample_value = trace.sample_value;
 trace.sample_data = texture(u_textures.volume, trace.voxel_texture_coords);
 trace.sample_value = trace.sample_data.r;
-trace.sample_error = trace.sample_value - u_raymarch.sample_threshold;
+
+if (u_raymarch.min_sample_value < trace.sample_value && trace.sample_value < u_raymarch.max_sample_value)
+{
+    trace.max_sample_value = max(trace.max_sample_value, trace.sample_value);
+}
 
 // sample gradient
 // #include "./compute_trace_gradient"
@@ -11,4 +15,3 @@ trace.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, trace.sample_
 trace.gradient_magnitude = length(trace.gradient);
 trace.gradient_direction = normalize(trace.gradient);
 trace.derivative = dot(trace.gradient, ray.step_direction);
-trace.normal = -trace.gradient_direction;

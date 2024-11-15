@@ -37,6 +37,7 @@ struct Trace
 
     vec4  sample_data;          // sampled data at the current position
     float sample_value;         // sampled value at the current position
+    float max_sample_value;     // max_sampled value 
     float sample_error;         // sampled error associated with the difference of the sample value from the threshold
 
     ivec3 voxel_coords;         // integer voxel coordinates in 3d space
@@ -81,6 +82,7 @@ Trace set_trace()
     trace.skipped_distance = 0.0;
     trace.sample_data = vec4(0.0);
     trace.sample_value = 0.0;
+    trace.max_sample_value = 0.0;
     trace.sample_error = 0.0;
     trace.voxel_coords = ivec3(0);
     trace.voxel_texture_coords = vec3(0.0);
