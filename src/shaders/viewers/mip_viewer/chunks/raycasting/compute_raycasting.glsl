@@ -1,6 +1,5 @@
 
 // setup occumap and ray
-#include "./setup_occumap"
 #include "./setup_ray"
 
 // ray marching loop to traverse through the volume

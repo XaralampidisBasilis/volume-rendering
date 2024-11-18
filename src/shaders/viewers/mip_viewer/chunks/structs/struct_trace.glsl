@@ -19,7 +19,6 @@ struct Trace
     
     float step_scaling;         // scaling factor for step size
     float min_step_scaling;     // min scaling factor for step size 
-    float max_step_scaling;     // max scaling factor for step size 
 
     float step_stretching;      // stretching factor for step size 
     float min_step_stretching;  // min stretching factor for step size 
@@ -64,7 +63,6 @@ Trace set_trace()
     trace.skip_count = 0;
     trace.step_scaling = 0.0;      
     trace.min_step_scaling = 0.0;      
-    trace.max_step_scaling = 0.0;   
     trace.mean_step_scaling = 0.0;    
     trace.step_stretching = 0.0;     
     trace.min_step_stretching = 0.0;     

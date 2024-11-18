@@ -12,7 +12,7 @@
 
 // scale the input trace value using the provided colormap limits 
 // and posterize the result to discrete levels
-float trace_mapped_value = map(u_colormap.thresholds.x, u_colormap.thresholds.y, trace.max_sample_value);
+float trace_mapped_value = map(u_colormap.thresholds.x, u_colormap.thresholds.y, trace_max.sample_value);
 trace_mapped_value = posterize(trace_mapped_value, float(u_colormap.levels));
 
 // interpolate the u-coordinate within the colormap texture columns
@@ -23,5 +23,5 @@ vec2 colormap_coords = vec2(colormap_start_coords_x, u_colormap.start_coords.y);
 
 // Sample the colormap texture at the calculated UV coordinates and return the RGB color
 trace.mapped_color.rgb = texture(u_textures.colormaps, colormap_coords).rgb;
-// trace.mapped_color.a = trace.max_sample_value / u_raymarch.max_sample_value;
-trace.mapped_color.a = pow(length(trace.mapped_color.rgb), 0.3);
+trace.mapped_color.a = pow(trace_max.sample_value, 0.3);
+// trace.mapped_color.a = pow(length(trace.mapped_color.rgb), 0.3);

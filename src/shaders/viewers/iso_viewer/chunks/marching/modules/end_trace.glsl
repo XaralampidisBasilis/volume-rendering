@@ -3,7 +3,7 @@
 if (trace.intersected) 
 {
     #if TRACE_POSITION_REFINEMENT_ENABLED == 1
-    #include "./compute_intersection_refinement"
+    #include "./computep_position_refinement"
     #endif
 
     #if TRACE_GRADIENT_REFINEMENT_ENABLED == 1

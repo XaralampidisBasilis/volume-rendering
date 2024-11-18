@@ -81,7 +81,8 @@ export default class MIPGui
             RAY_BVH_INTERSECTION_ENABLED     : Boolean(defines.RAY_BVH_INTERSECTION_ENABLED),
             RAY_DITHERING_ENABLED            : Boolean(defines.RAY_DITHERING_ENABLED),
             TRACE_BVH_MARCHING_ENABLED       : Boolean(defines.TRACE_BVH_MARCHING_ENABLED),
-            TRACE_ADAPTIVE_STEP_ENABLED       : Boolean(defines.TRACE_ADAPTIVE_STEP_ENABLED),
+            TRACE_ADAPTIVE_STEP_ENABLED      : Boolean(defines.TRACE_ADAPTIVE_STEP_ENABLED),
+            TRACE_POSITION_REFINEMENT_ENABLED: Boolean(defines.TRACE_POSITION_REFINEMENT_ENABLED),
         }
     
 
@@ -100,6 +101,7 @@ export default class MIPGui
             enableBVHIntersection : folder.add(objects, 'RAY_BVH_INTERSECTION_ENABLED').name('enable_bvh_intersection').onFinishChange((value) => { defines.RAY_BVH_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
             enableBVHMarching     : folder.add(objects, 'TRACE_BVH_MARCHING_ENABLED').name('enable_bvh_marching').onFinishChange((value) => { defines.TRACE_BVH_MARCHING_ENABLED = Number(value), material.needsUpdate = true }),
             enableAdaptiveStep    : folder.add(objects, 'TRACE_ADAPTIVE_STEP_ENABLED').name('enable_adaptive_step').onFinishChange((value) => { defines.TRACE_ADAPTIVE_STEP_ENABLED = Number(value), material.needsUpdate = true }),
+            enablePosRefinement   : folder.add(objects, 'TRACE_POSITION_REFINEMENT_ENABLED').name('enable_position_refinement').onFinishChange((value) => { defines.TRACE_POSITION_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
         }
 
     }
@@ -215,7 +217,7 @@ export default class MIPGui
 
             variable1 : folder.add(uniforms, 'variable1').min(-1).max(1).step(0.00000001),
             variable2 : folder.add(uniforms, 'variable2').min(0).max(5).step(0.00000001),
-            variable3 : folder.add(uniforms, 'variable3').min(0).max(10).step(1),
+            variable3 : folder.add(uniforms, 'variable3').min(0).max(50).step(1),
             discarding: folder.add(objects, 'FRAGMENT_DISCARDING_DISABLED').name('discarding').onFinishChange((value) => { defines.FRAGMENT_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }
     }

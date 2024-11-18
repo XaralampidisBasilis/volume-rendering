@@ -85,14 +85,15 @@ export default function()
 
     const defines = 
     {
-        VOLUME_GRADIENTS_METHOD     : 1,
-        VOLUME_SMOOTHING_METHOD     : 1,
-        VOLUME_SMOOTHING_RADIUS     : 0,
-        RAY_BVH_INTERSECTION_ENABLED: 0,
-        RAY_DITHERING_ENABLED       : 0,
-        TRACE_ADAPTIVE_STEP_ENABLED : 0,
-        TRACE_BVH_MARCHING_ENABLED  : 0,
-        FRAGMENT_DISCARDING_DISABLED: 0,
+        VOLUME_GRADIENTS_METHOD          : 1,
+        VOLUME_SMOOTHING_METHOD          : 1,
+        VOLUME_SMOOTHING_RADIUS          : 0,
+        RAY_BVH_INTERSECTION_ENABLED     : 0,
+        RAY_DITHERING_ENABLED            : 0,
+        TRACE_ADAPTIVE_STEP_ENABLED      : 0,
+        TRACE_BVH_MARCHING_ENABLED       : 0,
+        TRACE_POSITION_REFINEMENT_ENABLED: 0,
+        FRAGMENT_DISCARDING_DISABLED     : 0,
     }
 
     const material = new THREE.ShaderMaterial({

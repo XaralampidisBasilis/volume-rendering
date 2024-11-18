@@ -1,5 +1,10 @@
-#if TRACE_BVH_MARCHING_ENABLED == 1
-#include "./compute_marching_bvh"
-#else
-#include "./compute_marching_full"
-#endif
+#include "./modules/start_trace"
+
+while (trace.step_count < ray.max_step_count) 
+{
+    #include "./modules/update_trace" 
+    
+    if (!trace.update) break;
+}   
+
+#include "./modules/end_trace"

@@ -1,10 +1,8 @@
 // start count
-trace.skip_count = 0;
-trace.step_count = 1;
+trace.step_count = 0;
 
 // start step
 trace.step_scaling = 1.0;
-trace.step_stretching = 1.0;
 trace.step_distance = ray.step_distance;
 
 // start position
@@ -17,4 +15,6 @@ trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 #include "./update_trace_sample"
 #include "./update_trace_step"
 #include "./update_trace_states"
-#include "./start_trace_previous"
+
+// update max trace
+trace_max = trace;

@@ -18,6 +18,7 @@
         "Colormaps",
         "conv",
         "cumprod",
+        "distmap",
         "glsl",
         "hexacontratentant",
         "isosurface",

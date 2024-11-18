@@ -2,7 +2,6 @@
 trace.step_count++;
 
 // update position
-trace_prev.distance = trace.distance;
 trace.distance += trace.step_distance;
 trace.position = ray.camera_position + ray.step_direction * trace.distance; 
 trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
@@ -14,3 +13,6 @@ trace.spanned_distance += trace.step_distance;
 #include "./update_trace_sample" 
 #include "./update_trace_step" 
 #include "./update_trace_states" 
+
+// update max trace
+if (trace_max.sample_value < trace.sample_value) trace_max = trace;
