@@ -6,7 +6,6 @@ import MIPGui from './MIPGui'
 import ComputeResizing from './TensorFlow/Resizing/ComputeResizing'
 import ComputeGradients from './TensorFlow/Gradients/ComputeGradients'
 import ComputeSmoothing from './TensorFlow/Smoothing/ComputeSmoothing'
-import ComputeOccupancy from './TensorFlow/Occupancy/ComputeOccupancy'
 import * as tf from '@tensorflow/tfjs'
 
 export default class MIPViewer extends EventEmitter
@@ -195,9 +194,6 @@ export default class MIPViewer extends EventEmitter
         this.material.uniforms.u_volume.value.inv_size_length = this.parameters.volume.invSize.length()
         this.material.uniforms.u_volume.value.inv_spacing_length = this.parameters.volume.invSpacing.length()
 
-        this.material.uniforms.u_volume.value.min_position.setScalar(0)
-        this.material.uniforms.u_volume.value.max_position.copy(this.parameters.volume.size)
-
         this.material.uniforms.u_textures.value.volume = this.textures.volume
         this.material.uniforms.u_textures.value.mask = this.textures.mask
         this.material.uniforms.u_textures.value.colormaps = this.textures.colormaps    
@@ -215,11 +211,9 @@ export default class MIPViewer extends EventEmitter
     {
         this.smoothing = new ComputeSmoothing(this)
         this.gradients = new ComputeGradients(this)
-        this.occupancy = new ComputeOccupancy(this)
 
         await this.computeSmoothing()
         await this.computeGradients()
-        await this.computeOccupancy()
     }
 
     async computeResizing()
@@ -243,14 +237,6 @@ export default class MIPViewer extends EventEmitter
         console.time('computeGradients')
         await this.gradients.compute().then(() => this.gradients.dataSync())
         console.timeEnd('computeGradients')
-    }
-
-    async computeOccupancy()
-    {
-        this.occupancy.update()
-        console.time('computeOccupancy')
-        await this.occupancy.compute().then(() => this.occupancy.dataSync())
-        console.timeEnd('computeOccupancy')
     }
 
     update()
@@ -299,12 +285,7 @@ export default class MIPViewer extends EventEmitter
             this.mesh.material.dispose()
             this.mesh = null
         }
-    
-        // Dispose resources associated with bounding box, gradients, and smoothing computations
-        if (this.boundingBox) {
-            this.boundingBox.destroy()
-            this.boundingBox = null
-        }
+
         if (this.gradients) {
             this.gradients.dispose()
             this.gradients.destroy()

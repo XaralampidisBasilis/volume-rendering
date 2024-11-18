@@ -11,31 +11,33 @@
  */
 
 // save the initial trace state for potential rollback
-trace = trace_max;
+trace = max_trace;
 
 for (int i = 0; i < int(u_debugger.variable3); i++) 
 {
-    // use gradient decent to update the step distance
+    // update step distance based on gradient decent
     trace.step_distance = u_debugger.variable1 * trace.derivative;
     trace.step_distance = min(trace.step_distance, ray.max_step_distance);
 
-    // linearly interpolate positions based on sample 
+    // update position
     trace.distance += trace.step_distance;
     trace.distance = clamp(trace.distance, ray.box_start_distance, ray.box_end_distance);
     trace.position = ray.camera_position + ray.step_direction * trace.distance;
     trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
     trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 
-    // sample volume at current position
+    // update sample
     trace.sample_data = texture(u_textures.volume, trace.voxel_texture_coords);
     trace.sample_value = trace.sample_data.r;
 
-    // sample gradient
+    // update gradient
     trace.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, trace.sample_data.gba);
+    trace.gradient_magnitude = length(trace.gradient);
+    trace.gradient_direction = normalize(trace.gradient);
     trace.derivative = dot(trace.gradient, ray.step_direction);
 
     // update max trace
-    if (trace_max.sample_value < trace.sample_value) trace_max = trace;
+    if (max_trace.sample_value < trace.sample_value) max_trace = trace;
 
     trace.step_count++;
 }

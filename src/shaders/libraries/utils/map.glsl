@@ -17,7 +17,10 @@
 
 float map(const in float a, const in float b, const in float x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
 vec2  map(const in float a, const in float b, const in vec2  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
+vec2  map(const in vec2  a, const in vec2  b, const in vec2  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
 vec3  map(const in float a, const in float b, const in vec3  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
+vec3  map(const in vec3  a, const in vec3  b, const in vec3  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
 vec4  map(const in float a, const in float b, const in vec4  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
+vec4  map(const in vec4  a, const in vec4  b, const in vec4  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
 
 #endif // MAP

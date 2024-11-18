@@ -3,11 +3,11 @@ ray.box_min_position = vec3(0.0);
 ray.box_max_position = u_volume.size;
 
 // shrink volume box by a small amount to avoid numerical instabilities in the boundary
-ray.box_min_position += u_volume.spacing * MILLI_TOLERANCE;
-ray.box_max_position -= u_volume.spacing * MILLI_TOLERANCE;
+vec3 ray_min_position = ray.box_min_position + u_volume.spacing * MILLI_TOLERANCE;
+vec3 ray_max_position = ray.box_max_position - u_volume.spacing * MILLI_TOLERANCE;
 
 // compute current ray intersection distances with the volume box
-vec2 ray_box_distances = intersect_box(ray.box_min_position, ray.box_max_position, ray.camera_position, ray.step_direction);
+vec2 ray_box_distances = intersect_box(ray_min_position, ray_max_position, ray.camera_position, ray.step_direction);
 
 // clamp bbox distances above zero for the case we are inside
 ray_box_distances = max(ray_box_distances, 0.0);

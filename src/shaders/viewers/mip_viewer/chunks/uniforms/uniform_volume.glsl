@@ -14,10 +14,6 @@ struct Volume
     vec3  inv_spacing;     
     float inv_size_length;
     float inv_spacing_length;      
-    ivec3 min_coords;            
-    ivec3 max_coords;            
-    vec3  min_position;          
-    vec3  max_position;          
     vec3  min_gradient;          
     vec3  max_gradient;          
     float max_gradient_magnitude;
