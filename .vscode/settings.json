@@ -22,6 +22,8 @@
         "glsl",
         "hexacontratentant",
         "isosurface",
+        "ivec",
+        "lerp",
         "lods",
         "Mipmaps",
         "multisampling",

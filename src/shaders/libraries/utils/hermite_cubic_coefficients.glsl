@@ -8,12 +8,12 @@
 vec4 hermite_cubic_coefficients(in vec2 t, in  vec2 f, in  vec2 g)
 {
     // Compute the difference between the two time values (t0 - t1)
-    float dt = t.x - t.y;
+    float dt = maxabs(t.x - t.y, MILLI_TOLERANCE);
     float dt2 = dt * dt;
     float dt3 = dt2 * dt;
      
     // Combine function values and gradients into a 4D vector 
-    vec4 fg_weighted = vec4(f / stabilize(dt3), g / stabilize(dt2));
+    vec4 fg_weighted = vec4(f / dt3, g / dt2);
 
     // Predefined vectors for the Hermite basis functions
     const vec4 u0 = vec4(-1.0, 1.0, 0.0, 0.0); 

@@ -1,31 +1,18 @@
+float max_value = max_trace.sample_value;
 
-// save the initial trace state for potential rollback
-
-trace = max_trace;
-
-for (int i = 0; i < 15; i++, trace.step_count++) 
-{    
-    // update step distance based on gradient decent
-    trace.step_scaling = trace.derivative / u_volume.max_gradient_length;
-    trace.step_distance = ray.step_distance * trace.step_scaling;
-
-    // update position
-    trace.distance += trace.step_distance;
-    trace.distance = clamp(trace.distance, ray.box_start_distance, ray.box_end_distance);
-    trace.position = ray.camera_position + ray.step_direction * trace.distance;
-    trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
-    trace.voxel_texture_coords = trace.position * u_volume.inv_size;
-
-    // update sample
-    trace.sample_data = texture(u_textures.volume, trace.voxel_texture_coords);
-    trace.sample_value = trace.sample_data.r;
-
-    // update gradient
-    trace.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, trace.sample_data.gba);
-    trace.gradient_magnitude = length(trace.gradient);
-    trace.gradient_direction = normalize(trace.gradient);
-    trace.derivative = dot(trace.gradient, ray.step_direction);
-
-    // updata max trace
-    if (max_trace.sample_value < trace.sample_value) max_trace = trace;
+if (int(u_debugger.variable4) == 1)
+{
+    #include "./compute_position_refinement_1"
 }
+
+if (int(u_debugger.variable4) == 2)
+{
+    #include "./compute_position_refinement_2"
+}
+
+if (int(u_debugger.variable4) == 3)
+{
+    #include "./compute_position_refinement_3"
+}
+
+debug.variable1 = vec4(vec3(max_trace.sample_value - max_value)/0.1, 1.0);

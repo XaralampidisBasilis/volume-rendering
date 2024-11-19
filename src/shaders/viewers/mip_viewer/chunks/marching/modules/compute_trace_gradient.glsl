@@ -13,6 +13,7 @@
  */
 
 // Sample values at the neighboring points
+{
 float sample_value[8];
 vec3 base_coords = trace.voxel_texture_coords - u_volume.inv_dimensions * 0.5;
 
@@ -34,5 +35,4 @@ trace.gradient *= u_volume.inv_spacing * 0.25;
 trace.gradient_direction = normalize(trace.gradient);
 trace.gradient_magnitude = length(trace.gradient);
 trace.derivative = dot(trace.gradient, ray.step_direction);
-
-
+}
