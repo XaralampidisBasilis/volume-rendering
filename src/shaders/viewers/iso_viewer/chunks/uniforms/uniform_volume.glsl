@@ -20,7 +20,7 @@ struct Volume
     vec3  max_position;          
     vec3  min_gradient;          
     vec3  max_gradient;          
-    float max_gradient_magnitude;
+    float max_gradient_length;
 };
 
 #endif

@@ -22,6 +22,6 @@ float colormap_start_coords_x = mix(u_colormap.start_coords.x, u_colormap.end_co
 vec2 colormap_coords = vec2(colormap_start_coords_x, u_colormap.start_coords.y);
 
 // Sample the colormap texture at the calculated UV coordinates and return the RGB color
-trace.mapped_color.rgb = texture(u_textures.colormaps, colormap_coords).rgb;
-trace.mapped_color.a = pow(max_trace.sample_value, 0.3);
+max_trace.mapped_color.rgb = texture(u_textures.colormaps, colormap_coords).rgb;
+max_trace.mapped_color.a = pow(max_trace.sample_value, 0.3);
 // trace.mapped_color.a = pow(length(trace.mapped_color.rgb), 0.3);

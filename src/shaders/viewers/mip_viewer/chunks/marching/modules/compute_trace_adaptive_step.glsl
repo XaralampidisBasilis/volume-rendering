@@ -7,7 +7,3 @@ trace.step_distance = trace.derivative > 0.0 ? trace.step_distance : ray.max_ste
 // choose the minimum valid solution and clamp the result between the allowable stepping range.
 trace.step_distance = clamp(trace.step_distance, ray.min_step_distance, ray.max_step_distance);
 trace.step_scaling = trace.step_distance / ray.step_distance;
-
-// update step distance
-trace.mean_step_scaling += trace.step_scaling;
-trace.mean_step_distance += trace.step_distance;

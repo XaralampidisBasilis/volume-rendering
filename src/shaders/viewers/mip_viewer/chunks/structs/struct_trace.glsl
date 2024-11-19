@@ -12,8 +12,6 @@ struct Trace
     float step_distance;        // distance to be covered
     float step_scaling;         // scaling factor for step size
     float rand_distance;        // random distance for dithering
-    float mean_step_distance;  // mean step distance that is covered
-    float mean_step_scaling;   // mean step scaling that is covered
 
     vec3  position;             // current position in 3d model coordinates
     float distance;             // current distance traveled from camera
@@ -39,9 +37,7 @@ Trace set_trace()
     trace.update = true;
     trace.step_count = 0;
     trace.step_scaling = 0.0;      
-    trace.mean_step_scaling = 0.0;    
     trace.step_distance = 0.0;
-    trace.mean_step_distance = 0.0;
     trace.rand_distance = 0.0;
     trace.position = vec3(0.0);
     trace.distance = 0.0;

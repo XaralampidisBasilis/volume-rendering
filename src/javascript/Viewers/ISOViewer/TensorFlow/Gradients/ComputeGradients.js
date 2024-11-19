@@ -85,7 +85,7 @@ export default class ComputeGradients
         this.viewer.textures.volume.needsUpdate = true
         this.viewer.material.uniforms.u_volume.value.min_gradient = this.minGrad
         this.viewer.material.uniforms.u_volume.value.max_gradient = this.maxGrad
-        this.viewer.material.uniforms.u_volume.value.max_gradient_magnitude = this.maxNorm
+        this.viewer.material.uniforms.u_volume.value.max_gradient_length = this.maxNorm
         this.viewer.material.needsUpdate = true
     }
 

@@ -28,7 +28,7 @@ ray.rand_distance = random(seed_position);
 ray.rand_distance *= ray.step_distance;
 
 // update ray
-ray.start_distance -= ray.rand_distance;
-ray.start_distance = max(ray.start_distance, ray.box_start_distance);
+ray.start_distance += ray.rand_distance;
+ray.start_distance = clamp(ray.start_distance, ray.box_start_distance, ray.box_end_distance);
 ray.start_position = ray.camera_position + ray.step_direction * ray.start_distance;
 ray.span_distance = ray.end_distance - ray.start_distance;

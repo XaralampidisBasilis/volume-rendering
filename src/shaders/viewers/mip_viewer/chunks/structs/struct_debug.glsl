@@ -79,7 +79,7 @@ Debug set_debug()
     debug.max_trace_voxel_coords       = vec4(vec3(0.0), 1.0);
     debug.max_trace_step_count         = vec4(vec3(0.0), 1.0);
     debug.max_trace_step_distance      = vec4(vec3(0.0), 1.0);
-    debug.max_trace_step_scaling      = vec4(vec3(0.0), 1.0);
+    debug.max_trace_step_scaling       = vec4(vec3(0.0), 1.0);
     debug.max_trace_sample_value       = vec4(vec3(0.0), 1.0);
     debug.max_trace_mapped_color       = vec4(vec3(0.0), 1.0);
     debug.max_trace_gradient           = vec4(vec3(0.0), 1.0);

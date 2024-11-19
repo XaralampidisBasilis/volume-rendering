@@ -34,14 +34,15 @@ switch (u_debugger.option)
     case 28: fragColor = debug.max_trace_voxel_coords;       break;       
     case 29: fragColor = debug.max_trace_step_count;         break;         
     case 30: fragColor = debug.max_trace_step_distance;      break;      
-    case 31: fragColor = debug.max_trace_sample_value;       break;  
-    case 32: fragColor = debug.max_trace_mapped_color;       break; 
-    case 33: fragColor = debug.max_trace_gradient;           break; 
-    case 34: fragColor = debug.max_trace_gradient_magnitude; break; 
-    case 35: fragColor = debug.max_trace_gradient_direction; break; 
-    case 36: fragColor = debug.max_trace_derivative;         break;         
-    case 37: fragColor = debug.variabe1;                     break;         
-    case 38: fragColor = debug.variabe2;                     break;         
-    case 39: fragColor = debug.variabe3;                     break;         
+    case 31: fragColor = debug.max_trace_step_scaling;       break;      
+    case 32: fragColor = debug.max_trace_sample_value;       break;  
+    case 33: fragColor = debug.max_trace_mapped_color;       break; 
+    case 34: fragColor = debug.max_trace_gradient;           break; 
+    case 35: fragColor = debug.max_trace_gradient_magnitude; break; 
+    case 36: fragColor = debug.max_trace_gradient_direction; break; 
+    case 37: fragColor = debug.max_trace_derivative;         break;         
+    case 38: fragColor = debug.variable1;                    break;         
+    case 39: fragColor = debug.variable2;                    break;         
+    case 40: fragColor = debug.variable3;                    break;         
 }
  

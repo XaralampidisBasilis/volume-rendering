@@ -33,7 +33,7 @@ export default function()
             max_position          : new THREE.Vector3(),
             min_gradient          : new THREE.Vector3(),
             max_gradient          : new THREE.Vector3(),
-            max_gradient_magnitude: 0.0,
+            max_gradient_length: 0.0,
         }),
 
         u_mask : new THREE.Uniform({

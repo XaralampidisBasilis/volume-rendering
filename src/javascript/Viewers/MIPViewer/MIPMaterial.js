@@ -28,7 +28,7 @@ export default function()
             inv_spacing_length    : 0.0,
             min_gradient          : new THREE.Vector3(),
             max_gradient          : new THREE.Vector3(),
-            max_gradient_magnitude: 0.0,
+            max_gradient_length: 0.0,
         }),
 
         u_mask : new THREE.Uniform({
