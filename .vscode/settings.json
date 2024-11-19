@@ -14,6 +14,7 @@
         "boxmin",
         "boxn",
         "clim",
+        "coeffs",
         "Colormap",
         "Colormaps",
         "conv",

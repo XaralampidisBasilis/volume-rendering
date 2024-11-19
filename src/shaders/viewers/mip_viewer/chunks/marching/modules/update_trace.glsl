@@ -13,4 +13,7 @@ trace.voxel_texture_coords = trace.position * u_volume.inv_size;
 #include "./update_trace_states" 
 
 // update max trace
-if (max_trace.sample_value < trace.sample_value) max_trace = trace;
+if (trace.sample_value > max_trace.sample_value) 
+{
+    max_trace = trace;
+}
