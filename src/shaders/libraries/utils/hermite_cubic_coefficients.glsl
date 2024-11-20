@@ -8,7 +8,8 @@
 vec4 hermite_cubic_coefficients(in vec2 t, in  vec2 f, in  vec2 g)
 {
     // Compute the difference between the two time values (t0 - t1)
-    float dt = maxabs(t.x - t.y, MILLI_TOLERANCE);
+    float tolerance = mmax(abs(t)) * MILLI_TOLERANCE;
+    float dt = maxabs(t.x - t.y, tolerance);
     float dt2 = dt * dt;
     float dt3 = dt2 * dt;
      
@@ -32,24 +33,23 @@ vec4 hermite_cubic_coefficients(in vec2 t, in  vec2 f, in  vec2 g)
     return coeff;
 }
 
-// DEPRICATED 
 // returns cubic polynomial coefficients in the form:
 // coeff[0] + coeff[1] * t + coeff[2] * t^2 + coeff[3] * t^3
-// https://www.wikiwand.com/en/articles/Hermite_interpolation
-// vec4 hermite_cubic_coefficients(in vec2 t, in vec2 f, in vec2 f_prime)
+// https://www.wikiwand.com/en/articles/Hermite_interpolation   
+// vec4 hermite_cubic_coefficients(in vec2 t, in vec2 f, in vec2 g)
 // {
+//     // define the linear system of equations
 //     vec2 t2 = t * t;
 //     vec2 t3 = t2 * t;
-//     vec4 b = vec4(f, f_prime);
+//     vec4 b = vec4(f, g);
 //     mat4 A = mat4(
 //         vec4(vec2(1.0), vec2(0.0)),
 //         vec4(t, vec2(1.0)),
 //         vec4(t2, 2.0 * t),
 //         vec4(t3, 3.0 * t2)
 //     );
-
-//     vec4 coeff = inverse(A) * b;
-//     return coeff;
+//     vec4 coeffs = linsolve(A, b);
+//     return coeffs;
 // }
 
 #endif // HERMITE_CUBIC_COEFFICIENTS

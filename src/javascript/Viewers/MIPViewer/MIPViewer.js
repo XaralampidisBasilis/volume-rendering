@@ -4,6 +4,7 @@ import EventEmitter from '../../Utils/EventEmitter'
 import MIPMaterial from './MIPMaterial'
 import MIPGui from './MIPGui'
 import ComputeResizing from './TensorFlow/Resizing/ComputeResizing'
+import ComputeMaxima from './TensorFlow/Maxima/ComputeMaxima'
 import ComputeGradients from './TensorFlow/Gradients/ComputeGradients'
 import ComputeSmoothing from './TensorFlow/Smoothing/ComputeSmoothing'
 import * as tf from '@tensorflow/tfjs'
@@ -25,8 +26,8 @@ export default class MIPViewer extends EventEmitter
         this.setParameters()
         this.setTensors()
 
-        this.resizing = new ComputeResizing(this)
-        this.computeResizing().then(() =>
+        this.computeResizing  = new ComputeResizing(this)
+        this.computeResizing.compute().then(() =>
         {
             this.setData()
             this.setTextures()
@@ -209,34 +210,15 @@ export default class MIPViewer extends EventEmitter
 
     async precompute()
     {
-        this.smoothing = new ComputeSmoothing(this)
-        this.gradients = new ComputeGradients(this)
+        this.computeMaxima    = new ComputeMaxima(this)
+        this.computeSmoothing = new ComputeSmoothing(this)
+        this.computeGradients = new ComputeGradients(this)
 
-        await this.computeSmoothing()
-        await this.computeGradients()
-    }
-
-    async computeResizing()
-    {        
-        console.time('computeResizing')
-        await this.resizing.compute().then(() => this.resizing.dataSync())
-        console.timeEnd('computeResizing')
-    }
-
-    async computeSmoothing()
-    {
-        this.smoothing.update()
-        console.time('computeSmoothing')
-        await this.smoothing.compute().then(() => this.smoothing.dataSync())
-        console.timeEnd('computeSmoothing')
-    }
-
-    async computeGradients()
-    {
-        this.gradients.update()
-        console.time('computeGradients')
-        await this.gradients.compute().then(() => this.gradients.dataSync())
-        console.timeEnd('computeGradients')
+        return Promise.allSettled([
+            this.computeMaxima.compute(), 
+            this.computeSmoothing.compute(), 
+            this.computeGradients.compute()
+        ])
     }
 
     update()

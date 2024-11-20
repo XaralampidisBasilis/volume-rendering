@@ -27,6 +27,7 @@
 #include "../../../../libraries/utils/posterize"
 #include "../../../../libraries/utils/softstep"
 #include "../../../../libraries/utils/softstep_cases"
+#include "../../../../libraries/utils/linsolve"
 #include "../../../../libraries/utils/hermite_cubic_coefficients"
 #include "../../../../libraries/utils/linear_roots"
 #include "../../../../libraries/utils/quadratic_roots"

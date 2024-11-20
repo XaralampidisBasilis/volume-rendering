@@ -20,5 +20,5 @@ const vec3 centered_offsets[8] = vec3[8]
 
 const int MAX_STEP_COUNT = 1000;
 const int MAX_SKIP_COUNT = 500;
-const float MIN_STEP_SCALING = 0.01;
-const float MAX_STEP_SCALING = 5.00;
+const float MIN_STEP_SCALING = 0.001;
+const float MAX_STEP_SCALING = 10.00;

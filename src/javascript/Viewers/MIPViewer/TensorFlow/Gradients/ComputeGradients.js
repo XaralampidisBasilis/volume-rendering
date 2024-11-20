@@ -32,6 +32,7 @@ export default class ComputeGradients
     
     async compute() 
     {
+        console.time('computeGradients')
         tf.tidy(() => 
         {
             const volume = this.viewer.tensors.volume
@@ -68,8 +69,8 @@ export default class ComputeGradients
 
             this.maxNorm = Math.max(this.minGrad.length(), this.maxGrad.length())
         })
-
-        return { gradX: this.gradX, gradY: this.gradY, gradZ: this.gradZ, minGrad: this.minGrad, maxGrad: this.maxGrad, maxNorm: this.maxNorm, } 
+        this.dataSync()
+        console.timeEnd('computeGradients')
     }
 
     dataSync()

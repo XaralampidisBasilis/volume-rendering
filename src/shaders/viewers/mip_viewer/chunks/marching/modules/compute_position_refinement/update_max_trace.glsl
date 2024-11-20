@@ -24,4 +24,7 @@ for (int n = 0; n < 2; n++)
 #pragma unroll_loop_end
 
 // update interval for next iteration
-#include "./compute_max_trace_gradient"
+max_trace.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, trace.sample_data.gba);
+max_trace.gradient_magnitude = length(max_trace.gradient);
+max_trace.gradient_direction = normalize(max_trace.gradient);
+max_trace.derivative = dot(max_trace.gradient, ray.step_direction);

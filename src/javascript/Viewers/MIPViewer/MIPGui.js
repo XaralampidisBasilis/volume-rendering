@@ -76,7 +76,6 @@ export default class MIPGui
         const uniforms = this.viewer.material.uniforms.u_raymarch.value
         const defines = this.viewer.material.defines
         const objects = { 
-            RAY_BVH_INTERSECTION_ENABLED     : Boolean(defines.RAY_BVH_INTERSECTION_ENABLED),
             RAY_DITHERING_ENABLED            : Boolean(defines.RAY_DITHERING_ENABLED),
             TRACE_BVH_MARCHING_ENABLED       : Boolean(defines.TRACE_BVH_MARCHING_ENABLED),
             TRACE_ADAPTIVE_STEP_ENABLED      : Boolean(defines.TRACE_ADAPTIVE_STEP_ENABLED),
@@ -86,9 +85,9 @@ export default class MIPGui
 
         this.controllers.raymarch = 
         {
-            stepSpeed             : folder.add(uniforms, 'step_speed').min(1/255).max(1).step(0.0001),
-            minStepScale          : folder.add(uniforms, 'min_step_scaling').min(0.001).max(5).step(0.001),
-            maxStepScale          : folder.add(uniforms, 'max_step_scaling').min(0.001).max(5).step(0.001),
+            stepSpeed             : folder.add(uniforms, 'step_speed').min(0.001).max(1).step(0.0001),
+            minStepScale          : folder.add(uniforms, 'min_step_scaling').min(0.001).max(10).step(0.001),
+            maxStepScale          : folder.add(uniforms, 'max_step_scaling').min(0.001).max(10).step(0.001),
             maxStepCount          : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
             enableDithering       : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
             enableAdaptiveStep    : folder.add(objects, 'TRACE_ADAPTIVE_STEP_ENABLED').name('enable_adaptive_step').onFinishChange((value) => { defines.TRACE_ADAPTIVE_STEP_ENABLED = Number(value), material.needsUpdate = true }),

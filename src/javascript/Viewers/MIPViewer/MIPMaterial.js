@@ -10,7 +10,7 @@ export default function()
         u_textures: new THREE.Uniform({
             volume    : null,
             mask      : null,
-            occumaps  : null,
+            maximap   : null,
             colormaps : null,
             noisemap  : null,
         }),
@@ -38,6 +38,15 @@ export default function()
             inv_dimensions: new THREE.Vector3(),
             inv_size      : new THREE.Vector3(),
             inv_spacing   : new THREE.Vector3(),
+        }),
+
+        u_maximap: new THREE.Uniform
+        ({
+            division      : 4,
+            dimensions    : new THREE.Vector3(),
+            inv_dimensions: new THREE.Vector3(),
+            spacing       : new THREE.Vector3(),
+            size          : new THREE.Vector3(),
         }),
 
         u_colormap: new THREE.Uniform({

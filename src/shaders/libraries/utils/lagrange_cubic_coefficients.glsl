@@ -55,7 +55,7 @@ vec4 lagrange_cubic_coefficients(in vec4 t, in vec4 f)
 //     vec3 t2 = t * t;
 //     vec3 t3 = t2 * t;
 //     mat3 A = mat4(vec3(1.0), t, t2, t3);
-//     vec3 coeff = inverse(A) * f;
+//     vec3 coeff = linsolve(A, f);
     
 //     return coeff;
 // }

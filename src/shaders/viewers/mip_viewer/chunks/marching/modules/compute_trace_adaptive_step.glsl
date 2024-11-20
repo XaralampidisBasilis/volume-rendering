@@ -1,5 +1,6 @@
 // compute step distance based on taylor expansion  
-trace.step_distance = u_raymarch.step_speed / trace.derivative;
+trace.step_distance = max_trace.sample_value - trace.sample_value + u_raymarch.step_speed;
+trace.step_distance /= trace.derivative;
 
 // set negative values to max step distance.
 trace.step_distance = trace.derivative > 0.0 ? trace.step_distance : ray.max_step_distance;

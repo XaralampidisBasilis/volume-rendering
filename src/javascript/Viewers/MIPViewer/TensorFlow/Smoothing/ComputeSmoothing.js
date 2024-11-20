@@ -29,14 +29,15 @@ export default class ComputeSmoothing
 
     async compute()
     {   
+        console.time('computeSmoothing')
         tf.tidy(() => 
         {
             const smoothed = this.convolute(this.viewer.tensors.volume, this.filter.kernel)
             const quantized = this.quantize(smoothed)
             this.data = new Uint8Array(quantized.dataSync())
         })
-
-        return { data: this.data }
+        this.dataSync()
+        console.timeEnd('computeSmoothing')
     }
 
     dataSync()

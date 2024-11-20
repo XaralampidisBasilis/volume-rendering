@@ -27,6 +27,7 @@ export default class ComputeResizing
 
     async compute()
     {
+        console.time('computeResizing')
         this.tensor = tf.tidy(() =>
         {
             const volume = this.viewer.tensors.volume
@@ -35,8 +36,8 @@ export default class ComputeResizing
             const resizedZ = this.resizeLinear(resizedY, 0, this.parameters.volume.dimensions.z)
             return resizedZ
         })
-
-        return { tensor: this.tensor}
+        this.dataSync()
+        console.timeEnd('computeResizing')
     }
 
     dataSync()

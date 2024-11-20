@@ -15,22 +15,7 @@ trace_prev.sample_data = texture(u_textures.volume, trace_prev.voxel_texture_coo
 trace_prev.sample_value = trace_prev.sample_data.r;
 
 // compute gradient
-coord = trace_prev.voxel_texture_coords - u_volume.inv_dimensions * 0.5;
-
-#pragma unroll_loop_start
-for (int i = 0; i < 8; i++) {
-    values[i] = textureOffset(u_textures.volume, coord, base_offsets[i]).r;
-}
-#pragma unroll_loop_end
-
-// calculate gradient based on the sampled values 
-trace_prev.gradient = vec3(
-    values[4] + values[5] + values[6] + values[7] - values[0] - values[1] - values[2] - values[3],
-    values[2] + values[3] + values[6] + values[7] - values[0] - values[1] - values[4] - values[5],
-    values[1] + values[3] + values[5] + values[7] - values[0] - values[2] - values[4] - values[6]
-);
-
-trace_prev.gradient *= u_volume.inv_spacing * 0.25;
+trace_prev.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, trace.sample_data.gba);
 trace_prev.gradient_magnitude = length(trace_prev.gradient);
 trace_prev.gradient_direction = normalize(trace_prev.gradient);
 trace_prev.derivative = dot(trace_prev.gradient, ray.step_direction);
