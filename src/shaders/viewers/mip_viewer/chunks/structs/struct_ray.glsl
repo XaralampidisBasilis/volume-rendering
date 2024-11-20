@@ -33,6 +33,9 @@ struct Ray
     float min_start_distance;   // min allowed distance across all rays due to u_volume box, in 3d model coordinates
     float max_end_distance;     // max allowed distance across all rays due to u_volume box, in 3d model coordinates
     float max_span_distance;    // max allowed distance across all rays due to u_volume box, in 3d model coordinates
+
+    float block_min_value;
+    float block_max_value;
 };
 Ray set_ray()
 {
@@ -62,6 +65,8 @@ Ray set_ray()
     ray.min_start_distance = 0.0;
     ray.max_end_distance   = 0.0;
     ray.max_span_distance  = 0.0;
+    ray.block_min_value    = 0.0;
+    ray.block_max_value    = 0.0;
     return ray;
 }
 #endif // STRUCT_RAY

@@ -23,7 +23,7 @@ void main()
 {
     #include "./chunks/structs/set_structs"
     #include "./chunks/raycasting/compute_raycasting"
-    #include "./chunks/colormapping/compute_colormapping"
+    #include "./chunks/coloring/compute_coloring"
 
     fragColor = max_trace.mapped_color;
     #include "./chunks/compute_frag_depth"

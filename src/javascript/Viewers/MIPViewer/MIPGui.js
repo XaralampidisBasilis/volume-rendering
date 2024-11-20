@@ -80,18 +80,20 @@ export default class MIPGui
             TRACE_BVH_MARCHING_ENABLED       : Boolean(defines.TRACE_BVH_MARCHING_ENABLED),
             TRACE_ADAPTIVE_STEP_ENABLED      : Boolean(defines.TRACE_ADAPTIVE_STEP_ENABLED),
             TRACE_POSITION_REFINEMENT_ENABLED: Boolean(defines.TRACE_POSITION_REFINEMENT_ENABLED),
+            TRACE_BVH_MARCHING_ENABLED       : Boolean(defines.TRACE_BVH_MARCHING_ENABLED),
         }
     
 
         this.controllers.raymarch = 
         {
-            stepSpeed             : folder.add(uniforms, 'step_speed').min(0.001).max(1).step(0.0001),
-            minStepScale          : folder.add(uniforms, 'min_step_scaling').min(0.001).max(10).step(0.001),
-            maxStepScale          : folder.add(uniforms, 'max_step_scaling').min(0.001).max(10).step(0.001),
-            maxStepCount          : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
-            enableDithering       : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableAdaptiveStep    : folder.add(objects, 'TRACE_ADAPTIVE_STEP_ENABLED').name('enable_adaptive_step').onFinishChange((value) => { defines.TRACE_ADAPTIVE_STEP_ENABLED = Number(value), material.needsUpdate = true }),
-            enablePosRefinement   : folder.add(objects, 'TRACE_POSITION_REFINEMENT_ENABLED').name('enable_position_refinement').onFinishChange((value) => { defines.TRACE_POSITION_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
+            stepSpeed          : folder.add(uniforms, 'step_speed').min(0.001).max(1).step(0.0001),
+            minStepScale       : folder.add(uniforms, 'min_step_scaling').min(0.001).max(10).step(0.001),
+            maxStepScale       : folder.add(uniforms, 'max_step_scaling').min(0.001).max(10).step(0.001),
+            maxStepCount       : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
+            enableDithering    : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableAdaptiveStep : folder.add(objects, 'TRACE_ADAPTIVE_STEP_ENABLED').name('enable_adaptive_step').onFinishChange((value) => { defines.TRACE_ADAPTIVE_STEP_ENABLED = Number(value), material.needsUpdate = true }),
+            enablePosRefinement: folder.add(objects, 'TRACE_POSITION_REFINEMENT_ENABLED').name('enable_position_refinement').onFinishChange((value) => { defines.TRACE_POSITION_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
+            enableBvhMarching  : folder.add(objects, 'TRACE_BVH_MARCHING_ENABLED').name('enable_bvh_marching').onFinishChange((value) => { defines.TRACE_BVH_MARCHING_ENABLED = Number(value), material.needsUpdate = true }),
         }
 
     }

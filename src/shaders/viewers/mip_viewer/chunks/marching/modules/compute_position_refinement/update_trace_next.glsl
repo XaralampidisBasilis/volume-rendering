@@ -2,7 +2,7 @@
 trace_next = max_trace;
 
 // compute distance
-trace_next.distance += ray.max_step_distance / exp2(float(iter));
+trace_next.distance += 0.5 * ray.max_step_distance/ exp2(float(iter));
 trace_next.distance = clamp(trace_next.distance, ray.box_start_distance, ray.box_end_distance);
 
 // compute position

@@ -27,6 +27,12 @@ struct Trace
     float derivative;           // directional derivative at the sample position
 
     vec4  mapped_color;         // color mapped from the sample value
+
+    ivec3 block_coords;     // integer voxel coordinates in 3d space
+    float block_min_value;  // integer voxel coordinates in 3d space
+    float block_max_value;  // integer voxel coordinates in 3d space
+    bool  block_occupied;   // integer voxel coordinates in 3d space
+
 };
 
 Trace set_trace()
@@ -50,6 +56,10 @@ Trace set_trace()
     trace.gradient_magnitude = 0.0;
     trace.derivative = 0.0;
     trace.mapped_color = vec4(vec3(0.0), 1.0);
+    trace.block_coords = ivec3(0);
+    trace.block_min_value = 0.0;
+    trace.block_max_value = 0.0;
+    trace.block_occupied = false;
     return trace;
 }
 

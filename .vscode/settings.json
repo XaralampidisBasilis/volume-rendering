@@ -20,6 +20,7 @@
         "conv",
         "cumprod",
         "distmap",
+        "extremap",
         "glsl",
         "hexacontratentant",
         "isosurface",

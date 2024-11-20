@@ -4,7 +4,7 @@ import EventEmitter from '../../Utils/EventEmitter'
 import MIPMaterial from './MIPMaterial'
 import MIPGui from './MIPGui'
 import ComputeResizing from './TensorFlow/Resizing/ComputeResizing'
-import ComputeMaxima from './TensorFlow/Maxima/ComputeMaxima'
+import ComputeExtremap from './TensorFlow/Extremap/ComputeExtremap'
 import ComputeGradients from './TensorFlow/Gradients/ComputeGradients'
 import ComputeSmoothing from './TensorFlow/Smoothing/ComputeSmoothing'
 import * as tf from '@tensorflow/tfjs'
@@ -210,12 +210,12 @@ export default class MIPViewer extends EventEmitter
 
     async precompute()
     {
-        this.computeMaxima    = new ComputeMaxima(this)
+        this.computeExtremap  = new ComputeExtremap(this)
         this.computeSmoothing = new ComputeSmoothing(this)
         this.computeGradients = new ComputeGradients(this)
 
         return Promise.allSettled([
-            this.computeMaxima.compute(), 
+            this.computeExtremap.compute(),
             this.computeSmoothing.compute(), 
             this.computeGradients.compute()
         ])

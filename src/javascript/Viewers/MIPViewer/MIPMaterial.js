@@ -8,11 +8,11 @@ export default function()
     const uniforms = 
     {
         u_textures: new THREE.Uniform({
-            volume    : null,
-            mask      : null,
-            maximap   : null,
-            colormaps : null,
-            noisemap  : null,
+            volume   : null,
+            mask     : null,
+            extremap : null,
+            colormaps: null,
+            noisemap : null,
         }),
 
         u_volume : new THREE.Uniform({
@@ -40,13 +40,15 @@ export default function()
             inv_spacing   : new THREE.Vector3(),
         }),
 
-        u_maximap: new THREE.Uniform
+        u_extremap: new THREE.Uniform
         ({
-            division      : 4,
+            divisions     : 4,
             dimensions    : new THREE.Vector3(),
-            inv_dimensions: new THREE.Vector3(),
             spacing       : new THREE.Vector3(),
             size          : new THREE.Vector3(),
+            inv_dimensions: new THREE.Vector3(),
+            inv_spacing   : new THREE.Vector3(),
+            inv_size      : new THREE.Vector3(),
         }),
 
         u_colormap: new THREE.Uniform({
@@ -81,6 +83,7 @@ export default function()
         RAY_DITHERING_ENABLED            : 0,
         TRACE_ADAPTIVE_STEP_ENABLED      : 0,
         TRACE_POSITION_REFINEMENT_ENABLED: 0,
+        TRACE_BVH_MARCHING_ENABLED       : 0,
         FRAGMENT_DISCARDING_DISABLED     : 0,
     }
 

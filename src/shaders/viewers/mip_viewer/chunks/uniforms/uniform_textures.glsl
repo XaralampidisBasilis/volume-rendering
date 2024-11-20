@@ -5,7 +5,7 @@ struct Textures
 {
     sampler3D volume;
     sampler3D mask;
-    sampler3D maximap;
+    sampler3D extremap;
     sampler2D colormaps;      
     sampler2D noisemap;
 };
