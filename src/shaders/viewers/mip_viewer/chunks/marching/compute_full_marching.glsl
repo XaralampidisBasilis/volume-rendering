@@ -1,10 +1,8 @@
 #include "./modules/start_trace"
 
-while (trace.step_count < ray.max_step_count) 
+for (trace.distance = ray.start_distance; trace.distance < ray.end_distance; ) 
 {
     #include "./modules/update_trace" 
-    
-    if (!trace.update) break;
 }   
 
 #include "./modules/end_trace"

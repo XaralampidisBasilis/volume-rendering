@@ -20,7 +20,7 @@ export default class ComputeExtremap
 
         // set parameters
         this.parameters.extremap = {}
-        this.parameters.extremap.dimensions = new THREE.Vector3().fromArray(dimensions)
+        this.parameters.extremap.dimensions = new THREE.Vector3().copy(dimensions)
         this.parameters.extremap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(divisions)
         this.parameters.extremap.size = new THREE.Vector3().copy(this.parameters.volume.spacing).multiply(this.parameters.extremap.dimensions)
         this.parameters.extremap.invDimensions =  new THREE.Vector3().setScalar(1).divide(this.parameters.extremap.dimensions)

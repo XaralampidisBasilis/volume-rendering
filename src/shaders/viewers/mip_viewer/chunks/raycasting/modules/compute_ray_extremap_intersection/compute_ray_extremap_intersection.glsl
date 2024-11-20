@@ -7,15 +7,16 @@ for (trace.distance = ray.start_distance; trace.distance < ray.end_distance; )
     #include "./update_block_forward"
 }
 
-debug.variable2 = vec4(vec3(ray.block_min_value), 1.0);
-debug.variable3 = vec4(vec3(ray.block_max_value), 1.0);
+debug.variable1 = vec4(vec3(ray.block_min_value), 1.0);
+debug.variable2 = vec4(vec3(ray.block_max_value), 1.0);
+debug.variable3 = vec4(vec3(ray.block_max_value - ray.block_min_value), 1.0);
 
 // compute the ray start based on extrema
 for (trace.distance = ray.start_distance; trace.distance < ray.end_distance; ) 
 {
     #include "./sample_extremap"
 
-    if (ray.block_min_value < trace.block_max_value)  
+    if (trace.block_occupied)  
     {
         #include "./update_ray_start"
         break;
@@ -31,7 +32,7 @@ for (trace.distance = ray.end_distance; ray.start_distance < trace.distance; )
 {
     #include "./sample_extremap"
 
-    if (ray.block_min_value < trace.block_max_value)  
+    if (trace.block_occupied)  
     {
         #include "./update_ray_end"
         break;

@@ -1,3 +1,4 @@
+
 // current position
 trace.position = ray.camera_position + ray.step_direction * trace.distance;
 trace.block_coords = ivec3(trace.position * u_extremap.inv_spacing);

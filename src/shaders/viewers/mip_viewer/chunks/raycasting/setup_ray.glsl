@@ -5,13 +5,13 @@ ray.camera_direction = normalize(v_camera_direction);
 ray.step_direction = normalize(v_ray_direction);
 
 // Compute intersection of ray with the volume box
-#include "./modules/compute_ray_box_intersection.glsl"
+#include "./modules/compute_ray_box_intersection"
 
 // Compute bounds of ray with the volume box
-#include "./modules/compute_ray_distance_bounds.glsl"
+#include "./modules/compute_ray_distance_bounds"
 
 // Compute intersection of ray with the extrema occupancy max for maximum intensity projection
-#include "./modules/compute_ray_extremap_intersection/compute_ray_extremap_intersection.glsl"
+#include "./modules/compute_ray_extremap_intersection/compute_ray_extremap_intersection"
 
 // Compute ray step distances 
 #include "./modules/compute_ray_step_distances"
