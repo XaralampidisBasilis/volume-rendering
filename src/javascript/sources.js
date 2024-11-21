@@ -4,7 +4,7 @@ export default [
     {
         name: 'volumeNifti',
         type: 'niftiFile',
-        path: 'nifti/heart/volume4.nii'
+        path: 'nifti/colon/volume.nii.gz'
     },
     {
         name: 'maskNifti',

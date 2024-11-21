@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
+import * as TensorUtils from '../../../../Utils/TensorUtils'
 
 // assumes intensity data 3D, and data3DTexture
 export default class ComputeExtremap
@@ -55,7 +56,9 @@ export default class ComputeExtremap
         tf.tidy(() => 
         {
             const divisions = new Array(3).fill(this.parameters.extremap.divisions)
-            const volume = this.viewer.tensors.volume;
+            const volume = this.viewer.tensors.volume
+
+            console.log(TensorUtils.distribution(volume, 100))
 
             // compute the minima and maxima occupancy  
             const minima = this.minPool3d(volume, divisions, divisions, 'same')
