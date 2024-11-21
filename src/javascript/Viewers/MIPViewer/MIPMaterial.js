@@ -42,7 +42,7 @@ export default function()
 
         u_extremap: new THREE.Uniform
         ({
-            divisions     : 4,
+            divisions     : 2,
             dimensions    : new THREE.Vector3(),
             spacing       : new THREE.Vector3(),
             size          : new THREE.Vector3(),
@@ -60,10 +60,12 @@ export default function()
         }),
 
         u_raymarch: new THREE.Uniform({
-            step_speed        : 1.0 / 255,
-            min_step_scaling  : 1,
-            max_step_scaling  : 1,
-            max_step_count    : 1000,
+            min_sample_value: 0,
+            max_sample_value: 1,
+            step_speed      : 1.0 / 255,
+            min_step_scaling: 1,
+            max_step_scaling: 1,
+            max_step_count  : 1000,
         }),
 
         u_debugger: new THREE.Uniform({
