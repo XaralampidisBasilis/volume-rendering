@@ -4,7 +4,7 @@ export default [
     {
         name: 'volumeNifti',
         type: 'niftiFile',
-        path: 'nifti/colon/volume.nii.gz'
+        path: 'nifti/colon/volume.nii.gz  '
     },
     {
         name: 'maskNifti',
@@ -24,7 +24,8 @@ export default [
         name: 'blue256Noisemap',
         type: 'texture',
         path: 'textures/noisemaps/blue_256.png'
-    },   
+    },  
+     
     // {
     //     name: 'white256Noisemap',
     //     type: 'texture',
