@@ -69,7 +69,6 @@ export default class ComputeGradients
 
             this.maxNorm = Math.max(this.minGrad.length(), this.maxGrad.length())
         })
-        this.dataSync()
         console.timeEnd('computeGradients')
     }
 

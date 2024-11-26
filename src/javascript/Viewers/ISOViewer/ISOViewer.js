@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
+import Volume3D from '../../Utils/Volume3D/Volume3D'
 import ISOMaterial from './ISOMaterial'
 import ISOGui from './ISOGui'
 import ComputeResizing from './TensorFlow/Resizing/ComputeResizing'
@@ -23,26 +24,28 @@ export default class ISOViewer extends EventEmitter
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
 
-        this.setParameters()
-        this.setTensors()
+        const volume3D = new Volume3D(this.resources.items.volumeNifti)
 
-        this.resizing = new ComputeResizing(this)
-        this.computeResizing().then(() =>
-        {
-            this.setData()
-            this.setTextures()
-            this.setGeometry()
-            this.setMaterial()
-            this.setMesh()
+        // this.setParameters()
+        // this.setTensors()
 
-            this.precompute().then(() =>
-            {
-                if (this.debug.active) 
-                    this.gui = new ISOGui(this)
+        // this.resizing = new ComputeResizing(this)
+        // this.computeResizing().then(() =>
+        // {
+        //     this.setData()
+        //     this.setTextures()
+        //     this.setGeometry()
+        //     this.setMaterial()
+        //     this.setMesh()
+
+        //     this.precompute().then(() =>
+        //     {
+        //         if (this.debug.active) 
+        //             this.gui = new ISOGui(this)
     
-                this.trigger('ready')
-            })
-        })
+        //         this.trigger('ready')
+        //     })
+        // })
         
     }
 
@@ -77,6 +80,7 @@ export default class ISOViewer extends EventEmitter
 
     setTensors()
     {
+
         this.tensors = {}
         this.tensors.volume = tf.tensor4d(this.resources.items.volumeNifti.getData(), this.parameters.volume.tensorShape,'float32')
         this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), this.parameters.mask.tensorShape,'bool')

@@ -202,12 +202,27 @@ export function padCeil(tensor, divisions)
 
 export function padCeilPow2(tensor)
 {
-    const ceilPow2 = (x) => Math.pow(2, Math.ceil(Math.log2(x)))
-    const padShape = tensor.shape.map(ceilPow2)
-    const padded = tf.pad(tensor, padShape.map((dim, i) => [0, dim - tensor.shape[i]]))
-    tensor.dispose()
-    return padded
+    tf.tidy(() => 
+    {
+        const ceilPow2 = (x) => Math.pow(2, Math.ceil(Math.log2(x)))
+        const padShape = tensor.shape.map(ceilPow2)
+        const padded = tf.pad(tensor, padShape.map((dim, i) => [0, dim - tensor.shape[i]]))
+        return padded
+    })
 }
+
+export function minPool3d(tensor, filterSize, strides, pad)
+{
+    tf.tidy(() =>
+    {
+        const negative = tensor.mul([-1])
+        const negMaxPool = tf.maxPool3d(negative, filterSize, strides, pad)
+        negative.dispose()
+        const tensorMinPool = negMaxPool.mul([-1])
+        negMaxPool.dispose()
+        return tensorMinPool
+    })
+} 
 
 /**
  * Computes the occupancy map for a given tensor based on the method described
@@ -283,6 +298,26 @@ export function occupancyatlas(tensor, spacing)
 }
 
 /**
+ * Computes the extrema map for a given tensor based on the method described
+ * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
+ *
+ * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the extrema map is computed.
+ * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of the map.
+ * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the extrema values map.
+ */
+export function extremamap(tensor, spacing)
+{
+    return tf.tidy(() =>
+    {
+        const spacings = [spacing, spacing, spacing]
+        const minimamap = minPool3d(tensor, spacings, spacings, 'same')
+        const maximamap = tf.maxPool3d(tensor, spacings, spacings, 'same')
+        const extremamap = tf.concat([minimamap, maximamap], 3)            
+        return extremamap
+    })
+}
+
+/**
  * Computes the Chebyshev distance map for a given tensor based on the method described
  * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
  *
@@ -295,10 +330,9 @@ export function distancemap(occupancymap, maxDistance)
 {
     return tf.tidy(() => 
     {
-        let diffusionNext = occupancymap.clone()
+        let diffusionNext = occupancymap.cast('bool')
         let diffusionPrev = tf.zerosLike(diffusionNext, 'bool')
         let distancemap = tf.zerosLike(diffusionNext, 'int32')
-        condition.dispose() 
     
         for (let iter = 0; iter < maxDistance; iter++) 
         {
@@ -333,3 +367,58 @@ export function distancemap(occupancymap, maxDistance)
         return distancemap
     })
 }
+
+export function separableConv3d(tensor, filters)
+{
+    const passX = tf.conv3d(tensor, filters.separableX, 1, 'same')
+    const passY = tf.conv3d(passX, filters.separableY, 1, 'same') 
+    passX.dispose()
+    const passZ = tf.conv3d(passY, filters.separableZ, 1, 'same') 
+    passY.dispose()
+    return passZ
+}
+
+export function gradients3d(tensor, spacing)
+{
+    return tf.tidy(() => 
+    {
+        const compute = (filter, space) => 
+        {
+            const convolution = separableConv3d(tensor, filter)
+            const gradient = convolution.div([space])
+            convolution.dispose() 
+            return gradient
+        }
+
+        const gradientsX = compute(scharrKernel.x, spacing.x)
+        const gradientsY = compute(scharrKernel.y, spacing.y)
+        const gradientsZ = compute(scharrKernel.z, spacing.z)
+        const gradients = tf.concat([gradientsX, gradientsY, gradientsZ], 3)
+
+        return gradients
+    })   
+}
+
+const scharrKernel = tf.tidy(() => 
+{ 
+    const kernel = {
+        x : {
+            separableX: tf.tensor5d([-1,  0, 1], [1, 1, 3, 1, 1], 'float32').div([2]),
+            separableY: tf.tensor5d([ 3, 10, 3], [1, 3, 1, 1, 1], 'float32').div([16]),
+            separableZ: tf.tensor5d([ 3, 10, 3], [3, 1, 1, 1, 1], 'float32').div([16]),
+        },
+
+        y : {
+            separableX: tf.tensor5d([ 3, 10, 3], [1, 1, 3, 1, 1], 'float32').div([16]),
+            separableY: tf.tensor5d([-1,  0, 1], [1, 3, 1, 1, 1], 'float32').div([2]),
+            separableZ: tf.tensor5d([ 3, 10, 3], [3, 1, 1, 1, 1], 'float32').div([16]),
+        },
+
+        z : {
+            separableX: tf.tensor5d([ 3, 10, 3], [1, 1, 3, 1, 1], 'float32').div([16]),
+            separableY: tf.tensor5d([ 3, 10, 3], [1, 3, 1, 1, 1], 'float32').div([16]),
+            separableZ: tf.tensor5d([-1,  0, 1], [3, 1, 1, 1, 1], 'float32').div([2]),
+        },
+    }
+    return kernel
+})
