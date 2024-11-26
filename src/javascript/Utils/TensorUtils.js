@@ -182,19 +182,126 @@ export function mix(tensorA, tensorB, t)
     return mixed
 }
 
-export function distancemap(tensor, spacing) 
+export function normalize(tensor, min, max)
+{
+    const shifted = tensor.sub(min)
+    const normalized = shifted.div(tf.sub(max, min))
+    shifted.dispose()
+    return normalized
+}
+
+export function padCeil(tensor, divisions)
+{
+    const ceilDiv = (dimension) => Math.ceil(dimension / divisions)
+    const padShape = tensor.shape.map(ceilDiv)
+    const padded = tensor.pad(padShape.map((dim, i) => [0, dim - tensor.shape[i]]))
+    return padded
+}
+
+export function padCeilPow2(tensor)
+{
+    const ceilPow2 = (x) => Math.pow(2, Math.ceil(Math.log2(x)))
+    const padShape = tensor.shape.map(ceilPow2)
+    const padded = tf.pad(tensor, padShape.map((dim, i) => [0, dim - tensor.shape[i]]))
+    tensor.dispose()
+    return padded
+}
+
+/**
+ * Computes the occupancy map for a given tensor based on the method described
+ * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
+ *
+ * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the occupancy map is computed.
+ * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of occupancy.
+ * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the occupancy values map.
+ */
+export function occupancymap(tensor, spacing)
+{
+    return tf.tidy(() =>
+    {
+        const spacings = [spacing, spacing, spacing]
+        const condition = tensor.greater([0])
+    
+        const occupancymapTemp = tf.maxPool3d(condition, spacings, spacings, 'same')
+        condition.dispose()
+    
+        const occupancymap = occupancymapTemp.mul([255])
+        occupancymapTemp.dispose()
+    
+        return occupancymap
+    })
+}
+
+/**
+ * Computes the multi resolution occupancy maps compacted inside an atlas for a given tensor based on the method described
+ * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
+ *
+ * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the occupancy atlas is computed.
+ * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of occupancy.
+ * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the occupancy values atlas.
+ */
+export function occupancyatlas(tensor, spacing)
+{
+    return tf.tidy(() =>
+    {
+        const spacings = [spacing, spacing, spacing]
+        const condition = tensor.greater([0])
+    
+        const conditionPadded = padCeilPow2(condition)
+        condition.dispose()
+
+        const occupancymapTemp = tf.maxPool3d(conditionPadded, spacings, spacings, 'same')
+        condition.dispose()
+    
+        let occupancymap = occupancymapTemp.mul([255])
+        let occupancyatlas = occupancymap.pad([[0, occupancymap.shape[0] * 0.5], [0, 0], [0, 0], [0, 0] ])
+        occupancymapTemp.dispose()
+
+        const offsets = [occupancymap.shape[0], 0, 0, 0]
+        const numMaps = Math.floor(Math.log2(Math.min(...tensor.shape.slice(0, 3)))) + 1;
+
+        for (let map = 1; map < numMaps; map++) 
+        {
+            const occupancymapTemp = tf.maxPool3d(occupancymap, [2, 2, 2], [2, 2, 2], 'same')     
+            const occupancymapPadded = occupancymapTemp.pad(offsets.map((offset, i) => [offset, occupancyatlas.shape[i] - offset - occupancymap.shape[i]]))
+            occupancymapTemp.dispose()
+            
+            occupancymap.dispose()
+            occupancymap = occupancymapPadded
+            const occupancyatlasTemp = occupancyatlas.add(occupancymap)
+
+            occupancyatlas.dispose()
+            occupancyatlas = occupancyatlasTemp
+
+            offsets[1] += occupancymap.shape[1]
+        }
+        
+        return [occupancyatlas, numMaps]
+    })
+}
+
+/**
+ * Computes the Chebyshev distance map for a given tensor based on the method described
+ * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
+ *
+ * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the distance map is computed.
+ * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of distance calculation.
+ * @param {number} maxDistance - The maximum distance to compute for the distance map. 
+ * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the computed Chebyshev distance map.
+ */
+export function distancemap(tensor, spacing, maxDistance) 
 {
     return tf.tidy(() => 
     {
-        const size = [spacing, spacing, spacing]
-        const occupancy = tensor.greater([0])
+        const spacings = [spacing, spacing, spacing]
+        const condition = tensor.greater([0])
         
-        let diffusionNext = tf.maxPool3d(occupancy, size, size, 'same')
+        let diffusionNext = tf.maxPool3d(condition, spacings, spacings, 'same')
         let diffusionPrev = tf.zerosLike(diffusionNext, 'bool')
         let distancemap = tf.zerosLike(diffusionNext, 'int32')
-        occupancy.dispose() 
+        condition.dispose() 
     
-        for (let iter = 0; iter < 255; iter++) 
+        for (let iter = 0; iter < maxDistance; iter++) 
         {
             const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
             const distancemapUpdate = diffusionUpdate.mul([iter])
@@ -212,7 +319,7 @@ export function distancemap(tensor, spacing)
         }
         
         const diffusionUpdate = tf.logicalNot(diffusionPrev)
-        const distancemapUpdate = diffusionUpdate.mul([255])
+        const distancemapUpdate = diffusionUpdate.mul([maxDistance])
         diffusionUpdate.dispose()
     
         const distancemapTemp = distancemap.add(distancemapUpdate);
@@ -226,12 +333,4 @@ export function distancemap(tensor, spacing)
     
         return distancemap
     })
-}
-
-export function padCeil(tensor, divisions)
-{
-    const ceilDiv = (dimension) => Math.ceil(dimension / divisions)
-    const padShape = tensor.shape.map(ceilDiv)
-    const padded = tensor.pad(padShape.map((dim, i) => [0, dim - tensor.shape[i]]))
-    return padded
 }

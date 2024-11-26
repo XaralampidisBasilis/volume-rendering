@@ -14,9 +14,6 @@ export default class ComputeOccupancy
 
     async compute()
     {                  
-        const distancemap = TensorUtils.distancemap(this.viewer.tensors.volume, 2)
-        console.log(distancemap.dataSync())
-        
         tf.tidy(async () => 
         {
             const divisions = 2;
