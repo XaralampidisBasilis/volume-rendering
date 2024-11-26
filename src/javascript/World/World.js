@@ -17,7 +17,7 @@ export default class World extends EventEmitter
         // Wait for resources
         this.resources.on('ready', () =>
         {
-            this.viewer = new MIPViewer()
+            this.viewer = new ISOViewer()
             this.camera.instance.position.fromArray(this.resources.items.volumeNifti.size)
 
             this.viewer.on('ready', () => this.trigger('ready'))

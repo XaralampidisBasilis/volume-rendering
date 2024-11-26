@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
+import * as TensorUtils from '../../../../Utils/TensorUtils'
 
 // assumes intensity data 3D, and data3DTexture
 export default class ComputeOccupancy
@@ -12,8 +13,11 @@ export default class ComputeOccupancy
     }
 
     async compute()
-    {               
-        tf.tidy(() => 
+    {                  
+        const distancemap = TensorUtils.distancemap(this.viewer.tensors.volume, 2)
+        console.log(distancemap.dataSync())
+        
+        tf.tidy(async () => 
         {
             const divisions = 2;
             const spacing = this.parameters.volume.spacing.toArray().toReversed().concat(1)

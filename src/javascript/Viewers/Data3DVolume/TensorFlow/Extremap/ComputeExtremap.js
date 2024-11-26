@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
-import * as TensorUtils from '../../../../Utils/TensorUtils'
 
 // assumes intensity data 3D, and data3DTexture
 export default class ComputeExtremap
