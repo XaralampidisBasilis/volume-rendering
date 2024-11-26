@@ -7,7 +7,7 @@ import ComputeExtremap from './TensorFlow/Extremap/ComputeExtremap'
 import * as tf from '@tensorflow/tfjs'
 import * as TensorUtils from '../../Utils/TensorUtils'
 
-export default class Data3DVolume extends EventEmitter
+export default class Volume3D extends EventEmitter
 {
     constructor(volume)
     {

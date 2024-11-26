@@ -87,7 +87,9 @@ export function distribution(tensor, numBins)
 
        // Compute the inverse cumulative mass function
         let clamp = (min, max) => value => Math.max(Math.min(value, max), min)
-        let inverseCumulativeMassFunction = everpolate.linear(binCenters.arraySync(), cumulativeMassFunction.arraySync(), binCenters.arraySync()).map(clamp(0.0, 1.0))
+        let inverseCumulativeMassFunction = everpolate
+            .linear(binCenters.arraySync(), cumulativeMassFunction.arraySync(), binCenters.arraySync())
+            .map(clamp(0.0, 1.0))
         inverseCumulativeMassFunction = tf.tensor(inverseCumulativeMassFunction)
 
         return {binCenters, binIndices, probabilityMassFunction, cumulativeMassFunction, inverseCumulativeMassFunction}
@@ -284,19 +286,16 @@ export function occupancyatlas(tensor, spacing)
  * Computes the Chebyshev distance map for a given tensor based on the method described
  * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
  *
- * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the distance map is computed.
+ * @param {tf.Tensor} occupancymap - A occupancymap representing the input data where the distance map is computed.
  * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of distance calculation.
  * @param {number} maxDistance - The maximum distance to compute for the distance map. 
- * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the computed Chebyshev distance map.
+ * @returns {tf.Tensor} - A tensor of the same shape as the input, containing the computed Chebyshev distance map.
  */
-export function distancemap(tensor, spacing, maxDistance) 
+export function distancemap(occupancymap, maxDistance) 
 {
     return tf.tidy(() => 
     {
-        const spacings = [spacing, spacing, spacing]
-        const condition = tensor.greater([0])
-        
-        let diffusionNext = tf.maxPool3d(condition, spacings, spacings, 'same')
+        let diffusionNext = occupancymap.clone()
         let diffusionPrev = tf.zerosLike(diffusionNext, 'bool')
         let distancemap = tf.zerosLike(diffusionNext, 'int32')
         condition.dispose() 
