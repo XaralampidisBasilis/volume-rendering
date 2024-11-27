@@ -90,14 +90,12 @@ export function approximateDistribution(tensor, numBins, sampleRate)
         // Compute the cumulative mass function
         let cumulativeMassFunction = probabilityMassFunction.cumsum()
 
-        // Compute the inverse cumulative mass function
-        const [min, max] = [binEdges.min().arraySync(), binEdges.max().arraySync()]
-        
-        const t = normalize(binCenters, min, max).arraySync()
+        // Compute the inverse cumulative mass function        
+        const t = normalize(binEdges).arraySync()
         const y = cumulativeMassFunction.arraySync()
-        const x = binCenters.arraySync()
+        const x = binEdges.arraySync()
 
-        let inverseCumulativeMassFunction = everpolate.linear(t, y, x).map((value) => Math.min(Math.max(value, min), max))
+        let inverseCumulativeMassFunction = everpolate.linear(t, y, x)
         inverseCumulativeMassFunction = tf.tensor(inverseCumulativeMassFunction)
 
         return {binCenters, probabilityMassFunction, cumulativeMassFunction, inverseCumulativeMassFunction}
@@ -231,14 +229,34 @@ export function mix(tensorA, tensorB, t)
     return mixed
 }
 
-export function normalize(tensor, min, max)
+export function normalize(tensor)
 {
     return tf.tidy(() =>
     {
+        const min = tensor.min()
+        const max = tensor.max()
+        const range = tf.sub(max, min)
         const shifted = tensor.sub(min)
-        const normalized = shifted.div(tf.sub(max, min))
+        const normalized = shifted.div(range)
         shifted.dispose()
-        return normalized
+        return [normalized, min.arraySync(), max.arraySync()]
+    })
+}
+
+export function quantize(tensor)
+{
+    return tf.tidy(() =>
+    {
+        const [normalized, min, max] = normalize(tensor)
+        const scaled = normalized.mul(tf.scalar(255))
+        normalized.dispose()
+        const clipped = scaled.clipByValue(0, 255)  
+        scaled.dispose()
+        const rounded = clipped.round()
+        clipped.dispose()
+        const quantized = rounded.cast('int32')
+        rounded.dispose()
+        return [quantized, min, max]
     })
 }
 
