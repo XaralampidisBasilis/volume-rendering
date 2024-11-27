@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
-import VolumeProcessor from '../../Utils/VolumeProcessor/VolumeProcessor'
+import VolumeProcessor from '../../Utils/VolumeProcessor'
 import ISOMaterial from './ISOMaterial'
 import ISOGui from './ISOGui'
 import ComputeResizing from './TensorFlow/Resizing/ComputeResizing'

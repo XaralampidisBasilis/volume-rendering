@@ -7,10 +7,11 @@ import timeit from '../timeit'
 
 export default class VolumeProcessor extends EventEmitter
 {
-    constructor(volume)
+    constructor(volume, renderer)
     {
         super()
 
+        this.renderer = renderer
         this.volume = volume
         this.setParameters()
         this.setTensors()
@@ -61,6 +62,11 @@ export default class VolumeProcessor extends EventEmitter
         this.textures.volume.generateMipmaps = false
         this.textures.volume.needsUpdate = true   
     }
+
+    computeResizeLinear()
+    {
+
+    }
     
     computeGradients()
     {
@@ -102,8 +108,10 @@ export default class VolumeProcessor extends EventEmitter
 
     computeVolumeCompander()
     {
-        const distribution = TensorUtils.approximateDistribution(this.tensors.volume, 100, 0.5)
-        console.log(distribution.inverseCumulativeMassFunction.dataSync())
+        const distribution = TensorUtils.approximateDistribution(this.tensors.volume, undefined, 0.1)
+        console.log('binCenters', distribution.binCenters.dataSync())
+        console.log('cumulativeMassFunction', distribution.cumulativeMassFunction.dataSync())
+        console.log('inverseCumulativeMassFunction', distribution.inverseCumulativeMassFunction.dataSync())
     }
 
     computeOccupancyMap(threshold, division)

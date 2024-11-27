@@ -192,6 +192,26 @@ export function resizeLinear(tensor, axis, newSize)
     })
 }
 
+export function resizeLinear3d(tensor, newShape)
+{
+    return tf.tidy(() => 
+    {
+        const resizedX = resizeLinear(tensor,   0, newShape[0])
+        const resizedY = resizeLinear(resizedX, 1, newShape[1])
+        const resizedZ = resizeLinear(resizedY, 2, newShape[2])
+        return resizedZ
+    })
+}
+
+export function rescaleLinear3d(tensor, scale)
+{
+    return tf.tidy(() => 
+    {
+        const newShape = tensor.shape.map((dimension) => Math.ceil(dimension / scale))
+        return resizeLinear3d(tensor, newShape)
+    })
+}
+
 export function slice(tensor, axis, number)
 {
     const begin = tensor.shape.map(() => 0)
