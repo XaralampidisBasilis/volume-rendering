@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
-import Volume3D from '../../Utils/Volume3D/Volume3D'
+import VolumeProcessor from '../../Utils/VolumeProcessor/VolumeProcessor'
 import ISOMaterial from './ISOMaterial'
 import ISOGui from './ISOGui'
 import ComputeResizing from './TensorFlow/Resizing/ComputeResizing'
@@ -24,7 +24,7 @@ export default class ISOViewer extends EventEmitter
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
 
-        const volume3D = new Volume3D(this.resources.items.volumeNifti)
+        const volumeProcessor = new VolumeProcessor(this.resources.items.volumeNifti)
 
         // this.setParameters()
         // this.setTensors()

@@ -1,81 +1,15 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import everpolate from 'everpolate'
-
-const scharrKernel = tf.tidy(() => 
-{ 
-    const kernel = {
-        x : {
-            separableX: tf.tensor5d([-1,  0, 1], [1, 1, 3, 1, 1], 'float32').div([2]),
-            separableY: tf.tensor5d([ 3, 10, 3], [1, 3, 1, 1, 1], 'float32').div([16]),
-            separableZ: tf.tensor5d([ 3, 10, 3], [3, 1, 1, 1, 1], 'float32').div([16]),
-        },
-
-        y : {
-            separableX: tf.tensor5d([ 3, 10, 3], [1, 1, 3, 1, 1], 'float32').div([16]),
-            separableY: tf.tensor5d([-1,  0, 1], [1, 3, 1, 1, 1], 'float32').div([2]),
-            separableZ: tf.tensor5d([ 3, 10, 3], [3, 1, 1, 1, 1], 'float32').div([16]),
-        },
-
-        z : {
-            separableX: tf.tensor5d([ 3, 10, 3], [1, 1, 3, 1, 1], 'float32').div([16]),
-            separableY: tf.tensor5d([ 3, 10, 3], [1, 3, 1, 1, 1], 'float32').div([16]),
-            separableZ: tf.tensor5d([-1,  0, 1], [3, 1, 1, 1, 1], 'float32').div([2]),
-        },
-    }
-    return kernel
-})
-
-export function histogram(tensor, numBins) 
-{
-    return tf.tidy(() => 
-    {
-        const flatTensor = tensor.flatten()
-        
-        // Compute the min and max values of the tensor
-        const tensorMin = flatTensor.min()
-        const tensorMax = flatTensor.max()
-
-        // Subsample the tensor
-        const sampleRate = 0.01
-        const sampleSize = Math.max(1, Math.floor(flatTensor.size * sampleRate))
-        const sampleIndices = tf.randomUniform([sampleSize], 0, flatTensor.size, 'int32')
-        const subTensor = tf.gather(flatTensor, sampleIndices)
-        sampleIndices.dispose()
-        flatTensor.dispose()
-
-        // Compute bin width and scale values into bin indices
-        const binWidth = tensorMax.sub(tensorMin).div(numBins)
-        const binIndices = subTensor.sub(tensorMin).div(binWidth).floor().toInt()
-        const clampedIndices = binIndices.clipByValue(0, numBins - 1)
-        subTensor.dispose()
-
-        // Use tf.bincount for efficient histogram calculation
-        const weights = tf.tensor([])
-        const histogram = tf.bincount(clampedIndices, weights, numBins)
-        clampedIndices.dispose()
-
-        // Compute bin centers
-        const binEdges = tf.linspace(tensorMin.arraySync(), tensorMax.arraySync(), numBins + 1)
-        const binWidthScalar = binWidth.arraySync()
-        const binCenters = binEdges.slice(1).sub(binWidthScalar / 2)
-        binEdges.dispose()
-
-        // Compute the inverse cumulative mass function
-        tensorMin.dispose()
-        tensorMax.dispose()
-
-        return [histogram, binCenters, binIndices]
-    })
-}
+import BESSEL from 'bessel'
 
 export function histcounts(tensor)
 {
     return tf.tidy(() =>
     { 
         // compute interquartile range (IQR)
-        const q25 = quantile(tensor, 0.25)
-        const q75 = quantile(tensor, 0.75)
+        const q25 = quantile(tensor, 25)
+        const q75 = quantile(tensor, 75)
         const IQR = q75.sub(q25)
     
         // number of data points
@@ -96,27 +30,77 @@ export function histcounts(tensor)
     })
 }
 
-export function distribution(tensor, numBins) 
+export function approximateHistogram(tensor, numBins, sampleRate) 
 {
-    let [histogram, binCenters, binIndices] = histogram(tensor, numBins)
-
     return tf.tidy(() => 
     {
+        const flatTensor = tensor.flatten()
+        
+        // Compute the min and max values of the tensor
+        const tensorMin = flatTensor.min()
+        const tensorMax = flatTensor.max()
+
+        // Subsample the tensor
+        sampleRate = sampleRate ?? 0.01
+        const sampleSize = Math.max(1, Math.floor(flatTensor.size * sampleRate))
+        const sampleIndices = tf.randomUniform([sampleSize], 0, flatTensor.size, 'int32')
+        const subTensor = tf.gather(flatTensor, sampleIndices)
+        sampleIndices.dispose()
+        flatTensor.dispose()
+
+        // Compute num of bins
+        numBins = numBins ?? histcounts(subTensor)
+
+        // Compute bin width and scale values into bin indices
+        const binWidth = tensorMax.sub(tensorMin).div(numBins)
+        const binIndices = subTensor.sub(tensorMin).div(binWidth).floor().toInt()
+        subTensor.dispose()
+
+        const clampedIndices = binIndices.clipByValue(0, numBins - 1)
+        binIndices.dispose()
+
+        // Use tf.bincount for efficient histogram calculation
+        const weights = tf.tensor([])
+        const histogram = tf.bincount(clampedIndices, weights, numBins)
+        clampedIndices.dispose()
+
+        // Compute bin centers
+        const binEdges = tf.linspace(tensorMin.arraySync(), tensorMax.arraySync(), numBins + 1)
+        const binWidthScalar = binWidth.arraySync()
+        const binCenters = binEdges.slice(1).sub(binWidthScalar / 2)
+
+        // Compute the inverse cumulative mass function
+        tensorMin.dispose()
+        tensorMax.dispose()
+
+        return [histogram, binCenters, binEdges]
+    })
+}
+
+export function approximateDistribution(tensor, numBins, sampleRate) 
+{
+    return tf.tidy(() => 
+    {
+        let [hist, binCenters, binEdges] = approximateHistogram(tensor, numBins, sampleRate)
+
         // Normalize the histogram
-        let totalCounts = histogram.sum()
-        let probabilityMassFunction = tf.div(histogram, totalCounts)
+        let totalCounts = hist.sum()
+        let probabilityMassFunction = tf.div(hist, totalCounts)
 
         // Compute the cumulative mass function
         let cumulativeMassFunction = probabilityMassFunction.cumsum()
 
-       // Compute the inverse cumulative mass function
-        let clamp = (min, max) => value => Math.max(Math.min(value, max), min)
-        let inverseCumulativeMassFunction = everpolate
-            .linear(binCenters.arraySync(), cumulativeMassFunction.arraySync(), binCenters.arraySync())
-            .map(clamp(0.0, 1.0))
+        // Compute the inverse cumulative mass function
+        const [min, max] = [binEdges.min().arraySync(), binEdges.max().arraySync()]
+        
+        const t = normalize(binCenters, min, max).arraySync()
+        const y = cumulativeMassFunction.arraySync()
+        const x = binCenters.arraySync()
+
+        let inverseCumulativeMassFunction = everpolate.linear(t, y, x).map((value) => Math.min(Math.max(value, min), max))
         inverseCumulativeMassFunction = tf.tensor(inverseCumulativeMassFunction)
 
-        return {binCenters, binIndices, probabilityMassFunction, cumulativeMassFunction, inverseCumulativeMassFunction}
+        return {binCenters, probabilityMassFunction, cumulativeMassFunction, inverseCumulativeMassFunction}
     })
 }
 
@@ -132,12 +116,31 @@ export function quantile(tensor, percentage)
     return quantile
 }
 
-export function extrema(tensor)
+export function approximateQuantile(tensor, percentage, sampleRate)
+{
+    sampleRate = sampleRate ?? 0.01
+    const array = tensor.reshape([-1])
+
+    const sampleSize = Math.max(1, Math.floor(array.size * sampleRate))
+    const indices = tf.randomUniform([sampleSize], 0, array.size, 'int32')
+    const subArray = tf.gather(array, indices)
+    array.dispose()
+
+    const k = Math.floor(subArray.size * (1 - percentage / 100))
+    const topK = tf.topk(subArray, k, true) 
+    subArray.dispose() 
+    const quantile = topK.values.min() 
+    topK.values.dispose() 
+    topK.indices.dispose()
+    return quantile
+}
+
+export function approximateExtrema(tensor, sampleRate)
 {
     return tf.tidy(() =>
     {
+        sampleRate = sampleRate ?? 0.01
         const percentile = 99.9
-        const sampleRate = 0.01
     
         const array = tensor.reshape([-1])
         const sampleSize = Math.max(1, Math.floor(array.size * sampleRate))
@@ -210,10 +213,13 @@ export function mix(tensorA, tensorB, t)
 
 export function normalize(tensor, min, max)
 {
-    const shifted = tensor.sub(min)
-    const normalized = shifted.div(tf.sub(max, min))
-    shifted.dispose()
-    return normalized
+    return tf.tidy(() =>
+    {
+        const shifted = tensor.sub(min)
+        const normalized = shifted.div(tf.sub(max, min))
+        shifted.dispose()
+        return normalized
+    })
 }
 
 export function padCeil(tensor, divisions)
@@ -337,8 +343,8 @@ export function occupancyDistanceMap(tensor, threshold, division, maxDistance)
         const occupancy = occupancyMap(tensor, threshold, division)
 
         let diffusionNext = occupancy.cast('bool')
-        let diffusionPrev = tf.zerosLike(diffusionNext, 'bool')
-        let distanceMap = tf.zerosLike(diffusionNext, 'int32')
+        let diffusionPrev = tf.zeros(diffusionNext.shape, 'bool')
+        let distanceMap = tf.zeros(diffusionNext.shape, 'int32')
     
         for (let iter = 0; iter <= maxDistance; iter++) 
         {
@@ -408,7 +414,7 @@ export function extremaDistanceMap(tensor, division, maxDistance)
     return tf.tidy(() => 
     {
         let [minimaMap, maximaMap] = tf.unstack(extremaMap(tensor, division), 3) 
-        let distanceMap = tf.zerosLike(minimaMap, 'int32')
+        let distanceMap = tf.zeros(minimaMap.shape, 'int32')
     
         for (let iter = 0; iter <= maxDistance; iter++) 
         {
@@ -433,7 +439,6 @@ export function extremaDistanceMap(tensor, division, maxDistance)
     })
 }
 
-
 export function separableConv3d(tensor, filters)
 {
     const passX = tf.conv3d(tensor, filters.separableX, 1, 'same')
@@ -445,6 +450,29 @@ export function separableConv3d(tensor, filters)
 }
 
 export function gradients3d(tensor, spacing)
+{
+    return tf.tidy(() => 
+    {
+        const kernel = scharrKernel()
+
+        const compute = (filter, space) => 
+        {
+            const convolution = separableConv3d(tensor, filter)
+            const gradient = convolution.div([space])
+            convolution.dispose() 
+            return gradient
+        }
+
+        const gradientsX = compute(kernel.x, spacing.x)
+        const gradientsY = compute(kernel.y, spacing.y)
+        const gradientsZ = compute(kernel.z, spacing.z)
+        const gradients = tf.concat([gradientsX, gradientsY, gradientsZ], 3)
+
+        return gradients
+    })   
+}
+
+export function smoothing3d(tensor, spacing)
 {
     return tf.tidy(() => 
     {
@@ -463,4 +491,165 @@ export function gradients3d(tensor, spacing)
 
         return gradients
     })   
+}
+
+/* Sources :
+    // https://homepages.inf.ed.ac.uk/rbf/HIPR2/gsmooth.htm
+    // https://www.wikiwand.com/en/articles/Sampled_Gaussian_kernel
+    // https://www.youtube.com/watch?v=SiJpkucGa1o&t=416s&ab_channel=Computerphile
+*/
+export function gaussianKernel(radius)
+{
+    return tf.tidy(() =>
+    {
+        const length = radius * 2 + 1
+        const sigma = radius / 3
+        const variance = sigma ** 2
+        const generator = (n) => Math.exp(-(n ** 2) / (2 * variance)) / Math.sqrt(2 * Math.PI * variance)
+
+        const coeffsHalf = Array.from({ length: radius + 1 }, (_, n) => generator(n))
+        const coeffs = [...coeffsHalf.slice(1).reverse(), ...coeffsHalf]
+        const coeffSum = coeffs.reduce((sum, value) => sum + value, 0)
+        const coeffsNorm = coeffs.map((coeff) => coeff / coeffSum)
+
+        const kernel = {
+            separableX: tf.tensor5d(coeffsNorm, [1, 1, length, 1, 1], 'float32'),
+            separableY: tf.tensor5d(coeffsNorm, [1, length, 1, 1, 1], 'float32'),
+            separableZ: tf.tensor5d(coeffsNorm, [length, 1, 1, 1, 1], 'float32'),
+        }
+
+        return kernel
+    })
+}
+
+/* Sources :
+    // https://www.wikiwand.com/en/articles/Sampled_Gaussian_kernel
+    // https://www.youtube.com/watch?v=SiJpkucGa1o&t=416s&ab_channel=Computerphile
+*/
+export function besselKernel(radius)
+{
+    return tf.tidy(() =>
+    {
+        const length = radius * 2 + 1
+        const sigma = radius / 3
+        const variance = sigma ** 2
+        const generator = (n) => Math.exp(variance) * BESSEL.besseli(this.variance, n)
+
+        const coeffsHalf = Array.from({ length: radius + 1 }, (_, n) => generator(n))
+        const coeffs = [...coeffsHalf.slice(1).reverse(), ...coeffsHalf]
+        const coeffSum = coeffs.reduce((sum, value) => sum + value, 0)
+        const coeffsNorm = coeffs.map((coeff) => coeff / coeffSum)
+
+        const kernel = {
+            separableX: tf.tensor5d(coeffsNorm, [1, 1, length, 1, 1], 'float32'),
+            separableY: tf.tensor5d(coeffsNorm, [1, length, 1, 1, 1], 'float32'),
+            separableZ: tf.tensor5d(coeffsNorm, [length, 1, 1, 1, 1], 'float32'),
+        }
+
+        return kernel
+    })
+}
+
+export function averageKernel()
+{
+    return tf.tidy(() =>
+    {
+        const length = radius * 2 + 1
+        const generator = (n) => 1 
+
+        const coeffsHalf = Array.from({ length: radius + 1 }, (_, n) => generator(n))
+        const coeffs = [...coeffsHalf.slice(1).reverse(), ...coeffsHalf]
+        const coeffSum = coeffs.reduce((sum, value) => sum + value, 0)
+        const coeffsNorm = coeffs.map((coeff) => coeff / coeffSum)
+
+        const kernel = {
+            separableX: tf.tensor5d(coeffsNorm, [1, 1, length, 1, 1], 'float32'),
+            separableY: tf.tensor5d(coeffsNorm, [1, length, 1, 1, 1], 'float32'),
+            separableZ: tf.tensor5d(coeffsNorm, [length, 1, 1, 1, 1], 'float32'),
+        }
+
+        return kernel
+    })
+}
+
+/* Sources
+    https://www.wikiwand.com/en/articles/Sobel_operator
+*/
+export function scharrKernel()
+{
+    return tf.tidy(() => 
+    { 
+        const kernel = {
+            x : {
+                separableX: tf.tensor5d([-1,  0, 1], [1, 1, 3, 1, 1], 'float32').div([2]),
+                separableY: tf.tensor5d([ 3, 10, 3], [1, 3, 1, 1, 1], 'float32').div([16]),
+                separableZ: tf.tensor5d([ 3, 10, 3], [3, 1, 1, 1, 1], 'float32').div([16]),
+            },
+            y : {
+                separableX: tf.tensor5d([ 3, 10, 3], [1, 1, 3, 1, 1], 'float32').div([16]),
+                separableY: tf.tensor5d([-1,  0, 1], [1, 3, 1, 1, 1], 'float32').div([2]),
+                separableZ: tf.tensor5d([ 3, 10, 3], [3, 1, 1, 1, 1], 'float32').div([16]),
+            },
+            z : {
+                separableX: tf.tensor5d([ 3, 10, 3], [1, 1, 3, 1, 1], 'float32').div([16]),
+                separableY: tf.tensor5d([ 3, 10, 3], [1, 3, 1, 1, 1], 'float32').div([16]),
+                separableZ: tf.tensor5d([-1,  0, 1], [3, 1, 1, 1, 1], 'float32').div([2]),
+            },
+        }
+        return kernel
+    })
+}
+
+/* Sources
+    https://www.wikiwand.com/en/articles/Sobel_operator
+*/
+export function sobelKernel()
+{
+    return tf.tidy(() => 
+    { 
+        const kernel = {
+            x : {
+                separableX: tf.tensor5d([-1, 0, 1], [1, 1, 3, 1, 1], 'float32').div([2]),
+                separableY: tf.tensor5d([ 1, 2, 1], [1, 3, 1, 1, 1], 'float32').div([4]),
+                separableZ: tf.tensor5d([ 1, 2, 1], [3, 1, 1, 1, 1], 'float32').div([4]),
+            },
+            y : {
+                separableX: tf.tensor5d([ 1, 2, 1], [1, 1, 3, 1, 1], 'float32').div([4]),
+                separableY: tf.tensor5d([-1, 0, 1], [1, 3, 1, 1, 1], 'float32').div([2]),
+                separableZ: tf.tensor5d([ 1, 2, 1], [3, 1, 1, 1, 1], 'float32').div([4]),
+            },
+            z : {
+                separableX: tf.tensor5d([ 1, 2, 1], [1, 1, 3, 1, 1], 'float32').div([4]),
+                separableY: tf.tensor5d([ 1, 2, 1], [1, 3, 1, 1, 1], 'float32').div([4]),
+                separableZ: tf.tensor5d([-1, 0, 1], [3, 1, 1, 1, 1], 'float32').div([2]),
+            },
+        }
+        return kernel
+    })
+}
+
+export function prewittKernel()
+{
+    return tf.tidy(() => 
+    { 
+        const kernel = {
+            x : {
+                separableX: tf.tensor5d([-1, 0, 1], [1, 1, 3, 1, 1], 'float32').div([2]),
+                separableY: tf.tensor5d([ 1, 1, 1], [1, 3, 1, 1, 1], 'float32').div([3]),
+                separableZ: tf.tensor5d([ 1, 1, 1], [3, 1, 1, 1, 1], 'float32').div([3]),
+            },
+            y : {
+                separableX: tf.tensor5d([ 1, 1, 1], [1, 1, 3, 1, 1], 'float32').div([3]),
+                separableY: tf.tensor5d([-1, 0, 1], [1, 3, 1, 1, 1], 'float32').div([2]),
+                separableZ: tf.tensor5d([ 1, 1, 1], [3, 1, 1, 1, 1], 'float32').div([3]),
+            },
+            z : {
+                separableX: tf.tensor5d([ 1, 1, 1], [1, 1, 3, 1, 1], 'float32').div([3]),
+                separableY: tf.tensor5d([ 1, 1, 1], [1, 3, 1, 1, 1], 'float32').div([3]),
+                separableZ: tf.tensor5d([-1, 0, 1], [3, 1, 1, 1, 1], 'float32').div([2]),
+            },
+
+        }
+        return kernel
+    })
 }
