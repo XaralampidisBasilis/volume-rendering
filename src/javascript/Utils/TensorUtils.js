@@ -161,32 +161,61 @@ export function approximateExtrema(tensor, sampleRate)
     })
 }
 
-export function resizeLinear(tensor, axis, newSize)
+// export function resizeLinear(tensor, axis, newSize)
+// {
+//     return tf.tidy(() => 
+//     {
+//         // interpolate between the two closest slices along axis
+//         const slices = []
+//         const size = tensor.shape[axis]
+
+//         for (let n = 0; n < newSize; n++) 
+//         {
+//             const newS   = (n + 0.5) / newSize  // Float index in range (0, 1)
+//             const s      = newS * size - 0.5    // Float index in range (0, size-1)
+//             const sFloor = Math.floor(s)        // Lower slice index
+//             const sCeil  = Math.ceil(s)         // Upper slice index
+//             const t      = s - sFloor           // Fractional part for interpolation
+
+//             const sliceFloor = slice(tensor, axis, sFloor)  // Slice at sFloor
+//             const sliceCeil  = slice(tensor, axis,  sCeil)  // Slice at sCeil
+//             const sliceT = mix(sliceFloor, sliceCeil, t)     // Slice interpolation
+//             sliceFloor.dispose()
+//             sliceCeil.dispose()
+//             slices.push(sliceT)
+//         }
+//         const resized = tf.concat(slices, axis)
+
+//         return resized       
+//     })
+// }
+
+export function resizeLinear(tensor, axis, newSize) 
 {
     return tf.tidy(() => 
     {
-        // interpolate between the two closest slices along axis
-        const slices = []
         const size = tensor.shape[axis]
 
-        for (let n = 0; n < newSize; n++) 
-        {
-            const newS   = (n + 0.5) / newSize  // Float index in range (0, 1)
-            const s      = newS * size - 0.5    // Float index in range (0, size-1)
-            const sFloor = Math.floor(s)        // Lower slice index
-            const sCeil  = Math.ceil(s)         // Upper slice index
-            const t      = s - sFloor           // Fractional part for interpolation
+        // Compute indices for interpolation
+        const newS = tf.linspace(0.5 / newSize, 1 - 0.5 / newSize, newSize) // Normalized indices
+        const s = newS.mul(size).sub(0.5)                                   // Scale to tensor's axis range
+        const sFloor = tf.clipByValue(tf.floor(s).toInt(), 0, size - 1)     // Lower indices, clipped
+        const sCeil = tf.clipByValue(tf.ceil(s).toInt(), 0, size - 1)       // Upper indices, clipped
 
-            const sliceFloor = slice(tensor, axis, sFloor)  // Slice at sFloor
-            const sliceCeil  = slice(tensor, axis,  sCeil)  // Slice at sCeil
-            const sliceT = mix(sliceFloor, sliceCeil, t)     // Slice interpolation
-            sliceFloor.dispose()
-            sliceCeil.dispose()
-            slices.push(sliceT)
-        }
-        const resized = tf.concat(slices, axis)
+        // Gather slices for sFloor and sCeil along the specified axis
+        const expandedFloor = tf.gather(tensor, sFloor, axis)
+        const expandedCeil = tf.gather(tensor, sCeil, axis)
 
-        return resized       
+        // Compute interpolation weights
+        const t = s.sub(tf.floor(s)) // Fractional part for interpolation
+        const tShape = new Array(tensor.shape.length).fill(1)
+        tShape[axis] = t.size // Match dimensions along the interpolation axis
+        const tExpanded = tf.reshape(t, tShape) // Reshape for broadcasting
+
+        // Perform linear interpolation
+        const interpolated = expandedFloor.mul(tf.sub(1, tExpanded)).add(expandedCeil.mul(tExpanded))
+
+        return interpolated
     })
 }
 

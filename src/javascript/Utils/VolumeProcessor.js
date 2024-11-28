@@ -22,15 +22,15 @@ export default class VolumeProcessor extends EventEmitter
         this.setParameters()
 
         timeit(() => this.computeIntensityMap(), 'computeIntensityMap')
-        timeit(() => this.computeGradientMap(), 'computeGradientMap')
-        timeit(() => this.computeTaylorMap(), 'computeTaylorMap')
-        timeit(() => this.computeOccupancyMap(0, 4), 'computeOccupancyMap')
-        timeit(() => this.computeOccupancyMipmaps(0, 4), 'computeOccupancyAtlas')
-        timeit(() => this.computeOccupancyDistanceMap(0, 2, 255), 'computeOccupancyDistanceMap')
-        timeit(() => this.computeExtremaMap(4), 'computeExtremaMap')
-        timeit(() => this.computeExtremaDistanceMap(4, 40), 'computeExtremaDistanceMap')
+        // timeit(() => this.computeGradientMap(), 'computeGradientMap')
+        // timeit(() => this.computeTaylorMap(), 'computeTaylorMap')
+        // timeit(() => this.computeOccupancyMap(0, 4), 'computeOccupancyMap')
+        // timeit(() => this.computeOccupancyMipmaps(0, 4), 'computeOccupancyAtlas')
+        // timeit(() => this.computeOccupancyDistanceMap(0, 2, 255), 'computeOccupancyDistanceMap')
+        // timeit(() => this.computeExtremaMap(4), 'computeExtremaMap')
+        // timeit(() => this.computeExtremaDistanceMap(4, 40), 'computeExtremaDistanceMap')
         
-        // timeit(() => this.downscaleIntensityMap(2), 'rescaleIntensityMap')
+        timeit(() => this.downscaleIntensityMap(2), 'rescaleIntensityMap')
         // timeit(() => this.smoothIntensityMap(1), 'smoothIntensityMap')
         // timeit(() => this.quantizeIntensityMap(256), 'quantizeIntensityMap')
         // timeit(() => this.quantizeGradientMap(256), 'quantizeGradientMap')
@@ -188,7 +188,7 @@ export default class VolumeProcessor extends EventEmitter
         this.parameters.intensityMap.size = new THREE.Vector3().copy(this.parameters.intensityMap.dimensions).multiply(this.parameters.intensityMap.spacing)
         this.parameters.intensityMap.numBlocks = this.parameters.intensityMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
         this.parameters.intensityMap.shape = this.computes.intensityMap.shape
-        // console.log('downscaledIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
+        console.log('downscaledIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
     }
 
     smoothIntensityMap(radius)
