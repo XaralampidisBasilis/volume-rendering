@@ -20,6 +20,7 @@
         "coeffs",
         "Colormap",
         "Colormaps",
+        "compand",
         "Companding",
         "conv",
         "cumprod",
