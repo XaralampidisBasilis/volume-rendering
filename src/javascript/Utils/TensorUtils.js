@@ -163,7 +163,7 @@ export function approximateExtrema(tensor, sampleRate)
 
 export function resizeLinear(tensor, axis, newSize)
 {
-    tf.tidy(() => 
+    return tf.tidy(() => 
     {
         // interpolate between the two closest slices along axis
         const slices = []
@@ -179,34 +179,14 @@ export function resizeLinear(tensor, axis, newSize)
 
             const sliceFloor = slice(tensor, axis, sFloor)  // Slice at sFloor
             const sliceCeil  = slice(tensor, axis,  sCeil)  // Slice at sCeil
-            const slice = mix(sliceFloor, sliceCeil, t)     // Slice interpolation
+            const sliceT = mix(sliceFloor, sliceCeil, t)     // Slice interpolation
             sliceFloor.dispose()
             sliceCeil.dispose()
-            slices.push(slice)
+            slices.push(sliceT)
         }
         const resized = tf.concat(slices, axis)
 
         return resized       
-    })
-}
-
-export function resizeLinear3d(tensor, newShape)
-{
-    return tf.tidy(() => 
-    {
-        const resizedX = resizeLinear(tensor,   0, newShape[0])
-        const resizedY = resizeLinear(resizedX, 1, newShape[1])
-        const resizedZ = resizeLinear(resizedY, 2, newShape[2])
-        return resizedZ
-    })
-}
-
-export function rescaleLinear3d(tensor, scale)
-{
-    return tf.tidy(() => 
-    {
-        const newShape = tensor.shape.map((dimension) => Math.ceil(dimension / scale))
-        return resizeLinear3d(tensor, newShape)
     })
 }
 
@@ -219,45 +199,14 @@ export function slice(tensor, axis, number)
     return tensor.slice(begin, size)
 }
 
-export function mix(tensorA, tensorB, t)
+export function mix(A, B, t)
 {
-    const scaledA = tensorA.mul([1 - t])
-    const scaledB = tensorB.mul([t])
+    const scaledA = A.mul([1 - t])
+    const scaledB = B.mul([t])
     const mixed = scaledA.add(scaledB)
     scaledA.dispose()
     scaledB.dispose()
     return mixed
-}
-
-export function normalize3d(tensor)
-{
-    return tf.tidy(() =>
-    {
-        const min = tensor.min([0, 1, 2])
-        const max = tensor.max([0, 1, 2])
-        const range = tf.sub(max, min)
-        const shifted = tensor.sub(min)
-        const normalized = shifted.div(range)
-        shifted.dispose()
-        return [normalized, min.dataSync(), max.dataSync()]
-    })
-}
-
-export function quantize3d(tensor)
-{
-    return tf.tidy(() =>
-    {
-        const [normalized, min, max] = normalize3d(tensor)
-        const scaled = normalized.mul(tf.scalar(255))
-        normalized.dispose()
-        const clipped = scaled.clipByValue(0, 255)  
-        scaled.dispose()
-        const rounded = clipped.round()
-        clipped.dispose()
-        const quantized = rounded.cast('int32')
-        rounded.dispose()
-        return [quantized, min, max]
-    })
 }
 
 export function padCeil(tensor, divisions)
@@ -295,291 +244,6 @@ export function minPool3d(tensor, filterSize, strides, pad)
     })
 } 
 
-/**
- * Computes the occupancy map for a given tensor based on the method described
- * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
- *
- * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the occupancy map is computed.
- * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of occupancy.
- * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the occupancy values map.
- */
-export function mipmap(tensor, threshold, division)
-{
-    return tf.tidy(() =>
-    {
-        const condition = tensor.greater(tf.scalar(threshold, 'float32'))
-        const divisions = [division, division, division]
-
-        const occupancymapTemp = tf.maxPool3d(condition, divisions, divisions, 'same')
-        condition.dispose()
-    
-        const occupancyMap = occupancymapTemp.mul(tf.scalar(255, 'int32'))
-        occupancymapTemp.dispose()
-    
-        return occupancyMap
-    })
-}
-
-/**
- * Computes the multi-resolution occupancy maps as an array of mipmaps for a given tensor.
- *
- * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the occupancy maps are computed.
- * @param {number} threshold - The threshold value to determine occupancy.
- * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of occupancy.
- * @returns {tf.Tensor[]} - An array of tensors, each representing a mipmap level.
- */
-export function occupancyMipmaps(tensor, threshold, division) 
-{
-    return tf.tidy(() => 
-    {
-        if (Math.log2(division) % 1 !== 0) throw new Error(`occupancyMipmaps: input division ${division} is not a power of 2`)
-
-        const condition = tensor.greater(tf.scalar(threshold, 'float32'))
-        const divisions = [division, division, division]
-
-        // Pad the condition tensor to the nearest power of 2
-        const conditionPadded = padCeilPow2(condition)
-        condition.dispose()
-
-        // Create the first mipmap using max pooling
-        let occupancyMap = tf.maxPool3d(conditionPadded, divisions, divisions, 'same')
-        conditionPadded.dispose()
-
-        // Multiply by 255 to scale values (if needed)
-        occupancyMap = occupancyMap.mul(tf.scalar(255, 'int32'))
-
-        // Initialize mipmaps array and add the first level
-        const occupancyMipmaps = [occupancyMap]
-
-        // Calculate the number of mipmap levels
-        const numMipmaps = Math.floor(Math.log2(Math.min(...tensor.shape.slice(0, 3))))
-
-        // Generate subsequent mipmaps
-        for (let level = 1; level < numMipmaps; level++) 
-        {
-            occupancyMipmaps.push(tf.maxPool3d(occupancyMipmaps[level - 1], [2, 2, 2], [2, 2, 2], 'same'))
-        }
-
-        return occupancyMipmaps
-    });
-}
-
-/**
- * Combines multiple mipmaps into a single compact 3D tensor by stacking them in a hierarchical layout.
- *
- * @param {tf.Tensor[]} mipmaps - An array of mipmap tensors, where each tensor represents a different resolution level.
- * @returns {tf.Tensor} - A single compact 3D tensor containing all mipmaps in a hierarchical layout.
- */
-export function compactMipmaps(mipmaps) 
-{
-    return tf.tidy(() => 
-    {
-        // Initialize the compact mipmaps tensor with the first mipmap, padded for space allocation.
-        let compactMipmaps = mipmaps[0].pad([
-            [0, mipmaps[0].shape[0] / 2],  // Pad half of the depth for the next level
-            [0, 0],                        // No padding for width
-            [0, 0],                        // No padding for height
-            [0, 0]                         // No padding for channels
-        ])
-
-        // Initialize the offset for stacking mipmaps
-        const offset = [mipmaps[0].shape[0], 0, 0, 0] // Start from the depth of the first mipmap
-
-        // Dispose of the first mipmap as it's now incorporated into the compact tensor
-        mipmaps[0].dispose()
-
-        // Process remaining mipmap levels and combine them into the compact tensor
-        for (let level = 1; level < mipmaps.length; level++) 
-        {
-            // Pad the current mipmap to align it within the compact tensor
-            const mipmapPadded = mipmaps[level].pad(
-                offset.map((dimension, i) => [dimension, compactMipmaps.shape[i] - dimension - mipmaps[level].shape[i]])
-            )
-
-            // Add the padded mipmap to the compact tensor
-            const compactMipmapsTemp = compactMipmaps.add(mipmapPadded)
-
-            // Dispose intermediate tensors to free memory
-            mipmapPadded.dispose()
-            compactMipmaps.dispose()
-
-            // Dispose of the current mipmap as it's now incorporated
-            mipmaps[level].dispose()
-
-            // Update compactMipmaps with the new combined tensor
-            compactMipmaps = compactMipmapsTemp
-
-            // Update the offset for the next mipmap level
-            offset[0] += mipmaps[level].shape[0] // Increment height offset by current mipmap's height
-        }
-
-        // Return the final compact tensor containing all mipmaps
-        return compactMipmaps
-    })
-}
-
-// /**
-//  * Computes the multi resolution occupancy maps compacted inside an atlas for a given tensor based on the method described
-//  * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
-//  *
-//  * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the occupancy atlas is computed.
-//  * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of occupancy.
-//  * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the occupancy values atlas.
-//  */
-// export function compactOccupancyMipmaps(tensor, threshold, division)
-// {
-//     return tf.tidy(() =>
-//     {
-//         if (Math.log2(division) % 1 !== 0) throw new Error(`occupancyMipmaps: input division ${division} is not power of 2`)
-
-//         const condition = tensor.greater(tf.scalar(threshold, 'float32'))
-//         const divisions = [division, division, division]
-
-//         const conditionPadded = padCeilPow2(condition)
-//         condition.dispose()
-
-//         const occupancymapTemp = tf.maxPool3d(conditionPadded, divisions, divisions, 'same')
-//         condition.dispose()
-    
-//         let occupancyMap = occupancymapTemp.mul(tf.scalar(255, 'int32'))
-//         let occupancyMipmaps = occupancyMap.pad([[0, occupancyMap.shape[0] / 2], [0, 0], [0, 0], [0, 0] ])
-//         occupancymapTemp.dispose()
-
-//         const offset = [occupancyMap.shape[0], 0, 0, 0]
-//         const numMipmaps = Math.floor(Math.log2(Math.min(...tensor.shape.slice(0, 3)))) + 1;
-
-//         for (let map = 0; map < numMipmaps; map++) 
-//         {
-//             const occupancyMapTemp = tf.maxPool3d(occupancyMap, [2, 2, 2], [2, 2, 2], 'same')     
-//             const occupancyMapPadded = occupancyMapTemp.pad(offset.map((dimension, i) => [dimension, occupancyMipmaps.shape[i] - dimension - occupancyMapTemp.shape[i]]))
-//             occupancyMapTemp.dispose()
-            
-//             occupancyMap.dispose()
-//             occupancyMap = occupancyMapPadded
-//             const occupancyatlasTemp = occupancyMipmaps.add(occupancyMap)
-
-//             occupancyMipmaps.dispose()
-//             occupancyMipmaps = occupancyatlasTemp
-
-//             offset[1] += occupancyMap.shape[1]
-//         }
-        
-//         return [occupancyMipmaps, numMipmaps]
-//     })
-// }
-
-/**
- * Computes the Chebyshev distance map for a given tensor based on the method described
- * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
- *
- * @param {tf.Tensor} occupancyMap - A occupancyMap representing the input data where the distance map is computed.
- * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of distance calculation.
- * @param {number} maxDistance - The maximum distance to compute for the distance map. 
- * @returns {tf.Tensor} - A tensor of the same shape as the input, containing the computed Chebyshev distance map.
- */
-export function occupancyDistanceMap(tensor, threshold, division, maxDistance) 
-{
-    return tf.tidy(() => 
-    {
-        const occupancy = mipmap(tensor, threshold, division)
-
-        let diffusionNext = occupancy.cast('bool')
-        let diffusionPrev = tf.zeros(diffusionNext.shape, 'bool')
-        let distanceMap = tf.zeros(diffusionNext.shape, 'int32')
-    
-        for (let iter = 0; iter <= maxDistance; iter++) 
-        {
-            const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
-            const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(iter, 'int32'))
-            diffusionUpdate.dispose()
-            
-            const distanceMapTemp = distanceMap.add(distanceMapUpdate);
-            distanceMapUpdate.dispose()
-    
-            distanceMap.dispose()
-            distanceMap = distanceMapTemp
-    
-            diffusionPrev.dispose() 
-            diffusionPrev = diffusionNext
-            diffusionNext = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
-        }
-        
-        const diffusionUpdate = tf.logicalNot(diffusionPrev)
-        const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(maxDistance, 'int32'))
-        diffusionUpdate.dispose()
-    
-        const distanceMapTemp = distanceMap.add(distanceMapUpdate);
-        distanceMapUpdate.dispose()
-    
-        distanceMap.dispose()
-        distanceMap = distanceMapTemp
-    
-        diffusionNext.dispose()
-        diffusionPrev.dispose()
-    
-        return distanceMap
-    })
-}
-
-/**
- * Computes the extrema map for a given tensor based on the method described
- * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
- *
- * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the extrema map is computed.
- * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of the map.
- * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the extrema values map.
- */
-export function extremaMap(tensor, division)
-{
-    return tf.tidy(() =>
-    {
-        const divisions = [division, division, division]
-        const minimaMap = minPool3d(tensor, divisions, divisions, 'same')
-        const maximaMap = tf.maxPool3d(tensor, divisions, divisions, 'same')
-        const extremaMap = tf.concat([minimaMap, maximaMap], 3)            
-        return extremaMap
-    })
-}
-
-/**
- * Computes the Chebyshev distance map for a given tensor based on the method described
- * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
- *
- * @param {tf.Tensor} occupancyMap - A occupancyMap representing the input data where the distance map is computed.
- * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of distance calculation.
- * @param {number} maxDistance - The maximum distance to compute for the distance map. 
- * @returns {tf.Tensor} - A tensor of the same shape as the input, containing the computed Chebyshev distance map.
- */
-export function extremaDistanceMap(tensor, division, maxDistance) 
-{
-    return tf.tidy(() => 
-    {
-        let [minimaMap, maximaMap] = tf.unstack(extremaMap(tensor, division)).map((tensor) => tensor.expandDims(-1))
-        let distanceMap = tf.zeros(minimaMap.shape, 'int32')
-    
-        for (let iter = 0; iter <= maxDistance; iter++) 
-        {
-            const conditionUpdate = tf.greaterEqual(minimaMap, maximaMap)
-            const distanceMapUpdate = conditionUpdate.mul(tf.scalar(iter, 'int32'))
-            conditionUpdate.dispose()
-            
-            const distanceMapTemp = tf.maximum(distanceMap, distanceMapUpdate);
-            distanceMapUpdate.dispose()
-            distanceMap.dispose()
-            distanceMap = distanceMapTemp
-    
-            const maximaMapTemp = tf.maxPool3d(maximaMap, [3, 3, 3], [1, 1, 1], 'same')
-            maximaMap.dispose()
-            maximaMap = maximaMapTemp
-        }
-        
-        minimaMap.dispose()
-        maximaMap.dispose()
-    
-        return distanceMap
-    })
-}
-
 export function separableConv3d(tensor, filters)
 {
     return tf.tidy(() => 
@@ -616,25 +280,69 @@ export function gradients3d(tensor, spacing)
     })   
 }
 
-export function smoothing3d(tensor, spacing)
+export function smooth3d(tensor, radius)
 {
     return tf.tidy(() => 
     {
-        const compute = (filter, space) => 
+        const kernel = besselKernel(radius)
+        const smoothed = separableConv3d(tensor, kernel)
+
+        return smoothed
+    }) 
+}
+
+export function normalize3d(tensor)
+{
+    return tf.tidy(() =>
+    {
+        const min = tensor.min([0, 1, 2])
+        const max = tensor.max([0, 1, 2])
+        const range = tf.sub(max, min)
+        const shifted = tensor.sub(min)
+        const normalized = shifted.div(range)
+        shifted.dispose()
+        return [normalized, min.dataSync(), max.dataSync()]
+    })
+}
+
+export function quantize3d(tensor, levels = 256) 
+{
+    return tf.tidy(() => 
         {
-            const convolution = separableConv3d(tensor, filter)
-            const gradient = convolution.div([space])
-            convolution.dispose() 
-            return gradient
-        }
+        // Normalize the tensor to [0, 1] range
+        const [normalized, min, max] = normalize3d(tensor)
 
-        const gradientsX = compute(scharrKernel.x, spacing.x)
-        const gradientsY = compute(scharrKernel.y, spacing.y)
-        const gradientsZ = compute(scharrKernel.z, spacing.z)
-        const gradients = tf.concat([gradientsX, gradientsY, gradientsZ], 3)
+        // Scale to the specified quantization levels
+        const scaled = normalized.mul(tf.scalar(levels - 1))
+        normalized.dispose()
 
-        return gradients
-    })   
+        // Clip values to the range [0, levels]
+        const clipped = scaled.clipByValue(0, levels - 1)
+        scaled.dispose()
+
+        // Round and cast to integer type
+        const rounded = clipped.round()
+        clipped.dispose()
+        const quantized = rounded.cast('int32')
+        rounded.dispose()
+
+        // Return the quantized tensor, along with the original min and max
+        return [quantized, min, max]
+    });
+}
+
+export function downscale3d(tensor, scale)
+{
+    return tf.tidy(() => 
+    {
+        if (scale < 1) throw new Error(`TensorUtils.downscale3d: scale must be greater than 1`)
+
+        const newShape = tensor.shape.map((dimension) => Math.ceil(dimension / scale))
+        const downscale1 = resizeLinear(tensor,     0, newShape[0])
+        const downscale2 = resizeLinear(downscale1, 1, newShape[1])
+        const downscale3 = resizeLinear(downscale2, 2, newShape[2])
+        return downscale3
+    })
 }
 
 /* Sources :
@@ -677,7 +385,7 @@ export function besselKernel(radius)
         const length = radius * 2 + 1
         const sigma = radius / 3
         const variance = sigma ** 2
-        const generator = (n) => Math.exp(variance) * BESSEL.besseli(this.variance, n)
+        const generator = (n) => Math.exp(variance) * BESSEL.besseli(variance, n)
 
         const coeffsHalf = Array.from({ length: radius + 1 }, (_, n) => generator(n))
         const coeffs = [...coeffsHalf.slice(1).reverse(), ...coeffsHalf]
@@ -795,5 +503,240 @@ export function prewittKernel()
 
         }
         return kernel
+    })
+}
+
+/**
+ * Computes the occupancy map for a given tensor based on the method described
+ * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
+ *
+ * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the occupancy map is computed.
+ * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of occupancy.
+ * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the occupancy values map.
+ */
+export function mipmap(tensor, threshold, division)
+{
+    return tf.tidy(() =>
+    {
+        const condition = tensor.greater(tf.scalar(threshold, 'float32'))
+        const divisions = [division, division, division]
+
+        const occupancymapTemp = tf.maxPool3d(condition, divisions, divisions, 'same')
+        condition.dispose()
+    
+        const occupancyMap = occupancymapTemp.mul(tf.scalar(255, 'int32'))
+        occupancymapTemp.dispose()
+    
+        return occupancyMap
+    })
+}
+
+/**
+ * Computes the multi-resolution occupancy maps as an array of mipmaps for a given tensor.
+ *
+ * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the occupancy maps are computed.
+ * @param {number} threshold - The threshold value to determine occupancy.
+ * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of occupancy.
+ * @returns {tf.Tensor[]} - An array of tensors, each representing a mipmap level.
+ */
+export function occupancyMipmaps(tensor, threshold, division) 
+{
+    return tf.tidy(() => 
+    {
+        if (Math.log2(division) % 1 !== 0) throw new Error(`occupancyMipmaps: input division ${division} is not a power of 2`)
+
+        const condition = tensor.greater(tf.scalar(threshold, 'float32'))
+        const divisions = [division, division, division]
+
+        // Pad the condition tensor to the nearest power of 2
+        const conditionPadded = padCeilPow2(condition)
+        condition.dispose()
+
+        // Create the first mipmap using max pooling
+        let occupancyMap = tf.maxPool3d(conditionPadded, divisions, divisions, 'same')
+        conditionPadded.dispose()
+
+        // Multiply by 255 to scale values (if needed)
+        occupancyMap = occupancyMap.mul(tf.scalar(255, 'int32'))
+
+        // Initialize mipmaps array and add the first level
+        const occupancyMipmaps = [occupancyMap]
+
+        // Calculate the number of mipmap levels
+        const numMipmaps = Math.floor(Math.log2(Math.min(...tensor.shape.slice(0, 3))))
+
+        // Generate subsequent mipmaps
+        for (let level = 1; level < numMipmaps; level++) 
+        {
+            occupancyMipmaps.push(tf.maxPool3d(occupancyMipmaps[level - 1], [2, 2, 2], [2, 2, 2], 'same'))
+        }
+
+        return occupancyMipmaps
+    })
+}
+
+/**
+ * Combines multiple mipmaps into a single compact 3D tensor by stacking them in a hierarchical layout.
+ *
+ * @param {tf.Tensor[]} mipmaps - An array of mipmap tensors, where each tensor represents a different resolution level.
+ * @returns {tf.Tensor} - A single compact 3D tensor containing all mipmaps in a hierarchical layout.
+ */
+export function compactMipmaps(mipmaps) 
+{
+    return tf.tidy(() => 
+    {
+        // Initialize the compact mipmaps tensor with the first mipmap, padded for space allocation.
+        let compactMipmaps = mipmaps[0].pad([
+            [0, mipmaps[0].shape[0] / 2],  // Pad half of the depth for the next level
+            [0, 0],                        // No padding for width
+            [0, 0],                        // No padding for height
+            [0, 0]                         // No padding for channels
+        ])
+
+        // Initialize the offset for stacking mipmaps
+        const offset = [mipmaps[0].shape[0], 0, 0, 0] // Start from the depth of the first mipmap
+
+        // Dispose of the first mipmap as it's now incorporated into the compact tensor
+        mipmaps[0].dispose()
+
+        // Process remaining mipmap levels and combine them into the compact tensor
+        for (let level = 1; level < mipmaps.length; level++) 
+        {
+            // Pad the current mipmap to align it within the compact tensor
+            const mipmapPadded = mipmaps[level].pad(
+                offset.map((dimension, i) => [dimension, compactMipmaps.shape[i] - dimension - mipmaps[level].shape[i]])
+            )
+
+            // Add the padded mipmap to the compact tensor
+            const compactMipmapsTemp = compactMipmaps.add(mipmapPadded)
+
+            // Dispose intermediate tensors to free memory
+            mipmapPadded.dispose()
+            compactMipmaps.dispose()
+
+            // Dispose of the current mipmap as it's now incorporated
+            mipmaps[level].dispose()
+
+            // Update compactMipmaps with the new combined tensor
+            compactMipmaps = compactMipmapsTemp
+
+            // Update the offset for the next mipmap level
+            offset[0] += mipmaps[level].shape[0] // Increment height offset by current mipmap's height
+        }
+
+        // Return the final compact tensor containing all mipmaps
+        return compactMipmaps
+    })
+}
+
+/**
+ * Computes the Chebyshev distance map for a given tensor based on the method described
+ * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
+ *
+ * @param {tf.Tensor} occupancyMap - A occupancyMap representing the input data where the distance map is computed.
+ * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of distance calculation.
+ * @param {number} maxDistance - The maximum distance to compute for the distance map. 
+ * @returns {tf.Tensor} - A tensor of the same shape as the input, containing the computed Chebyshev distance map.
+ */
+export function occupancyDistanceMap(tensor, threshold, division, maxDistance) 
+{
+    return tf.tidy(() => 
+    {
+        const occupancy = mipmap(tensor, threshold, division)
+
+        let diffusionNext = occupancy.cast('bool')
+        let diffusionPrev = tf.zeros(diffusionNext.shape, 'bool')
+        let distanceMap = tf.zeros(diffusionNext.shape, 'int32')
+    
+        for (let iter = 0; iter <= maxDistance; iter++) 
+        {
+            const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
+            const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(iter, 'int32'))
+            diffusionUpdate.dispose()
+            
+            const distanceMapTemp = distanceMap.add(distanceMapUpdate);
+            distanceMapUpdate.dispose()
+    
+            distanceMap.dispose()
+            distanceMap = distanceMapTemp
+    
+            diffusionPrev.dispose() 
+            diffusionPrev = diffusionNext
+            diffusionNext = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
+        }
+        
+        const diffusionUpdate = tf.logicalNot(diffusionPrev)
+        const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(maxDistance, 'int32'))
+        diffusionUpdate.dispose()
+    
+        const distanceMapTemp = distanceMap.add(distanceMapUpdate);
+        distanceMapUpdate.dispose()
+    
+        distanceMap.dispose()
+        distanceMap = distanceMapTemp
+    
+        diffusionNext.dispose()
+        diffusionPrev.dispose()
+    
+        return distanceMap
+    })
+}
+
+/**
+ * Computes the extrema map for a given tensor based on the method described
+ * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
+ *
+ * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the extrema map is computed.
+ * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of the map.
+ * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the extrema values map.
+ */
+export function extremaMap(tensor, division)
+{
+    return tf.tidy(() =>
+    {
+        const divisions = [division, division, division]
+        const minimaMap = minPool3d(tensor, divisions, divisions, 'same')
+        const maximaMap = tf.maxPool3d(tensor, divisions, divisions, 'same')
+        const extremaMap = tf.concat([minimaMap, maximaMap], 3)            
+        return extremaMap
+    })
+}
+
+/**
+ * Computes the Chebyshev distance map for a given tensor based on the method described
+ * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
+ *
+ * @param {tf.Tensor} occupancyMap - A occupancyMap representing the input data where the distance map is computed.
+ * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of distance calculation.
+ * @param {number} maxDistance - The maximum distance to compute for the distance map. 
+ * @returns {tf.Tensor} - A tensor of the same shape as the input, containing the computed Chebyshev distance map.
+ */
+export function extremaDistanceMap(tensor, division, maxDistance) 
+{
+    return tf.tidy(() => 
+    {
+        let [minimaMap, maximaMap] = tf.unstack(extremaMap(tensor, division)).map((tensor) => tensor.expandDims(-1))
+        let distanceMap = tf.zeros(minimaMap.shape, 'int32')
+    
+        for (let iter = 0; iter <= maxDistance; iter++) 
+        {
+            const conditionUpdate = tf.greaterEqual(minimaMap, maximaMap)
+            const distanceMapUpdate = conditionUpdate.mul(tf.scalar(iter, 'int32'))
+            conditionUpdate.dispose()
+            
+            const distanceMapTemp = tf.maximum(distanceMap, distanceMapUpdate);
+            distanceMapUpdate.dispose()
+            distanceMap.dispose()
+            distanceMap = distanceMapTemp
+    
+            const maximaMapTemp = tf.maxPool3d(maximaMap, [3, 3, 3], [1, 1, 1], 'same')
+            maximaMap.dispose()
+            maximaMap = maximaMapTemp
+        }
+        
+        minimaMap.dispose()
+        maximaMap.dispose()
+    
+        return distanceMap
     })
 }

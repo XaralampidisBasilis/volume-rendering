@@ -20,19 +20,21 @@ export default class VolumeProcessor extends EventEmitter
         this.computes = {}
         this.textures = {}
         this.setParameters()
-        this.computeIntensityMap()
 
-        // timeit(() => this.computeGradientMap(), 'computeGradientMap')
-        // timeit(() => this.computeTaylorMap(), 'computeTaylorMap')
-        // timeit(() => this.computeOccupancyMap(0, 10), 'computeOccupancyMap')
-        // timeit(() => this.computeOccupancyMipmaps(0, 4), 'computeOccupancyAtlas')
-        // timeit(() => this.computeOccupancyDistanceMap(0, 2, 255), 'computeOccupancyDistanceMap')
-        // timeit(() => this.computeExtremaMap(10), 'computeExtremaMap')
-        timeit(() => this.computeExtremaDistanceMap(2, 40), 'computeExtremaDistanceMap')
+        timeit(() => this.computeIntensityMap(), 'computeIntensityMap')
+        timeit(() => this.computeGradientMap(), 'computeGradientMap')
+        timeit(() => this.computeTaylorMap(), 'computeTaylorMap')
+        timeit(() => this.computeOccupancyMap(0, 4), 'computeOccupancyMap')
+        timeit(() => this.computeOccupancyMipmaps(0, 4), 'computeOccupancyAtlas')
+        timeit(() => this.computeOccupancyDistanceMap(0, 2, 255), 'computeOccupancyDistanceMap')
+        timeit(() => this.computeExtremaMap(4), 'computeExtremaMap')
+        timeit(() => this.computeExtremaDistanceMap(4, 40), 'computeExtremaDistanceMap')
         
-        // timeit(() => this.quantizeIntensityMap(), 'quantizeIntensityMap')
-        // timeit(() => this.quantizeGradientMap(), 'quantizeGradientMap')
-        // timeit(() => this.quantizeTaylorMap(), 'quantizeTaylorMap')
+        // timeit(() => this.downscaleIntensityMap(2), 'rescaleIntensityMap')
+        // timeit(() => this.smoothIntensityMap(1), 'smoothIntensityMap')
+        // timeit(() => this.quantizeIntensityMap(256), 'quantizeIntensityMap')
+        // timeit(() => this.quantizeGradientMap(256), 'quantizeGradientMap')
+        // timeit(() => this.quantizeTaylorMap(256), 'quantizeTaylorMap')
     }
 
     setParameters()
@@ -57,8 +59,7 @@ export default class VolumeProcessor extends EventEmitter
 
         this.parameters.intensityMap = this.parameters.volume
         this.computes.intensityMap = tf.tensor4d(this.volume.data, this.parameters.intensityMap.shape,'float32')
-
-        console.log('intensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
+        // console.log('intensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
     }
 
     computeGradientMap()
@@ -69,8 +70,7 @@ export default class VolumeProcessor extends EventEmitter
         this.computes.gradientMap = TensorUtils.gradients3d(this.computes.intensityMap, this.parameters.volume.spacing)
         this.parameters.gradientMap = this.parameters.volume
         this.parameters.gradientMap.shape = this.computes.gradientMap.shape
-
-        console.log('gradientMap', this.parameters.gradientMap, this.computes.gradientMap.dataSync())
+        // console.log('gradientMap', this.parameters.gradientMap, this.computes.gradientMap.dataSync())
     }
  
     computeTaylorMap()
@@ -82,8 +82,7 @@ export default class VolumeProcessor extends EventEmitter
         this.computes.taylorMap = tf.concat([this.computes.intensityMap, this.computes.gradientMap], 3)
         this.parameters.taylorMap = this.parameters.volume
         this.parameters.taylorMap.shape = this.computes.taylorMap.shape
-
-        console.log('taylorMap', this.parameters.taylorMap, this.computes.taylorMap.dataSync())
+        // console.log('taylorMap', this.parameters.taylorMap, this.computes.taylorMap.dataSync())
     }
 
     computeOccupancyMap(threshold, division)
@@ -100,8 +99,7 @@ export default class VolumeProcessor extends EventEmitter
         this.parameters.occupancyMap.size = new THREE.Vector3().copy(this.parameters.occupancyMap.dimensions).multiply(this.parameters.occupancyMap.spacing)
         this.parameters.occupancyMap.numBlocks = this.parameters.occupancyMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
         this.parameters.occupancyMap.shape = this.computes.occupancyMap.shape
-
-        console.log('occupancyMap', this.parameters.occupancyMap, this.computes.occupancyMap.dataSync())
+        // console.log('occupancyMap', this.parameters.occupancyMap, this.computes.occupancyMap.dataSync())
     }
 
     computeOccupancyMipmaps(threshold, division)
@@ -121,8 +119,7 @@ export default class VolumeProcessor extends EventEmitter
         this.parameters.occupancyMipmaps.dimensions0 = new THREE.Vector3().fromArray(occupancyMipmaps[0].shape.slice(0, 3).toReversed())
         this.parameters.occupancyMipmaps.spacing0 = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(division)
         this.parameters.occupancyMipmaps.size0 = new THREE.Vector3().copy(this.parameters.occupancyMipmaps.dimensions0).multiply(this.parameters.occupancyMipmaps.spacing0)
-
-        console.log('occupancyMipmaps', this.parameters.occupancyMipmaps, this.computes.occupancyMipmaps.dataSync())
+        // console.log('occupancyMipmaps', this.parameters.occupancyMipmaps, this.computes.occupancyMipmaps.dataSync())
     }
 
     computeOccupancyDistanceMap(threshold, division, maxDistance)
@@ -140,8 +137,7 @@ export default class VolumeProcessor extends EventEmitter
         this.parameters.occupancyDistanceMap.size = new THREE.Vector3().copy(this.parameters.occupancyDistanceMap.dimensions).multiply(this.parameters.occupancyDistanceMap.spacing)
         this.parameters.occupancyDistanceMap.numBlocks = this.parameters.occupancyDistanceMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
         this.parameters.occupancyDistanceMap.shape = this.computes.occupancyDistanceMap.shape
-
-        console.log('occupancyDistanceMap', this.parameters.occupancyDistanceMap, this.computes.occupancyDistanceMap.dataSync())
+        // console.log('occupancyDistanceMap', this.parameters.occupancyDistanceMap, this.computes.occupancyDistanceMap.dataSync())
     }
 
     computeExtremaMap(division)
@@ -157,8 +153,7 @@ export default class VolumeProcessor extends EventEmitter
         this.parameters.extremaMap.size = new THREE.Vector3().copy(this.parameters.extremaMap.dimensions).multiply(this.parameters.extremaMap.spacing)
         this.parameters.extremaMap.numBlocks = this.parameters.extremaMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
         this.parameters.extremaMap.shape = this.computes.extremaMap.shape
-
-        console.log('extremaMap', this.parameters.extremaMap, this.computes.extremaMap.dataSync())
+        // console.log('extremaMap', this.parameters.extremaMap, this.computes.extremaMap.dataSync())
     }
 
     computeExtremaDistanceMap(division, maxDistance)
@@ -175,35 +170,36 @@ export default class VolumeProcessor extends EventEmitter
         this.parameters.extremaDistanceMap.size = new THREE.Vector3().copy(this.parameters.extremaDistanceMap.dimensions).multiply(this.parameters.extremaDistanceMap.spacing)
         this.parameters.extremaDistanceMap.numBlocks = this.parameters.extremaDistanceMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
         this.parameters.extremaDistanceMap.shape = this.computes.extremaDistanceMap.shape
-
-        console.log('extremaDistanceMap', this.parameters.extremaDistanceMap, this.computes.extremaDistanceMap.dataSync())
+        // console.log('extremaDistanceMap', this.parameters.extremaDistanceMap, this.computes.extremaDistanceMap.dataSync())
     }
 
     // alter functions
 
-    resizeIntensityMap()
+    downscaleIntensityMap(scale)
     {
-        if (!this.computes.intensityMap) 
-            this.computeIntensityMap()
+        if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`);
 
-        const intensityMap = TensorUtils.resizeLinear3d(this.computes.intensityMap, radius)
+        const intensityMap = TensorUtils.downscale3d(this.computes.intensityMap, scale)
         this.computes.intensityMap.dispose()
         this.computes.intensityMap = intensityMap
-
-        console.log(this.parameters.intensityMap)
-        console.log(this.computes.intensityMap.dataSync())
+        this.parameters.intensityMap.downScale = scale
+        this.parameters.intensityMap.dimensions = new THREE.Vector3().fromArray(this.computes.intensityMap.shape.slice(0, 3).toReversed())
+        this.parameters.intensityMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(scale)
+        this.parameters.intensityMap.size = new THREE.Vector3().copy(this.parameters.intensityMap.dimensions).multiply(this.parameters.intensityMap.spacing)
+        this.parameters.intensityMap.numBlocks = this.parameters.intensityMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+        this.parameters.intensityMap.shape = this.computes.intensityMap.shape
+        // console.log('downscaledIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
     }
 
     smoothIntensityMap(radius)
     {
         if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`);
 
-        const intensityMap = TensorUtils.smoothing3d(this.computes.intensityMap, radius)
+        const intensityMap = TensorUtils.smooth3d(this.computes.intensityMap, radius)
         this.computes.intensityMap.dispose()
         this.computes.intensityMap = intensityMap
-
-        console.log(this.parameters.intensityMap)
-        console.log(this.computes.intensityMap.dataSync())
+        this.parameters.intensityMap.smoothingRadius = radius
+        // console.log('smoothedIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
     }
 
     quantizeIntensityMap()
@@ -215,9 +211,7 @@ export default class VolumeProcessor extends EventEmitter
         this.computes.intensityMap = intensityMap
         this.parameters.intensityMap.minValue = minValue
         this.parameters.intensityMap.maxValue = maxValue  
-
-        console.log('quantizedIntensityMap', this.parameters.intensityMap)
-        console.log('quantizedIntensityMap', this.computes.intensityMap.dataSync())
+        // console.log('quantizedIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
     }
 
     quantizeGradientMap()
@@ -229,9 +223,7 @@ export default class VolumeProcessor extends EventEmitter
         this.computes.gradientMap = gradientMap
         this.parameters.gradientMap.minValue = new THREE.Vector3().fromArray(minValue)
         this.parameters.gradientMap.maxValue = new THREE.Vector3().fromArray(maxValue) 
-
-        console.log('quantizedGradientMap', this.parameters.gradientMap)
-        console.log('quantizedGradientMap', this.computes.gradientMap.dataSync())
+        // console.log('quantizedGradientMap', this.parameters.gradientMap, this.computes.gradientMap.dataSync())
     }
 
     quantizeTaylorMap()
@@ -243,11 +235,8 @@ export default class VolumeProcessor extends EventEmitter
         this.computes.taylorMap = taylorMap
         this.parameters.taylorMap.minValue = new THREE.Vector4().fromArray(minValue)
         this.parameters.taylorMap.maxValue = new THREE.Vector4().fromArray(maxValue) 
-
-        console.log('quantizedTaylorMap', this.parameters.taylorMap)
-        console.log('quantizedTaylorMap', this.computes.taylorMap.dataSync())
+        // console.log('quantizedTaylorMap', this.parameters.taylorMap, this.computes.taylorMap.dataSync())
     }
-
 
     // helper functions
 
@@ -256,7 +245,7 @@ export default class VolumeProcessor extends EventEmitter
         if (!this.computes[key]) throw new Error(`${key} is not computed`)
         if (this.textures[key]) this.textures[key].dispose()
     
-        this.textures[key] = new THREE.Data3DTexture(this.computes[key].dataSync(), ...this.parameters[key].dimensions.toArray())
+        this.textures[key] = new THREE.Data3DTexture(this.computes[key].data(), ...this.parameters[key].dimensions.toArray())
         this.textures[key].format = format
         this.textures[key].type = type
         this.textures[key].minFilter = THREE.LinearFilter
