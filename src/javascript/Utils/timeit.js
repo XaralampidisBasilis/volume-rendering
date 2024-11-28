@@ -1,4 +1,11 @@
-export default async function timeit(callback, name = 'timeit') 
+export function timeit(callback, name = 'timeit') 
+{
+    console.time(name)
+    callback() 
+    console.timeEnd(name) 
+}
+
+export async function timeitAsync(callback, name = 'timeit') 
 {
     console.time(name)
     try 

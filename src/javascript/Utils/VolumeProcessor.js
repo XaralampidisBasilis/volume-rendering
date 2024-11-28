@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
-import * as TensorUtils from '../TensorUtils'
-import EventEmitter from '../EventEmitter'
-import timeit from '../timeit'
+import * as TensorUtils from './TensorUtils'
+import EventEmitter from './EventEmitter'
+import { timeit } from './timeit'
 
 export default class VolumeProcessor extends EventEmitter
 {
@@ -12,27 +12,25 @@ export default class VolumeProcessor extends EventEmitter
 
         this.renderer = renderer
         this.volume = volume
-        this.setParameters()
-        this.setTensors()
-        this.setTextures()
+        this.parameters = {}
+        this.computes = {}
+        this.textures = {}
 
-        // timeit(() => this.computeVolumeCompander(), 'computeVolumeCompander')
-        // timeit(() => this.computeGradients(), 'computeGradients')
+        this.setVolumeParameters()
+        timeit(() => this.computeIntensityMap(), 'computeIntensityMap')
+        timeit(() => this.computeGradientMap(), 'computeGradientMap')
+
+        // timeit(() => this.computeTaylorMap(), 'computeTaylorMap')
         // timeit(() => this.computeOccupancyMap(0, 10), 'computeOccupancyMap')
         // timeit(() => this.computeOccupancyAtlas(), 'computeOccupancyAtlas')
-        // timeit(() => this.computeOccupancyDistanceMap(0, 10, 255), 'computeOccupancyDistanceMap')
+        // timeit(() => this.computeOccupancyDistanceMap(0, 2, 255), 'computeOccupancyDistanceMap')
         // timeit(() => this.computeExtremaMap(10), 'computeExtremaMap')
-        timeit(() => this.computeExtremaDistanceMap(2, 40), 'computeExtremaDistanceMap')
-
-        console.log(this.parameters.extremaDistanceMap)
-        console.log(this.tensors.gradients.dataSync())
+        // timeit(() => this.computeExtremaDistanceMap(2, 40), 'computeExtremaDistanceMap')
     }
 
-    setParameters()
+    setVolumeParameters()
     {
-        this.parameters = {}
-        this.parameters.volume = 
-        {
+        this.parameters.volume = {
             size         : new THREE.Vector3().fromArray(this.volume.size),
             dimensions   : new THREE.Vector3().fromArray(this.volume.dimensions),
             spacing      : new THREE.Vector3().fromArray(this.volume.spacing),
@@ -40,338 +38,512 @@ export default class VolumeProcessor extends EventEmitter
             invDimensions: new THREE.Vector3().fromArray(this.volume.dimensions.map((x) => 1 / x)),
             invSpacing   : new THREE.Vector3().fromArray(this.volume.spacing.map((x) => 1 / x)),
             numVoxels    : this.volume.dimensions.reduce((voxels, dim) => voxels * dim, 1),
+            shape        : this.volume.dimensions.toReversed().concat(1).concat(1),
         }
     }
 
-    setTensors()
+    // compute functions
+
+    computeIntensityMap()
     {
-        this.tensors = {}
-        const volumeShape = this.volume.dimensions.toReversed().concat(1).concat(1)
-        this.tensors.volume = tf.tensor5d(this.volume.data, volumeShape,'float32')
+        if (this.computes.intensityMap) 
+            this.disposeIntensityMap()
+
+        this.parameters.intensityMap = this.parameters.volume
+        this.computes.intensityMap = tf.tensor5d(this.volume.data, this.parameters.intensityMap.shape,'float32')
+
+        console.log(this.parameters.intensityMap)
+        console.log(this.computes.intensityMap.dataSync())
     }
 
-    setTextures()
+    computeGradientMap()
     {
-        this.textures = {}
-        this.textures.volume = new THREE.Data3DTexture(this.tensors.volume.data(), ...this.parameters.volume.dimensions.toArray())
-        this.textures.volume.format = THREE.RedFormat
-        this.textures.volume.type = THREE.FloatType     
-        this.textures.volume.minFilter = THREE.LinearFilter
-        this.textures.volume.magFilter = THREE.LinearFilter
-        this.textures.volume.generateMipmaps = false
-        this.textures.volume.needsUpdate = true   
+        if (this.computes.gradientMap) 
+            this.disposeGradientMap()
+
+        this.parameters.gradientMap = this.parameters.volume
+        this.computes.gradientMap = TensorUtils.gradients3d(this.computes.intensityMap, this.parameters.volume.spacing)
+
+        console.log(this.parameters.gradientMap)
+        console.log(this.computes.gradientMap.dataSync())
     }
-
-    computeResizeLinear()
-    {
-
-    }
-
-    computeSmoothing(radius)
-    {
-        // dispose
-        if (this.tensors.smoothed) this.tensors.smoothed.dispose()
-        if (this.textures.smoothed) this.textures.smoothed.dispose()
-
-        // tensors
-        this.tensors.smoothed = TensorUtils.smoothing3d(this.tensors.volume, radius)
-
-        // textures
-        this.textures.smoothed = new THREE.Data3DTexture(this.tensors.smoothed.data(), ...this.parameters.volume.dimensions.toArray())
-        this.textures.smoothed.format = THREE.RedFormat
-        this.textures.smoothed.type = THREE.FloatType     
-        this.textures.smoothed.minFilter = THREE.LinearFilter
-        this.textures.smoothed.magFilter = THREE.LinearFilter
-        this.textures.smoothed.generateMipmaps = false
-        this.textures.smoothed.needsUpdate = true   
-    }
-
-    computeGradients()
-    {
-        // tensors
-        if (this.tensors.gradients) this.tensors.gradients.dispose()
-        this.tensors.gradients = TensorUtils.gradients3d(this.tensors.volume, this.parameters.volume.spacing)
-
-        // textures
-        if (this.textures.gradients) this.textures.gradients.dispose()
-        this.textures.gradients = new THREE.Data3DTexture(this.tensors.gradients.data(), ...this.parameters.volume.dimensions.toArray())
-        this.textures.gradients.format = THREE.RGBFormat
-        this.textures.gradients.type = THREE.FloatType     
-        this.textures.gradients.minFilter = THREE.LinearFilter
-        this.textures.gradients.magFilter = THREE.LinearFilter
-        this.textures.gradients.generateMipmaps = false
-        this.textures.gradients.needsUpdate = true   
-
-        // dispose
-        this.tensors.gradients.dispose()
-    }
-
+ 
     computeTaylorMap()
     {
-        // tensors
-        if (this.tensors.gradients) this.tensors.gradients.dispose()
-        if (this.tensors.taylorMap) this.tensors.taylorMap.dispose()
-        this.tensors.gradients = TensorUtils.gradients3d(this.tensors.volume, this.parameters.volume.spacing)
-        this.tensors.taylorMap = tf.concat([this.tensors.volume, this.tensors.gradients], 3)
-        this.tensors.gradients.dispose()
+        if (!this.computes.intensityMap) 
+            this.computeIntensityMap()
 
-        // textures
-        if (this.textures.taylorMap) this.textures.taylorMap.dispose()
-        this.textures.taylorMap = new THREE.Data3DTexture(this.tensors.taylorMap.data(), ...this.parameters.volume.dimensions.toArray())
-        this.textures.taylorMap.format = THREE.RGBAFormat
-        this.textures.taylorMap.type = THREE.FloatType     
-        this.textures.taylorMap.minFilter = THREE.LinearFilter
-        this.textures.taylorMap.magFilter = THREE.LinearFilter
-        this.textures.taylorMap.generateMipmaps = false
-        this.textures.taylorMap.needsUpdate = true   
+        if (!this.computes.gradientMap) 
+            this.computeGradientMap()
 
-        // dispose
-        this.tensors.taylorMap.dispose()
-    }
+        if (this.computes.taylorMap) 
+            this.disposeTaylorMap()
 
-    computeVolumeQuantization()
-    {
-        // parameters
-        this.parameters.volumeQuantized = this.parameters.volume
+        this.parameters.taylorMap = this.parameters.volume
+        this.computes.taylorMap = tf.concat([this.computes.intensityMap, this.computes.gradientMap], 3)
+        this.disposeIntensityMap()
+        this.disposeGradientMap()
 
-        // tensors
-        if (this.tensors.volumeQuantized) this.tensors.volumeQuantized.dispose()
-        [this.tensors.volumeQuantized, this.parameters.volumeQuantized.minValue, this.parameters.volumeQuantized.maxValue] = TensorUtils.quantize(this.tensors.volume)
-
-        // textures
-        if (this.textures.volumeQuantized) this.textures.volumeQuantized.dispose()
-        this.textures.volumeQuantized = new THREE.Data3DTexture(this.tensors.volumeQuantized.data(), ...this.parameters.volume.dimensions.toArray())
-        this.textures.volumeQuantized.format = THREE.RGBFormat
-        this.textures.volumeQuantized.type = THREE.FloatType     
-        this.textures.volumeQuantized.minFilter = THREE.LinearFilter
-        this.textures.volumeQuantized.magFilter = THREE.LinearFilter
-        this.textures.volumeQuantized.generateMipmaps = false
-        this.textures.volumeQuantized.needsUpdate = true   
-
-        // dispose
-        this.tensors.volumeQuantized.dispose()
-
-    }
-    
-    computeGradientsQuantization()
-    {
-        // tensors
-        this.tensors.gradientsQuantized = TensorUtils.gradients3d(this.tensors.volume, this.parameters.volume.spacing)
-
-        // textures
-        if (this.textures.gradientsQuantized) this.textures.gradientsQuantized.dispose()
-        this.textures.gradientsQuantized = new THREE.Data3DTexture(this.tensors.gradientsQuantized.data(), ...this.parameters.volume.dimensions.toArray())
-        this.textures.gradientsQuantized.format = THREE.RGBFormat
-        this.textures.gradientsQuantized.type = THREE.FloatType     
-        this.textures.gradientsQuantized.minFilter = THREE.LinearFilter
-        this.textures.gradientsQuantized.magFilter = THREE.LinearFilter
-        this.textures.gradientsQuantized.generateMipmaps = false
-        this.textures.gradientsQuantized.needsUpdate = true   
-
-        // dispose
-        this.tensors.gradientsQuantized.dispose()
-    }
-
-    computeTaylorMapQuantization()
-    {
-        // tensors
-        if (this.tensors.gradients) this.tensors.gradients.dispose()
-        if (this.tensors.taylorMap) this.tensors.taylorMap.dispose()
-        this.tensors.gradients = TensorUtils.gradients3d(this.tensors.volume, this.parameters.volume.spacing)
-        this.tensors.taylorMap = tf.concat([this.tensors.volume, this.tensors.gradients], 3)
-        this.tensors.gradients.dispose()
-
-        // textures
-        if (this.textures.taylorMap) this.textures.taylorMap.dispose()
-        this.textures.taylorMap = new THREE.Data3DTexture(this.tensors.taylorMap.data(), ...this.parameters.volume.dimensions.toArray())
-        this.textures.taylorMap.format = THREE.RGBAFormat
-        this.textures.taylorMap.type = THREE.FloatType     
-        this.textures.taylorMap.minFilter = THREE.LinearFilter
-        this.textures.taylorMap.magFilter = THREE.LinearFilter
-        this.textures.taylorMap.generateMipmaps = false
-        this.textures.taylorMap.needsUpdate = true   
-
-        // dispose
-        this.tensors.taylorMap.dispose()
-    }
-
-    computeVolumeCompanding()
-    {
-        // tensors
-        if (this.tensors.gradients) this.tensors.gradients.dispose()
-        this.tensors.gradients = TensorUtils.gradients3d(this.tensors.volume, this.parameters.volume.spacing)
-
-        // textures
-        if (this.textures.gradients) this.textures.gradients.dispose()
-        this.textures.gradients = new THREE.Data3DTexture(this.tensors.gradients.data(), ...this.parameters.volume.dimensions.toArray())
-        this.textures.gradients.format = THREE.RGBFormat
-        this.textures.gradients.type = THREE.FloatType     
-        this.textures.gradients.minFilter = THREE.LinearFilter
-        this.textures.gradients.magFilter = THREE.LinearFilter
-        this.textures.gradients.generateMipmaps = false
-        this.textures.gradients.needsUpdate = true   
-    }
-    
-    computeGradientsCompanding()
-    {
-        // tensors
-        this.tensors.gradientsQuantized = TensorUtils.gradients3d(this.tensors.volume, this.parameters.volume.spacing)
-
-        // textures
-        if (this.textures.gradientsQuantized) this.textures.gradientsQuantized.dispose()
-        this.textures.gradientsQuantized = new THREE.Data3DTexture(this.tensors.gradientsQuantized.data(), ...this.parameters.volume.dimensions.toArray())
-        this.textures.gradientsQuantized.format = THREE.RGBFormat
-        this.textures.gradientsQuantized.type = THREE.FloatType     
-        this.textures.gradientsQuantized.minFilter = THREE.LinearFilter
-        this.textures.gradientsQuantized.magFilter = THREE.LinearFilter
-        this.textures.gradientsQuantized.generateMipmaps = false
-        this.textures.gradientsQuantized.needsUpdate = true   
-
-        // dispose
-        this.tensors.gradientsQuantized.dispose()
-    }
-
-    computeTaylorMapCompanding()
-    {
-        // tensors
-        if (this.tensors.gradients) this.tensors.gradients.dispose()
-        if (this.tensors.taylorMap) this.tensors.taylorMap.dispose()
-        this.tensors.gradients = TensorUtils.gradients3d(this.tensors.volume, this.parameters.volume.spacing)
-        this.tensors.taylorMap = tf.concat([this.tensors.volume, this.tensors.gradients], 3)
-        this.tensors.gradients.dispose()
-
-        // textures
-        if (this.textures.taylorMap) this.textures.taylorMap.dispose()
-        this.textures.taylorMap = new THREE.Data3DTexture(this.tensors.taylorMap.data(), ...this.parameters.volume.dimensions.toArray())
-        this.textures.taylorMap.format = THREE.RGBAFormat
-        this.textures.taylorMap.type = THREE.FloatType     
-        this.textures.taylorMap.minFilter = THREE.LinearFilter
-        this.textures.taylorMap.magFilter = THREE.LinearFilter
-        this.textures.taylorMap.generateMipmaps = false
-        this.textures.taylorMap.needsUpdate = true   
-
-        // dispose
-        this.tensors.taylorMap.dispose()
+        console.log(this.parameters.taylorMap)
+        console.log(this.computes.taylorMap.dataSync())
     }
 
     computeOccupancyMap(threshold, division)
     {
-        // tensors
-        this.tensors.occupancyMap = TensorUtils.occupancyMap(this.tensors.volume, threshold, division)
+        if (this.computes.occupancyMap) 
+            this.computes.occupancyMap.dispose()
 
-        // parameters
+        this.computes.occupancyMap = TensorUtils.occupancyMap(this.computes.intensityMap, threshold, division)
         this.parameters.occupancyMap = {}
         this.parameters.occupancyMap.threshold = threshold
         this.parameters.occupancyMap.division = division
-        this.parameters.occupancyMap.dimensions = new THREE.Vector3().fromArray(this.tensors.occupancyMap.shape.slice(0, 3).toReversed())
+        this.parameters.occupancyMap.dimensions = new THREE.Vector3().fromArray(this.computes.occupancyMap.shape.slice(0, 3).toReversed())
         this.parameters.occupancyMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(this.parameters.occupancyMap.division)
         this.parameters.occupancyMap.size = new THREE.Vector3().copy(this.parameters.occupancyMap.dimensions).multiply(this.parameters.occupancyMap.spacing)
         this.parameters.occupancyMap.numBlocks = this.parameters.occupancyMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+
+        console.log(this.parameters.occupancyMap)
+        console.log(this.computes.occupancyMap.dataSync())
+    }
+
+    computeOccupancyAtlas(threshold, division)
+    {
+        if (this.computes.occupancyAtlas) 
+            this.computes.occupancyAtlas.dispose()
+
+        this.computes.occupancyAtlas = TensorUtils.occupancyAtlas(this.computes.intensityMap, threshold, division)
+
+        console.log(this.parameters.occupancyAtlas)
+        console.log(this.computes.occupancyAtlas.dataSync())
+    }
+
+    computeOccupancyDistanceMap(threshold, division, maxDistance)
+    {
+        if (this.computes.occupancyDistanceMap) 
+            this.computes.occupancyDistanceMap.dispose()
+
+        this.computes.occupancyDistanceMap = TensorUtils.occupancyDistanceMap(this.computes.intensityMap, threshold, division, maxDistance)
+        this.parameters.occupancyDistanceMap = {}
+        this.parameters.occupancyDistanceMap.threshold = threshold
+        this.parameters.occupancyDistanceMap.division = division
+        this.parameters.occupancyDistanceMap.maxDistance = maxDistance
+        this.parameters.occupancyDistanceMap.dimensions = new THREE.Vector3().fromArray(this.computes.occupancyDistanceMap.shape.slice(0, 3).toReversed())
+        this.parameters.occupancyDistanceMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(this.parameters.occupancyDistanceMap.division)
+        this.parameters.occupancyDistanceMap.size = new THREE.Vector3().copy(this.parameters.occupancyDistanceMap.dimensions).multiply(this.parameters.occupancyDistanceMap.spacing)
+        this.parameters.occupancyDistanceMap.numBlocks = this.parameters.occupancyDistanceMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+    
+        console.log(this.parameters.occupancyDistanceMap)
+        console.log(this.computes.occupancyDistanceMap.dataSync())
+    }
+
+    computeExtremaMap(division)
+    {
+        if (this.computes.extremaMap) 
+            this.computes.extremaMap.dispose()
+
+        this.computes.extremaMap = TensorUtils.extremaMap(this.computes.intensityMap, division)
+        this.parameters.extremaMap = {}
+        this.parameters.extremaMap.division = division
+        this.parameters.extremaMap.dimensions = new THREE.Vector3().fromArray(this.computes.extremaMap.shape.slice(0, 3).toReversed())
+        this.parameters.extremaMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(this.parameters.extremaMap.division)
+        this.parameters.extremaMap.size = new THREE.Vector3().copy(this.parameters.extremaMap.dimensions).multiply(this.parameters.extremaMap.spacing)
+        this.parameters.extremaMap.numBlocks = this.parameters.extremaMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+
+        console.log(this.parameters.extremaMap)
+        console.log(this.computes.extremaMap.dataSync())
+    }
+
+    computeExtremaDistanceMap(division, maxDistance)
+    {
+        if (this.computes.extremaDistanceMap) 
+            this.computes.extremaDistanceMap.dispose()
+
+        this.computes.extremaDistanceMap = TensorUtils.extremaDistanceMap(this.computes.intensityMap, division, maxDistance)
+        this.parameters.extremaDistanceMap = {}
+        this.parameters.extremaDistanceMap.division = division
+        this.parameters.extremaDistanceMap.maxDistance = maxDistance
+        this.parameters.extremaDistanceMap.dimensions = new THREE.Vector3().fromArray(this.computes.extremaDistanceMap.shape.slice(0, 3).toReversed())
+        this.parameters.extremaDistanceMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(this.parameters.extremaDistanceMap.division)
+        this.parameters.extremaDistanceMap.size = new THREE.Vector3().copy(this.parameters.extremaDistanceMap.dimensions).multiply(this.parameters.extremaDistanceMap.spacing)
+        this.parameters.extremaDistanceMap.numBlocks = this.parameters.extremaDistanceMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
         
+        console.log(this.parameters.extremaDistanceMap)
+        console.log(this.computes.extremaDistanceMap.dataSync())
+    }
+
+    // 
+
+    resizeIntensityMap()
+    {
+        if (!this.computes.intensityMap) 
+            this.computeIntensityMap()
+
+        const intensityMap = TensorUtils.resizeLinear3d(this.computes.intensityMap, radius)
+        this.computes.intensityMap.dispose()
+        this.computes.intensityMap = intensityMap
+
+        console.log(this.parameters.intensityMap)
+        console.log(this.computes.intensityMap.dataSync())
+    }
+
+    smoothIntensityMap(radius)
+    {
+        if (!this.computes.intensityMap) 
+            this.computeIntensityMap()
+
+        const intensityMap = TensorUtils.smoothing3d(this.computes.intensityMap, radius)
+        this.computes.intensityMap.dispose()
+        this.computes.intensityMap = intensityMap
+
+        console.log(this.parameters.intensityMap)
+        console.log(this.computes.intensityMap.dataSync())
+    }
+
+    quantizeIntensityMap()
+    {
+        if (!this.computes.intensityMap) 
+            this.computeIntensityMap()
+        
+        const [intensityMap, minValue, maxValue] = TensorUtils.quantize3d(this.computes.intensityMap) 
+        this.computes.intensityMap.dispose()
+        this.computes.intensityMap = intensityMap
+        this.parameters.intensityMap.minValue = minValue
+        this.parameters.intensityMap.maxValue = maxValue  
+
+        console.log(this.parameters.intensityMap)
+        console.log(this.computes.intensityMap.dataSync())
+    }
+
+    quantizeGradientMap()
+    {
+        if (!this.computes.gradientMap) 
+            this.computeGradientMap()
+    
+        const [gradientMap, minValue, maxValue] = TensorUtils.quantize3d(this.computes.gradientMap) 
+        this.computes.gradientMap.dispose()
+        this.computes.gradientMap = gradientMap
+        this.parameters.gradientMap.minValue = minValue
+        this.parameters.gradientMap.maxValue = maxValue 
+
+        console.log(this.parameters.gradientMap)
+        console.log(this.computes.gradientMap.dataSync())
+    }
+
+    quantizeTaylorMap()
+    {
+        if (!this.computes.taylorMap) 
+            this.computeTaylorMap()
+
+        const [taylorMap, minValue, maxValue] = TensorUtils.quantize3d(this.computes.taylorMap) 
+        this.computes.taylorMap.dispose()
+        this.computes.taylorMap = taylorMap
+        this.parameters.taylorMap.minValue = minValue
+        this.parameters.taylorMap.maxValue = maxValue 
+
+        console.log(this.parameters.taylorMap)
+        console.log(this.computes.taylorMap.dataSync())
+    }
+
+    // texture generators
+
+    generateIntensityMap()
+    {
+        if (this.textures.intensityMap) 
+            this.textures.intensityMap.dispose()
+
+        this.textures.intensityMap = new THREE.Data3DTexture(
+            this.computes.intensityMap.dataSync(), 
+            ...this.parameters.intensityMap.dimensions.toArray())
+        this.textures.intensityMap.format = THREE.RedFormat
+        this.textures.intensityMap.type = THREE.FloatType     
+        this.textures.intensityMap.minFilter = THREE.LinearFilter
+        this.textures.intensityMap.magFilter = THREE.LinearFilter
+        this.textures.intensityMap.generateMipmaps = false
+        this.textures.intensityMap.needsUpdate = true   
+        this.computes.intensityMap.dispose()
+
+        return this.textures.intensityMap
+    }
+
+    generateGradientMap()
+    {
         // textures
-        if (this.textures.occupancyMap) this.textures.occupancyMap.dispose()
-        this.textures.occupancyMap = new THREE.Data3DTexture(this.tensors.occupancyMap.data(), ...this.parameters.occupancyMap.dimensions.toArray())
+        if (this.textures.gradientMap) 
+            this.textures.gradientMap.dispose()
+
+        this.textures.gradientMap = new THREE.Data3DTexture(
+            this.computes.gradientMap.dataSync(), 
+            ...this.parameters.volume.dimensions.toArray())
+        this.textures.gradientMap.format = THREE.RGBFormat
+        this.textures.gradientMap.type = THREE.FloatType     
+        this.textures.gradientMap.minFilter = THREE.LinearFilter
+        this.textures.gradientMap.magFilter = THREE.LinearFilter
+        this.textures.gradientMap.generateMipmaps = false
+        this.textures.gradientMap.needsUpdate = true   
+        this.computes.gradientMap.dispose()
+
+        return this.textures.gradientMap
+    }
+
+    generateTaylorMap()
+    {
+        if (this.textures.taylorMap) 
+            this.textures.taylorMap.dispose()
+
+        this.textures.taylorMap = new THREE.Data3DTexture(
+            this.computes.taylorMap.dataSync(), 
+            ...this.parameters.volume.dimensions.toArray())
+        this.textures.taylorMap.format = THREE.RGBAFormat
+        this.textures.taylorMap.type = THREE.FloatType     
+        this.textures.taylorMap.minFilter = THREE.LinearFilter
+        this.textures.taylorMap.magFilter = THREE.LinearFilter
+        this.textures.taylorMap.generateMipmaps = false
+        this.textures.taylorMap.needsUpdate = true
+        this.computes.taylorMap.dispose()
+
+        return this.textures.taylorMap
+    }
+
+    generateQuantizedIntensityMap()
+    {
+        if (this.textures.intensityMap) 
+            this.textures.intensityMap.dispose()
+
+        this.textures.intensityMap = new THREE.Data3DTexture(
+            this.computes.intensityMap.dataSync(), 
+            ...this.parameters.intensityMap.dimensions.toArray())
+        this.textures.intensityMap.format = THREE.RedFormat
+        this.textures.intensityMap.type = THREE.UnsignedByteType     
+        this.textures.intensityMap.minFilter = THREE.LinearFilter
+        this.textures.intensityMap.magFilter = THREE.LinearFilter
+        this.textures.intensityMap.generateMipmaps = false
+        this.textures.intensityMap.needsUpdate = true   
+        this.computes.intensityMap.dispose()
+
+        return this.textures.intensityMap
+    }
+
+    generateQuantizedGradientMap()
+    {
+        // textures
+        if (this.textures.gradientMap) 
+            this.textures.gradientMap.dispose()
+
+        this.textures.gradientMap = new THREE.Data3DTexture(
+            this.computes.gradientMap.dataSync(), 
+            ...this.parameters.volume.dimensions.toArray())
+        this.textures.gradientMap.format = THREE.RGBFormat
+        this.textures.gradientMap.type = THREE.UnsignedByteType     
+        this.textures.gradientMap.minFilter = THREE.LinearFilter
+        this.textures.gradientMap.magFilter = THREE.LinearFilter
+        this.textures.gradientMap.generateMipmaps = false
+        this.textures.gradientMap.needsUpdate = true   
+        this.computes.gradientMap.dispose()
+
+        return this.textures.gradientMap
+    }
+
+    generateQuantizedTaylorMap()
+    {
+        if (this.textures.taylorMap) 
+            this.textures.taylorMap.dispose()
+
+        this.textures.taylorMap = new THREE.Data3DTexture(
+            this.computes.taylorMap.dataSync(), 
+            ...this.parameters.volume.dimensions.toArray())
+        this.textures.taylorMap.format = THREE.RGBAFormat
+        this.textures.taylorMap.type = THREE.UnsignedByteType     
+        this.textures.taylorMap.minFilter = THREE.LinearFilter
+        this.textures.taylorMap.magFilter = THREE.LinearFilter
+        this.textures.taylorMap.generateMipmaps = false
+        this.textures.taylorMap.needsUpdate = true
+        this.computes.taylorMap.dispose()
+
+        return this.textures.taylorMap
+    }
+
+    generateOccupancyMap()
+    {
+        if (this.textures.occupancyMap) 
+            this.textures.occupancyMap.dispose()
+
+        this.textures.occupancyMap = new THREE.Data3DTexture(
+            this.computes.occupancyMap.dataSync(), 
+            ...this.parameters.occupancyMap.dimensions.toArray())
         this.textures.occupancyMap.format = THREE.RedFormat
         this.textures.occupancyMap.type = THREE.UnsignedByteType     
         this.textures.occupancyMap.minFilter = THREE.LinearFilter
         this.textures.occupancyMap.magFilter = THREE.LinearFilter
         this.textures.occupancyMap.generateMipmaps = false
-        this.textures.occupancyMap.needsUpdate = true   
+        this.textures.occupancyMap.needsUpdate = true  
+        this.computes.occupancyMap.dispose() 
 
-        // dispose
-        this.tensors.occupancyMap.dispose()
+        return this.textures.occupancyMap
     }
 
-    computeOccupancyAtlas(threshold, division)
+    generateOccupancyAtlas()
     {
-        this.tensors.occupancyAtlas = TensorUtils.occupancyAtlas(this.tensors.volume, threshold, division)
-        this.textures.occupancyAtlas = new THREE.Data3DTexture(this.tensors.occupancyAtlas.data(), ...this.parameters.volume.dimensions.toArray())
+        if (this.textures.occupancyAtlas) 
+            this.textures.occupancyAtlas.dispose()
+
+        this.textures.occupancyAtlas = new THREE.Data3DTexture(
+            this.computes.occupancyAtlas.dataSync(), 
+            ...this.parameters.volume.dimensions.toArray())
         this.textures.occupancyAtlas.format = THREE.RedFormat
         this.textures.occupancyAtlas.type = THREE.UnsignedByteType     
         this.textures.occupancyAtlas.minFilter = THREE.LinearFilter
         this.textures.occupancyAtlas.magFilter = THREE.LinearFilter
         this.textures.occupancyAtlas.generateMipmaps = false
         this.textures.occupancyAtlas.needsUpdate = true   
+        this.computes.occupancyAtlas.dispose() 
+
+        return this.textures.occupancyAtlas
     }
 
-    computeOccupancyDistanceMap(threshold, division, maxDistance)
+    generateOccupancyDistanceMap()
     {
-        // parameters
-        this.parameters.occupancyDistanceMap = {}
-        this.parameters.occupancyDistanceMap.threshold = threshold
-        this.parameters.occupancyDistanceMap.division = division
-        this.parameters.occupancyDistanceMap.maxDistance = maxDistance
-        this.parameters.occupancyDistanceMap.dimensions = new THREE.Vector3().fromArray(this.tensors.occupancyDistanceMap.shape.slice(0, 3).toReversed())
-        this.parameters.occupancyDistanceMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(this.parameters.occupancyDistanceMap.division)
-        this.parameters.occupancyDistanceMap.size = new THREE.Vector3().copy(this.parameters.occupancyDistanceMap.dimensions).multiply(this.parameters.occupancyDistanceMap.spacing)
-        this.parameters.occupancyDistanceMap.numBlocks = this.parameters.occupancyDistanceMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-        
-        // textures
-        if (this.textures.occupancyDistanceMap) this.textures.occupancyDistanceMap.dispose()
-        this.textures.occupancyDistanceMap = new THREE.Data3DTexture(this.tensors.occupancyDistanceMap.data(), ...this.parameters.occupancyDistanceMap.dimensions.toArray())
+        if (this.textures.occupancyDistanceMap) 
+            this.textures.occupancyDistanceMap.dispose()
+
+        this.textures.occupancyDistanceMap = new THREE.Data3DTexture(
+            this.computes.occupancyDistanceMap.dataSync(), 
+            ...this.parameters.occupancyDistanceMap.dimensions.toArray())
         this.textures.occupancyDistanceMap.format = THREE.RedFormat
         this.textures.occupancyDistanceMap.type = THREE.UnsignedByteType     
         this.textures.occupancyDistanceMap.minFilter = THREE.LinearFilter
         this.textures.occupancyDistanceMap.magFilter = THREE.LinearFilter
         this.textures.occupancyDistanceMap.generateMipmaps = false
         this.textures.occupancyDistanceMap.needsUpdate = true   
-        
-        // dispose
-        this.tensors.occupancyDistanceMap.dispose()
+        this.computes.occupancyDistanceMap.dispose() 
+
+        return this.textures.occupancyDistanceMap
     }
 
-    computeExtremaMap(division)
+    generateExtremaMap()
     {
-        // tensors
-        this.tensors.extremaMap = TensorUtils.extremaMap(this.tensors.volume, division)
-        
-        // parameters
-        this.parameters.extremaMap = {}
-        this.parameters.extremaMap.division = division
-        this.parameters.extremaMap.dimensions = new THREE.Vector3().fromArray(this.tensors.extremaMap.shape.slice(0, 3).toReversed())
-        this.parameters.extremaMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(this.parameters.extremaMap.division)
-        this.parameters.extremaMap.size = new THREE.Vector3().copy(this.parameters.extremaMap.dimensions).multiply(this.parameters.extremaMap.spacing)
-        this.parameters.extremaMap.numBlocks = this.parameters.extremaMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-        
-        // textures
-        if (this.textures.extremaMap) this.textures.extremaMap.dispose()
-        this.textures.extremaMap = new THREE.Data3DTexture(this.tensors.extremaMap.data(), ...this.parameters.volume.dimensions.toArray())
+        if (this.textures.extremaMap) 
+            this.textures.extremaMap.dispose()
+
+        this.textures.extremaMap = new THREE.Data3DTexture(
+            this.computes.extremaMap.data(), 
+            ...this.parameters.volume.dimensions.toArray())
         this.textures.extremaMap.format = THREE.RGFormat
         this.textures.extremaMap.type = THREE.FloatType     
         this.textures.extremaMap.minFilter = THREE.LinearFilter
         this.textures.extremaMap.magFilter = THREE.LinearFilter
         this.textures.extremaMap.generateMipmaps = false
-        this.textures.extremaMap.needsUpdate = true   
-
-        // dispose
-        this.tensors.extremaMap.dispose()
+        this.textures.extremaMap.needsUpdate = true  
+        this.computes.extremaMap.dispose()
+        
+        return this.textures.extremaMap
     }
 
-    computeExtremaDistanceMap(division, maxDistance)
+    generateExtremaDistanceMap()
     {
-        // tensors
-        this.tensors.extremaDistanceMap = TensorUtils.extremaDistanceMap(this.tensors.volume, division, maxDistance)
+        if (this.textures.extremaDistanceMap) 
+            this.textures.extremaDistanceMap.dispose()
 
-        // parameters
-        this.parameters.extremaDistanceMap = {}
-        this.parameters.extremaDistanceMap.division = division
-        this.parameters.extremaDistanceMap.maxDistance = maxDistance
-        this.parameters.extremaDistanceMap.dimensions = new THREE.Vector3().fromArray(this.tensors.extremaDistanceMap.shape.slice(0, 3).toReversed())
-        this.parameters.extremaDistanceMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(this.parameters.extremaDistanceMap.division)
-        this.parameters.extremaDistanceMap.size = new THREE.Vector3().copy(this.parameters.extremaDistanceMap.dimensions).multiply(this.parameters.extremaDistanceMap.spacing)
-        this.parameters.extremaDistanceMap.numBlocks = this.parameters.extremaDistanceMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-
-        // textures
-        if (this.textures.extremaDistanceMap) this.textures.extremaDistanceMap.dispose()
-        this.textures.extremaDistanceMap = new THREE.Data3DTexture(this.tensors.extremaDistanceMap.data(), ...this.parameters.volume.dimensions.toArray())
+        this.textures.extremaDistanceMap = new THREE.Data3DTexture(
+            this.computes.extremaDistanceMap.data(), 
+            ...this.parameters.volume.dimensions.toArray())
         this.textures.extremaDistanceMap.format = THREE.RedFormat
         this.textures.extremaDistanceMap.type = THREE.FloatType     
         this.textures.extremaDistanceMap.minFilter = THREE.LinearFilter
         this.textures.extremaDistanceMap.magFilter = THREE.LinearFilter
         this.textures.extremaDistanceMap.generateMipmaps = false
         this.textures.extremaDistanceMap.needsUpdate = true   
+        this.computes.extremaDistanceMap.dispose()
+        
+        return this.textures.extremaDistanceMap
+    }
 
-        // dispose
-        this.tensors.extremaDistanceMap.dispose()
+    // dispose functions
+
+    disposeIntensityMap()
+    { 
+        this.parameters.intensityMap = {}
+
+        if (this.computes.intensityMap) 
+            this.computes.intensityMap.dispose()   
+
+        if (this.textures.intensityMap) 
+            this.textures.intensityMap.dispose()   
+    }
+
+    disposeGradientMap()
+    { 
+        this.parameters.gradientMap = {}
+
+        if (this.computes.gradientMap) 
+            this.computes.gradientMap.dispose()   
+
+        if (this.textures.gradientMap) 
+            this.textures.gradientMap.dispose()   
+    }
+
+    disposeTaylorMap()
+    { 
+        this.parameters.taylorMap = {}
+
+        if (this.computes.taylorMap) 
+            this.computes.taylorMap.dispose()   
+
+        if (this.textures.taylorMap) 
+            this.textures.taylorMap.dispose()   
+    }
+
+    disposeOccupancyMap()
+    { 
+        this.parameters.occupancyMap = {}
+
+        if (this.computes.occupancyMap) 
+            this.computes.occupancyMap.dispose()   
+
+        if (this.textures.occupancyMap) 
+            this.textures.occupancyMap.dispose()   
+    }
+
+    disposeOccupancyAtlas()
+    { 
+        this.parameters.occupancyAtlas = {}
+
+        if (this.computes.occupancyAtlas) 
+            this.computes.occupancyAtlas.dispose()   
+
+        if (this.textures.occupancyAtlas) 
+            this.textures.occupancyAtlas.dispose()   
+    }
+
+    disposeOccupancyDistanceMap()
+    { 
+        this.parameters.occupancyDistanceMap = {}
+
+        if (this.computes.occupancyDistanceMap) 
+            this.computes.occupancyDistanceMap.dispose()   
+
+        if (this.textures.occupancyDistanceMap) 
+            this.textures.occupancyDistanceMap.dispose()   
+    }
+
+    disposeExtremaMap()
+    { 
+        this.parameters.extremaMap = {}
+
+        if (this.computes.extremaMap) 
+            this.computes.extremaMap.dispose()   
+
+        if (this.textures.extremaMap) 
+            this.textures.extremaMap.dispose()   
+    }
+
+    disposeExtremaDistanceMap()
+    { 
+        this.parameters.extremaDistanceMap = {}
+
+        if (this.computes.extremaDistanceMap) 
+            this.computes.extremaDistanceMap.dispose()   
+
+        if (this.textures.extremaDistanceMap) 
+            this.textures.extremaDistanceMap.dispose()   
     }
 }
