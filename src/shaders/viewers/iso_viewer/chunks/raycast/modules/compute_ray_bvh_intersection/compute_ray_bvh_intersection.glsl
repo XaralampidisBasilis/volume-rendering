@@ -1,5 +1,5 @@
 
-// from ray start skip blocks untill you find an occupied block at the lowest lod
+// from ray start skip blocks until you find an occupied block at the lowest lod
 while (ray.skip_count < ray.max_skip_count) 
 {
     #include "./sample_occumap_at_ray_start"

@@ -4,7 +4,7 @@ ray.camera_position = v_camera_position;
 ray.camera_direction = normalize(v_camera_direction);
 ray.step_direction = normalize(v_ray_direction);
 
-// Compute ray step and skip counts constaints
+// Compute ray step and skip counts constraints
 #include "./modules/compute_ray_max_counts"
 
 // Compute intersection of ray with the volume box

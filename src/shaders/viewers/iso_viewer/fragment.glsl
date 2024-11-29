@@ -22,8 +22,8 @@ out vec4 fragColor;
 void main() 
 {
     #include "./chunks/structs/set_structs"
-    #include "./chunks/raycasting/compute_raycasting"
-    #include "./chunks/colormapping/compute_colormapping"
+    #include "./chunks/raycast/compute_raycast"
+    #include "./chunks/colormap/compute_colormap"
     #include "./chunks/shading/compute_shading"
 
     fragColor = trace.shaded_color;
