@@ -10,4 +10,6 @@ struct Textures
     sampler2D noisemap;
 };
 
+uniform Textures u_textures;
+
 #endif

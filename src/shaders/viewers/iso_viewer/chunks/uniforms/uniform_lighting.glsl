@@ -11,4 +11,6 @@ struct Lighting
     vec3  position_offset;    
 };
 
+uniform Lighting u_lighting;
+
 #endif // UNIFORM_LIGHTING

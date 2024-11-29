@@ -10,4 +10,6 @@ struct Colormap
     vec2 end_coords;  
 };
 
+uniform Colormap u_colormap;
+
 #endif

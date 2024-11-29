@@ -23,4 +23,6 @@ struct Volume
     float max_gradient_length;
 };
 
+uniform Volume u_volume;
+
 #endif

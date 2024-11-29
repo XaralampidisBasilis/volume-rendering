@@ -12,7 +12,7 @@ vec2 ray_box_distances = intersect_box(ray.box_min_position, ray.box_max_positio
 // clamp bbox distances above zero for the case we are inside
 ray_box_distances = max(ray_box_distances, 0.0);
 
-// updata ray if there is an intersection
+// update ray if there is an intersection 
 if (ray_box_distances.x < ray_box_distances.y)
 {
     // update ray box distances
@@ -29,6 +29,7 @@ if (ray_box_distances.x < ray_box_distances.y)
     ray.start_position = ray.box_start_position;
     ray.end_position   = ray.box_end_position;
 }
+// discard ray if there is no intersection
 else
 {
     #include "./discard_ray"

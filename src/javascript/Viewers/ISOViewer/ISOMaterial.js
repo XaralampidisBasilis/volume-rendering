@@ -8,24 +8,22 @@ export default function()
     const uniforms = 
     {
         u_textures: new THREE.Uniform({
-            volume    : null,
-            mask      : null,
-            occumaps  : null,
-            colormaps : null,
-            noisemap  : null,
+            taylormap  : null,
+            distancemap: null,
+            colormaps  : null,
         }),
 
         u_volume : new THREE.Uniform({
             dimensions            : new THREE.Vector3(),
-            size                  : new THREE.Vector3(),
             spacing               : new THREE.Vector3(),
-            size_length           : 0.0,
-            spacing_length        : 0.0,
+            size                  : new THREE.Vector3(),
             inv_dimensions        : new THREE.Vector3(),
-            inv_size              : new THREE.Vector3(),
             inv_spacing           : new THREE.Vector3(),
-            inv_size_length       : 0.0,
+            inv_size              : new THREE.Vector3(),
+            spacing_length        : 0.0,
+            size_length           : 0.0,
             inv_spacing_length    : 0.0,
+            inv_size_length       : 0.0,
 
             min_coords            : new THREE.Vector3(),
             max_coords            : new THREE.Vector3(),
@@ -36,23 +34,12 @@ export default function()
             max_gradient_length: 0.0,
         }),
 
-        u_mask : new THREE.Uniform({
-            dimensions    : new THREE.Vector3(),
-            size          : new THREE.Vector3(),
-            spacing       : new THREE.Vector3(),
-            inv_dimensions: new THREE.Vector3(),
-            inv_size      : new THREE.Vector3(),
-            inv_spacing   : new THREE.Vector3(),
-        }),
-
-        u_occumaps: new THREE.Uniform
-        ({
-            lods           : 0,
-            dimensions     : new THREE.Vector3(),
-            inv_dimensions : new THREE.Vector3(),
-            base_dimensions: new THREE.Vector3(),
-            base_spacing   : new THREE.Vector3(),
-            base_size      : new THREE.Vector3(),
+        u_raymarch: new THREE.Uniform({
+            sample_threshold  : 0.3,
+            min_step_scaling  : 0.5,
+            max_step_scaling  : 2.0,
+            max_step_count    : 500,
+            max_skip_count    : 100,
         }),
 
         u_colormap: new THREE.Uniform({
@@ -80,16 +67,6 @@ export default function()
             position_offset    : new THREE.Vector3(),         // offset position for light source
         }),
 
-        u_raymarch: new THREE.Uniform({
-            sample_threshold  : 0.3,
-            min_step_scaling  : 0.5,
-            max_step_scaling  : 2.0,
-            max_step_count    : 500,
-            max_skip_count    : 100,
-            min_skip_lod      : 0,
-            max_skip_lod      : 0,
-        }),
-
         u_debugger: new THREE.Uniform({
             option    : 0,
             variable1 : 0,
@@ -99,11 +76,7 @@ export default function()
     }
 
     const defines = 
-    {
-        VOLUME_GRADIENTS_METHOD       : 1,
-        VOLUME_SMOOTHING_METHOD       : 1,
-        VOLUME_SMOOTHING_RADIUS       : 1,
-                
+    {           
         RAY_BBOX_INTERSECTION_ENABLED: 1,
         RAY_BVH_INTERSECTION_ENABLED : 1,
         RAY_DITHERING_ENABLED        : 0,

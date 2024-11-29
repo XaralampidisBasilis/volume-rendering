@@ -2,7 +2,7 @@
 // min and max available lods for maching
 float marching_min_lod = max(0.0, float(u_raymarch.min_skip_lod));
 float marching_max_lod = min(2.0, float(u_raymarch.max_skip_lod));
-float select_lod = ray.span_distance / ray.max_span_distance;
+float select_lod = ray.span_distance / ray.box_max_span;
 
 // start at the coarsest level of detail available
 occumap.lod = int(mix(marching_min_lod, marching_max_lod, select_lod));

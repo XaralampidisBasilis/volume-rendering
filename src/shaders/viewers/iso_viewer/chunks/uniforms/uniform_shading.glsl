@@ -10,4 +10,6 @@ struct Shading
     float edge_contrast;       
 };
 
+uniform Shading u_shading;
+
 #endif // UNIFORM_SHADING

@@ -64,18 +64,6 @@ export default class ISOViewer extends EventEmitter
             tensorShape  : this.resources.items.volumeNifti.dimensions.toReversed().concat(1), // // tensor flow uses the NHWC format by default
             count        : this.resources.items.volumeNifti.dimensions.reduce((product, value) => product * value, 1),
         }
-
-        // mask parameters
-        this.parameters.mask = {
-            size         : new THREE.Vector3().fromArray(this.resources.items.maskNifti.size),
-            dimensions   : new THREE.Vector3().fromArray(this.resources.items.maskNifti.dimensions),
-            spacing      : new THREE.Vector3().fromArray(this.resources.items.maskNifti.spacing),
-            invSize      : new THREE.Vector3().fromArray(this.resources.items.maskNifti.size.map((x) => 1 / x)),
-            invDimensions: new THREE.Vector3().fromArray(this.resources.items.maskNifti.dimensions.map((x) => 1 / x)),
-            invSpacing   : new THREE.Vector3().fromArray(this.resources.items.maskNifti.spacing.map((x) => 1 / x)),
-            tensorShape  : this.resources.items.maskNifti.dimensions.toReversed().concat(1), // // tensor flow uses the NHWC format by default
-            count        : this.resources.items.maskNifti.dimensions.reduce((product, value) => product * value, 1),
-        }
     }
 
     setTensors()
@@ -113,8 +101,6 @@ export default class ISOViewer extends EventEmitter
     {
         this.textures = {}
         this.setVolumeTex()
-        this.setMaskTex()
-        this.setNoisemap()
         this.setColormaps()
     }
 
@@ -132,37 +118,6 @@ export default class ISOViewer extends EventEmitter
         this.textures.volume.generateMipmaps = false
         this.textures.volume.unpackAlignment = 4 
         this.textures.volume.needsUpdate = true   
-    }
-
-    setMaskTex()
-    {
-        const maskDimensions = this.parameters.mask.dimensions.toArray()
-        this.textures.mask = new THREE.Data3DTexture(this.data.mask, ...maskDimensions)
-        this.textures.mask.format = THREE.RedFormat 
-        this.textures.mask.type = THREE.UnsignedByteType     
-        this.textures.mask.wrapS = THREE.ClampToEdgeWrapping
-        this.textures.mask.wrapT = THREE.ClampToEdgeWrapping
-        this.textures.mask.wrapR = THREE.ClampToEdgeWrapping
-        this.textures.mask.minFilter = THREE.LinearFilter
-        this.textures.mask.magFilter = THREE.LinearFilter
-        this.textures.mask.generateMipmaps = false
-        this.textures.mask.unpackAlignment = 1   
-        this.textures.mask.needsUpdate = true  
-    }
-
-    setNoisemap()
-    {
-        this.textures.noisemap = this.resources.items.blue256Noisemap
-        this.textures.noisemap.repeat.set(4, 4)
-        this.textures.noisemap.format = THREE.RedFormat
-        this.textures.noisemap.type = THREE.UnsignedByteType
-        this.textures.noisemap.wrapS = THREE.RepeatWrapping
-        this.textures.noisemap.wrapT = THREE.RepeatWrapping
-        this.textures.noisemap.minFilter = THREE.NearestFilter
-        this.textures.noisemap.magFilter = THREE.NearestFilter
-        this.textures.noisemap.generateMipmaps = false
-        this.textures.noisemap.unpackAlignment = 8   
-        this.textures.noisemap.needsUpdate = true         
     }
 
     setColormaps()
