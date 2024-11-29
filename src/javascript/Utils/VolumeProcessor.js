@@ -55,7 +55,6 @@ export default class VolumeProcessor
         timeit('computeIntensityMap', () =>
         {
             if (this.computes.intensityMap) this.disposeMap('intensityMap')
-
             this.parameters.intensityMap = this.parameters.volume
             this.computes.intensityMap = tf.tensor4d(this.volume.data, this.parameters.intensityMap.shape,'float32')
             // console.log('intensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
@@ -68,7 +67,6 @@ export default class VolumeProcessor
         {
             if (!this.computes.intensityMap) throw new Error(`computeGradientMap: intensityMap is not computed`)
             if (this.computes.gradientMap) this.disposeMap('gradientMap')
-    
             this.computes.gradientMap = TensorUtils.gradients3d(this.computes.intensityMap, this.parameters.volume.spacing)
             this.parameters.gradientMap = this.parameters.volume
             this.parameters.gradientMap.shape = this.computes.gradientMap.shape
@@ -83,7 +81,6 @@ export default class VolumeProcessor
             if (!this.computes.intensityMap) throw new Error(`computeTaylorMap: intensityMap is not computed`)    
             if (!this.computes.gradientMap) throw new Error(`computeTaylorMap: intensityMap is not computed`)   
             if (this.computes.taylorMap)  this.disposeMap('taylorMap')
-
             this.computes.gradientMap = TensorUtils.gradients3d(this.computes.intensityMap, this.parameters.volume.spacing)
             this.computes.taylorMap = tf.concat([this.computes.intensityMap, this.computes.gradientMap], 3)
             this.parameters.taylorMap = this.parameters.volume

@@ -7,13 +7,15 @@ export default function()
 {
     const uniforms = 
     {
-        u_textures: new THREE.Uniform({
+        u_textures: new THREE.Uniform
+        ({
             taylormap: null,
             distmap  : null,
             colormaps: null,
         }),
 
-        u_volume : new THREE.Uniform({
+        u_volume : new THREE.Uniform
+        ({
             dimensions            : new THREE.Vector3(),
             spacing               : new THREE.Vector3(),
             size                  : new THREE.Vector3(),
@@ -34,7 +36,8 @@ export default function()
             max_gradient_length   : 0.0,
         }),
 
-        u_distmap : new THREE.Uniform({
+        u_distmap : new THREE.Uniform
+        ({
             division      : 0.0,
             dimensions    : new THREE.Vector3(),
             spacing       : new THREE.Vector3(),
@@ -44,7 +47,8 @@ export default function()
             inv_size      : new THREE.Vector3(),
         }),
 
-        u_raymarch: new THREE.Uniform({
+        u_raymarch: new THREE.Uniform
+        ({
             sample_threshold  : 0.3,
             min_step_scaling  : 0.5,
             max_step_scaling  : 2.0,
@@ -52,7 +56,8 @@ export default function()
             max_skip_count    : 100,
         }),
 
-        u_colormap: new THREE.Uniform({
+        u_colormap: new THREE.Uniform
+        ({
             levels      : 255,
             name        : 'cet_d9',
             thresholds  : new THREE.Vector2(0, 1),
@@ -60,7 +65,8 @@ export default function()
             end_coords  : new THREE.Vector2(colormapLocations['cet_d9'].x_end,   colormapLocations['cet_d9'].y),
         }),
 
-        u_shading: new THREE.Uniform({
+        u_shading: new THREE.Uniform
+        ({
             ambient_reflectance  : 0.2,
             diffuse_reflectance  : 1.0,
             specular_reflectance : 1.0,
@@ -68,7 +74,8 @@ export default function()
             edge_contrast        : 0.0,
         }),
         
-        u_lighting: new THREE.Uniform({
+        u_lighting: new THREE.Uniform
+        ({
             intensity          : 1.0,                         // overall light intensity
             shadows            : 0.0,                         // threshold for shadow casting
             ambient_color      : new THREE.Color(0xffffff),   // ambient light color
@@ -77,7 +84,8 @@ export default function()
             position_offset    : new THREE.Vector3(),         // offset position for light source
         }),
 
-        u_debugger: new THREE.Uniform({
+        u_debugger: new THREE.Uniform
+        ({
             option    : 0,
             variable1 : 0,
             variable2 : 0,
@@ -100,8 +108,8 @@ export default function()
         FRAGMENT_DISCARDING_DISABLED     : 0,
     }
 
-    const material = new THREE.ShaderMaterial({
-        
+    const material = new THREE.ShaderMaterial
+    ({    
         side: THREE.BackSide,
         transparent: false,
         depthTest: true,

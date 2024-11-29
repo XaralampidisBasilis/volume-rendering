@@ -20,7 +20,7 @@ export default class ISOViewer extends EventEmitter
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
         // this.gui = new ISOGui(this)
-        // this.material = ISOMaterial()
+        this.material = ISOMaterial()
         this.processor = new VolumeProcessor(this.resources.items.volumeNifti)
 
         this.precompute().then(() => 
@@ -28,8 +28,8 @@ export default class ISOViewer extends EventEmitter
             this.setParameters()
             this.setTextures()
             this.setGeometry()
-            // this.setMaterial()
-            // this.setMesh()
+            this.setMaterial()
+            this.setMesh()
             this.trigger('ready')
         })
     }
@@ -79,39 +79,53 @@ export default class ISOViewer extends EventEmitter
         const size = this.parameters.volume.size
         const center = this.parameters.volume.size.clone().divideScalar(2)
         this.geometry = new THREE.BoxGeometry(...size)
-        this.geometry.translate(...center) // to align model and texel coordinates
+        this.geometry.translate(...center) // align model and texture coordinates
     }
 
     setMaterial()
     {        
+        // parameters
+        const paramsVolume = this.processor.parameters.volume
+        const paramsTaylormap = this.processor.parameters.taylorMap
+        const paramsBox = this.processor.parameters.occupancyBoundingBox
+        const paramsDistmap =  this.processor.parameters.occupancyDistanceMap
+
+        // uniforms
+        const uVolume = this.material.uniforms.u_volume.value
+        const uDistmap = this.material.uniforms.u_distmap.value
+        const uTextures = this.material.uniforms.u_textures.value
 
         // volume
-        this.material.uniforms.u_volume.value.dimensions.copy(this.parameters.volume.dimensions)
-        this.material.uniforms.u_volume.value.spacing.copy(this.parameters.volume.spacing)
-        this.material.uniforms.u_volume.value.spacing_length = this.parameters.volume.spacing.length()
-        this.material.uniforms.u_volume.value.size.copy(this.parameters.volume.size)
-        this.material.uniforms.u_volume.value.size_length = this.parameters.volume.size.length()
-        this.material.uniforms.u_volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
-        this.material.uniforms.u_volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
-        this.material.uniforms.u_volume.value.inv_spacing_length = this.parameters.volume.invSpacing.length()
-        this.material.uniforms.u_volume.value.inv_size.copy(this.parameters.volume.invSize)
-        this.material.uniforms.u_volume.value.inv_size_length = this.parameters.volume.invSize.length()
-        this.material.uniforms.u_volume.value.min_position.copy(this.processor.parameters.occupancyBoundingBox.minPosition)
-        this.material.uniforms.u_volume.value.max_position.copy(this.processor.parameters.occupancyBoundingBox.maxPosition)
+        uVolume.dimensions.copy(paramsVolume.dimensions)
+        uVolume.spacing.copy(paramsVolume.spacing)
+        uVolume.spacing_length = paramsVolume.spacing.length()
+        uVolume.size.copy(paramsVolume.size)
+        uVolume.size_length = paramsVolume.size.length()
+        uVolume.inv_dimensions.copy(paramsVolume.invDimensions)
+        uVolume.inv_spacing.copy(paramsVolume.invSpacing)
+        uVolume.inv_spacing_length = paramsVolume.invSpacing.length()
+        uVolume.inv_size.copy(paramsVolume.invSize)
+        uVolume.inv_size_length = paramsVolume.invSize.length()
+        uVolume.min_intensity = paramsTaylormap.minValue.x
+        uVolume.max_intensity = paramsTaylormap.maxValue.x
+        uVolume.min_gradient.fromArray(paramsTaylormap.minValue.toArray().slice(1))
+        uVolume.max_gradient.fromArray(paramsTaylormap.maxValue.toArray().slice(1))
+        uVolume.min_position.copy(paramsBox.minPosition)
+        uVolume.max_position.copy(paramsBox.maxPosition)
 
         // distmap
-        this.material.uniforms.u_distmap.value.division = this.processor.parameters.occupancyDistanceMap.division
-        this.material.uniforms.u_distmap.value.dimensions.copy(this.processor.parameters.occupancyDistanceMap.dimensions)
-        this.material.uniforms.u_distmap.value.spacing.copy(this.processor.parameters.occupancyDistanceMap.spacing)
-        this.material.uniforms.u_distmap.value.size.copy(this.processor.parameters.occupancyDistanceMap.size)
-        this.material.uniforms.u_distmap.value.inv_dimensions.copy(this.material.uniforms.u_distmap.value.dimensions.toArray().map(x => 1/x))
-        this.material.uniforms.u_distmap.value.inv_spacing.copy(this.material.uniforms.u_distmap.value.spacing.toArray().map(x => 1/x))
-        this.material.uniforms.u_distmap.value.inv_size.copy(this.material.uniforms.u_distmap.value.size.toArray().map(x => 1/x))
+        uDistmap.division = paramsDistmap.division
+        uDistmap.dimensions.copy(paramsDistmap.dimensions)
+        uDistmap.spacing.copy(paramsDistmap.spacing)
+        uDistmap.size.copy(paramsDistmap.size)
+        uDistmap.inv_dimensions.copy(paramsDistmap.division.toArray().map(x => 1/x))
+        uDistmap.inv_spacing.copy(paramsDistmap.spacing.toArray().map(x => 1/x))
+        uDistmap.inv_size.copy(paramsDistmap.size.toArray().map(x => 1/x))
 
         // textures
-        this.material.uniforms.u_textures.value.taylormap = this.textures.taylormap
-        this.material.uniforms.u_textures.value.distmap = this.textures.distmap
-        this.material.uniforms.u_textures.value.colormaps = this.textures.colormaps    
+        uTextures.taylormap = this.textures.taylormap
+        uTextures.distmap = this.textures.distmap
+        uTextures.colormaps = this.textures.colormaps    
     }
 
     setMesh()
@@ -123,24 +137,19 @@ export default class ISOViewer extends EventEmitter
 
     destroy() 
     {
-        // Dispose tensors
-        if (this.tensors.volume) {
-            this.tensors.volume.dispose()
-            this.tensors.volume = null
-        }
-        if (this.tensors.mask) {
-            this.tensors.mask.dispose()
-            this.tensors.mask = null
-        }
     
         // Dispose textures
-        if (this.textures.volume) {
-            this.textures.volume.dispose()
-            this.textures.volume = null
+        if (this.textures.taylormap) {
+            this.textures.taylormap.dispose()
+            this.textures.taylormap = null
         }
-        if (this.textures.mask) {
-            this.textures.mask.dispose()
-            this.textures.mask = null
+        if (this.textures.distmap) {
+            this.textures.distmap.dispose()
+            this.textures.distmap = null
+        }
+        if (this.textures.colormaps) {
+            this.textures.colormaps.dispose()
+            this.textures.colormaps = null
         }
     
         // Dispose geometry
@@ -149,34 +158,12 @@ export default class ISOViewer extends EventEmitter
             this.geometry = null
         }
     
-        // Dispose material
-        if (this.material) {
-            this.material.dispose()
-            this.material = null
-        }
-    
         // Remove mesh from the scene
         if (this.mesh) {
             this.scene.remove(this.mesh)
             this.mesh.geometry.dispose()
             this.mesh.material.dispose()
             this.mesh = null
-        }
-    
-        // Dispose resources associated with bounding box, gradients, and smoothing computations
-        if (this.boundingBox) {
-            this.boundingBox.destroy()
-            this.boundingBox = null
-        }
-        if (this.gradients) {
-            this.gradients.dispose()
-            this.gradients.destroy()
-            this.gradients = null
-        }
-        if (this.smoothing) {
-            this.smoothing.dispose()
-            this.smoothing.destroy()
-            this.smoothing = null
         }
     
         // Dispose GUI if it exists
