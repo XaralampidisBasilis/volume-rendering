@@ -219,6 +219,34 @@ export function resizeLinear(tensor, axis, newSize)
     })
 }
 
+/**
+ * Computes the range of indices along a specific axis where the tensor has non-zero values.
+ * @param {tf.Tensor} binaryTensor - The input tensor.
+ * @param {number} axis - The axis along which to compute the range.
+ * @returns {Array} [minInd, maxInd] - The minimum and maximum indices (exclusive).
+ */
+export function indexBounds(binaryTensor, axis) 
+{
+    return tf.tidy(() => 
+    {
+        // Create a list of all axes and remove the target axis
+        const axes = [...Array(binaryTensor.rank).keys()].filter(a => a !== axis)
+        
+        // Compute the collapsed view along the specified axis
+        const collapsed = binaryTensor.any(axes) 
+        
+        // Find the first non-zero index (minInd)
+        const minInd = collapsed.argMax(0) // First True from the left
+        
+        // Find the last non-zero index (maxInd)
+        const reversed = collapsed.reverse()
+        const maxInd = tf.sub(binaryTensor.shape[axis], reversed.argMax()) // First True from the right
+        
+        // Return the bounds
+        return [minInd, maxInd] 
+    })
+}
+
 export function slice(tensor, axis, number)
 {
     const begin = tensor.shape.map(() => 0)
@@ -543,7 +571,7 @@ export function prewittKernel()
  * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of occupancy.
  * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the occupancy values map.
  */
-export function mipmap(tensor, threshold, division)
+export function occupancyMap(tensor, threshold, division)
 {
     return tf.tidy(() =>
     {
@@ -671,7 +699,7 @@ export function occupancyDistanceMap(tensor, threshold, division, maxDistance)
 {
     return tf.tidy(() => 
     {
-        const occupancy = mipmap(tensor, threshold, division)
+        const occupancy = occupancyMap(tensor, threshold, division)
 
         let diffusionNext = occupancy.cast('bool')
         let diffusionPrev = tf.zeros(diffusionNext.shape, 'bool')
@@ -708,6 +736,27 @@ export function occupancyDistanceMap(tensor, threshold, division, maxDistance)
         diffusionPrev.dispose()
     
         return distanceMap
+    })
+}
+
+export function occupancyBoundingBox(tensor, threshold) 
+{
+    return tf.tidy(() => 
+    {
+        // Create a binary mask where tensor values are greater than the threshold
+        const condition = tensor.greater(tf.scalar(threshold, 'float32'))
+
+        // Get the tensor rank (number of dimensions)
+        const rank = tensor.rank
+
+        // Compute the bounds for each axis dynamically
+        const bounds = Array.from({ length: rank }, (_, axis) => indexBounds(condition, axis))
+
+        // Separate min and max bounds
+        const minCoords = tf.stack(bounds.map(b => b[0]), 0)
+        const maxCoords = tf.stack(bounds.map(b => b[1]), 0)
+
+        return { minCoords: minCoords.arraySync(), maxCoords: maxCoords.arraySync()}
     })
 }
 

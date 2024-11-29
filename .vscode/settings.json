@@ -59,6 +59,7 @@
         "sobel",
         "subind",
         "subm",
+        "taylormap",
         "Texels",
         "timeit",
         "topk",

@@ -27,10 +27,11 @@ export default class VolumeProcessor extends EventEmitter
         // timeit(() => this.computeOccupancyMap(0, 4), 'computeOccupancyMap')
         // timeit(() => this.computeOccupancyMipmaps(0, 4), 'computeOccupancyAtlas')
         // timeit(() => this.computeOccupancyDistanceMap(0, 2, 255), 'computeOccupancyDistanceMap')
+        timeit(() => this.computeOccupancyBoundingBox(0), 'computeOccupancyBoundingBox')
         // timeit(() => this.computeExtremaMap(4), 'computeExtremaMap')
         // timeit(() => this.computeExtremaDistanceMap(4, 40), 'computeExtremaDistanceMap')
         
-        timeit(() => this.downscaleIntensityMap(2), 'rescaleIntensityMap')
+        // timeit(() => this.downscaleIntensityMap(2), 'rescaleIntensityMap')
         // timeit(() => this.smoothIntensityMap(1), 'smoothIntensityMap')
         // timeit(() => this.quantizeIntensityMap(256), 'quantizeIntensityMap')
         // timeit(() => this.quantizeGradientMap(256), 'quantizeGradientMap')
@@ -87,10 +88,8 @@ export default class VolumeProcessor extends EventEmitter
 
     computeOccupancyMap(threshold, division)
     {
-        if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
         if (this.computes.occupancyMap) this.disposeMap('occupancyMap')
-
-        this.computes.occupancyMap = TensorUtils.mipmap(this.computes.intensityMap, threshold, division)
+        this.computes.occupancyMap = TensorUtils.occupancyMap(this.computes.intensityMap, threshold, division)
         this.parameters.occupancyMap = {}
         this.parameters.occupancyMap.threshold = threshold
         this.parameters.occupancyMap.division = division
@@ -106,7 +105,6 @@ export default class VolumeProcessor extends EventEmitter
     {
         if (!this.computes.intensityMap) throw new Error(`computeOccupancyAtlas: intensityMap is not computed`)
         if (this.computes.occupancyMipmaps) this.disposeMap('occupancyMipmaps')
-
         const occupancyMipmaps = TensorUtils.occupancyMipmaps(this.computes.intensityMap, threshold, division)
         const compactOccupancyMipmaps = TensorUtils.compactMipmaps(occupancyMipmaps)
         this.computes.occupancyMipmaps = compactOccupancyMipmaps
@@ -126,7 +124,6 @@ export default class VolumeProcessor extends EventEmitter
     {
         if (!this.computes.intensityMap) throw new Error(`computeOccupancyDistanceMap: intensityMap is not computed`)
         if (this.computes.occupancyDistanceMap) this.disposeMap('occupancyDistanceMap')
-
         this.computes.occupancyDistanceMap = TensorUtils.occupancyDistanceMap(this.computes.intensityMap, threshold, division, maxDistance)
         this.parameters.occupancyDistanceMap = {}
         this.parameters.occupancyDistanceMap.threshold = threshold
@@ -140,11 +137,21 @@ export default class VolumeProcessor extends EventEmitter
         // console.log('occupancyDistanceMap', this.parameters.occupancyDistanceMap, this.computes.occupancyDistanceMap.dataSync())
     }
 
+    computeOccupancyBoundingBox(threshold)
+    {
+        if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
+        const boundingBox = TensorUtils.occupancyBoundingBox(this.computes.intensityMap, threshold)
+        this.parameters.occupancyBoundingBox = {}
+        this.parameters.occupancyBoundingBox.threshold = threshold
+        this.parameters.occupancyBoundingBox.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
+        this.parameters.occupancyBoundingBox.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
+        console.log('occupancyBoundingBox', this.parameters.occupancyBoundingBox)
+    }
+
     computeExtremaMap(division)
     {
         if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
         if (this.computes.extremaMap) this.disposeMap('extremaMap')
-
         this.computes.extremaMap = TensorUtils.extremaMap(this.computes.intensityMap, division)
         this.parameters.extremaMap = {}
         this.parameters.extremaMap.division = division
@@ -160,7 +167,6 @@ export default class VolumeProcessor extends EventEmitter
     {
         if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
         if (this.computes.extremaDistanceMap) this.disposeMap('extremaDistanceMap')
-
         this.computes.extremaDistanceMap = TensorUtils.extremaDistanceMap(this.computes.intensityMap, division, maxDistance)
         this.parameters.extremaDistanceMap = {}
         this.parameters.extremaDistanceMap.division = division
@@ -178,7 +184,6 @@ export default class VolumeProcessor extends EventEmitter
     downscaleIntensityMap(scale)
     {
         if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`);
-
         const intensityMap = TensorUtils.downscale3d(this.computes.intensityMap, scale)
         this.computes.intensityMap.dispose()
         this.computes.intensityMap = intensityMap
@@ -188,13 +193,12 @@ export default class VolumeProcessor extends EventEmitter
         this.parameters.intensityMap.size = new THREE.Vector3().copy(this.parameters.intensityMap.dimensions).multiply(this.parameters.intensityMap.spacing)
         this.parameters.intensityMap.numBlocks = this.parameters.intensityMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
         this.parameters.intensityMap.shape = this.computes.intensityMap.shape
-        console.log('downscaledIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
+        // console.log('downscaledIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
     }
 
     smoothIntensityMap(radius)
     {
         if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`);
-
         const intensityMap = TensorUtils.smooth3d(this.computes.intensityMap, radius)
         this.computes.intensityMap.dispose()
         this.computes.intensityMap = intensityMap
@@ -202,10 +206,20 @@ export default class VolumeProcessor extends EventEmitter
         // console.log('smoothedIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
     }
 
+    normalizeIntensityMap()
+    {
+        if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
+        const [intensityMap, minValue, maxValue] = TensorUtils.normalize3d(this.computes.intensityMap) 
+        this.computes.intensityMap.dispose()
+        this.computes.intensityMap = intensityMap
+        this.parameters.intensityMap.minValue = minValue
+        this.parameters.intensityMap.maxValue = maxValue  
+        // console.log('normalizedIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
+    }
+
     quantizeIntensityMap()
     {
         if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
-
         const [intensityMap, minValue, maxValue] = TensorUtils.quantize3d(this.computes.intensityMap) 
         this.computes.intensityMap.dispose()
         this.computes.intensityMap = intensityMap
@@ -217,7 +231,6 @@ export default class VolumeProcessor extends EventEmitter
     quantizeGradientMap()
     {
         if (!this.computes.gradientMap) throw new Error(`quantizeGradientMap: gradientMap is not computed`)
-    
         const [gradientMap, minValue, maxValue] = TensorUtils.quantize3d(this.computes.gradientMap) 
         this.computes.gradientMap.dispose()
         this.computes.gradientMap = gradientMap
@@ -229,7 +242,6 @@ export default class VolumeProcessor extends EventEmitter
     quantizeTaylorMap()
     {
         if (!this.computes.taylorMap) throw new Error(`quantizeTaylorMap: taylorMap is not computed`)
-
         const [taylorMap, minValue, maxValue] = TensorUtils.quantize3d(this.computes.taylorMap) 
         this.computes.taylorMap.dispose()
         this.computes.taylorMap = taylorMap
@@ -244,8 +256,7 @@ export default class VolumeProcessor extends EventEmitter
     {
         if (!this.computes[key]) throw new Error(`${key} is not computed`)
         if (this.textures[key]) this.textures[key].dispose()
-    
-        this.textures[key] = new THREE.Data3DTexture(this.computes[key].data(), ...this.parameters[key].dimensions.toArray())
+        this.textures[key] = new THREE.Data3DTexture(this.computes[key].dataSync(), ...this.parameters[key].dimensions.toArray())
         this.textures[key].format = format
         this.textures[key].type = type
         this.textures[key].minFilter = THREE.LinearFilter
