@@ -385,7 +385,7 @@ export function quantize3d(tensor, levels = 256)
 
         // Return the quantized tensor, along with the original min and max
         return [quantized, min, max]
-    });
+    })
 }
 
 export function downscale3d(tensor, scale)

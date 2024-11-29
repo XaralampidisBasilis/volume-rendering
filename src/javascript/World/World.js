@@ -17,10 +17,13 @@ export default class World extends EventEmitter
         // Wait for resources
         this.resources.on('ready', () =>
         {
+            // Wait for viewer
             this.viewer = new ISOViewer()
-            this.camera.instance.position.fromArray(this.resources.items.volumeNifti.size)
-
-            this.viewer.on('ready', () => this.trigger('ready'))
+            this.viewer.on('ready', () => 
+            {
+                this.camera.instance.position.fromArray(this.viewer.parameters.volume.size)
+                this.trigger('ready')
+            })
         })
     }
 

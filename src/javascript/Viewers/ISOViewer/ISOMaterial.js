@@ -8,9 +8,9 @@ export default function()
     const uniforms = 
     {
         u_textures: new THREE.Uniform({
-            taylormap  : null,
-            distancemap: null,
-            colormaps  : null,
+            taylormap: null,
+            distmap  : null,
+            colormaps: null,
         }),
 
         u_volume : new THREE.Uniform({
@@ -31,7 +31,17 @@ export default function()
             max_position          : new THREE.Vector3(),
             min_gradient          : new THREE.Vector3(),
             max_gradient          : new THREE.Vector3(),
-            max_gradient_length: 0.0,
+            max_gradient_length   : 0.0,
+        }),
+
+        u_distmap : new THREE.Uniform({
+            division      : 0.0,
+            dimensions    : new THREE.Vector3(),
+            spacing       : new THREE.Vector3(),
+            size          : new THREE.Vector3(),
+            inv_dimensions: new THREE.Vector3(),
+            inv_spacing   : new THREE.Vector3(),
+            inv_size      : new THREE.Vector3(),
         }),
 
         u_raymarch: new THREE.Uniform({

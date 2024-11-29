@@ -1,6 +1,6 @@
 
 // Compute ray entry with bounding volume
-for (ray.skip_count = 0; ray.skip_count < 100; ray.skip_count++) 
+for (ray.skip_count = 0; ray.skip_count < MAX_SKIP_COUNT; ray.skip_count++) 
 {
     #include "./compute_ray_bvol_intersection/sample_distmap_start
     if (block.occupied) break;   
@@ -17,7 +17,7 @@ if (block.occupied)
 
 
 // Compute ray exit with bounding volume
-for (ray.skip_count = 0; ray.skip_count < 100; ray.skip_count++) 
+for (ray.skip_count = 0; ray.skip_count < MAX_SKIP_COUNT; ray.skip_count++) 
 {
     #include "./compute_ray_bvol_intersection/sample_distmap_end
     if (block.occupied) break;

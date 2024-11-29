@@ -2,12 +2,8 @@ import * as THREE from 'three'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
 import VolumeProcessor from '../../Utils/VolumeProcessor'
-import ISOMaterial from './ISOMaterial'
+// import ISOMaterial from './ISOMaterial'
 import ISOGui from './ISOGui'
-import ComputeResizing from './TensorFlow/Resizing/ComputeResizing'
-import ComputeGradients from './TensorFlow/Gradients/ComputeGradients'
-import ComputeSmoothing from './TensorFlow/Smoothing/ComputeSmoothing'
-import ComputeOccupancy from './TensorFlow/Occupancy/ComputeOccupancy'
 import * as tf from '@tensorflow/tfjs'
 
 export default class ISOViewer extends EventEmitter
@@ -23,198 +19,106 @@ export default class ISOViewer extends EventEmitter
         this.camera = this.experience.camera
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
+        // this.gui = new ISOGui(this)
+        // this.material = ISOMaterial()
+        this.processor = new VolumeProcessor(this.resources.items.volumeNifti)
 
-        const volumeProcessor = new VolumeProcessor(this.resources.items.volumeNifti)
-
-        // this.setParameters()
-        // this.setTensors()
-
-        // this.resizing = new ComputeResizing(this)
-        // this.computeResizing().then(() =>
-        // {
-        //     this.setData()
-        //     this.setTextures()
-        //     this.setGeometry()
-        //     this.setMaterial()
-        //     this.setMesh()
-
-        //     this.precompute().then(() =>
-        //     {
-        //         if (this.debug.active) 
-        //             this.gui = new ISOGui(this)
-    
-        //         this.trigger('ready')
-        //     })
-        // })
-        
+        this.precompute().then(() => 
+        {
+            this.setParameters()
+            this.setTextures()
+            this.setGeometry()
+            // this.setMaterial()
+            // this.setMesh()
+            this.trigger('ready')
+        })
+    }
+    async precompute()
+    {
+        return Promise.allSettled
+        ([
+            this.processor.computeIntensityMap(),
+            this.processor.computeGradientMap(),
+            this.processor.normalizeIntensityMap(),
+            this.processor.computeTaylorMap(),
+            this.processor.quantizeTaylorMap(),
+            this.processor.computeOccupancyBoundingBox(0),
+            this.processor.computeOccupancyDistanceMap(0, 4, 255),
+        ])
     }
 
     setParameters()
     {
         this.parameters = {}
-
-        // volume parameters
-        this.parameters.volume = {
-            size         : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size),
-            dimensions   : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.dimensions),
-            spacing      : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.spacing),
-            invSize      : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size.map((x) => 1 / x)),
-            invDimensions: new THREE.Vector3().fromArray(this.resources.items.volumeNifti.dimensions.map((x) => 1 / x)),
-            invSpacing   : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.spacing.map((x) => 1 / x)),
-            tensorShape  : this.resources.items.volumeNifti.dimensions.toReversed().concat(1), // // tensor flow uses the NHWC format by default
-            count        : this.resources.items.volumeNifti.dimensions.reduce((product, value) => product * value, 1),
-        }
-    }
-
-    setTensors()
-    {
-
-        this.tensors = {}
-        this.tensors.volume = tf.tensor4d(this.resources.items.volumeNifti.getData(), this.parameters.volume.tensorShape,'float32')
-        this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), this.parameters.mask.tensorShape,'bool')
-    }
-
-    setData()
-    {
-        this.data = {}
-
-        // volume data
-        let tensorQuantized = tf.tidy(() => this.tensors.volume.mul(255).round())
-        let dataQuantized = new Uint8ClampedArray(tensorQuantized.dataSync())
-        this.data.volume = new Uint8ClampedArray(this.parameters.volume.count * 4)
-
-        for (let i = 0; i < this.parameters.volume.count; i++) 
-        {
-            const i4 = i * 4
-            this.data.volume[i4 + 0] = dataQuantized[i]
-        }
-
-        tensorQuantized.dispose()
-        tensorQuantized = null
-        dataQuantized = null
-
-        // mask data
-        this.data.mask = new Uint8ClampedArray(this.parameters.mask.count * 4)
+        this.parameters.volume = this.processor.parameters.volume
     }
 
     setTextures()
     {
         this.textures = {}
-        this.setVolumeTex()
-        this.setColormaps()
-    }
 
-    setVolumeTex()
-    {
-        const volumeDimensions = this.parameters.volume.dimensions.toArray()
-        this.textures.volume = new THREE.Data3DTexture(this.data.volume, ...volumeDimensions)
-        this.textures.volume.format = THREE.RGBAFormat
-        this.textures.volume.type = THREE.UnsignedByteType     
-        this.textures.volume.wrapS = THREE.ClampToEdgeWrapping
-        this.textures.volume.wrapT = THREE.ClampToEdgeWrapping
-        this.textures.volume.wrapR = THREE.ClampToEdgeWrapping
-        this.textures.volume.minFilter = THREE.LinearFilter
-        this.textures.volume.magFilter = THREE.LinearFilter
-        this.textures.volume.generateMipmaps = false
-        this.textures.volume.unpackAlignment = 4 
-        this.textures.volume.needsUpdate = true   
-    }
-
-    setColormaps()
-    {        
+        // taylormap
+        this.textures.taylormap = this.processor.generateTexture('taylorMap', 'RGBAFormat', 'UnsignedByteType')
+        this.processor.computes.taylorMap.dispose()
+        
+        // distmap
+        this.textures.distmap = this.processor.generateTexture('occupancyDistanceMap', 'RedFormat', 'UnsignedByteType')
+        this.processor.computes.occupancyDistanceMap.dispose()
+        
+        // colormaps
         this.textures.colormaps = this.resources.items.colormaps                      
         this.textures.colormaps.colorSpace = THREE.SRGBColorSpace
         this.textures.colormaps.minFilter = THREE.LinearFilter
         this.textures.colormaps.magFilter = THREE.LinearFilter         
-        this.textures.colormaps.unpackAlignment = 8
         this.textures.colormaps.generateMipmaps = false
         this.textures.colormaps.needsUpdate = true 
     }
   
     setGeometry()
     {
-        const geometrySize = this.parameters.volume.size
-        const geometryCenter = this.parameters.volume.size.clone().divideScalar(2)
-        this.geometry = new THREE.BoxGeometry(...geometrySize)
-        this.geometry.translate(...geometryCenter) // to align model and texel coordinates
+        const size = this.parameters.volume.size
+        const center = this.parameters.volume.size.clone().divideScalar(2)
+        this.geometry = new THREE.BoxGeometry(...size)
+        this.geometry.translate(...center) // to align model and texel coordinates
     }
 
     setMaterial()
-    {
-        this.material = new ISOMaterial()
+    {        
 
+        // volume
         this.material.uniforms.u_volume.value.dimensions.copy(this.parameters.volume.dimensions)
-        this.material.uniforms.u_volume.value.size.copy(this.parameters.volume.size)
         this.material.uniforms.u_volume.value.spacing.copy(this.parameters.volume.spacing)
-        this.material.uniforms.u_volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
-        this.material.uniforms.u_volume.value.inv_size.copy(this.parameters.volume.invSize)
-        this.material.uniforms.u_volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
-        this.material.uniforms.u_volume.value.size_length = this.parameters.volume.size.length()
         this.material.uniforms.u_volume.value.spacing_length = this.parameters.volume.spacing.length()
-        this.material.uniforms.u_volume.value.inv_size_length = this.parameters.volume.invSize.length()
+        this.material.uniforms.u_volume.value.size.copy(this.parameters.volume.size)
+        this.material.uniforms.u_volume.value.size_length = this.parameters.volume.size.length()
+        this.material.uniforms.u_volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
+        this.material.uniforms.u_volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
         this.material.uniforms.u_volume.value.inv_spacing_length = this.parameters.volume.invSpacing.length()
+        this.material.uniforms.u_volume.value.inv_size.copy(this.parameters.volume.invSize)
+        this.material.uniforms.u_volume.value.inv_size_length = this.parameters.volume.invSize.length()
+        this.material.uniforms.u_volume.value.min_position.copy(this.processor.parameters.occupancyBoundingBox.minPosition)
+        this.material.uniforms.u_volume.value.max_position.copy(this.processor.parameters.occupancyBoundingBox.maxPosition)
 
-        this.material.uniforms.u_volume.value.min_position.setScalar(0)
-        this.material.uniforms.u_volume.value.max_position.copy(this.parameters.volume.size)
+        // distmap
+        this.material.uniforms.u_distmap.value.division = this.processor.parameters.occupancyDistanceMap.division
+        this.material.uniforms.u_distmap.value.dimensions.copy(this.processor.parameters.occupancyDistanceMap.dimensions)
+        this.material.uniforms.u_distmap.value.spacing.copy(this.processor.parameters.occupancyDistanceMap.spacing)
+        this.material.uniforms.u_distmap.value.size.copy(this.processor.parameters.occupancyDistanceMap.size)
+        this.material.uniforms.u_distmap.value.inv_dimensions.copy(this.material.uniforms.u_distmap.value.dimensions.toArray().map(x => 1/x))
+        this.material.uniforms.u_distmap.value.inv_spacing.copy(this.material.uniforms.u_distmap.value.spacing.toArray().map(x => 1/x))
+        this.material.uniforms.u_distmap.value.inv_size.copy(this.material.uniforms.u_distmap.value.size.toArray().map(x => 1/x))
 
-        this.material.uniforms.u_textures.value.volume = this.textures.volume
-        this.material.uniforms.u_textures.value.mask = this.textures.mask
+        // textures
+        this.material.uniforms.u_textures.value.taylormap = this.textures.taylormap
+        this.material.uniforms.u_textures.value.distmap = this.textures.distmap
         this.material.uniforms.u_textures.value.colormaps = this.textures.colormaps    
-        this.material.uniforms.u_textures.value.noisemap = this.textures.noisemap
     }
 
     setMesh()
     {
         this.mesh = new THREE.Mesh(this.geometry, this.material)
-        this.mesh.position.copy(this.parameters.volume.size).multiplyScalar(- 0.5)
-        this.scene.add(this.mesh)
-    }
-
-    async precompute()
-    {
-        this.smoothing = new ComputeSmoothing(this)
-        this.gradients = new ComputeGradients(this)
-        this.occupancy = new ComputeOccupancy(this)
-
-        await this.computeSmoothing()
-        await this.computeGradients()
-        await this.computeOccupancy()
-    }
-
-    async computeResizing()
-    {        
-        console.time('computeResizing')
-        await this.resizing.compute().then(() => this.resizing.dataSync())
-        console.timeEnd('computeResizing')
-    }
-
-    async computeSmoothing()
-    {
-        this.smoothing.update()
-        console.time('computeSmoothing')
-        await this.smoothing.compute().then(() => this.smoothing.dataSync())
-        console.timeEnd('computeSmoothing')
-    }
-
-    async computeGradients()
-    {
-        this.gradients.update()
-        console.time('computeGradients')
-        await this.gradients.compute().then(() => this.gradients.dataSync())
-        console.timeEnd('computeGradients')
-    }
-
-    async computeOccupancy()
-    {
-        this.occupancy.update()
-        console.time('computeOccupancy')
-        await this.occupancy.compute().then(() => this.occupancy.dataSync())
-        console.timeEnd('computeOccupancy')
-    }
-
-    update()
-    {
-
+        this.mesh.position.copy(this.parameters.volume.size).multiplyScalar(-0.5)
+        // this.scene.add(this.mesh)
     }
 
     destroy() 
