@@ -137,7 +137,10 @@ export default class VolumeProcessor
             this.occupancyMap.params.size = new THREE.Vector3().copy(this.occupancyMap.params.dimensions).multiply(this.occupancyMap.params.spacing)
             this.occupancyMap.params.numBlocks = this.occupancyMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
             this.occupancyMap.params.shape = this.occupancyMap.tensor.shape
-            
+            this.occupancyMap.params.invDimensions = new THREE.Vector3().fromArray(this.occupancyMap.params.dimensions.toArray().map(x => 1/x))
+            this.occupancyMap.params.invSpacing = new THREE.Vector3().fromArray(this.occupancyMap.params.spacing.toArray().map(x => 1/x))
+            this.occupancyMap.params.invSize = new THREE.Vector3().fromArray(this.occupancyMap.params.size.toArray().map(x => 1/x))
+
             // console.log('occupancyMap', this.occupancyMap.params, this.occupancyMap.tensor.dataSync())
         })
     }
@@ -185,14 +188,18 @@ export default class VolumeProcessor
             this.occupancyDistanceMap.params = {}
             this.occupancyDistanceMap.params.threshold = threshold
             this.occupancyDistanceMap.params.division = division
-            this.occupancyDistanceMap.params.maxDistance = maxDistance
+            this.occupancyDistanceMap.params.maxDistance = this.occupancyDistanceMap.tensor.max().arraySync()
             this.occupancyDistanceMap.params.dimensions = new THREE.Vector3().fromArray(this.occupancyDistanceMap.tensor.shape.slice(0, 3).toReversed())
             this.occupancyDistanceMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(this.occupancyDistanceMap.params.division)
             this.occupancyDistanceMap.params.size = new THREE.Vector3().copy(this.occupancyDistanceMap.params.dimensions).multiply(this.occupancyDistanceMap.params.spacing)
             this.occupancyDistanceMap.params.numBlocks = this.occupancyDistanceMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
             this.occupancyDistanceMap.params.shape = this.occupancyDistanceMap.tensor.shape
+            this.occupancyDistanceMap.params.invDimensions = new THREE.Vector3().fromArray(this.occupancyDistanceMap.params.dimensions.toArray().map(x => 1/x))
+            this.occupancyDistanceMap.params.invSpacing = new THREE.Vector3().fromArray(this.occupancyDistanceMap.params.spacing.toArray().map(x => 1/x))
+            this.occupancyDistanceMap.params.invSize = new THREE.Vector3().fromArray(this.occupancyDistanceMap.params.size.toArray().map(x => 1/x))
 
-            console.log('occupancyDistanceMap', this.occupancyDistanceMap.params, this.occupancyDistanceMap.tensor.dataSync())
+            //
+            // console.log('occupancyDistanceMap', this.occupancyDistanceMap.params, this.occupancyDistanceMap.tensor.dataSync())
         })
     }
 

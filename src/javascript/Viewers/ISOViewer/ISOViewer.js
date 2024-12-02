@@ -44,7 +44,7 @@ export default class ISOViewer extends EventEmitter
         await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
         await this.processor.quantizeTaylorMap()
         await this.processor.computeOccupancyBoundingBox(0)
-        await this.processor.computeOccupancyDistanceMap(0, 4)
+        await this.processor.computeOccupancyDistanceMap(0, 4, 50)
     }
 
     async updateBoundingBox(threshold)
@@ -53,7 +53,6 @@ export default class ISOViewer extends EventEmitter
         
         const uVolume = this.material.uniforms.u_volume.value
         const boxParams = this.processor.occupancyBoundingBox.params 
-           
         uVolume.min_coords.copy(boxParams.minCoords)
         uVolume.max_coords.copy(boxParams.maxCoords)
         uVolume.min_position.copy(boxParams.minPosition)
@@ -62,10 +61,20 @@ export default class ISOViewer extends EventEmitter
 
     async updateDistmap(threshold, division)
     {
-        await this.processor.computeOccupancyDistanceMap(threshold, division)
+        await this.processor.computeOccupancyDistanceMap(threshold, division, 50)
         
+        const uDistmap = this.material.uniforms.u_distmap.value
+        const distmapParams =  this.processor.occupancyDistanceMap.params
+        uDistmap.max_distance = distmapParams.maxDistance
+        uDistmap.division = distmapParams.division
+        uDistmap.dimensions.copy(distmapParams.dimensions)
+        uDistmap.spacing.copy(distmapParams.spacing)
+        uDistmap.size.copy(distmapParams.size)
+        uDistmap.inv_dimensions.copy(distmapParams.invDimensions)
+        uDistmap.inv_spacing.copy(distmapParams.invSpacing)
+        uDistmap.inv_size.copy(distmapParams.invSize)
+
         const uTextures = this.material.uniforms.u_textures.value
-        
         uTextures.distmap.dispose()
         uTextures.distmap = this.processor.getTexture('occupancyDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
         uTextures.distmap.needsUpdate = true
@@ -145,13 +154,14 @@ export default class ISOViewer extends EventEmitter
         uVolume.max_position.copy(boxParams.maxPosition)
 
         // distmap
+        uDistmap.max_distance = distmapParams.maxDistance
         uDistmap.division = distmapParams.division
         uDistmap.dimensions.copy(distmapParams.dimensions)
         uDistmap.spacing.copy(distmapParams.spacing)
         uDistmap.size.copy(distmapParams.size)
-        uDistmap.inv_dimensions.copy(distmapParams.dimensions.toArray().map(x => 1/x))
-        uDistmap.inv_spacing.copy(distmapParams.spacing.toArray().map(x => 1/x))
-        uDistmap.inv_size.copy(distmapParams.size.toArray().map(x => 1/x))
+        uDistmap.inv_dimensions.copy(distmapParams.invDimensions)
+        uDistmap.inv_spacing.copy(distmapParams.invSpacing)
+        uDistmap.inv_size.copy(distmapParams.invSize)
 
         // textures
         uTextures.taylormap = this.textures.taylormap
