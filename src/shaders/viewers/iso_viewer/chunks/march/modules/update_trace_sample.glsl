@@ -1,7 +1,7 @@
 
 // sample volume at start position
 trace_prev.sample_value = trace.sample_value;
-trace.sample_data = texture(u_textures.volume, trace.voxel_texture_coords);
+trace.sample_data = texture(u_textures.taylormap, trace.voxel_texture_coords);
 trace.sample_value = trace.sample_data.r;
 trace.sample_error = trace.sample_value - u_raymarch.sample_threshold;
 

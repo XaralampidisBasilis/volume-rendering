@@ -4,11 +4,11 @@
 // struct to hold the current occumap parameters
 struct Block
 {
-    int   chebyshev_distance;
+    int   value;
     bool  occupied;
-    ivec3 coords;
-    ivec3 dimensions; 
-    vec3  size;     
+    ivec3 coords;  
+    ivec3 min_coords;
+    ivec3 max_coords;
     vec3  min_position;
     vec3  max_position;
 };
@@ -16,11 +16,11 @@ struct Block
 Block set_block()
 {
     Block block;
-    block.chebyshev_distance = 0;
+    block.value = 0;
     block.occupied = false;
-    block.coords = ivec3(0);
-    block.dimensions = ivec3(0);   
-    block.size = vec3(0.0);   
+    block.coords = ivec3(0);  
+    block.min_coords = ivec3(0);  
+    block.max_coords = ivec3(0);  
     block.min_position = vec3(0.0);
     block.max_position = vec3(0.0);
     return block;

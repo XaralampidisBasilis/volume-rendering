@@ -1,7 +1,7 @@
 
 // Compute block min max coords in distance map
-block.min_coords = occumap.block_coords - block.chebyshev_distance + 1;
-block.max_coords = occumap.block_coords + block.chebyshev_distance + 0;
+block.min_coords = block.coords - block.value + 1;
+block.max_coords = block.coords + block.value + 0;
 
 // Compute block min max position in model space  
 block.min_position = (vec3(block.min_coords) - MILLI_TOLERANCE) * u_distmap.spacing;

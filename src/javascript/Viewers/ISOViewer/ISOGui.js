@@ -28,7 +28,6 @@ export default class ISOGui
     {
         this.subfolders          = {}
         this.subfolders.raymarch = this.folders.viewer.addFolder('raymarch').close()
-        this.subfolders.volume   = this.folders.viewer.addFolder('volume').close()
         this.subfolders.colormap = this.folders.viewer.addFolder('colormap').close()
         this.subfolders.shading  = this.folders.viewer.addFolder('shading').close()
         this.subfolders.lighting = this.folders.viewer.addFolder('lighting').close()
@@ -64,7 +63,6 @@ export default class ISOGui
     {
         this.controllers = {}
         this.addControllersRaymarch() 
-        this.addControllersVolume() 
         this.addControllersColormap() 
         this.addControllersShading() 
         this.addControllersLighting() 
@@ -82,7 +80,7 @@ export default class ISOGui
         const objects = { 
             sample_threshold                 : 0.0,
             RAY_BBOX_INTERSECTION_ENABLED    : Boolean(defines.RAY_BBOX_INTERSECTION_ENABLED),
-            RAY_BVH_INTERSECTION_ENABLED     : Boolean(defines.RAY_BVH_INTERSECTION_ENABLED),
+            RAY_BVOL_INTERSECTION_ENABLED    : Boolean(defines.RAY_BVOL_INTERSECTION_ENABLED),
             RAY_DITHERING_ENABLED            : Boolean(defines.RAY_DITHERING_ENABLED),
             TRACE_POSITION_REFINEMENT_ENABLED: Boolean(defines.TRACE_POSITION_REFINEMENT_ENABLED),
             TRACE_GRADIENT_REFINEMENT_ENABLED: Boolean(defines.TRACE_GRADIENT_REFINEMENT_ENABLED),
@@ -94,41 +92,19 @@ export default class ISOGui
 
         this.controllers.raymarch = 
         {
-            sampleThreshold       : folder.add(objects, 'sample_threshold').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.sample_threshold = value, this.viewer.computeOccupancy() }),
+            sampleThreshold       : folder.add(objects, 'sample_threshold').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.sample_threshold = value, this.viewer.updateBoundingBox(value),  this.viewer.updateDistmap(value, 4) }),
             minStepScale          : folder.add(uniforms, 'min_step_scaling').min(0.001).max(5).step(0.001),
             maxStepScale          : folder.add(uniforms, 'max_step_scaling').min(0.001).max(5).step(0.001),
             maxStepCount          : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
             maxSkipCount          : folder.add(uniforms, 'max_skip_count').min(0).max(2000).step(1),
-            minSkipLod            : folder.add(uniforms, 'min_skip_lod').min(0).max(material.uniforms.u_occumaps.value.lods - 1).step(1),
-            maxSkipLod            : folder.add(uniforms, 'max_skip_lod').min(0).max(material.uniforms.u_occumaps.value.lods - 1).step(1),
             enableBboxIntersection: folder.add(objects, 'RAY_BBOX_INTERSECTION_ENABLED').name('enable_bbox_intersection').onFinishChange((value) => { defines.RAY_BBOX_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
-            enableBVHIntersection : folder.add(objects, 'RAY_BVH_INTERSECTION_ENABLED').name('enable_bvh_intersection').onFinishChange((value) => { defines.RAY_BVH_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
+            enableBVolIntersection: folder.add(objects, 'RAY_BVOL_INTERSECTION_ENABLED').name('enable_bvh_intersection').onFinishChange((value) => { defines.RAY_BVOL_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
             enableDithering       : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
             enablePosRefinement   : folder.add(objects, 'TRACE_POSITION_REFINEMENT_ENABLED').name('enable_position_refinement').onFinishChange((value) => { defines.TRACE_POSITION_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
             enableGradRefinement  : folder.add(objects, 'TRACE_GRADIENT_REFINEMENT_ENABLED').name('enable_gradient_refinement').onFinishChange((value) => { defines.TRACE_GRADIENT_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
             enableBVHMarching     : folder.add(objects, 'TRACE_BVH_MARCHING_ENABLED').name('enable_bvh_marching').onFinishChange((value) => { defines.TRACE_BVH_MARCHING_ENABLED = Number(value), material.needsUpdate = true }),
             enableStepScaling     : folder.add(objects, 'TRACE_STEP_SCALING_ENABLED').name('enable_step_scaling').onFinishChange((value) => { defines.TRACE_STEP_SCALING_ENABLED = Number(value), material.needsUpdate = true }),
             enableStepStretching  : folder.add(objects, 'TRACE_STEP_STRETCHING_ENABLED').name('enable_step_stretching').onFinishChange((value) => { defines.TRACE_STEP_STRETCHING_ENABLED = Number(value), material.needsUpdate = true }),
-        }
-
-    }
-
-    addControllersVolume() 
-    {
-        const folder = this.subfolders.volume
-        const material = this.viewer.material
-        const defines = this.viewer.material.defines
-        const options = {
-            VOLUME_GRADIENTS_METHOD: { scharr: 1, sobel: 2, prewitt: 3, tetrahedron: 4, central: 5 },
-            VOLUME_SMOOTHING_METHOD: { bessel: 1, gaussian: 2, average: 3 },
-        }
-
-        this.controllers.volume = 
-        {
-            gradientsMethod: folder.add(defines, 'VOLUME_GRADIENTS_METHOD').name('gradients_method').options(options.VOLUME_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            smoothingMethod: folder.add(defines, 'VOLUME_SMOOTHING_METHOD').name('smoothing_method').options(options.VOLUME_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            smoothingRadius: folder.add(defines, 'VOLUME_SMOOTHING_RADIUS').name('smoothing_radius').min(0).max(5).step(1).onFinishChange(() => { this.viewer.computeSmoothing() }),
-            enableVolume   : folder.add(material, 'visible').name('enable_volume')
         }
 
     }
@@ -194,16 +170,16 @@ export default class ISOGui
         this.controllers.debug = 
         {
             option: folder.add(uniforms, 'option').options({ 
-                default                    :  0,
-                frag_depth                 :  1,
-                ray_step_direction         :  2,
-                ray_step_distance          :  3,
-                ray_rand_distance          :  4,
-                ray_start_distance         :  5,
-                ray_end_distance           :  6,
-                ray_span_distance          :  7,
-                ray_start_position         :  8,
-                ray_end_position           :  9,
+                default                    : 0,
+                frag_depth                 : 1,
+                ray_step_direction         : 2,
+                ray_step_distance          : 3,
+                ray_rand_distance          : 4,
+                ray_start_distance         : 5,
+                ray_end_distance           : 6,
+                ray_span_distance          : 7,
+                ray_start_position         : 8,
+                ray_end_position           : 9,
                 ray_box_start_distance     : 10,
                 ray_box_end_distance       : 11,
                 ray_box_span_distance      : 12,
@@ -246,13 +222,12 @@ export default class ISOGui
                 trace_mapped_color         : 49,
                 trace_luminance            : 50,
                 trace_shaded_color         : 51,
-                occumap_lod                : 52,
-                occumap_block_coords       : 53,
-                occumap_block_occupancy    : 54,
-                occumap_block_occupied     : 55,
-                debug_variable1            : 56,
-                debug_variable2            : 57,
-                debug_variable3            : 58,
+                block_value                : 52,
+                block_occupied             : 53,
+                block_coords               : 54,
+                debug_variable1            : 55,
+                debug_variable2            : 56,
+                debug_variable3            : 57,
             }),
 
             variable1 : folder.add(uniforms, 'variable1').min(-1).max(1).step(0.00000001),

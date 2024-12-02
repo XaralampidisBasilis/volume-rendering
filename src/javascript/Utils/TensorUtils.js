@@ -234,6 +234,21 @@ export function indexBounds(binaryTensor, axis)
         
         // Compute the collapsed view along the specified axis
         const collapsed = binaryTensor.any(axes) 
+
+        // Check if there are any non-zero (True) values in the collapsed tensor
+        const isNonSingular = tf.any(collapsed).arraySync();
+
+        if (!isNonSingular) {
+            // If all values are false, return default bounds for an empty axis
+            return [tf.scalar(0, 'int32'), tf.scalar(0, 'int32')]
+        }
+        
+        if (!isNonSingular) {
+            // If all values are zero, return the last index as minInd and the first as maxInd
+            const lastIndex = tf.scalar(binaryTensor.shape[axis] - 1, 'int32');
+            const firstIndex = tf.scalar(0, 'int32');
+            return [lastIndex, firstIndex];
+        }
         
         // Find the first non-zero index (minInd)
         const minInd = collapsed.argMax(0) // First True from the left
@@ -331,6 +346,7 @@ export function gradients3d(tensor, spacing)
         const gradientsX = compute(kernel.x, spacing.x)
         const gradientsY = compute(kernel.y, spacing.y)
         const gradientsZ = compute(kernel.z, spacing.z)
+
         const gradients = tf.concat([gradientsX, gradientsY, gradientsZ], 3)
 
         return gradients
@@ -358,7 +374,9 @@ export function normalize3d(tensor)
         const shifted = tensor.sub(min)
         const normalized = shifted.div(range)
         shifted.dispose()
-        return [normalized, min.dataSync(), max.dataSync()]
+        const minArray = min.arraySync().slice(0, 3).toReversed()
+        const maxArray = max.arraySync().slice(0, 3).toReversed()        
+        return [normalized, minArray, maxArray]
     })
 }
 
@@ -732,9 +750,6 @@ export function occupancyDistanceMap(tensor, threshold, division, maxDistance)
         distanceMap.dispose()
         distanceMap = distanceMapTemp
     
-        diffusionNext.dispose()
-        diffusionPrev.dispose()
-    
         return distanceMap
     })
 }
@@ -756,7 +771,11 @@ export function occupancyBoundingBox(tensor, threshold)
         const minCoords = tf.stack(bounds.map(b => b[0]), 0)
         const maxCoords = tf.stack(bounds.map(b => b[1]), 0)
 
-        return { minCoords: minCoords.arraySync(), maxCoords: maxCoords.arraySync()}
+        // Convert tensors to arrays
+        const minCoordsArray = minCoords.arraySync().slice(0, 3).toReversed()
+        const maxCoordsArray = maxCoords.arraySync().slice(0, 3).toReversed()
+
+        return { minCoords: minCoordsArray, maxCoords: maxCoordsArray}
     })
 }
 

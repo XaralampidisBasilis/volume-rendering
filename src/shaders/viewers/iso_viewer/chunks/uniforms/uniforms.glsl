@@ -1,3 +1,4 @@
+#include "./uniform_textures"
 #include "./uniform_volume"
 #include "./uniform_distmap"
 #include "./uniform_raymarch"

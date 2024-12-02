@@ -49,8 +49,7 @@
 #include "./debug_trace_stepped_distance"   
 #include "./debug_trace_voxel_coords"       
 #include "./debug_trace_total_count"  
-#include "./debug_occumap_lod"          
-#include "./debug_occumap_block_coords"       
-#include "./debug_occumap_block_occupancy"    
-#include "./debug_occumap_block_occupied"        
+#include "./debug_block_value"    
+#include "./debug_block_occupied"        
+#include "./debug_block_coords"       
 

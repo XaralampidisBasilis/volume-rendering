@@ -55,10 +55,9 @@ struct Debug
     vec4 trace_stepped_distance;
     vec4 trace_voxel_coords;
     vec4 trace_total_count;
-    vec4 occumap_lod;      
-    vec4 occumap_block_coords;   
-    vec4 occumap_block_occupancy;
-    vec4 occumap_block_occupied; 
+    vec4 block_value;
+    vec4 block_occupied; 
+    vec4 block_coords;   
     vec4 variable1;
     vec4 variable2;
     vec4 variable3;
@@ -118,10 +117,9 @@ Debug set_debug()
     debug.trace_stepped_distance      = vec4(vec3(0.0), 1.0);
     debug.trace_voxel_coords          = vec4(vec3(0.0), 1.0);
     debug.trace_total_count           = vec4(vec3(0.0), 1.0);
-    debug.occumap_lod                 = vec4(vec3(0.0), 1.0);
-    debug.occumap_block_coords        = vec4(vec3(0.0), 1.0);
-    debug.occumap_block_occupancy     = vec4(vec3(0.0), 1.0);
-    debug.occumap_block_occupied      = vec4(vec3(0.0), 1.0);
+    debug.block_value                 = vec4(vec3(0.0), 1.0);
+    debug.block_occupied              = vec4(vec3(0.0), 1.0);
+    debug.block_coords                = vec4(vec3(0.0), 1.0);
     debug.variable1                   = vec4(vec3(0.0), 1.0);
     debug.variable2                   = vec4(vec3(0.0), 1.0);
     debug.variable3                   = vec4(vec3(0.0), 1.0);

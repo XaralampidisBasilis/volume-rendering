@@ -21,7 +21,7 @@ export default class World extends EventEmitter
             this.viewer = new ISOViewer()
             this.viewer.on('ready', () => 
             {
-                this.camera.instance.position.fromArray(this.viewer.parameters.volume.size)
+                this.camera.instance.position.copy(this.viewer.parameters.volume.size)
                 this.trigger('ready')
             })
         })
@@ -29,8 +29,6 @@ export default class World extends EventEmitter
 
     update()
     {
-        if(this.viewer)
-            this.viewer.update()
     }
 
     destroy()

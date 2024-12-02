@@ -36,9 +36,9 @@ struct Ray
     vec3  box_min_position;     // minimum allowed position due to volume box, in 3d model coordinates
     vec3  box_max_position;     // maximum allowed position due to volume box, in 3d model coordinates
 
-    float box_min_distance;   // min allowed distance across all rays due to volume box, in 3d model coordinates
+    float box_min_distance;     // min allowed distance across all rays due to volume box, in 3d model coordinates
     float box_max_distance;     // max allowed distance across all rays due to volume box, in 3d model coordinates
-    float box_max_span;    // max allowed distance across all rays due to volume box, in 3d model coordinates
+    float box_max_span;         // max allowed distance across all rays due to volume box, in 3d model coordinates
 };
 Ray set_ray()
 {

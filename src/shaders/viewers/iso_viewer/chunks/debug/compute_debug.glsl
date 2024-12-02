@@ -4,15 +4,15 @@
 
 switch (u_debugger.option)
 {
-    case  1: fragColor = debug.frag_depth;                  break;
-    case  2: fragColor = debug.ray_step_direction;          break;
-    case  3: fragColor = debug.ray_step_distance;           break;
-    case  4: fragColor = debug.ray_rand_distance;           break;
-    case  5: fragColor = debug.ray_start_distance;          break;
-    case  6: fragColor = debug.ray_end_distance;            break;
-    case  7: fragColor = debug.ray_span_distance;           break;
-    case  8: fragColor = debug.ray_start_position;          break;
-    case  9: fragColor = debug.ray_end_position;            break;
+    case 1: fragColor  = debug.frag_depth;                  break;
+    case 2: fragColor  = debug.ray_step_direction;          break;
+    case 3: fragColor  = debug.ray_step_distance;           break;
+    case 4: fragColor  = debug.ray_rand_distance;           break;
+    case 5: fragColor  = debug.ray_start_distance;          break;
+    case 6: fragColor  = debug.ray_end_distance;            break;
+    case 7: fragColor  = debug.ray_span_distance;           break;
+    case 8: fragColor  = debug.ray_start_position;          break;
+    case 9: fragColor  = debug.ray_end_position;            break;
     case 10: fragColor = debug.ray_box_start_distance;      break;
     case 11: fragColor = debug.ray_box_end_distance;        break;
     case 12: fragColor = debug.ray_box_span_distance;       break;
@@ -55,11 +55,10 @@ switch (u_debugger.option)
     case 49: fragColor = debug.trace_mapped_color;          break;
     case 50: fragColor = debug.trace_luminance;             break;
     case 51: fragColor = debug.trace_shaded_color;          break;
-    case 52: fragColor = debug.occumap_lod;                 break;
-    case 53: fragColor = debug.occumap_block_coords;        break;
-    case 54: fragColor = debug.occumap_block_occupancy;     break;
-    case 55: fragColor = debug.occumap_block_occupied;      break;
-    case 56: fragColor = debug.variable1;                   break;
-    case 57: fragColor = debug.variable2;                   break;
-    case 58: fragColor = debug.variable3;                   break;
+    case 52: fragColor = debug.block_value;                 break;
+    case 53: fragColor = debug.block_occupied;              break;
+    case 54: fragColor = debug.block_coords;                break;
+    case 55: fragColor = debug.variable1;                   break;
+    case 56: fragColor = debug.variable2;                   break;
+    case 57: fragColor = debug.variable3;                   break;
 }

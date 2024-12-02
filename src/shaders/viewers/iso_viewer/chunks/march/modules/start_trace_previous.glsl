@@ -10,7 +10,7 @@ trace_prev.voxel_coords = ivec3(trace_prev.position * u_volume.inv_spacing);
 trace_prev.voxel_texture_coords = trace_prev.position * u_volume.inv_size;
 
 // sample the volume at previous step and save the trace
-trace_prev.sample_data = texture(u_textures.volume, trace_prev.voxel_texture_coords);
+trace_prev.sample_data = texture(u_textures.taylormap, trace_prev.voxel_texture_coords);
 trace_prev.sample_value = trace_prev.sample_data.r;
 trace_prev.sample_error = trace_prev.sample_value - u_raymarch.sample_threshold;
 

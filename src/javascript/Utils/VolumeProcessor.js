@@ -13,10 +13,10 @@ export default class VolumeProcessor
     {
         this.renderer = renderer
         this.volume = volume
-        this.parameters = {}
-        this.computes = {}
-        this.textures = {}
-        this.setParameters()
+        this.setObjects()
+        this.setVolumeParameters()
+
+        console.log(tf.memory())
 
         // this.computeIntensityMap()
         // this.computeGradientMap()
@@ -34,15 +34,29 @@ export default class VolumeProcessor
         // this.quantizeTaylorMap(256)
     }
 
-    setParameters()
+    setObjects()
     {
-        this.parameters.volume = {
+        this.intensityMap = {}
+        this.gradientMap = {}
+        this.taylorMap = {}
+        this.occupancyMap = {}
+        this.occupancyDistanceMap = {}
+        this.occupancyMipmaps = {}
+        this.occupancyBoundingBox = {}
+        this.extremaMap = {}
+        this.extremaDistanceMap = {}
+    }
+
+    setVolumeParameters()
+    {
+        this.volume.params = 
+        {
             size         : new THREE.Vector3().fromArray(this.volume.size),
             dimensions   : new THREE.Vector3().fromArray(this.volume.dimensions),
             spacing      : new THREE.Vector3().fromArray(this.volume.spacing),
-            invSize      : new THREE.Vector3().fromArray(this.volume.size.map((x) => 1 / x)),
-            invDimensions: new THREE.Vector3().fromArray(this.volume.dimensions.map((x) => 1 / x)),
-            invSpacing   : new THREE.Vector3().fromArray(this.volume.spacing.map((x) => 1 / x)),
+            invSize      : new THREE.Vector3().fromArray(this.volume.size.map(x => 1/x)),
+            invDimensions: new THREE.Vector3().fromArray(this.volume.dimensions.map(x => 1/x)),
+            invSpacing   : new THREE.Vector3().fromArray(this.volume.spacing.map(x => 1/x)),
             numVoxels    : this.volume.dimensions.reduce((voxels, dim) => voxels * dim, 1),
             shape        : this.volume.dimensions.toReversed().concat(1),
         }
@@ -54,10 +68,14 @@ export default class VolumeProcessor
     {
         timeit('computeIntensityMap', () =>
         {
-            if (this.computes.intensityMap) this.disposeMap('intensityMap')
-            this.parameters.intensityMap = this.parameters.volume
-            this.computes.intensityMap = tf.tensor4d(this.volume.data, this.parameters.intensityMap.shape,'float32')
-            // console.log('intensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
+            if (this.intensityMap?.tensor) 
+                this.intensityMap.tensor.dispose()
+
+            this.intensityMap.tensor = tf.tensor4d(this.volume.data, this.volume.params.shape,'float32')
+
+            this.intensityMap.params = {...this.volume.params}
+            
+            // console.log('intensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
         })
     }
 
@@ -65,12 +83,18 @@ export default class VolumeProcessor
     {
         timeit('computeGradientMap', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`computeGradientMap: intensityMap is not computed`)
-            if (this.computes.gradientMap) this.disposeMap('gradientMap')
-            this.computes.gradientMap = TensorUtils.gradients3d(this.computes.intensityMap, this.parameters.volume.spacing)
-            this.parameters.gradientMap = this.parameters.volume
-            this.parameters.gradientMap.shape = this.computes.gradientMap.shape
-            // console.log('gradientMap', this.parameters.gradientMap, this.computes.gradientMap.dataSync())
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`computeGradientMap: intensityMap is not computed`)
+
+            if (this.gradientMap?.tensor) 
+                this.gradientMap.tensor.dispose()
+            
+            this.gradientMap.tensor = TensorUtils.gradients3d(this.intensityMap.tensor, this.volume.params.spacing)
+            
+            this.gradientMap.params =  {...this.volume.params}
+            this.gradientMap.params.shape = this.gradientMap.tensor.shape
+            
+            // console.log('gradientMap', this.gradientMap.params, this.gradientMap.tensor.dataSync())
         })
     }
  
@@ -78,15 +102,21 @@ export default class VolumeProcessor
     {
         timeit('computeTaylorMap', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`computeTaylorMap: intensityMap is not computed`)    
-            if (!this.computes.gradientMap) throw new Error(`computeTaylorMap: intensityMap is not computed`)   
-            if (this.computes.taylorMap)  this.disposeMap('taylorMap')
-            this.computes.gradientMap = TensorUtils.gradients3d(this.computes.intensityMap, this.parameters.volume.spacing)
-            this.computes.taylorMap = tf.concat([this.computes.intensityMap, this.computes.gradientMap], 3)
-            this.parameters.taylorMap = this.parameters.volume
-            this.parameters.taylorMap.shape = this.computes.taylorMap.shape
-            this.computes.gradientMap.dispose()
-            // console.log('taylorMap', this.parameters.taylorMap, this.computes.taylorMap.dataSync())
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`computeTaylorMap: intensityMap is not computed`)    
+
+            if (!this.gradientMap?.tensor) 
+                throw new Error(`computeTaylorMap: intensityMap is not computed`)   
+
+            if (this.taylorMap?.tensor) 
+                this.taylorMap.tensor.dispose()
+
+            this.taylorMap.tensor = tf.concat([this.intensityMap.tensor, this.gradientMap.tensor], 3)
+
+            this.taylorMap.params =  {...this.volume.params}
+            this.taylorMap.params.shape = this.taylorMap.tensor.shape
+            
+            // console.log('taylorMap', this.taylorMap.params, this.taylorMap.tensor.dataSync())
         })       
     }
 
@@ -94,17 +124,21 @@ export default class VolumeProcessor
     {
         timeit('computeOccupancyMap', () =>
         {
-            if (this.computes.occupancyMap) this.disposeMap('occupancyMap')
-            this.computes.occupancyMap = TensorUtils.occupancyMap(this.computes.intensityMap, threshold, division)
-            this.parameters.occupancyMap = {}
-            this.parameters.occupancyMap.threshold = threshold
-            this.parameters.occupancyMap.division = division
-            this.parameters.occupancyMap.dimensions = new THREE.Vector3().fromArray(this.computes.occupancyMap.shape.slice(0, 3).toReversed())
-            this.parameters.occupancyMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(division)
-            this.parameters.occupancyMap.size = new THREE.Vector3().copy(this.parameters.occupancyMap.dimensions).multiply(this.parameters.occupancyMap.spacing)
-            this.parameters.occupancyMap.numBlocks = this.parameters.occupancyMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-            this.parameters.occupancyMap.shape = this.computes.occupancyMap.shape
-            // console.log('occupancyMap', this.parameters.occupancyMap, this.computes.occupancyMap.dataSync())
+            if (this.occupancyMap?.tensor) 
+                this.occupancyMap?.tensor.dispose()
+
+            this.occupancyMap.tensor = TensorUtils.occupancyMap(this.intensityMap.tensor, threshold, division)
+
+            this.occupancyMap.params = {}
+            this.occupancyMap.params.threshold = threshold
+            this.occupancyMap.params.division = division
+            this.occupancyMap.params.dimensions = new THREE.Vector3().fromArray(this.occupancyMap.tensor.shape.slice(0, 3).toReversed())
+            this.occupancyMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+            this.occupancyMap.params.size = new THREE.Vector3().copy(this.occupancyMap.params.dimensions).multiply(this.occupancyMap.params.spacing)
+            this.occupancyMap.params.numBlocks = this.occupancyMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+            this.occupancyMap.params.shape = this.occupancyMap.tensor.shape
+            
+            // console.log('occupancyMap', this.occupancyMap.params, this.occupancyMap.tensor.dataSync())
         })
     }
 
@@ -112,21 +146,27 @@ export default class VolumeProcessor
     {
         timeit('computeOccupancyMipmaps', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`computeOccupancyMipmaps: intensityMap is not computed`)
-            if (this.computes.occupancyMipmaps) this.disposeMap('occupancyMipmaps')
-            const occupancyMipmaps = TensorUtils.occupancyMipmaps(this.computes.intensityMap, threshold, division)
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`computeOccupancyMipmaps: intensityMap is not computed`)
+
+            if (this.occupancyMipmaps?.tensor) 
+                this.occupancyMipmaps.tensor.dispose()
+
+            const occupancyMipmaps = TensorUtils.occupancyMipmaps(this.intensityMap.tensor, threshold, division)
             const compactOccupancyMipmaps = TensorUtils.compactMipmaps(occupancyMipmaps)
-            this.computes.occupancyMipmaps = compactOccupancyMipmaps
-            this.parameters.occupancyMipmaps = {}
-            this.parameters.occupancyMipmaps.threshold = threshold
-            this.parameters.occupancyMipmaps.division = division
-            this.parameters.occupancyMipmaps.levels = occupancyMipmaps.length
-            this.parameters.occupancyMipmaps.dimensions = new THREE.Vector3().fromArray(compactOccupancyMipmaps.shape.slice(0, 3).toReversed())
-            this.parameters.occupancyMipmaps.shape = compactOccupancyMipmaps.shape
-            this.parameters.occupancyMipmaps.dimensions0 = new THREE.Vector3().fromArray(occupancyMipmaps[0].shape.slice(0, 3).toReversed())
-            this.parameters.occupancyMipmaps.spacing0 = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(division)
-            this.parameters.occupancyMipmaps.size0 = new THREE.Vector3().copy(this.parameters.occupancyMipmaps.dimensions0).multiply(this.parameters.occupancyMipmaps.spacing0)
-            // console.log('occupancyMipmaps', this.parameters.occupancyMipmaps, this.computes.occupancyMipmaps.dataSync())
+
+            this.occupancyMipmaps.tensor = compactOccupancyMipmaps
+            this.occupancyMipmaps.params = {}
+            this.occupancyMipmaps.params.threshold = threshold
+            this.occupancyMipmaps.params.division = division
+            this.occupancyMipmaps.params.levels = occupancyMipmaps.length
+            this.occupancyMipmaps.params.dimensions = new THREE.Vector3().fromArray(compactOccupancyMipmaps.shape.slice(0, 3).toReversed())
+            this.occupancyMipmaps.params.shape = compactOccupancyMipmaps.shape
+            this.occupancyMipmaps.params.dimensions0 = new THREE.Vector3().fromArray(occupancyMipmaps[0].shape.slice(0, 3).toReversed())
+            this.occupancyMipmaps.params.spacing0 = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+            this.occupancyMipmaps.params.size0 = new THREE.Vector3().copy(this.occupancyMipmaps.params.dimensions0).multiply(this.occupancyMipmaps.params.spacing0)
+            
+            // console.log('occupancyMipmaps', this.occupancyMipmaps.params, this.occupancyMipmaps.tensor.dataSync())
         })        
     }
 
@@ -134,19 +174,25 @@ export default class VolumeProcessor
     {
         timeit('computeOccupancyDistanceMap', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`computeOccupancyDistanceMap: intensityMap is not computed`)
-            if (this.computes.occupancyDistanceMap) this.disposeMap('occupancyDistanceMap')
-            this.computes.occupancyDistanceMap = TensorUtils.occupancyDistanceMap(this.computes.intensityMap, threshold, division, maxDistance)
-            this.parameters.occupancyDistanceMap = {}
-            this.parameters.occupancyDistanceMap.threshold = threshold
-            this.parameters.occupancyDistanceMap.division = division
-            this.parameters.occupancyDistanceMap.maxDistance = maxDistance
-            this.parameters.occupancyDistanceMap.dimensions = new THREE.Vector3().fromArray(this.computes.occupancyDistanceMap.shape.slice(0, 3).toReversed())
-            this.parameters.occupancyDistanceMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(this.parameters.occupancyDistanceMap.division)
-            this.parameters.occupancyDistanceMap.size = new THREE.Vector3().copy(this.parameters.occupancyDistanceMap.dimensions).multiply(this.parameters.occupancyDistanceMap.spacing)
-            this.parameters.occupancyDistanceMap.numBlocks = this.parameters.occupancyDistanceMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-            this.parameters.occupancyDistanceMap.shape = this.computes.occupancyDistanceMap.shape
-            // console.log('occupancyDistanceMap', this.parameters.occupancyDistanceMap, this.computes.occupancyDistanceMap.dataSync())
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`computeOccupancyDistanceMap: intensityMap is not computed`)
+
+            if (this.occupancyDistanceMap?.tensor) 
+                this.occupancyDistanceMap.tensor.dispose()
+
+            this.occupancyDistanceMap.tensor = TensorUtils.occupancyDistanceMap(this.intensityMap.tensor, threshold, division, maxDistance)
+
+            this.occupancyDistanceMap.params = {}
+            this.occupancyDistanceMap.params.threshold = threshold
+            this.occupancyDistanceMap.params.division = division
+            this.occupancyDistanceMap.params.maxDistance = maxDistance
+            this.occupancyDistanceMap.params.dimensions = new THREE.Vector3().fromArray(this.occupancyDistanceMap.tensor.shape.slice(0, 3).toReversed())
+            this.occupancyDistanceMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(this.occupancyDistanceMap.params.division)
+            this.occupancyDistanceMap.params.size = new THREE.Vector3().copy(this.occupancyDistanceMap.params.dimensions).multiply(this.occupancyDistanceMap.params.spacing)
+            this.occupancyDistanceMap.params.numBlocks = this.occupancyDistanceMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+            this.occupancyDistanceMap.params.shape = this.occupancyDistanceMap.tensor.shape
+
+            console.log('occupancyDistanceMap', this.occupancyDistanceMap.params, this.occupancyDistanceMap.tensor.dataSync())
         })
     }
 
@@ -154,15 +200,19 @@ export default class VolumeProcessor
     {
         timeit('computeOccupancyBoundingBox', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`computeOccupancyBoundingBox: intensityMap is not computed`)
-            const boundingBox = TensorUtils.occupancyBoundingBox(this.computes.intensityMap, threshold)
-            this.parameters.occupancyBoundingBox = {}
-            this.parameters.occupancyBoundingBox.threshold = threshold
-            this.parameters.occupancyBoundingBox.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
-            this.parameters.occupancyBoundingBox.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
-            this.parameters.occupancyBoundingBox.minPosition = new THREE.Vector3().fromArray(boundingBox.minCoords).multiply(this.parameters.volume.spacing)
-            this.parameters.occupancyBoundingBox.maxPosition = new THREE.Vector3().fromArray(boundingBox.maxCoords).multiply(this.parameters.volume.spacing)
-            // console.log('occupancyBoundingBox', this.parameters.occupancyBoundingBox)
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`computeOccupancyBoundingBox: intensityMap is not computed`)
+
+            const boundingBox = TensorUtils.occupancyBoundingBox(this.intensityMap.tensor, threshold)
+  
+            this.occupancyBoundingBox.params = {}
+            this.occupancyBoundingBox.params.threshold = threshold
+            this.occupancyBoundingBox.params.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
+            this.occupancyBoundingBox.params.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
+            this.occupancyBoundingBox.params.minPosition = new THREE.Vector3().fromArray(boundingBox.minCoords).multiply(this.volume.params.spacing)
+            this.occupancyBoundingBox.params.maxPosition = new THREE.Vector3().fromArray(boundingBox.maxCoords).multiply(this.volume.params.spacing)
+
+            // console.log('occupancyBoundingBox', this.occupancyBoundingBox.params)
         })
     }
 
@@ -170,17 +220,23 @@ export default class VolumeProcessor
     {
         timeit('computeExtremaMap', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`computeExtremaMap: intensityMap is not computed`)
-            if (this.computes.extremaMap) this.disposeMap('extremaMap')
-            this.computes.extremaMap = TensorUtils.extremaMap(this.computes.intensityMap, division)
-            this.parameters.extremaMap = {}
-            this.parameters.extremaMap.division = division
-            this.parameters.extremaMap.dimensions = new THREE.Vector3().fromArray(this.computes.extremaMap.shape.slice(0, 3).toReversed())
-            this.parameters.extremaMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(division)
-            this.parameters.extremaMap.size = new THREE.Vector3().copy(this.parameters.extremaMap.dimensions).multiply(this.parameters.extremaMap.spacing)
-            this.parameters.extremaMap.numBlocks = this.parameters.extremaMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-            this.parameters.extremaMap.shape = this.computes.extremaMap.shape
-            // console.log('extremaMap', this.parameters.extremaMap, this.computes.extremaMap.dataSync())
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`computeExtremaMap: intensityMap is not computed`)
+
+            if (this.extremaMap?.tensor) 
+                this.extremaMap.tensor.dispose()
+
+            this.extremaMap.tensor = TensorUtils.extremaMap(this.intensityMap.tensor, division)
+
+            this.extremaMap.params = {}
+            this.extremaMap.params.division = division
+            this.extremaMap.params.dimensions = new THREE.Vector3().fromArray(this.extremaMap.tensor.shape.slice(0, 3).toReversed())
+            this.extremaMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+            this.extremaMap.params.size = new THREE.Vector3().copy(this.extremaMap.params.dimensions).multiply(this.extremaMap.params.spacing)
+            this.extremaMap.params.numBlocks = this.extremaMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+            this.extremaMap.params.shape = this.extremaMap.tensor.shape
+            
+            // console.log('extremaMap', this.extremaMap.params, this.extremaMap.tensor.dataSync())
         })
     }
 
@@ -188,18 +244,23 @@ export default class VolumeProcessor
     {
         timeit('computeExtremaDistanceMap', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`computeExtremaDistanceMap: intensityMap is not computed`)
-            if (this.computes.extremaDistanceMap) this.disposeMap('extremaDistanceMap')
-            this.computes.extremaDistanceMap = TensorUtils.extremaDistanceMap(this.computes.intensityMap, division, maxDistance)
-            this.parameters.extremaDistanceMap = {}
-            this.parameters.extremaDistanceMap.division = division
-            this.parameters.extremaDistanceMap.maxDistance = maxDistance
-            this.parameters.extremaDistanceMap.dimensions = new THREE.Vector3().fromArray(this.computes.extremaDistanceMap.shape.slice(0, 3).toReversed())
-            this.parameters.extremaDistanceMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(division)
-            this.parameters.extremaDistanceMap.size = new THREE.Vector3().copy(this.parameters.extremaDistanceMap.dimensions).multiply(this.parameters.extremaDistanceMap.spacing)
-            this.parameters.extremaDistanceMap.numBlocks = this.parameters.extremaDistanceMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-            this.parameters.extremaDistanceMap.shape = this.computes.extremaDistanceMap.shape
-            // console.log('extremaDistanceMap', this.parameters.extremaDistanceMap, this.computes.extremaDistanceMap.dataSync())
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`computeExtremaDistanceMap: intensityMap is not computed`)
+
+            if (this.extremaDistanceMap?.tensor) 
+                this.extremaDistanceMap.tensor.dispose()
+
+            this.extremaDistanceMap.tensor = TensorUtils.extremaDistanceMap(this.intensityMap.tensor, division, maxDistance)
+            this.extremaDistanceMap.params = {}
+            this.extremaDistanceMap.params.division = division
+            this.extremaDistanceMap.params.maxDistance = maxDistance
+            this.extremaDistanceMap.params.dimensions = new THREE.Vector3().fromArray(this.extremaDistanceMap.tensor.shape.slice(0, 3).toReversed())
+            this.extremaDistanceMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+            this.extremaDistanceMap.params.size = new THREE.Vector3().copy(this.extremaDistanceMap.params.dimensions).multiply(this.extremaDistanceMap.params.spacing)
+            this.extremaDistanceMap.params.numBlocks = this.extremaDistanceMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+            this.extremaDistanceMap.params.shape = this.extremaDistanceMap.tensor.shape
+
+            // console.log('extremaDistanceMap', this.extremaDistanceMap.params, this.extremaDistanceMap.tensor.dataSync())
         })
     }
 
@@ -209,13 +270,17 @@ export default class VolumeProcessor
     {
         timeit('normalizeIntensityMap', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`normalizeIntensityMap: intensityMap is not computed`)
-            const [normalizedIntensityMap, minValue, maxValue] = TensorUtils.normalize3d(this.computes.intensityMap) 
-            this.computes.intensityMap.dispose()
-            this.computes.intensityMap = normalizedIntensityMap
-            this.parameters.intensityMap.minValue = minValue
-            this.parameters.intensityMap.maxValue = maxValue  
-            // console.log('normalizedIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`normalizeIntensityMap: intensityMap is not computed`)
+
+            const [normalizedIntensityMap, minValue, maxValue] = TensorUtils.normalize3d(this.intensityMap.tensor) 
+
+            this.intensityMap.tensor.dispose()
+            this.intensityMap.tensor = normalizedIntensityMap
+            this.intensityMap.params.minValue = minValue[0]
+            this.intensityMap.params.maxValue = maxValue[0]  
+
+            // console.log('normalizedIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
         })
     }
 
@@ -223,17 +288,21 @@ export default class VolumeProcessor
     {
         timeit('downscaleIntensityMap', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`downscaleIntensityMap: intensityMap is not computed`);
-            const intensityMap = TensorUtils.downscale3d(this.computes.intensityMap, scale)
-            this.computes.intensityMap.dispose()
-            this.computes.intensityMap = intensityMap
-            this.parameters.intensityMap.downScale = scale
-            this.parameters.intensityMap.dimensions = new THREE.Vector3().fromArray(this.computes.intensityMap.shape.slice(0, 3).toReversed())
-            this.parameters.intensityMap.spacing = new THREE.Vector3().copy(this.parameters.volume.spacing).multiplyScalar(scale)
-            this.parameters.intensityMap.size = new THREE.Vector3().copy(this.parameters.intensityMap.dimensions).multiply(this.parameters.intensityMap.spacing)
-            this.parameters.intensityMap.numBlocks = this.parameters.intensityMap.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-            this.parameters.intensityMap.shape = this.computes.intensityMap.shape
-            // console.log('downscaledIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`downscaleIntensityMap: intensityMap is not computed`)
+
+            const intensityMap = TensorUtils.downscale3d(this.intensityMap.tensor, scale)
+
+            this.intensityMap.tensor.dispose()
+            this.intensityMap.tensor = intensityMap
+            this.intensityMap.params.downScale = scale
+            this.intensityMap.params.dimensions = new THREE.Vector3().fromArray(this.intensityMap.tensor.shape.slice(0, 3).toReversed())
+            this.intensityMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(scale)
+            this.intensityMap.params.size = new THREE.Vector3().copy(this.intensityMap.params.dimensions).multiply(this.intensityMap.params.spacing)
+            this.intensityMap.params.numBlocks = this.intensityMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+            this.intensityMap.params.shape = this.intensityMap.tensor.shape
+
+            // console.log('downscaledIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
         })
     }
 
@@ -241,12 +310,16 @@ export default class VolumeProcessor
     {
         timeit('downscaleIntensityMap', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`smoothIntensityMap: intensityMap is not computed`);
-            const downscaledIntensityMap = TensorUtils.smooth3d(this.computes.intensityMap, radius)
-            this.computes.intensityMap.dispose()
-            this.computes.intensityMap = downscaledIntensityMap
-            this.parameters.intensityMap.smoothingRadius = radius
-            // console.log('smoothedIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`smoothIntensityMap: intensityMap is not computed`)
+
+            const downscaledIntensityMap = TensorUtils.smooth3d(this.intensityMap.tensor, radius)
+
+            this.intensityMap.tensor.dispose()
+            this.intensityMap.tensor = downscaledIntensityMap
+            this.intensityMap.params.smoothingRadius = radius
+            
+            // console.log('smoothedIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
         })
     }
 
@@ -254,13 +327,17 @@ export default class VolumeProcessor
     {
         timeit('quantizeIntensityMap', () =>
         {
-            if (!this.computes.intensityMap) throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
-            const [quantizedIntensityMap, minValue, maxValue] = TensorUtils.quantize3d(this.computes.intensityMap) 
-            this.computes.intensityMap.dispose()
-            this.computes.intensityMap = quantizedIntensityMap
-            this.parameters.intensityMap.minValue = minValue
-            this.parameters.intensityMap.maxValue = maxValue  
-            // console.log('quantizedIntensityMap', this.parameters.intensityMap, this.computes.intensityMap.dataSync())
+            if (!this.intensityMap?.tensor) 
+                throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
+
+            const [quantizedIntensityMap, minValue, maxValue] = TensorUtils.quantize3d(this.intensityMap.tensor) 
+
+            this.intensityMap.tensor.dispose()
+            this.intensityMap.tensor = quantizedIntensityMap
+            this.intensityMap.params.minValue = minValue
+            this.intensityMap.params.maxValue = maxValue  
+            
+            // console.log('quantizedIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
         })
     }
 
@@ -268,13 +345,17 @@ export default class VolumeProcessor
     {
         timeit('quantizeGradientMap', () =>
         {
-            if (!this.computes.gradientMap) throw new Error(`quantizeGradientMap: gradientMap is not computed`)
-            const [quantizedGradientMap, minValue, maxValue] = TensorUtils.quantize3d(this.computes.gradientMap) 
-            this.computes.gradientMap.dispose()
-            this.computes.gradientMap = quantizedGradientMap
-            this.parameters.gradientMap.minValue = new THREE.Vector3().fromArray(minValue)
-            this.parameters.gradientMap.maxValue = new THREE.Vector3().fromArray(maxValue) 
-            // console.log('quantizedGradientMap', this.parameters.gradientMap, this.computes.gradientMap.dataSync())
+            if (!this.gradientMap?.tensor) 
+                throw new Error(`quantizeGradientMap: gradientMap is not computed`)
+
+            const [quantizedGradientMap, minValue, maxValue] = TensorUtils.quantize3d(this.gradientMap.tensor) 
+
+            this.gradientMap.tensor.dispose()
+            this.gradientMap.tensor = quantizedGradientMap
+            this.gradientMap.params.minValue = new THREE.Vector3().fromArray(minValue)
+            this.gradientMap.params.maxValue = new THREE.Vector3().fromArray(maxValue) 
+            
+            // console.log('quantizedGradientMap', this.gradientMap.params, this.gradientMap.tensor.dataSync())
         })
     }
 
@@ -282,41 +363,90 @@ export default class VolumeProcessor
     {
         timeit('quantizeTaylorMap', () =>
         {
-            if (!this.computes.taylorMap) throw new Error(`quantizeTaylorMap: taylorMap is not computed`)
-            const [quantizedTaylorMap, minValue, maxValue] = TensorUtils.quantize3d(this.computes.taylorMap) 
-            this.computes.taylorMap.dispose()
-            this.computes.taylorMap = quantizedTaylorMap
-            this.parameters.taylorMap.minValue = new THREE.Vector4().fromArray(minValue)
-            this.parameters.taylorMap.maxValue = new THREE.Vector4().fromArray(maxValue) 
-            // console.log('quantizedTaylorMap', this.parameters.taylorMap, this.computes.taylorMap.dataSync())
+            if (!this.taylorMap?.tensor) 
+                throw new Error(`quantizeTaylorMap: taylorMap is not computed`)
+
+            const [quantizedTaylorMap, minValue, maxValue] = TensorUtils.quantize3d(this.taylorMap.tensor) 
+
+            this.taylorMap.tensor.dispose()
+            this.taylorMap.tensor = quantizedTaylorMap
+            this.taylorMap.params.minValue = new THREE.Vector4().fromArray(minValue)
+            this.taylorMap.params.maxValue = new THREE.Vector4().fromArray(maxValue) 
+            
+            // console.log('quantizedTaylorMap', this.taylorMap.params, this.taylorMap.tensor.dataSync())
         })
     }
 
     // helper functions
 
-    async generateTexture(key, format, type) 
+    getTexture(key, format, type) 
     {
         timeit(`generateTexture(${key})`, () =>
         {
-            if (!this.computes[key]) throw new Error(`${key} is not computed`)
-            if (this.textures[key]) this.textures[key].dispose()
-            this.textures[key] = new THREE.Data3DTexture(this.computes[key].dataSync(), ...this.parameters[key].dimensions.toArray())
-            this.textures[key].format = format
-            this.textures[key].type = type
-            this.textures[key].minFilter = THREE.LinearFilter
-            this.textures[key].magFilter = THREE.LinearFilter
-            this.textures[key].generateMipmaps = false
-            this.textures[key].needsUpdate = true
+            if (!this[key]?.tensor) 
+                throw new Error(`${key} is not computed`)
+
+            if (this[key]?.texture) 
+                this[key].texture.dispose()
+
+            let array
+            switch (type) 
+            {
+                case THREE.FloatType:
+                    array = new Float32Array(this[key].tensor.dataSync())
+                    break
+                case THREE.UnsignedByteType:
+                    array = new Uint8Array(this[key].tensor.dataSync())
+                    break
+                case THREE.UnsignedShortType:
+                    array = new Uint16Array(this[key].tensor.dataSync())
+                    break
+                case THREE.ByteType:
+                    array = new Int8Array(this[key].tensor.dataSync())
+                    break
+                case THREE.ShortType:
+                    array = new Int16Array(this[key].tensor.dataSync())
+                    break
+                case THREE.IntType:
+                    array = new Int32Array(this[key].tensor.dataSync())
+                    break
+                default:
+                    throw new Error(`Unsupported type: ${type}`)
+            }
+
+            let dimensions = this[key].params.dimensions.toArray()
+            this[key].texture = new THREE.Data3DTexture(array, ...dimensions)
+            this[key].texture.format = format
+            this[key].texture.type = type
+            this[key].texture.minFilter = THREE.LinearFilter
+            this[key].texture.magFilter = THREE.LinearFilter
+            this[key].texture.generateMipmaps = false
+            this[key].texture.needsUpdate = true
         })
 
-        return this.textures[key]
+        return this[key].texture
     }
     
-    disposeMap(key) 
+    destroy() 
     {
-        if (this.computes[key]) this.computes[key].dispose()
-        if (this.textures[key]) this.textures[key].dispose()
-        delete this.parameters[key]
+        Object.keys(this).forEach(key => 
+        {
+            // console.log(this[key])
+
+            if (this[key]?.tensor) 
+                this[key].tensor.dispose()
+
+            if (this[key]?.texture) 
+                this[key].texture.dispose()
+
+            if (this[key]?.params) 
+                delete this[key].params
+        })
+
+        this.volume = null;
+        this.renderer = null;
+    
+        console.log("VolumeProcessor destroyed.");
     }
     
 }

@@ -3,11 +3,9 @@
 
 struct Textures 
 {
-    sampler3D volume;
-    sampler3D mask;
-    sampler3D occumaps;
+    sampler3D taylormap;
+    sampler3D distmap;
     sampler2D colormaps;      
-    sampler2D noisemap;
 };
 
 uniform Textures u_textures;

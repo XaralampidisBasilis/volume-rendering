@@ -18,15 +18,14 @@ export default function()
         ({
             dimensions            : new THREE.Vector3(),
             spacing               : new THREE.Vector3(),
+            spacing_length        : 0.0,
             size                  : new THREE.Vector3(),
+            size_length           : 0.0,
             inv_dimensions        : new THREE.Vector3(),
             inv_spacing           : new THREE.Vector3(),
             inv_size              : new THREE.Vector3(),
-            spacing_length        : 0.0,
-            size_length           : 0.0,
             inv_spacing_length    : 0.0,
             inv_size_length       : 0.0,
-
             min_coords            : new THREE.Vector3(),
             max_coords            : new THREE.Vector3(),
             min_position          : new THREE.Vector3(),
@@ -49,7 +48,7 @@ export default function()
 
         u_raymarch: new THREE.Uniform
         ({
-            sample_threshold  : 0.3,
+            sample_threshold  : 0.0,
             min_step_scaling  : 0.5,
             max_step_scaling  : 2.0,
             max_step_count    : 500,
@@ -95,15 +94,15 @@ export default function()
 
     const defines = 
     {           
-        RAY_BBOX_INTERSECTION_ENABLED: 1,
-        RAY_BVH_INTERSECTION_ENABLED : 1,
+        RAY_BBOX_INTERSECTION_ENABLED: 0,
+        RAY_BVOL_INTERSECTION_ENABLED: 0,
         RAY_DITHERING_ENABLED        : 0,
 
-        TRACE_STEP_SCALING_ENABLED       : 1,   
-        TRACE_STEP_STRETCHING_ENABLED    : 1,
-        TRACE_BVH_MARCHING_ENABLED       : 1,
-        TRACE_POSITION_REFINEMENT_ENABLED: 1,
-        TRACE_GRADIENT_REFINEMENT_ENABLED: 1,
+        TRACE_STEP_SCALING_ENABLED       : 0,   
+        TRACE_STEP_STRETCHING_ENABLED    : 0,
+        TRACE_BVH_MARCHING_ENABLED       : 0,
+        TRACE_POSITION_REFINEMENT_ENABLED: 0,
+        TRACE_GRADIENT_REFINEMENT_ENABLED: 0,
 
         FRAGMENT_DISCARDING_DISABLED     : 0,
     }
