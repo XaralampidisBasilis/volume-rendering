@@ -11,6 +11,7 @@ struct Block
     ivec3 max_coords;
     vec3  min_position;
     vec3  max_position;
+    int   skip_count;
 };
 
 Block set_block()
@@ -23,6 +24,7 @@ Block set_block()
     block.max_coords = ivec3(0);  
     block.min_position = vec3(0.0);
     block.max_position = vec3(0.0);
+    block.skip_count = 0;
     return block;
 }
 

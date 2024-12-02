@@ -12,7 +12,6 @@
 #include "./debug_ray_box_span_distance"    
 #include "./debug_ray_box_start_position"   
 #include "./debug_ray_box_end_position"     
-#include "./debug_ray_skip_count"       
 #include "./debug_ray_max_step_count"       
 #include "./debug_ray_max_skip_count" 
 #include "./debug_ray_min_step_stretching"        
@@ -51,5 +50,6 @@
 #include "./debug_trace_total_count"  
 #include "./debug_block_value"    
 #include "./debug_block_occupied"        
-#include "./debug_block_coords"       
+#include "./debug_block_coords"     
+#include "./debug_block_skip_count"       
 

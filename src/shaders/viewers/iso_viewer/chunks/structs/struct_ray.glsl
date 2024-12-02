@@ -20,7 +20,6 @@ struct Ray
     float end_distance;         // ending distance along the current ray from origin for ray march
     float span_distance;        // total distance that can be covered by the current ray for ray march
 
-    int   skip_count;
     int   max_step_count;       // maximum number of steps allowed
     int   max_skip_count;       // maximum number of skips allowed
     float min_step_scaling;     // minimum step scaling for adaptive stepping
@@ -56,7 +55,6 @@ Ray set_ray()
     ray.start_distance     = 0.0;
     ray.end_distance       = 0.0;
     ray.span_distance      = 0.0;
-    ray.skip_count         = 0;
     ray.max_step_count     = 0;
     ray.max_skip_count     = 0;
     ray.min_step_scaling   = 0.0;

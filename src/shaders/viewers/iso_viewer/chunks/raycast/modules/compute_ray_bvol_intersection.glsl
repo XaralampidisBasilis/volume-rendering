@@ -1,11 +1,8 @@
 
-// Set count to zero
-ray.skip_count = 0;
-
 // Compute ray entry with bounding volume
-for (ray.skip_count; ray.skip_count < u_raymarch.max_skip_count; ray.skip_count++) 
+for (block.skip_count = 0; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_count++) 
 {
-    #include "./compute_ray_bvol_intersection/sample_distmap_start
+    #include "./compute_ray_bvol_intersection/update_block_start
     if (block.occupied) break;   
 
     #include "./compute_ray_bvol_intersection/update_ray_start
@@ -13,16 +10,16 @@ for (ray.skip_count; ray.skip_count < u_raymarch.max_skip_count; ray.skip_count+
 }
 
 // Refine ray start at current block
-if (block.occupied && ray.skip_count > 0)  
+if (block.occupied && block.skip_count > 0)  
 {
     #include "./compute_ray_bvol_intersection/refine_ray_start
 }
 
 
 // Compute ray exit with bounding volume
-for (ray.skip_count; ray.skip_count < u_raymarch.max_skip_count; ray.skip_count++) 
+for (block.skip_count; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_count++) 
 {
-    #include "./compute_ray_bvol_intersection/sample_distmap_end
+    #include "./compute_ray_bvol_intersection/update_block_end
     if (block.occupied) break;
 
     #include "./compute_ray_bvol_intersection/update_ray_end
@@ -30,7 +27,7 @@ for (ray.skip_count; ray.skip_count < u_raymarch.max_skip_count; ray.skip_count+
 }
 
 // Refine ray end at current block
-if (block.occupied && ray.skip_count > 0)  
+if (block.occupied && block.skip_count > 0)  
 {
     #include "./compute_ray_bvol_intersection/refine_ray_end
 }
@@ -41,4 +38,9 @@ if (ray.start_distance > ray.end_distance)
 {
     #include "./discard_ray"
 }
+else 
+{
+    ray.span_distance = ray.end_distance - ray.start_distance;
+}
+
 

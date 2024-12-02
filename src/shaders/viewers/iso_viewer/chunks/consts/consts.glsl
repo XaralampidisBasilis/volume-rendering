@@ -19,10 +19,8 @@ const vec3 centered_offsets[8] = vec3[8]
 );
 
 
-// const int RAY_MAX_STEP_COUNT = int(ceil(u_volume.size_length / mmin(u_volume.spacing * u_raymarch.min_step_scaling)));
-// const int RAY_MAX_SKIP_COUNT = sum(u_occumaps.base_dimensions) + 1;
 
-const int MAX_STEP_COUNT = 1000;
-const int MAX_SKIP_COUNT = 500;
-const float MIN_STEP_SCALING = 0.01;
-const float MAX_STEP_SCALING = 5.00;
+const int MAX_TRACE_STEP_COUNT = 1000;
+const int MAX_BLOCK_SKIP_COUNT = 100;
+const float MIN_TRACE_STEP_SCALING = 0.01;
+const float MAX_TRACE_STEP_SCALING = 5.00;
