@@ -4,7 +4,7 @@
 // struct to hold raycast uniforms
 struct Raymarch 
 {
-    float sample_threshold;   
+    float min_value;   
     float min_step_scaling;     
     float max_step_scaling;     
     int   max_step_count;     

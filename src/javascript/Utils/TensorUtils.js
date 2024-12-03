@@ -368,14 +368,14 @@ export function normalize3d(tensor)
 {
     return tf.tidy(() =>
     {
-        const min = tensor.min([0, 1, 2])
-        const max = tensor.max([0, 1, 2])
-        const range = tf.sub(max, min)
-        const shifted = tensor.sub(min)
+        const minValue = tensor.min([0, 1, 2])
+        const maxValue = tensor.max([0, 1, 2])
+        const range = tf.sub(maxValue, minValue)
+        const shifted = tensor.sub(minValue)
         const normalized = shifted.div(range)
         shifted.dispose()
-        const minArray = min.arraySync().slice(0, 3).toReversed()
-        const maxArray = max.arraySync().slice(0, 3).toReversed()        
+        const minArray = minValue.arraySync()
+        const maxArray = maxValue.arraySync()      
         return [normalized, minArray, maxArray]
     })
 }

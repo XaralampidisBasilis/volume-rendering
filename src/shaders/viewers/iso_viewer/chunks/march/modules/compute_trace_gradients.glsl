@@ -12,24 +12,22 @@
  * @return vec4: Gradient vector at the given position as rgb and smoothed sample as alpha
  */
 
-// Sample values at the neighboring points
-float sample_value[8];
-vec3 base_coords = trace.voxel_texture_coords - u_volume.inv_dimensions * 0.5;
-
-#pragma unroll_loop_start
+// Sample neighbors
+float value[8];
+vec3 base_texels = trace.voxel_texels - u_volume.inv_dimensions * 0.5;
 for (int i = 0; i < 8; i++)
 {
-    sample_value[i] = textureOffset(u_textures.volume, base_coords, base_offsets[i]).r;
+    value[i] = textureOffset(u_textures.volume, base_texels, base_offsets[i]).r;
 }
-#pragma unroll_loop_end
 
-// calculate gradient based on the sampled values 
+// Compute gradient
 trace.gradient = vec3(
-    sample_value[4] + sample_value[5] + sample_value[6] + sample_value[7] - sample_value[0] - sample_value[1] - sample_value[2] - sample_value[3],
-    sample_value[2] + sample_value[3] + sample_value[6] + sample_value[7] - sample_value[0] - sample_value[1] - sample_value[4] - sample_value[5],
-    sample_value[1] + sample_value[3] + sample_value[5] + sample_value[7] - sample_value[0] - sample_value[2] - sample_value[4] - sample_value[6]
+    value[4] + value[5] + value[6] + value[7] - value[0] - value[1] - value[2] - value[3],
+    value[2] + value[3] + value[6] + value[7] - value[0] - value[1] - value[4] - value[5],
+    value[1] + value[3] + value[5] + value[7] - value[0] - value[2] - value[4] - value[6]
 );
 
+// Update gradient
 trace.gradient *= u_volume.inv_spacing * 0.25;
 trace.gradient_direction = normalize(trace.gradient);
 trace.gradient_magnitude = length(trace.gradient);

@@ -10,7 +10,7 @@ for (block.skip_count = 0; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_c
 }
 
 // Refine ray start at current block
-if (block.occupied && block.skip_count > 0)  
+if (block.occupied && block.skip_count > 1)  
 {
     #include "./compute_ray_bvol_intersection/refine_ray_start
 }
@@ -27,7 +27,7 @@ for (block.skip_count; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_count
 }
 
 // Refine ray end at current block
-if (block.occupied && block.skip_count > 0)  
+if (block.occupied && block.skip_count > 1)  
 {
     #include "./compute_ray_bvol_intersection/refine_ray_end
 }

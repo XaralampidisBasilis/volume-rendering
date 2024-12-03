@@ -11,11 +11,11 @@ trace.skip_distance = intersect_box_max(block_min_position, block_max_position, 
 trace.skipped_distance += trace.skip_distance;
 
 // update trace
-trace_prev.distance = trace.distance;
+prev_trace.distance = trace.distance;
 trace.distance += trace.skip_distance;
 trace.position = ray.camera_position + ray.step_direction * trace.distance;
 trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
-trace.voxel_texture_coords = trace.position * u_volume.inv_size;
+trace.voxel_texels = trace.position * u_volume.inv_size;
 
 // dont take step next
 trace.step_distance = 0.0;

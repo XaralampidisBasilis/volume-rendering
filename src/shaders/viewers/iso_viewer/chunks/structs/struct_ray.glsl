@@ -6,7 +6,8 @@ struct Ray
 {
     bool  intersected;          // flag indicating if the ray intersected an object
     bool  terminated;           // flag indicating if the ray has reached out of bounds
-    bool  suspended;             // flag indicating if the ray has reached the max step count
+    bool  suspended;            // flag indicating if the ray has reached the max step count
+    bool  discarded;            // flag indicating if the ray has been discarded
 
     vec3  camera_direction;
     vec3  step_direction;       // direction vector for each step along the ray
@@ -45,6 +46,7 @@ Ray set_ray()
     ray.intersected        = false;
     ray.terminated         = false;
     ray.suspended          = false;
+    ray.discarded          = false;
     ray.camera_direction   = vec3(0.0);
     ray.step_direction     = vec3(0.0);
     ray.step_distance      = 0.0;
@@ -68,9 +70,25 @@ Ray set_ray()
     ray.box_end_position   = vec3(0.0);
     ray.box_min_position   = vec3(0.0);
     ray.box_max_position   = vec3(0.0);
-    ray.box_min_distance = 0.0;
+    ray.box_min_distance   = 0.0;
     ray.box_max_distance   = 0.0;
-    ray.box_max_span  = 0.0;
+    ray.box_max_span       = 0.0;
     return ray;
+}
+void discard_ray(inout Ray ray)
+{
+    ray.discarded          = true;
+    ray.step_distance      = 0.0;
+    ray.start_position     = ray.box_end_position;
+    ray.end_position       = ray.box_end_position;
+    ray.start_distance     = ray.box_end_distance;
+    ray.end_distance       = ray.box_end_distance;
+    ray.span_distance      = 0.0;
+    ray.max_step_count     = 0;
+    ray.max_skip_count     = 0;
+    ray.min_step_scaling   = 0.0;
+    ray.max_step_scaling   = 0.0;
+    ray.min_step_distance  = 0.0;
+    ray.max_step_distance  = 0.0;
 }
 #endif // STRUCT_RAY

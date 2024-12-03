@@ -19,7 +19,7 @@ trace.distance -= trace_backstep;
 trace.distance = max(trace.distance, ray.box_start_distance);
 trace.position = ray.camera_position + ray.step_direction * trace.distance;
 trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
-trace.voxel_texture_coords = trace.position * u_volume.inv_size;
+trace.voxel_texels = trace.position * u_volume.inv_size;
 
 // sample trace
 #include "../update_trace_sample"

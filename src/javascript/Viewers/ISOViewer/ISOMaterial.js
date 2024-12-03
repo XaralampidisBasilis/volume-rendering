@@ -49,11 +49,11 @@ export default function()
 
         u_raymarch: new THREE.Uniform
         ({
-            sample_threshold  : 0.0,
-            min_step_scaling  : 0.5,
-            max_step_scaling  : 2.0,
-            max_step_count    : 500,
-            max_skip_count    : 100,
+            min_value        : 0.0,
+            min_step_scaling : 0.5,
+            max_step_scaling : 2.0,
+            max_step_count   : 500,
+            max_skip_count   : 100,
         }),
 
         u_colormap: new THREE.Uniform
@@ -99,9 +99,8 @@ export default function()
         RAY_BVOL_INTERSECTION_ENABLED: 0,
         RAY_DITHERING_ENABLED        : 0,
 
-        TRACE_STEP_SCALING_ENABLED       : 0,   
-        TRACE_STEP_STRETCHING_ENABLED    : 0,
-        TRACE_BVH_MARCHING_ENABLED       : 0,
+        TRACE_ADAPTIVE_STEPPING_ENABLED  : 0,
+        TRACE_SKIPPING_MARCHING_ENABLED  : 0,
         TRACE_POSITION_REFINEMENT_ENABLED: 0,
         TRACE_GRADIENT_REFINEMENT_ENABLED: 0,
 

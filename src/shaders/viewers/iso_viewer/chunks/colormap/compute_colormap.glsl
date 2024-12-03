@@ -5,14 +5,14 @@
  *
  * @input colormap        : uniform containing colormap parameters (uniform_colormap)
  * @input u_textures.colormaps: 2d texture containing the different the colormaps (sampler2D)
- * @input trace.sample_value       : input trace value to be mapped to a color. trace value is in range [0, 1] (float)
+ * @input trace.value       : input trace value to be mapped to a color. trace value is in range [0, 1] (float)
  *
  * @output trace.mapped_color: the mapped rgb color vector corresponding to the input trace value (vec3)
  */
 
 // scale the input trace value using the provided colormap limits 
 // and posterize the result to discrete levels
-float trace_mapped_value = map(u_colormap.thresholds.x, u_colormap.thresholds.y, trace.sample_value);
+float trace_mapped_value = map(u_colormap.thresholds.x, u_colormap.thresholds.y, trace.value);
 trace_mapped_value = posterize(trace_mapped_value, float(u_colormap.levels));
 
 // interpolate the u-coordinate within the colormap texture columns
