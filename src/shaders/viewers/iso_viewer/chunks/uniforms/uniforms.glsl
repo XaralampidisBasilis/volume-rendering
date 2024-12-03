@@ -5,4 +5,4 @@
 #include "./uniform_colormap"
 #include "./uniform_shading"
 #include "./uniform_lighting"
-#include "./uniform_debugger"
+#include "./uniform_debugging"

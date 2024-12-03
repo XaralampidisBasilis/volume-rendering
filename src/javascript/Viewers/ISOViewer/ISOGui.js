@@ -31,7 +31,7 @@ export default class ISOGui
         this.subfolders.colormap = this.folders.viewer.addFolder('colormap').close()
         this.subfolders.shading  = this.folders.viewer.addFolder('shading').close()
         this.subfolders.lighting = this.folders.viewer.addFolder('lighting').close()
-        this.subfolders.debug    = this.folders.viewer.addFolder('debug').close()
+        this.subfolders.debugging = this.folders.viewer.addFolder('debugging').close()
 
         this.addToggles()            
     }
@@ -66,7 +66,7 @@ export default class ISOGui
         this.addControllersColormap() 
         this.addControllersShading() 
         this.addControllersLighting() 
-        this.addControllersDebug() 
+        this.addControllersDebugging() 
         
         // this.setBindings()  
     }
@@ -78,7 +78,7 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.u_rendering.value
         const defines = this.viewer.material.defines
         const objects = { 
-            min_value                    : 0.0,
+            min_value                    : uniforms.min_value,
             RAY_INTERSECT_BBOX_ENABLED   : Boolean(defines.RAY_INTERSECT_BBOX_ENABLED),
             RAY_INTERSECT_BVOL_ENABLED   : Boolean(defines.RAY_INTERSECT_BVOL_ENABLED),
             RAY_DITHERING_ENABLED        : Boolean(defines.RAY_DITHERING_ENABLED),
@@ -157,15 +157,15 @@ export default class ISOGui
         }
     }
     
-    addControllersDebug()
+    addControllersDebugging()
     {
-        const folder = this.subfolders.debug
-        const uniforms = this.viewer.material.uniforms.u_debugger.value
+        const folder = this.subfolders.debugging
+        const uniforms = this.viewer.material.uniforms.u_debugging.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
         const objects = { FRAGMENT_DISCARDING_DISABLED: Boolean(defines.FRAGMENT_DISCARDING_DISABLED) }
 
-        this.controllers.debug = 
+        this.controllers.debugging = 
         {
             option: folder.add(uniforms, 'option').options({ 
                 default                    :  0,
@@ -221,8 +221,8 @@ export default class ISOGui
                 debug_variable3            : 50,
             }),
 
-            variable1 : folder.add(uniforms, 'variable1').min(-1).max(1).step(0.00000001),
-            variable2 : folder.add(uniforms, 'variable2').min(0).max(5).step(0.00000001),
+            variable1 : folder.add(uniforms, 'variable1').min(-2).max(2).step(0.00000001),
+            variable2 : folder.add(uniforms, 'variable2').min(0).max(256).step(0.00000001),
             variable3 : folder.add(uniforms, 'variable3').min(0).max(10).step(1),
             discarding: folder.add(objects, 'FRAGMENT_DISCARDING_DISABLED').name('discarding').onFinishChange((value) => { defines.FRAGMENT_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }

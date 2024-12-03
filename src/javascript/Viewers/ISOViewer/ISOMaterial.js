@@ -26,8 +26,6 @@ export default function()
             inv_size              : new THREE.Vector3(),
             inv_spacing_length    : 0.0,
             inv_size_length       : 0.0,
-            min_coords            : new THREE.Vector3(),
-            max_coords            : new THREE.Vector3(),
             min_position          : new THREE.Vector3(),
             max_position          : new THREE.Vector3(),
             min_gradient          : new THREE.Vector3(),
@@ -49,11 +47,11 @@ export default function()
 
         u_rendering: new THREE.Uniform
         ({
-            min_value        : 0.0,
-            min_step_scaling : 0.5,
+            min_value        : 0.6,
+            min_step_scaling : 0.1,
             max_step_scaling : 2.0,
-            max_step_count   : 500,
-            max_skip_count   : 100,
+            max_step_count   : 1000,
+            max_skip_count   : 200,
         }),
 
         u_colormap: new THREE.Uniform
@@ -84,7 +82,7 @@ export default function()
             position_offset    : new THREE.Vector3(),         // offset position for light source
         }),
 
-        u_debugger: new THREE.Uniform
+        u_debugging: new THREE.Uniform
         ({
             option    : 0,
             variable1 : 0,
@@ -99,10 +97,10 @@ export default function()
         RAY_INTERSECT_BVOL_ENABLED   : 0,
         RAY_DITHERING_ENABLED        : 0,
         TRACE_SKIPPING_ENABLED       : 0,
-        TRACE_STEPPING_ENABLED       : 0,
-        TRACE_REFINE_POSITION_ENABLED: 0,
+        TRACE_STEPPING_ENABLED       : 1,
+        TRACE_REFINE_POSITION_ENABLED: 1,
         TRACE_REFINE_GRADIENT_ENABLED: 0,
-        FRAGMENT_DISCARDING_DISABLED : 0,
+        FRAGMENT_DISCARDING_DISABLED : 1,
     }
 
     const material = new THREE.ShaderMaterial

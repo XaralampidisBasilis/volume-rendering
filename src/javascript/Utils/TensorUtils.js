@@ -316,14 +316,14 @@ export function minPool3d(tensor, filterSize, strides, pad)
     })
 } 
 
-export function separableConv3d(tensor, filters)
+export function separableConv3d(tensor, filters, strides = 1, pad = 'same')
 {
     return tf.tidy(() => 
     {
-        const passX = tf.conv3d(tensor, filters.separableX, 1, 'same')
-        const passY = tf.conv3d(passX, filters.separableY, 1, 'same') 
+        const passX = tf.conv3d(tensor, filters.separableX, strides, pad)
+        const passY = tf.conv3d(passX, filters.separableY, strides, pad) 
         passX.dispose()
-        const passZ = tf.conv3d(passY, filters.separableZ, 1, 'same') 
+        const passZ = tf.conv3d(passY, filters.separableZ, strides, pad) 
         passY.dispose()
         return passZ
     })
@@ -817,7 +817,7 @@ export function extremaDistanceMap(tensor, division, maxDistance)
     
         for (let iter = 0; iter <= maxDistance; iter++) 
         {
-            const conditionUpdate = tf.greaterEqual(minimaMap, maximaMap)
+            const conditionUpdate = tf.greaterEqual (minimaMap, maximaMap)
             const distanceMapUpdate = conditionUpdate.mul(tf.scalar(iter, 'int32'))
             conditionUpdate.dispose()
             

@@ -20,11 +20,11 @@ ray.camera_position = v_camera_position;
 #include "./modules/compute_ray_bvol_intersection.glsl"
 #endif
 
-// Compute ray max steps 
-#include "./modules/compute_ray_max_steps"
-
 // Compute ray step distance
 #include "./modules/compute_ray_step_distance"
+
+// Compute ray max steps 
+#include "./modules/compute_ray_max_steps"
 
 // Compute ray dithering
 #if RAY_DITHERING_ENABLED == 1

@@ -20,14 +20,6 @@ vec3 directional_spacing = abs(ray.step_direction) * u_volume.inv_spacing;
 // calculate the ray spacing as the mean value of ray depths from all parallel rays intersecting the voxel aabb.
 ray.step_distance = 1.0 / sum(directional_spacing);
 
-// handle the reversed scaling case 
-ray.min_step_scaling = min(u_rendering.min_step_scaling, u_rendering.max_step_scaling);
-ray.max_step_scaling = max(u_rendering.min_step_scaling, u_rendering.max_step_scaling);
-
-// Add small tolerance to avoid numerical instabilities when scalings are near
-ray.min_step_scaling = max(ray.min_step_scaling - MILLI_TOLERANCE, MIN_TRACE_STEP_SCALING);
-ray.max_step_scaling = min(ray.max_step_scaling + MILLI_TOLERANCE, MAX_TRACE_STEP_SCALING);
-
 // adjust the ray step_distance using the minimum and maximum stepping factors.
-ray.min_step_distance = ray.step_distance * ray.min_step_scaling;
-ray.max_step_distance = ray.step_distance * ray.max_step_scaling;
+ray.min_step_distance = ray.step_distance * u_rendering.min_step_scaling;
+ray.max_step_distance = ray.step_distance * u_rendering.max_step_scaling;

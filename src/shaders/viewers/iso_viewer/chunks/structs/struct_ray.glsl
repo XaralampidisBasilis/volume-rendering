@@ -4,9 +4,6 @@
 // struct to hold ray parameters and settings for raymarching
 struct Ray 
 {
-    bool  intersected;          // flag indicating if the ray intersected an object
-    bool  terminated;           // flag indicating if the ray has reached out of bounds
-    bool  suspended;            // flag indicating if the ray has reached the max step count
     bool  discarded;            // flag indicating if the ray has been discarded
 
     vec3  camera_direction;
@@ -43,9 +40,6 @@ struct Ray
 Ray set_ray()
 {
     Ray ray;
-    ray.intersected        = false;
-    ray.terminated         = false;
-    ray.suspended          = false;
     ray.discarded          = false;
     ray.camera_direction   = vec3(0.0);
     ray.step_direction     = vec3(0.0);

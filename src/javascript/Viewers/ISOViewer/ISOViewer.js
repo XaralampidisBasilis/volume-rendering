@@ -31,8 +31,6 @@ export default class ISOViewer extends EventEmitter
             this.setMaterial()
             this.setMesh()
             this.trigger('ready')
-
-            console.log(this)
         })
     }
     
@@ -53,8 +51,6 @@ export default class ISOViewer extends EventEmitter
         
         const uVolume = this.material.uniforms.u_volume.value
         const boxParams = this.processor.occupancyBoundingBox.params 
-        uVolume.min_coords.copy(boxParams.minCoords)
-        uVolume.max_coords.copy(boxParams.maxCoords)
         uVolume.min_position.copy(boxParams.minPosition)
         uVolume.max_position.copy(boxParams.maxPosition)      
     }   
@@ -148,8 +144,6 @@ export default class ISOViewer extends EventEmitter
         uVolume.min_gradient.fromArray(taylormapParams.minValue.toArray().slice(1))
         uVolume.max_gradient.fromArray(taylormapParams.maxValue.toArray().slice(1))
         uVolume.max_gradient_length = Math.max(uVolume.max_gradient.length(), uVolume.min_gradient.length())
-        uVolume.min_coords.copy(boxParams.minCoords)
-        uVolume.max_coords.copy(boxParams.maxCoords)
         uVolume.min_position.copy(boxParams.minPosition)
         uVolume.max_position.copy(boxParams.maxPosition)
 
