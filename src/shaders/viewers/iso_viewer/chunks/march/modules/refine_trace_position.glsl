@@ -9,7 +9,7 @@ Trace trace_tmp = trace;
 for (int i = 0; i < 5; i++, trace.step_count++) 
 {
     // update interpolation
-    float interpolation = map(trace_values.x, trace_values.y, u_raymarch.min_value);
+    float interpolation = map(trace_values.x, trace_values.y, u_rendering.min_value);
 
     // update position
     trace.distance = mix(trace_distances.x, trace_distances.y, interpolation);
@@ -20,7 +20,7 @@ for (int i = 0; i < 5; i++, trace.step_count++)
 
     // update value
     trace.value = taylormap_sample.r;
-    trace.value_error = trace.value - u_raymarch.min_value;
+    trace.value_error = trace.value - u_rendering.min_value;
     float interval = step(0.0, trace.value_error);
 
     // update gradient

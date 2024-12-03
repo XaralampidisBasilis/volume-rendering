@@ -11,12 +11,12 @@ ray.camera_position = v_camera_position;
 #include "./modules/compute_ray_box_bounds.glsl"
 
 // Compute intersection of ray with bounding box
-#if RAY_BBOX_INTERSECTION_ENABLED == 1
+#if RAY_INTERSECT_BBOX_ENABLED == 1
 #include "./modules/compute_ray_bbox_intersection.glsl"
 #endif
 
 // Compute intersection of ray with bounding volume
-#if RAY_BVOL_INTERSECTION_ENABLED == 1
+#if RAY_INTERSECT_BVOL_ENABLED == 1
 #include "./modules/compute_ray_bvol_intersection.glsl"
 #endif
 

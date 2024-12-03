@@ -1,8 +1,8 @@
-#ifndef UNIFORM_RAYMARCH
-#define UNIFORM_RAYMARCH
+#ifndef UNIFORM_RENDERING
+#define UNIFORM_RENDERING
 
 // struct to hold raycast uniforms
-struct Raymarch 
+struct Rendering 
 {
     float min_value;   
     float min_step_scaling;     
@@ -11,6 +11,6 @@ struct Raymarch
     int   max_skip_count;   
 };
 
-uniform Raymarch u_raymarch;
+uniform Rendering u_rendering;
 
-#endif // UNIFORM_RAYMARCH
+#endif // UNIFORM_RENDERING

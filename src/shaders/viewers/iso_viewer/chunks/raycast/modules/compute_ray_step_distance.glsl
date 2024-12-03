@@ -6,8 +6,8 @@
  *
  * @input u_volume.inv_spacing    : The inverse of the volume's voxel spacing in each direction (vec3)
  * @input ray.step_direction           : The normalized direction vector of the ray (vec3)
- * @input u_raymarch.min_step_scaling  : The minimum allowable stepping factor (float)
- * @input u_raymarch.max_step_scaling  : The maximum allowable stepping factor (float)
+ * @input u_rendering.min_step_scaling  : The minimum allowable stepping factor (float)
+ * @input u_rendering.max_step_scaling  : The maximum allowable stepping factor (float)
  *
  * @output ray.step_distance            : The computed ray spacing as the mean depth for voxel AABB intersections (float)
  * @output ray.min_spacing        : The minimum ray spacing based on the computed spacing (float)
@@ -21,8 +21,8 @@ vec3 directional_spacing = abs(ray.step_direction) * u_volume.inv_spacing;
 ray.step_distance = 1.0 / sum(directional_spacing);
 
 // handle the reversed scaling case 
-ray.min_step_scaling = min(u_raymarch.min_step_scaling, u_raymarch.max_step_scaling);
-ray.max_step_scaling = max(u_raymarch.min_step_scaling, u_raymarch.max_step_scaling);
+ray.min_step_scaling = min(u_rendering.min_step_scaling, u_rendering.max_step_scaling);
+ray.max_step_scaling = max(u_rendering.min_step_scaling, u_rendering.max_step_scaling);
 
 // Add small tolerance to avoid numerical instabilities when scalings are near
 ray.min_step_scaling = max(ray.min_step_scaling - MILLI_TOLERANCE, MIN_TRACE_STEP_SCALING);

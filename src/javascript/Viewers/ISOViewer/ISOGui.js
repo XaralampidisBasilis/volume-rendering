@@ -27,7 +27,7 @@ export default class ISOGui
     addSubfolders()
     {
         this.subfolders          = {}
-        this.subfolders.raymarch = this.folders.viewer.addFolder('raymarch').close()
+        this.subfolders.rendering = this.folders.viewer.addFolder('rendering').close()
         this.subfolders.colormap = this.folders.viewer.addFolder('colormap').close()
         this.subfolders.shading  = this.folders.viewer.addFolder('shading').close()
         this.subfolders.lighting = this.folders.viewer.addFolder('lighting').close()
@@ -62,7 +62,7 @@ export default class ISOGui
     addControllers()
     {
         this.controllers = {}
-        this.addControllersRaymarch() 
+        this.addControllersRendering() 
         this.addControllersColormap() 
         this.addControllersShading() 
         this.addControllersLighting() 
@@ -71,40 +71,38 @@ export default class ISOGui
         // this.setBindings()  
     }
 
-    addControllersRaymarch() 
+    addControllersRendering() 
     {
-        const folder = this.subfolders.raymarch
+        const folder = this.subfolders.rendering
         const material = this.viewer.material
-        const uniforms = this.viewer.material.uniforms.u_raymarch.value
+        const uniforms = this.viewer.material.uniforms.u_rendering.value
         const defines = this.viewer.material.defines
         const objects = { 
-            min_value                 : 0.0,
-            RAY_BBOX_INTERSECTION_ENABLED    : Boolean(defines.RAY_BBOX_INTERSECTION_ENABLED),
-            RAY_BVOL_INTERSECTION_ENABLED    : Boolean(defines.RAY_BVOL_INTERSECTION_ENABLED),
-            RAY_DITHERING_ENABLED            : Boolean(defines.RAY_DITHERING_ENABLED),
-            TRACE_POSITION_REFINEMENT_ENABLED: Boolean(defines.TRACE_POSITION_REFINEMENT_ENABLED),
-            TRACE_GRADIENT_REFINEMENT_ENABLED: Boolean(defines.TRACE_GRADIENT_REFINEMENT_ENABLED),
-            TRACE_BVH_MARCHING_ENABLED       : Boolean(defines.TRACE_BVH_MARCHING_ENABLED),
-            TRACE_STEP_SCALING_ENABLED       : Boolean(defines.TRACE_STEP_SCALING_ENABLED),
-            TRACE_STEP_STRETCHING_ENABLED    : Boolean(defines.TRACE_STEP_STRETCHING_ENABLED),
+            min_value                    : 0.0,
+            RAY_INTERSECT_BBOX_ENABLED   : Boolean(defines.RAY_INTERSECT_BBOX_ENABLED),
+            RAY_INTERSECT_BVOL_ENABLED   : Boolean(defines.RAY_INTERSECT_BVOL_ENABLED),
+            RAY_DITHERING_ENABLED        : Boolean(defines.RAY_DITHERING_ENABLED),
+            TRACE_SKIPPING_ENABLED       : Boolean(defines.TRACE_SKIPPING_ENABLED),
+            TRACE_STEPPING_ENABLED       : Boolean(defines.TRACE_STEPPING_ENABLED),
+            TRACE_REFINE_POSITION_ENABLED: Boolean(defines.TRACE_REFINE_POSITION_ENABLED),
+            TRACE_REFINE_GRADIENT_ENABLED: Boolean(defines.TRACE_REFINE_GRADIENT_ENABLED),
         }
     
 
-        this.controllers.raymarch = 
+        this.controllers.rendering = 
         {
-            minValue              : folder.add(objects, 'min_value').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.min_value = value, this.viewer.updateBoundingBox(value),  this.viewer.updateDistmap(value, 4) }),
-            minStepScale          : folder.add(uniforms, 'min_step_scaling').min(0.001).max(5).step(0.001),
-            maxStepScale          : folder.add(uniforms, 'max_step_scaling').min(0.001).max(5).step(0.001),
-            maxStepCount          : folder.add(uniforms, 'max_step_count').min(0).max(1000).step(1),
-            maxSkipCount          : folder.add(uniforms, 'max_skip_count').min(0).max(200).step(1),
-            enableBboxIntersection: folder.add(objects, 'RAY_BBOX_INTERSECTION_ENABLED').name('enable_bbox_intersection').onFinishChange((value) => { defines.RAY_BBOX_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
-            enableBVolIntersection: folder.add(objects, 'RAY_BVOL_INTERSECTION_ENABLED').name('enable_bvh_intersection').onFinishChange((value) => { defines.RAY_BVOL_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
-            enableDithering       : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
-            enablePosRefinement   : folder.add(objects, 'TRACE_POSITION_REFINEMENT_ENABLED').name('enable_position_refinement').onFinishChange((value) => { defines.TRACE_POSITION_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
-            enableGradRefinement  : folder.add(objects, 'TRACE_GRADIENT_REFINEMENT_ENABLED').name('enable_gradient_refinement').onFinishChange((value) => { defines.TRACE_GRADIENT_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
-            enableBVHMarching     : folder.add(objects, 'TRACE_BVH_MARCHING_ENABLED').name('enable_bvh_marching').onFinishChange((value) => { defines.TRACE_BVH_MARCHING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableStepScaling     : folder.add(objects, 'TRACE_STEP_SCALING_ENABLED').name('enable_step_scaling').onFinishChange((value) => { defines.TRACE_STEP_SCALING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableStepStretching  : folder.add(objects, 'TRACE_STEP_STRETCHING_ENABLED').name('enable_step_stretching').onFinishChange((value) => { defines.TRACE_STEP_STRETCHING_ENABLED = Number(value), material.needsUpdate = true }),
+            minValue           : folder.add(objects, 'min_value').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.min_value = value, this.viewer.updateBoundingBox(value),  this.viewer.updateDistmap(value, 4) }),
+            minStepScale       : folder.add(uniforms, 'min_step_scaling').min(0.001).max(5).step(0.001),
+            maxStepScale       : folder.add(uniforms, 'max_step_scaling').min(0.001).max(5).step(0.001),
+            maxStepCount       : folder.add(uniforms, 'max_step_count').min(0).max(1000).step(1),
+            maxSkipCount       : folder.add(uniforms, 'max_skip_count').min(0).max(200).step(1),
+            enableIntersectBbox: folder.add(objects, 'RAY_INTERSECT_BBOX_ENABLED').name('enable_intersect_bbox').onFinishChange((value) => { defines.RAY_INTERSECT_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
+            enableIntersectBvol: folder.add(objects, 'RAY_INTERSECT_BVOL_ENABLED').name('enable_intersect_bvol').onFinishChange((value) => { defines.RAY_INTERSECT_BVOL_ENABLED = Number(value), material.needsUpdate = true }),
+            enableDithering    : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableStepping     : folder.add(objects, 'TRACE_STEPPING_ENABLED').name('enable_stepping').onFinishChange((value) => { defines.TRACE_STEPPING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipping     : folder.add(objects, 'TRACE_SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.TRACE_SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableRefinePos    : folder.add(objects, 'TRACE_REFINE_POSITION_ENABLED').name('enable_refine_position').onFinishChange((value) => { defines.TRACE_REFINE_POSITION_ENABLED = Number(value), material.needsUpdate = true }),
+            enableRefineGrad   : folder.add(objects, 'TRACE_REFINE_GRADIENT_ENABLED').name('enable_refine_gradient').onFinishChange((value) => { defines.TRACE_REFINE_GRADIENT_ENABLED = Number(value), material.needsUpdate = true }),
         }
 
     }
@@ -235,25 +233,25 @@ export default class ISOGui
     setBindings()
     {
     
-        // raymarch threshold controller
-        this.controllers.raymarch.threshold
+        // rendering threshold controller
+        this.controllers.rendering.threshold
         .onChange(() => 
         {
-            this.displaceColormapLow() // displace colormap low based on raymarch threshold
-            this.displaceColormapHigh()  // displace colormap high based on raymarch threshold
+            this.displaceColormapLow() // displace colormap low based on rendering threshold
+            this.displaceColormapHigh()  // displace colormap high based on rendering threshold
         })
 
-        // cap colormap low based on raymarch threshold
+        // cap colormap low based on rendering threshold
         this.controllers.colormap.low.onChange(() => this.capColormapLow())
 
-        // cap colormap high based on raymarch threshold
+        // cap colormap high based on rendering threshold
         this.controllers.colormap.high.onChange(() => this.capColormapHigh())
 
-        // cap raymarch spacing min based on spacing max
-        this.controllers.raymarch.steppingMin.onChange(() => this.capRaycastSpacingMin())
+        // cap rendering spacing min based on spacing max
+        this.controllers.rendering.steppingMin.onChange(() => this.capRaycastSpacingMin())
 
-        // cap raymarch spacing max based on spacing min
-        this.controllers.raymarch.steppingMax.onChange(() => this.capRaycastSpacingMax())
+        // cap rendering spacing max based on spacing min
+        this.controllers.rendering.steppingMax.onChange(() => this.capRaycastSpacingMax())
     }
 
     capRaycastSpacingMin()
@@ -270,12 +268,12 @@ export default class ISOGui
 
     capRaycastSpacingMax()
     {
-        this.controllers.raymarch.steppingMax.setValue
+        this.controllers.rendering.steppingMax.setValue
         (
             Math.max
             (
-                this.controllers.raymarch.steppingMin.getValue(),
-                this.controllers.raymarch.steppingMax.getValue()
+                this.controllers.rendering.steppingMin.getValue(),
+                this.controllers.rendering.steppingMax.getValue()
             )
         ).updateDisplay()
     }
@@ -287,7 +285,7 @@ export default class ISOGui
             Math.min
             (
                 this.controllers.colormap.low.getValue(), 
-                this.controllers.raymarch.sampleThreshold.getValue()
+                this.controllers.rendering.sampleThreshold.getValue()
             )
         ).updateDisplay()
     }
@@ -298,7 +296,7 @@ export default class ISOGui
         (
             Math.max
             (
-                this.controllers.raymarch.sampleThreshold.getValue(),
+                this.controllers.rendering.sampleThreshold.getValue(),
                 this.controllers.colormap.high.getValue()
             )
         ).updateDisplay()
@@ -311,7 +309,7 @@ export default class ISOGui
             Math.min
             (
                 this.controllers.colormap.low.getValue(),            
-                this.controllers.raymarch.sampleThreshold.getValue(),
+                this.controllers.rendering.sampleThreshold.getValue(),
                 this.controllers.colormap.high.getValue()
             )
         ).updateDisplay()
@@ -324,7 +322,7 @@ export default class ISOGui
             Math.max
             (
                 this.controllers.colormap.low.getValue(), 
-                this.controllers.raymarch.sampleThreshold.getValue(), 
+                this.controllers.rendering.sampleThreshold.getValue(), 
                 this.controllers.colormap.high.getValue()
             )
         ).updateDisplay()

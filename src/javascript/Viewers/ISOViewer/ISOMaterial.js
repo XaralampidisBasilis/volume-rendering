@@ -47,7 +47,7 @@ export default function()
             inv_size      : new THREE.Vector3(),
         }),
 
-        u_raymarch: new THREE.Uniform
+        u_rendering: new THREE.Uniform
         ({
             min_value        : 0.0,
             min_step_scaling : 0.5,
@@ -95,16 +95,14 @@ export default function()
 
     const defines = 
     {           
-        RAY_BBOX_INTERSECTION_ENABLED: 0,
-        RAY_BVOL_INTERSECTION_ENABLED: 0,
+        RAY_INTERSECT_BBOX_ENABLED   : 0,
+        RAY_INTERSECT_BVOL_ENABLED   : 0,
         RAY_DITHERING_ENABLED        : 0,
-
-        TRACE_ADAPTIVE_STEPPING_ENABLED  : 0,
-        TRACE_SKIPPING_MARCHING_ENABLED  : 0,
-        TRACE_POSITION_REFINEMENT_ENABLED: 0,
-        TRACE_GRADIENT_REFINEMENT_ENABLED: 0,
-
-        FRAGMENT_DISCARDING_DISABLED     : 0,
+        TRACE_SKIPPING_ENABLED       : 0,
+        TRACE_STEPPING_ENABLED       : 0,
+        TRACE_REFINE_POSITION_ENABLED: 0,
+        TRACE_REFINE_GRADIENT_ENABLED: 0,
+        FRAGMENT_DISCARDING_DISABLED : 0,
     }
 
     const material = new THREE.ShaderMaterial
