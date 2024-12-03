@@ -710,10 +710,10 @@ export function compactMipmaps(mipmaps)
  *
  * @param {tf.Tensor} occupancyMap - A occupancyMap representing the input data where the distance map is computed.
  * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of distance calculation.
- * @param {number} maxDistance - The maximum distance to compute for the distance map. 
+ * @param {number} maxIters - The maximum distance to compute for the distance map. 
  * @returns {tf.Tensor} - A tensor of the same shape as the input, containing the computed Chebyshev distance map.
  */
-export function occupancyDistanceMap(tensor, threshold, division, maxDistance) 
+export function occupancyDistanceMap(tensor, threshold, division, maxIters) 
 {
     return tf.tidy(() => 
     {
@@ -723,7 +723,7 @@ export function occupancyDistanceMap(tensor, threshold, division, maxDistance)
         let diffusionPrev = tf.zeros(diffusionNext.shape, 'bool')
         let distanceMap = tf.zeros(diffusionNext.shape, 'int32')
     
-        for (let iter = 0; iter <= maxDistance; iter++) 
+        for (let iter = 0; iter <= maxIters; iter++) 
         {
             const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
             const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(iter, 'int32'))
@@ -741,7 +741,7 @@ export function occupancyDistanceMap(tensor, threshold, division, maxDistance)
         }
         
         const diffusionUpdate = tf.logicalNot(diffusionPrev)
-        const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(maxDistance, 'int32'))
+        const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(maxIters, 'int32'))
         diffusionUpdate.dispose()
     
         const distanceMapTemp = distanceMap.add(distanceMapUpdate);

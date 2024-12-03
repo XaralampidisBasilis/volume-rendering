@@ -36,30 +36,38 @@ export default class ISOViewer extends EventEmitter
     
     async precompute()
     {
+        const uRendering = this.material.uniforms.u_rendering.value
+        const uDistmap = this.material.uniforms.u_distmap.value
+
         await this.processor.computeIntensityMap()
         await this.processor.normalizeIntensityMap()
         await this.processor.computeGradientMap()
         await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
         await this.processor.quantizeTaylorMap()
-        await this.processor.computeOccupancyBoundingBox(0)
-        await this.processor.computeOccupancyDistanceMap(0, 4, 50)
+        await this.processor.computeOccupancyBoundingBox(uRendering.min_value)
+        await this.processor.computeOccupancyDistanceMap(uRendering.min_value, uDistmap.division, 50)
     }
 
-    async updateBoundingBox(threshold)
+    async updateBoundingBox()
     {
-        await this.processor.computeOccupancyBoundingBox(threshold)
-        
+        const uRendering = this.material.uniforms.u_rendering.value
         const uVolume = this.material.uniforms.u_volume.value
+
+        await this.processor.computeOccupancyBoundingBox(uRendering.min_value)
+        
         const boxParams = this.processor.occupancyBoundingBox.params 
         uVolume.min_position.copy(boxParams.minPosition)
         uVolume.max_position.copy(boxParams.maxPosition)      
     }   
 
-    async updateDistmap(threshold, division)
+    async updateDistmap()
     {
-        await this.processor.computeOccupancyDistanceMap(threshold, division, 50)
-        
+        const uRendering = this.material.uniforms.u_rendering.value
         const uDistmap = this.material.uniforms.u_distmap.value
+        const uTextures = this.material.uniforms.u_textures.value
+
+        await this.processor.computeOccupancyDistanceMap(uRendering.min_value, uDistmap.division, 50)
+        
         const distmapParams =  this.processor.occupancyDistanceMap.params
         uDistmap.max_distance = distmapParams.maxDistance
         uDistmap.division = distmapParams.division
@@ -70,7 +78,6 @@ export default class ISOViewer extends EventEmitter
         uDistmap.inv_spacing.copy(distmapParams.invSpacing)
         uDistmap.inv_size.copy(distmapParams.invSize)
 
-        const uTextures = this.material.uniforms.u_textures.value
         uTextures.distmap.dispose()
         uTextures.distmap = this.processor.getTexture('occupancyDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
         uTextures.distmap.needsUpdate = true

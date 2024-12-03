@@ -91,7 +91,7 @@ export default class ISOGui
 
         this.controllers.rendering = 
         {
-            minValue           : folder.add(objects, 'min_value').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.min_value = value, this.viewer.updateBoundingBox(value),  this.viewer.updateDistmap(value, 4) }),
+            minValue           : folder.add(objects, 'min_value').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.min_value = value, this.viewer.updateBoundingBox(),  this.viewer.updateDistmap() }),
             minStepScale       : folder.add(uniforms, 'min_step_scaling').min(0.001).max(5).step(0.001),
             maxStepScale       : folder.add(uniforms, 'max_step_scaling').min(0.001).max(5).step(0.001),
             maxStepCount       : folder.add(uniforms, 'max_step_count').min(0).max(1000).step(1),

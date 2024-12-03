@@ -173,7 +173,7 @@ export default class VolumeProcessor
         })        
     }
 
-    async computeOccupancyDistanceMap(threshold = 0, division = 4, maxDistance = 255)
+    async computeOccupancyDistanceMap(threshold = 0, division = 2, maxIters = 255)
     {
         timeit('computeOccupancyDistanceMap', () =>
         {
@@ -183,7 +183,7 @@ export default class VolumeProcessor
             if (this.occupancyDistanceMap?.tensor) 
                 this.occupancyDistanceMap.tensor.dispose()
 
-            this.occupancyDistanceMap.tensor = TensorUtils.occupancyDistanceMap(this.intensityMap.tensor, threshold, division, maxDistance)
+            this.occupancyDistanceMap.tensor = TensorUtils.occupancyDistanceMap(this.intensityMap.tensor, threshold, division, maxIters)
 
             this.occupancyDistanceMap.params = {}
             this.occupancyDistanceMap.params.threshold = threshold
