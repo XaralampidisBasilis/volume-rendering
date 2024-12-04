@@ -5,7 +5,7 @@
 // formulas in desmos : https://www.desmos.com/calculator/ovekxhisxy
 // glsl code in desmos : https://www.desmos.com/calculator/4anckbpwml
 
-float inverse_softstep(const in float edge0, const in float edge1, const in float x)
+float inverse_softstep(in float edge0, in float edge1, in float x)
 {
     float t = map(edge0, edge1, x);
     float g = 3.0;              // best approximation to inverse smoothstep
@@ -26,7 +26,7 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
     return mix(y, 1.0 - y, is_above);
 }
 
-float inverse_softstep(const in float edge0, const in float edge1, const in float x, const in float slope)
+float inverse_softstep(in float edge0, in float edge1, in float x, in float slope)
 {
     float t = map(edge0, edge1, x);
     float g = 1.0 / max(slope, NANO_TOLERANCE);
@@ -47,7 +47,7 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
     return mix(y, 1.0 - y, is_above);
 }
 
-float inverse_softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_infex)
+float inverse_softstep(in float edge0, in float edge1, in float x, in float slope, in float p_infex)
 {
     float t = map(edge0, edge1, x);
     float g = 1.0 / max(slope, NANO_TOLERANCE);
@@ -68,7 +68,7 @@ float inverse_softstep(const in float edge0, const in float edge1, const in floa
     return mix(y, 1.0 - y, is_above);
 }
 
-float inverse_softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_infex, const in float q_infex)
+float inverse_softstep(in float edge0, in float edge1, in float x, in float slope, in float p_infex, in float q_infex)
 {
     float t = map(edge0, edge1, x);
     float g = 1.0 / max(slope, NANO_TOLERANCE);

@@ -7,6 +7,6 @@ ray.max_step_count = min(ray.max_step_count, u_rendering.max_step_count);
 ray.max_step_count = min(ray.max_step_count, MAX_TRACE_STEP_COUNT);
 
 float min_skip_distance = mmin(u_distmap.spacing);
-// ray.max_skip_count = int(ceil(ray.span_distance / min_skip_distance));
-// ray.max_skip_count = min(ray.max_skip_count, u_rendering.max_skip_count);
-// ray.max_skip_count = min(ray.max_skip_count, MAX_BLOCK_SKIP_COUNT);
+ray.max_skip_count = int(ceil(ray.span_distance / min_skip_distance));
+ray.max_skip_count = min(ray.max_skip_count, u_rendering.max_skip_count);
+ray.max_skip_count = min(ray.max_skip_count, MAX_BLOCK_SKIP_COUNT);

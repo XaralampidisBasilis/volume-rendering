@@ -16,7 +16,7 @@
 #ifndef SOFTSTEP
 #define SOFTSTEP
 
-float softstep(const in float edge0, const in float edge1, const in float x)
+float softstep(in float edge0, in float edge1, in float x)
 {
     float t = map(edge0, edge1, x);
     float g = 1.5;                      // best approximation to smoothstep
@@ -37,7 +37,7 @@ float softstep(const in float edge0, const in float edge1, const in float x)
     return mix(s, 1.0 - s, is_above);
 }
 
-float softstep(const in float edge0, const in float edge1, const in float x, const in float slope)
+float softstep(in float edge0, in float edge1, in float x, in float slope)
 {
     float t = map(edge0, edge1, x);
     float g = 1.0 / max(1.0 - slope, MICRO_TOLERANCE);
@@ -58,7 +58,7 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
     return mix(s, 1.0 - s, is_above);
 }
 
-float softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_inflex)
+float softstep(in float edge0, in float edge1, in float x, in float slope, in float p_inflex)
 {
     float t = map(edge0, edge1, x);
     float g = 1.0 / max(1.0 - slope, MICRO_TOLERANCE);
@@ -79,7 +79,7 @@ float softstep(const in float edge0, const in float edge1, const in float x, con
     return mix(s, 1.0 - s, is_above);
 }
 
-float softstep(const in float edge0, const in float edge1, const in float x, const in float slope, const in float p_inflex, const in float q_inflex)
+float softstep(in float edge0, in float edge1, in float x, in float slope, in float p_inflex, in float q_inflex)
 {
     float t = map(edge0, edge1, x);
     float g = 1.0 / max(1.0 - slope, MICRO_TOLERANCE);

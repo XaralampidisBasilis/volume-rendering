@@ -2,7 +2,7 @@
 #define SOFTSTEP_CASES
 
 // softstep with inflex point (1,1)
-float sinkstep(const in float edge0, const in float edge1, const in float x, const in float slope)
+float sinkstep(in float edge0, in float edge1, in float x, in float slope)
 {
     float t = map(edge0, edge1, x);
     float t_inv = 1.0 - t;
@@ -14,7 +14,7 @@ float sinkstep(const in float edge0, const in float edge1, const in float x, con
 }
 
 // softstep with inflex point (0,0)
-float hillstep(const in float edge0, const in float edge1, const in float x, const in float slope)
+float hillstep(in float edge0, in float edge1, in float x, in float slope)
 {
     float t = map(edge0, edge1, x);
     float t_inv = 1.0 - t;
