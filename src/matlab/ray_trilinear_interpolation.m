@@ -1,11 +1,11 @@
 % Define symbolic variables
 syms f000 f100 f010 f001 f110 f101 f011 f111 
 syms d000 d100 d010 d001 d110 d101 d011 d111 
-syms ox oy oz dx dy dz t 
+syms ox oy oz nx ny nz t 
 syms x y z
 assume([f000 f100 f010 f001 f110 f101 f011 f111 ...
         d000 d100 d010 d001 d110 d101 d011 d111 ...
-        ox oy oz dx dy dz t ...
+        ox oy oz nx ny nz t ...
         x y z], 'real')
 
 % Define the trilinear coefficients
@@ -22,10 +22,10 @@ c111 = (0 + x) * (0 + y) * (0 + z) * f111;
 c = c000 + c100 + c010 + c001 + c110 + c101 + c011 + c111;
 
 % Substitute variables
-c = subs(c, [x, y, z], [ox + dx * t, oy + dy * t, oz + dz * t]);
+c = subs(c, [x, y, z], [ox + nx * t, oy + ny * t, oz + nz * t]);
 
 % Extract coefficients with respect to t
-[c_coeffs, c_terms] = coeffs(c, [t, dx, dy, dz, ox, oy, oz]);
+[c_coeffs, c_terms] = coeffs(c, [t, nx, ny, nz, ox, oy, oz]);
 c_coeffs = simplify(c_coeffs);
 f_coeffs = unique(c_coeffs);
 
@@ -53,7 +53,7 @@ a = simplify(subs(c, [f000 f001 f010 f100 f011 f101 f110 f111], [ ...
     d111 + d011 + d101 + d110 + d100 + d010 + d001 + d000, ...
 ]));
 
-[a_coeffs, a_terms] = coeffs(a, [t, dx, dy, dz, ox, oy, oz]);
+[a_coeffs, a_terms] = coeffs(a, [t, nx, ny, nz, ox, oy, oz]);
 
 disp([a_coeffs(:), a_terms(:)])
 
@@ -69,15 +69,15 @@ d101 = f000 - f001 - f100 + f101;
 d110 = f000 - f010 - f100 + f110;
 d111 = f001 - f000 + f010 - f011 + f100 - f101 - f110 + f111;
 
-cubic_coeffs_1 = dx * dy * dz * d111;
+cubic_coeffs_1 = nx * ny * nz * d111;
 
-cubic_coeffs_2 = dx * dy * (oz * d111 + d110) ...
-               + dy * dz * (ox * d111 + d011) ...
-               + dx * dz * (oy * d111 + d101);
+cubic_coeffs_2 = nx * ny * (oz * d111 + d110) ...
+               + ny * nz * (ox * d111 + d011) ...
+               + nx * nz * (oy * d111 + d101);
 
-cubic_coeffs_3 = dx * (oy * oz * d111 + oy * d110 + oz * d101 + d100) ...
-               + dy * (ox * oz * d111 + ox * d110 + oz * d011 + d010) ...
-               + dz * (ox * oy * d111 + ox * d101 + oy * d011 + d001);
+cubic_coeffs_3 = nx * (oy * oz * d111 + oy * d110 + oz * d101 + d100) ...
+               + ny * (ox * oz * d111 + ox * d110 + oz * d011 + d010) ...
+               + nz * (ox * oy * d111 + ox * d101 + oy * d011 + d001);
 
 cubic_coeffs_4 = ox * oy * oz * d111 ...
                     + ox * oy * d110 ...
@@ -95,19 +95,66 @@ disp(simplify(c_result - c))
 
 %% Glsl specific implementation
 
-vec4 d1 = vec4(d100, d010, d001, d111);
-vec4 d2 = vec4(d011, d101, d110, d111);
-vec4 o = vec4(ox, oy, oz, 1.0);
-vec4 d = vec4(dx, dy, dz, 1.0);
-vec4 oo = vec4(ox * oy, oy * oz, ox * oz, 1.0);
-vec4 dd = vec4(dy * dz, dx * dz, dx * dy, 1.0);
+% Reverse Mapping
+d000 = f000;
+d001 = f001 - f000;
+d010 = f010 - f000;
+d100 = f100 - f000;
+d011 = f000 - f001 - f010 + f011;
+d101 = f000 - f001 - f100 + f101;
+d110 = f000 - f010 - f100 + f110;
+d111 = f001 - f000 + f010 - f011 + f100 - f101 - f110 + f111;
 
-vec4 cubic_coeffs = vec4
-(
-    d.x * d.y * d.z * d1.w,
-    dot(dd.xyz, vec3(dot(o.xw, d2.wx), dot(o.yw, d2.wy), dot(o.zw, d2.wz))),
-    dot(d.xyz, vec3(dot(o.yz, d2.zy), dot(o.xz, d2.zx), dot(o.xy, d2.yx)) + vec3(dot(oo.xw, d1.wx), dot(oo.yw, d1.wy), dot(oo.zw, d1.wz))),
-    o.x * o.y * o.z * d1.w + dot(o.xyz, d1.xyz) + dot(oo.xyz, d2.zyx) + d000
-);
+% GLSL CODE
+% vec4 d1 = vec4(d100, d010, d001, d111);
+% vec4 d2 = vec4(d011, d101, d110, d111);
+% vec4 o = vec4(ox, oy, oz, 1.0);
+% vec4 n = vec4(nx, ny, nz, 1.0);
+% vec4 oo = o.yzxw * o.zxyw // vec4(oy * oz, ox * oz, ox * oy, 1.0);
+% vec4 nn = n.yzxw * n.zxyw // vec4(ny * nz, nx * nz, nx * ny, 1.0);
 
 
+% vec4 cubic_coeffs = vec4
+% (
+%     d111 * prod(n),
+%     dot(nn.xyz, vec3(
+%         dot(d2.wx, o.xw), 
+%         dot(d2.wy, o.yw), 
+%         dot(d2.wz, o.zw))),
+%     dot(n.xyz, vec3(
+%         dot(d2.zy, o.yz) + dot(d1.wx, oo.xw), 
+%         dot(d2.zx, o.xz) + dot(d1.wy, oo.yw), 
+%         dot(d2.yx, o.xy) + dot(d1.wz, oo.zw))),
+%     d111 * prod(o) + d000
+%       + dot(d1.xyz,  o.xyz) 
+%       + dot(d2.xyz, oo.xyz) 
+% );
+
+% TRANSLATED MATLAB CODE
+d1 = [d100, d010, d001, d111]; 
+d2 = [d011, d101, d110, d111]; 
+o = [ox, oy, oz, 1.0];         
+n = [nx, ny, nz, 1.0];         
+
+% Compute mixed terms
+oo = o([2, 3, 1, 4]) .* o([3, 1, 2, 4]); % Equivalent to o.yzxw * o.zxyw
+nn = n([2, 3, 1, 4]) .* n([3, 1, 2, 4]); % Equivalent to n.yzxw * n.zxyw
+
+% Compute cubic coefficients
+cubic_coeffs = [
+    d111 * prod(n(1:3)), ...
+
+    dot(nn(1:3), [dot(d2([4,1]), o([1,4])), ...
+                  dot(d2([4,2]), o([2,4])), ...
+                  dot(d2([4,3]), o([3,4]))]), ...
+
+    dot(n(1:3), [dot(d2([3,2]), o([2,3])) + dot(d1([4,1]), oo([1,4])), ...
+                 dot(d2([3,1]), o([1,3])) + dot(d1([4,2]), oo([2,4])), ...
+                 dot(d2([2,1]), o([1,2])) + dot(d1([4,3]), oo([3,4]))]), ...
+
+    d111 * prod(o(1:3)) + d000 + dot(d1(1:3), o(1:3)) + dot(d2(1:3), oo(1:3)) 
+];
+
+c_result = dot(cubic_coeffs, [t^3, t^2, t^1, t^0]);
+
+disp(simplify(c_result - c))
