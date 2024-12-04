@@ -17,6 +17,7 @@ struct Trace
 
     vec3  position;             // current position in 3d model coordinates
     float distance;             // current distance traveled from camera
+    float derivative;           // directional derivative at the sample position
 
     float mean_step_distance;   // mean step distance that is covered
     float mean_step_scaling;    // mean step scaling that is covered

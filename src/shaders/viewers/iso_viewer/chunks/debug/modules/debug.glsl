@@ -37,6 +37,7 @@
 #include "./debug_trace_spanned_distance"   
 #include "./debug_trace_step_count"         
 #include "./debug_trace_step_distance"      
+#include "./debug_trace_delta_distance"      
 #include "./debug_trace_step_scaling"       
 #include "./debug_trace_step_stretching"    
 #include "./debug_trace_stepped_distance"   

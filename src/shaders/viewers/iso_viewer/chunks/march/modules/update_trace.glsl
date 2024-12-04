@@ -17,16 +17,11 @@ trace.value_error = trace.value - u_rendering.min_value;
 trace.gradient = taylormap_sample.gba;
 trace.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, trace.gradient);
 trace.gradient_magnitude = length(trace.gradient);
-trace.gradient_direction = normalize(trace.gradient);
 trace.derivative = dot(trace.gradient, ray.step_direction);
-trace.normal = -trace.gradient_direction;
+trace.normal = -normalize(trace.gradient);
 
 // update step
-#if TRACE_STEPPING_ENABLED == 1
 #include "./compute_trace_step"
-#else
-trace.step_distance = ray.step_distance;
-#endif
 
 // update conditions
 trace.suspended = trace.step_count >= u_rendering.max_step_count;

@@ -44,6 +44,7 @@ struct Debug
     vec4 trace_spanned_distance;
     vec4 trace_step_count;
     vec4 trace_step_distance;
+    vec4 trace_delta_distance;
     vec4 trace_step_scaling;
     vec4 trace_step_stretching;
     vec4 trace_stepped_distance;
@@ -100,6 +101,7 @@ Debug set_debug()
     debug.trace_spanned_distance      = vec4(vec3(0.0), 1.0);
     debug.trace_step_count            = vec4(vec3(0.0), 1.0);
     debug.trace_step_distance         = vec4(vec3(0.0), 1.0);
+    debug.trace_delta_distance        = vec4(vec3(0.0), 1.0);
     debug.trace_step_scaling          = vec4(vec3(0.0), 1.0);
     debug.trace_step_stretching       = vec4(vec3(0.0), 1.0);
     debug.trace_stepped_distance      = vec4(vec3(0.0), 1.0);
