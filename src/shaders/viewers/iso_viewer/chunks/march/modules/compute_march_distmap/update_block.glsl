@@ -1,7 +1,14 @@
-
-// Compute block coords from trace position
+// Compute block coords from ray end position
 block.coords = ivec3(trace.position * u_distmap.inv_spacing);
 
 // Sample the distance map and compute if block is occupied
-block.value = int(255.0 * texelFetch(u_textures.distmap, block.coords, 0).r);
-block.occupied = block.value == 0;
+block.value = int(texelFetch(u_textures.distmap, block.coords, 0).r * 255.0) - 1;
+block.occupied = block.value <= 0;
+
+// Compute block min max coords in distance map
+block.min_coords = block.coords - block.value + 1;
+block.max_coords = block.coords + block.value + 0;
+
+// Compute block min max position in model space  
+block.min_position = (vec3(block.min_coords) - CENTI_TOLERANCE) * u_distmap.spacing;
+block.max_position = (vec3(block.max_coords) + CENTI_TOLERANCE) * u_distmap.spacing;

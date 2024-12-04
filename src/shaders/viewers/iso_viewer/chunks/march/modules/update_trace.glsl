@@ -24,6 +24,8 @@ trace.normal = -trace.gradient_direction;
 // update step
 #if TRACE_STEPPING_ENABLED == 1
 #include "./compute_trace_step"
+#else
+trace.step_distance = ray.step_distance;
 #endif
 
 // update conditions

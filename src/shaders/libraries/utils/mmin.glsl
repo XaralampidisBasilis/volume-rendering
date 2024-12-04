@@ -12,22 +12,22 @@ license:
 #ifndef MMIN
 #define MMIN
 
-float mmin(const in float a) { return a; }
-float mmin(const in float a,const in float b) { return min(a, b); }
-float mmin(const in float a,const in float b, const in float c) { return min(a, min(b, c)); }
-float mmin(const in float a,const in float b, const in float c, const in float d) { return min(min(a,b), min(c, d)); }
+float mmin(in float a) { return a; }
+float mmin(in float a,in float b) { return min(a, b); }
+float mmin(in float a,in float b, in float c) { return min(a, min(b, c)); }
+float mmin(in float a,in float b, in float c, in float d) { return min(min(a,b), min(c, d)); }
 
-int mmin(const in int a) { return a; }
-int mmin(const in int a,const in int b) { return min(a, b); }
-int mmin(const in int a,const in int b, const in int c) { return min(a, min(b, c)); }
-int mmin(const in int a,const in int b, const in int c, const in int d) { return min(min(a,b), min(c, d)); }
+int mmin(in int a) { return a; }
+int mmin(in int a,in int b) { return min(a, b); }
+int mmin(in int a,in int b, in int c) { return min(a, min(b, c)); }
+int mmin(in int a,in int b, in int c, in int d) { return min(min(a,b), min(c, d)); }
 
-float mmin(const vec2 v) { return min(v.x, v.y); }
-float mmin(const vec3 v) { return mmin(v.x, v.y, v.z); }
-float mmin(const vec4 v) { return mmin(v.x, v.y, v.z, v.w); }
+float mmin(vec2 v) { return min(v.x, v.y); }
+float mmin(vec3 v) { return mmin(v.x, v.y, v.z); }
+float mmin(vec4 v) { return mmin(v.x, v.y, v.z, v.w); }
 
-int mmin(const ivec2 v) { return min(v.x, v.y); }
-int mmin(const ivec3 v) { return mmin(v.x, v.y, v.z); }
-int mmin(const ivec4 v) { return mmin(v.x, v.y, v.z, v.w); }
+int mmin(ivec2 v) { return min(v.x, v.y); }
+int mmin(ivec3 v) { return mmin(v.x, v.y, v.z); }
+int mmin(ivec4 v) { return mmin(v.x, v.y, v.z, v.w); }
 
 #endif // MMIN
