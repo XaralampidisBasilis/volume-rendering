@@ -3,6 +3,7 @@
 #include "../../../../libraries/utils/diff"
 #include "../../../../libraries/utils/mean"
 #include "../../../../libraries/utils/pown"
+#include "../../../../libraries/utils/cbrt"
 #include "../../../../libraries/utils/map"
 #include "../../../../libraries/utils/rand"
 #include "../../../../libraries/utils/random"

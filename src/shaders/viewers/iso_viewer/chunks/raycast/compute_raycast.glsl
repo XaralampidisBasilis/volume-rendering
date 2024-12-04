@@ -18,6 +18,7 @@ ray.camera_position = v_camera_position;
 // Compute intersection of ray with bounding volume
 #if RAY_INTERSECT_BVOL_ENABLED == 1
 #include "./modules/compute_ray_bvol_intersection.glsl"
+// #include "./modules/compute_ray_trilinear_distmap_intersection.glsl"
 #endif
 
 // Compute ray step distance
