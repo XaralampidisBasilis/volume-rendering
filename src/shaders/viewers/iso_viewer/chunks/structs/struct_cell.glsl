@@ -1,13 +1,13 @@
 #ifndef STRUCT_CELL
 #define STRUCT_CELL
-
 struct Cell 
 {
     vec3  size;
+    vec3  local_position;
     vec3  min_position;
     vec3  max_position;
-    vec3  local_position;
-    ivec3 coords; 
+    vec3  min_coords;
+    vec3  max_coords;
     float values[8]; // order c000, c1000, c010, c001, c011, c101, c110, c111
 };
 

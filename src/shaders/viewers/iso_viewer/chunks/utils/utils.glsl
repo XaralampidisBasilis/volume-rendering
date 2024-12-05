@@ -7,6 +7,7 @@
 #include "../../../../libraries/utils/map"
 #include "../../../../libraries/utils/rand"
 #include "../../../../libraries/utils/random"
+#include "../../../../libraries/utils/sort"
 #include "../../../../libraries/utils/ssign"
 #include "../../../../libraries/utils/mmin"
 #include "../../../../libraries/utils/mmax"
@@ -28,6 +29,10 @@
 #include "../../../../libraries/utils/posterize"
 #include "../../../../libraries/utils/softstep"
 #include "../../../../libraries/utils/softstep_cases"
+#include "../../../../libraries/utils/ray_trilinear_cubic_coeffs"
+#include "../../../../libraries/utils/linear_roots"
+#include "../../../../libraries/utils/quadratic_roots"
+#include "../../../../libraries/utils/cubic_roots"
 
 
 

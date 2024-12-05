@@ -13,18 +13,20 @@
  */
 
 // Sample neighbors
-float value[8];
-vec3 base_texels = trace.voxel_texels - u_volume.inv_dimensions * 0.5;
-for (int i = 0; i < 8; i++)
-{
-    value[i] = textureOffset(u_textures.volume, base_texels, base_offsets[i]).r;
+float values[8];
+vec3 min_texture_coords = trace.voxel_texels - u_volume.inv_dimensions * 0.5;
+
+#pragma unroll_loop_start
+for (int i = 0; i < 8; i++) {
+    values[i] = textureOffset(u_textures.taylormap, min_texture_coords, binary_offsets[i]).r;
 }
+#pragma unroll_loop_end
 
 // Compute gradient
 trace.gradient = vec3(
-    value[4] + value[5] + value[6] + value[7] - value[0] - value[1] - value[2] - value[3],
-    value[2] + value[3] + value[6] + value[7] - value[0] - value[1] - value[4] - value[5],
-    value[1] + value[3] + value[5] + value[7] - value[0] - value[2] - value[4] - value[6]
+    values[1] + values[5] + values[6] + values[7] - values[0] - values[3] - values[2] - values[4],
+    values[2] + values[4] + values[6] + values[7] - values[0] - values[3] - values[1] - values[5],
+    values[3] + values[4] + values[5] + values[7] - values[0] - values[2] - values[1] - values[6]
 );
 
 // Update gradient

@@ -14,7 +14,7 @@
 float values[8];
 for (int i = 0; i < 8; i++)
 {
-    vec3 sample_texels = trace.voxel_texels + u_volume.inv_dimensions * centered_offsets[i];
+    vec3 sample_texels = trace.voxel_texels + u_volume.inv_dimensions * center_offsets[i];
     values[i] = texture(u_textures.taylormap, sample_texels).r;
 
     // correct edge cases due to trilinear interpolation and clamp to edge wrapping   
@@ -23,9 +23,9 @@ for (int i = 0; i < 8; i++)
 
 // compute gradient
 trace.gradient = vec3(
-    values[4] + values[5] + values[6] + values[7] - values[0] - values[1] - values[2] - values[3],
-    values[2] + values[3] + values[6] + values[7] - values[0] - values[1] - values[4] - values[5],
-    values[1] + values[3] + values[5] + values[7] - values[0] - values[2] - values[4] - values[6]
+    values[1] + values[5] + values[6] + values[7] - values[0] - values[3] - values[2] - values[4],
+    values[2] + values[4] + values[6] + values[7] - values[0] - values[3] - values[1] - values[5],
+    values[3] + values[4] + values[5] + values[7] - values[0] - values[2] - values[1] - values[6]
 );
 
 // update gradient

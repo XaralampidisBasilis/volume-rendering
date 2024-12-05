@@ -6,7 +6,7 @@ trace_distances = clamp(trace_distances, ray.box_start_distance, ray.box_end_dis
 Trace trace_tmp = trace;
 
 // Compute iterative bisection
-for (int i = 0; i < 10; i++, trace.step_count++) 
+for (int iter = 0; iter < 10; iter++, trace.step_count++) 
 {
     // update interpolation
     float interpolation = map(trace_values.x, trace_values.y, u_rendering.min_value);
@@ -27,9 +27,8 @@ for (int i = 0; i < 10; i++, trace.step_count++)
     trace.gradient = taylormap_sample.gba;
     trace.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, trace.gradient);
     trace.gradient_magnitude = length(trace.gradient);
-    trace.gradient_direction = normalize(trace.gradient);
     trace.derivative = dot(trace.gradient, ray.step_direction);
-    trace.normal = -trace.gradient_direction;
+    trace.normal = -normalize(trace.gradient);
         
     // update interval
     trace_values = mix(

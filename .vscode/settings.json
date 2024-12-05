@@ -70,6 +70,7 @@
         "subind",
         "subm",
         "taylormap",
+        "texel",
         "Texels",
         "timeit",
         "topk",
