@@ -75,6 +75,10 @@
         "topk",
         "viridis",
         "voldim",
-        "voxel"
+        "voxel",
+        "yxxw",
+        "yzxw",
+        "zxyw",
+        "zzyw"
     ]
 }

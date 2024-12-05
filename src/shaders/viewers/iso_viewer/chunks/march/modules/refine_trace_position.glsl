@@ -6,7 +6,7 @@ trace_distances = clamp(trace_distances, ray.box_start_distance, ray.box_end_dis
 Trace trace_tmp = trace;
 
 // Compute iterative bisection
-for (int i = 0; i < 5; i++, trace.step_count++) 
+for (int i = 0; i < 10; i++, trace.step_count++) 
 {
     // update interpolation
     float interpolation = map(trace_values.x, trace_values.y, u_rendering.min_value);
