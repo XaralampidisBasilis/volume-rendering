@@ -47,3 +47,5 @@ if (abs(trace.value_error) > abs(trace_tmp.value_error))
 {
     trace = trace_tmp;
 }
+
+#include "./refine_trace_position_copy"
