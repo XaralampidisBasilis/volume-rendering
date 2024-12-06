@@ -1,2 +1,2 @@
 
-debug.frag_depth = vec4(vec3(gl_FragDepth), 1.0);
+debug.frag_depth = vec4(vec3(frag.depth), 1.0);

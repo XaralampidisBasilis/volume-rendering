@@ -31,10 +31,6 @@ ray.camera_position = v_camera_position;
 #include "./modules/compute_ray_dithering"
 #endif
 
-// Compute ray march through the volume
-// #include "../march/compute_march"
-
-
 
 
 

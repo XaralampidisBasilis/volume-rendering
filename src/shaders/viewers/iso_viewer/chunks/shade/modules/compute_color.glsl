@@ -10,17 +10,19 @@
  * @output trace.mapped_color: the mapped rgb color vector corresponding to the input trace value (vec3)
  */
 
-// scale the input trace value using the provided colormap limits 
-// and posterize the result to discrete levels
-float mapped_value = map(u_colormap.thresholds.x, u_colormap.thresholds.y, voxel.value);
-mapped_value = posterize(mapped_value, float(u_colormap.levels));
+// Map voxel value
+frag.mapped_value = map(u_colormap.thresholds.x, u_colormap.thresholds.y, voxel.value);
+
+// Posterize to discrete levels
+frag.mapped_value = posterize(frag.mapped_value, float(u_colormap.levels));
 
 // interpolate the u-coordinate within the colormap texture columns
-float colormap_start_coords_x = mix(u_colormap.start_coords.x, u_colormap.end_coords.x, mapped_value);
+float colormap_coords_x = mix(u_colormap.start_coords.x, u_colormap.end_coords.x, frag.mapped_value);
+float colormap_coords_y = u_colormap.start_coords.y
 
 // Create the UV coordinates for the texture lookup
-vec2 colormap_coords = vec2(colormap_start_coords_x, u_colormap.start_coords.y);
+vec2 colormap_coords = vec2(colormap_coords_x, colormap_coords_y);
 
 // Sample the colormap texture at the calculated UV coordinates and return the RGB color
-trace.mapped_color.rgb = texture(u_textures.colormaps, colormap_coords).rgb;
+frag.mapped_color.rgb = texture(u_textures.colormaps, colormap_coords).rgb;
 

@@ -3,9 +3,11 @@
 
 struct Camera 
 {
-    float near_plane;
-    float far_plane;
-    vec3 position;
+    vec3  position;
+    vec3  direction;
+    float near_distance;
+    float far_distance;
+
 };
 
 uniform Camera u_camera;
