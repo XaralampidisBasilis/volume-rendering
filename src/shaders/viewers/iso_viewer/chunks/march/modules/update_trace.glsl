@@ -13,7 +13,7 @@ trace.step_scaling = trace.step_distance / ray.step_distance;
 
 // update position
 trace.distance += trace.step_distance;
-trace.position = ray.camera_position + ray.step_direction * trace.distance; 
+trace.position = camera.position + ray.step_direction * trace.distance; 
 
 // update conditions
 trace.terminated = trace.distance > ray.end_distance;

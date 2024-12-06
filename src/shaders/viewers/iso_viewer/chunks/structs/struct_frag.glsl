@@ -33,4 +33,4 @@ void discard_frag(inout Frag frag)
 {
 }
 
-#endif STRUCT_FRAG
+#endif // STRUCT_FRAG

@@ -14,7 +14,7 @@ for (int iter = 0; iter < 10; iter++, trace.step_count++)
     // update trace
     float lerp = map(voxel_values.x, voxel_values.y, u_rendering.min_value);
     trace.distance = mix(trace_distances.x, trace_distances.y, lerp);
-    trace.position = ray.camera_position + ray.step_direction * trace.distance;
+    trace.position = camera.position + ray.step_direction * trace.distance;
 
     // update voxel
     voxel.texture_coords = trace.position * u_volume.inv_size;

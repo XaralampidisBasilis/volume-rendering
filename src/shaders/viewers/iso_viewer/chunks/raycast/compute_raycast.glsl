@@ -1,9 +1,4 @@
 
-// Setup ray
-ray.step_direction = normalize(v_ray_direction);
-ray.camera_direction = normalize(v_camera_direction);
-ray.camera_position = v_camera_position;
-
 // Compute intersection of ray with volume box
 #include "./modules/compute_ray_box_intersection.glsl"
 

@@ -48,7 +48,7 @@ if (u_debugging.variable1 > 0.0)
 
         // Update position
         trace.distance += trace.step_distance;
-        trace.position = ray.camera_position + ray.step_direction * trace.distance;
+        trace.position = camera.position + ray.step_direction * trace.distance;
         trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
         trace.voxel_texels = trace.position * u_volume.inv_size;
         vec4 texture_sample = texture(u_textures.taylormap, trace.voxel_texels);

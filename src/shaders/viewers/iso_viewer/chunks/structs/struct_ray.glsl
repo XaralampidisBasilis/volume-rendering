@@ -1,15 +1,14 @@
 #ifndef STRUCT_RAY
 #define STRUCT_RAY
+
 struct Ray 
 {
     bool  discarded;            // flag indicating if the ray has been discarded
 
-    vec3  camera_direction;
     vec3  step_direction;       // direction vector for each step along the ray
     float step_distance;        // fixed step distance for each ray 
     float rand_distance;        // random distance for dithering
    
-    vec3  camera_position;      // origin position of the current ray in 3d model coordinates 
     vec3  start_position;       // starting position of the current ray in 3d model coordinates for ray march
     vec3  end_position;         // ending position of the current ray in 3d model coordinates for ray march
     float start_distance;       // starting distance along the current ray from origin for ray march
@@ -26,11 +25,9 @@ Ray set_ray()
 {
     Ray ray;
     ray.discarded         = false;
-    ray.camera_direction  = vec3(0.0);
-    ray.step_direction    = vec3(0.0);
+    ray.step_direction    = normalize(v_ray_direction);
     ray.step_distance     = 0.0;
     ray.rand_distance     = 0.0;
-    ray.camera_position   = vec3(0.0);
     ray.start_position    = vec3(0.0);
     ray.end_position      = vec3(0.0);
     ray.start_distance    = 0.0;
@@ -47,4 +44,5 @@ void discard_ray(inout Ray ray)
 {
  
 }
+
 #endif // STRUCT_RAY
