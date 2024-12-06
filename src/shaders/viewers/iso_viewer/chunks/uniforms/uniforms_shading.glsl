@@ -1,5 +1,5 @@
-#ifndef UNIFORM_SHADING
-#define UNIFORM_SHADING
+#ifndef UNIFORMS_SHADING
+#define UNIFORMS_SHADING
 
 struct Shading
 {
@@ -12,4 +12,4 @@ struct Shading
 
 uniform Shading u_shading;
 
-#endif // UNIFORM_SHADING
+#endif // UNIFORMS_SHADING

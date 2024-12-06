@@ -28,6 +28,7 @@
         "Companding",
         "conv",
         "cumprod",
+        "cumulatives",
         "distancemap",
         "distmap",
         "extremamap",

@@ -1,7 +1,6 @@
-#ifndef UNIFORM_RENDERING
-#define UNIFORM_RENDERING
+#ifndef UNIFORMS_RENDERING
+#define UNIFORMS_RENDERING
 
-// struct to hold raycast uniforms
 struct Rendering 
 {
     float min_value;   
@@ -13,4 +12,4 @@ struct Rendering
 
 uniform Rendering u_rendering;
 
-#endif // UNIFORM_RENDERING
+#endif // UNIFORMS_RENDERING

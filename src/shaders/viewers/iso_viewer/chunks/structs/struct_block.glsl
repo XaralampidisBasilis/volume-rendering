@@ -18,15 +18,15 @@ struct Block
 Block set_block()
 {
     Block block;
-    block.value = 0;
-    block.occupied = false;
-    block.coords = ivec3(0);  
-    block.texture_coords = vec3(0.0);  
-    block.min_coords = ivec3(0);  
-    block.max_coords = ivec3(0);  
-    block.min_position = vec3(0.0);
-    block.max_position = vec3(0.0);
-    block.skip_count = 0;
+    block.value          = 0;
+    block.occupied       = false;
+    block.coords         = ivec3(0);
+    block.texture_coords = vec3(0.0);
+    block.min_coords     = ivec3(0);
+    block.max_coords     = ivec3(0);
+    block.min_position   = vec3(0.0);
+    block.max_position   = vec3(0.0);
+    block.skip_count     = 0;
     return block;
 }
 

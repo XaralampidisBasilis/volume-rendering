@@ -14,23 +14,18 @@
 float values[8];
 for (int i = 0; i < 8; i++)
 {
-    vec3 sample_texels = trace.voxel_texels + u_volume.inv_dimensions * center_offsets[i];
-    values[i] = texture(u_textures.taylormap, sample_texels).r;
-
-    // correct edge cases due to trilinear interpolation and clamp to edge wrapping   
-    values[i] /= exp2(sum(outside(vec3(0.0), vec3(1.0), sample_texels))); 
+    vec3 texture_coords = voxel.texture_coords + u_volume.inv_dimensions * center_offsets[i];
+    values[i] = texture(u_textures.taylormap, texture_coords).r;
+    values[i] /= exp2(sum(outside(0.0, 1.0, texture_coords))); // correct edge cases due to trilinear interpolation and clamp to edge wrapping   
 }
 
-// compute gradient
-trace.gradient = vec3(
+// update voxel
+voxel.gradient = vec3(
     values[1] + values[5] + values[6] + values[7] - values[0] - values[3] - values[2] - values[4],
     values[2] + values[4] + values[6] + values[7] - values[0] - values[3] - values[1] - values[5],
     values[3] + values[4] + values[5] + values[7] - values[0] - values[2] - values[1] - values[6]
 );
+voxel.gradient *= u_volume.inv_spacing * 0.25;
 
-// update gradient
-trace.gradient *= u_volume.inv_spacing * 0.25;
-trace.gradient_direction = normalize(trace.gradient);
-trace.gradient_magnitude = length(trace.gradient);
-trace.derivative = dot(trace.gradient, ray.step_direction);
-trace.normal = -trace.gradient_direction;
+// update trace
+trace.normal = -normalize(voxel.gradient);

@@ -1,5 +1,5 @@
-#ifndef UNIFORM_COLORMAP
-#define UNIFORM_COLORMAP
+#ifndef UNIFORMS_COLORMAP
+#define UNIFORMS_COLORMAP
 
 struct Colormap 
 {

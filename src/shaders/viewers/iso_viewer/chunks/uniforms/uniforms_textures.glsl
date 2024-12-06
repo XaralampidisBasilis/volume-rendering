@@ -1,5 +1,5 @@
-#ifndef UNIFORM_TEXTURES
-#define UNIFORM_TEXTURES
+#ifndef UNIFORMS_TEXTURES
+#define UNIFORMS_TEXTURES
 
 struct Textures 
 {

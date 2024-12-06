@@ -1,5 +1,5 @@
-#ifndef UNIFORM_DISTMAP
-#define UNIFORM_DISTMAP
+#ifndef UNIFORMS_DISTMAP
+#define UNIFORMS_DISTMAP
 
 // struct to hold occupancy uniforms
 struct Distmap
@@ -16,4 +16,4 @@ struct Distmap
 
 uniform Distmap u_distmap;
 
-#endif // UNIFORM_DISTMAP
+#endif // UNIFORMS_DISTMAP

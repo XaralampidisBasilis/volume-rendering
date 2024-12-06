@@ -1,5 +1,5 @@
-#ifndef UNIFORM_LIGHTING
-#define UNIFORM_LIGHTING
+#ifndef UNIFORMS_LIGHTING
+#define UNIFORMS_LIGHTING
 
 struct Lighting 
 {
@@ -13,4 +13,4 @@ struct Lighting
 
 uniform Lighting u_lighting;
 
-#endif // UNIFORM_LIGHTING
+#endif // UNIFORMS_LIGHTING

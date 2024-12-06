@@ -23,9 +23,9 @@ if (ray_bbox_distances.x < ray_bbox_distances.y)
 {
     ray.start_distance = ray_bbox_distances.x;
     ray.end_distance   = ray_bbox_distances.y;
-    ray.span_distance  = ray.end_distance - ray.start_distance;
-    ray.start_position = ray.camera_position + ray.step_direction * ray.start_distance;
-    ray.end_position   = ray.camera_position + ray.step_direction * ray.end_distance;
+    ray.span_distance  = ray_bbox_distances.y - ray_bbox_distances.x;
+    ray.start_position = ray.camera_position + ray.step_direction * ray_bbox_distances.x;
+    ray.end_position   = ray.camera_position + ray.step_direction * ray_bbox_distances.y;
 }
 // discard ray if no intersection
 else

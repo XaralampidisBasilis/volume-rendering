@@ -1,5 +1,5 @@
-#ifndef UNIFORM_VOLUME
-#define UNIFORM_VOLUME
+#ifndef UNIFORMS_VOLUME
+#define UNIFORMS_VOLUME
 
 // struct to hold volume uniforms
 struct Volume 

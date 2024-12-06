@@ -1,6 +1,7 @@
 
 // compute rays bound distances with the volume box
-vec2 ray_box_bounds = box_bounds(ray.box_min_position, ray.box_max_position, ray.camera_position);
-ray.box_min_distance = ray_box_bounds.x;
-ray.box_max_distance = ray_box_bounds.y;
-ray.box_max_span = ray_box_bounds.y - ray_box_bounds.x;
+vec2 ray_box_bounds = box_bounds(box.min_position, box.max_position, ray.camera_position);
+
+box.min_entry_distance = ray_box_bounds.x;
+box.max_exit_distance  = ray_box_bounds.y;
+box.max_span_distance  = ray_box_bounds.y - ray_box_bounds.x;

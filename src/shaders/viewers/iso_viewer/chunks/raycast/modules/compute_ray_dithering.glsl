@@ -15,7 +15,7 @@
  */
 
 // Compute seed position position in homogenous world coordinates
-float seed_distance = mean(ray.box_min_distance, ray.box_max_distance);
+float seed_distance = mean(ray.start_distance, ray.end_distance);
 vec4 seed_position = vec4(ray.camera_position + ray.step_direction * seed_distance, 1.0);
 seed_position = v_model_view_matrix * seed_position;
 

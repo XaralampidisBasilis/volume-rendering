@@ -1,5 +1,5 @@
-#ifndef UNIFORM_DEBUGGING
-#define UNIFORM_DEBUGGING
+#ifndef UNIFORMS_DEBUGGING
+#define UNIFORMS_DEBUGGING
 
 struct Debugging
 {
@@ -11,4 +11,4 @@ struct Debugging
 
 uniform Debugging u_debugging;
 
-#endif // UNIFORM_DEBUGGING
+#endif // UNIFORMS_DEBUGGING

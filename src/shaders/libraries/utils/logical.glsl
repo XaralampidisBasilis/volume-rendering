@@ -82,16 +82,16 @@ vec3  nor(in vec3  a, in float b) { return 1.0 - or(a, b) ;}
 vec4  nor(in vec4  a, in float b) { return 1.0 - or(a, b) ;} 
 
 // nxor
-float nxor(in float a, in float b) { return 1.0 - xor(a, b) ;}
-vec2  nxor(in vec2  a, in vec2  b) { return 1.0 - xor(a, b) ;}
-vec3  nxor(in vec3  a, in vec3  b) { return 1.0 - xor(a, b) ;}
-vec4  nxor(in vec4  a, in vec4  b) { return 1.0 - xor(a, b) ;}
-vec2  nxor(in float a, in vec2  b) { return 1.0 - xor(a, b) ;} 
-vec3  nxor(in float a, in vec3  b) { return 1.0 - xor(a, b) ;} 
-vec4  nxor(in float a, in vec4  b) { return 1.0 - xor(a, b) ;} 
-vec2  nxor(in vec2  a, in float b) { return 1.0 - xor(a, b) ;} 
-vec3  nxor(in vec3  a, in float b) { return 1.0 - xor(a, b) ;} 
-vec4  nxor(in vec4  a, in float b) { return 1.0 - xor(a, b) ;} 
+float xnor(in float a, in float b) { return 1.0 - xor(a, b) ;}
+vec2  xnor(in vec2  a, in vec2  b) { return 1.0 - xor(a, b) ;}
+vec3  xnor(in vec3  a, in vec3  b) { return 1.0 - xor(a, b) ;}
+vec4  xnor(in vec4  a, in vec4  b) { return 1.0 - xor(a, b) ;}
+vec2  xnor(in float a, in vec2  b) { return 1.0 - xor(a, b) ;} 
+vec3  xnor(in float a, in vec3  b) { return 1.0 - xor(a, b) ;} 
+vec4  xnor(in float a, in vec4  b) { return 1.0 - xor(a, b) ;} 
+vec2  xnor(in vec2  a, in float b) { return 1.0 - xor(a, b) ;} 
+vec3  xnor(in vec3  a, in float b) { return 1.0 - xor(a, b) ;} 
+vec4  xnor(in vec4  a, in float b) { return 1.0 - xor(a, b) ;} 
 
 // every
 float every(in float a) { return mmin(step(0.0, a)); }
@@ -110,6 +110,25 @@ float some(in vec4  a) { return mmax(step(0.0, a)); }
 float some(in float a, in float b) { return some(vec2(a, b)); }
 float some(in float a, in float b, in float c) { return some(vec3(a, b, c)); }
 float some(in float a, in float b, in float c, in float d) { return some(vec4(a, b, c, d)); }
+
+// nevery
+float nevery(in float a) { return 1.0 - every(a)}
+float nevery(in vec2  a) { return 1.0 - every(a)}
+float nevery(in vec3  a) { return 1.0 - every(a)}
+float nevery(in vec4  a) { return 1.0 - every(a)}
+float nevery(in float a, in float b) { return 1.0 - every(a)}
+float nevery(in float a, in float b, in float c) { return 1.0 - every(a)}
+float nevery(in float a, in float b, in float c, in float d) { return 1.0 - every(a)}
+
+// nsome
+float nsome(in float a) { return 1.0 - some(a)}
+float nsome(in vec2  a) { return 1.0 - some(a)}
+float nsome(in vec3  a) { return 1.0 - some(a)}
+float nsome(in vec4  a) { return 1.0 - some(a)}
+float nsome(in float a, in float b) { return 1.0 - some(a)}
+float nsome(in float a, in float b, in float c) { return 1.0 - some(a)}
+float nsome(in float a, in float b, in float c, in float d) { return 1.0 - some(a)}
+
 
 #endif // LOGICAL
 
