@@ -2,7 +2,7 @@
 // Compute intervals
 vec2 voxel_values = vec2(prev_voxel.value, voxel.value);
 vec2 trace_distances = vec2(prev_trace.distance, trace.distance);
-trace_distances = clamp(trace_distances, ray.box_start_distance, ray.box_end_distance);
+trace_distances = clamp(trace_distances, ray.start_distance, ray.end_distance);
 
 // Compute temporary objects
 Trace temp_trace = trace;
@@ -34,7 +34,7 @@ for (int iter = 0; iter < 10; iter++, trace.step_count++)
 }
 
 // Rollback if no improvement
-if (abs(voxel.value_error) > abs(temp_voxel.value_error)) 
+if (abs(voxel.value) > abs(temp_voxel.value)) 
 {
     voxel = temp_voxel;
     trace = temp_trace;
@@ -46,6 +46,5 @@ else
     voxel.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, voxel.gradient);
 
     // update trace
-    trace.normal = - normalize(voxel.gradient);
     trace.derivative = dot(voxel.gradient, ray.step_direction);
 }

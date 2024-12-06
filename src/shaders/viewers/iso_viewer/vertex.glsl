@@ -1,8 +1,8 @@
 
 out vec3 v_camera_position;
 out vec3 v_camera_direction;
-out vec3 v_camera_near_distance;
-out vec3 v_camera_far_distance;
+out float v_camera_near_distance;
+out float v_camera_far_distance;
 out vec3 v_ray_direction;
 out mat4 v_model_view_matrix;
 out mat4 v_projection_model_view_matrix;

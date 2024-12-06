@@ -2,7 +2,7 @@
 
 float lambertian = max(dot(frag.normal_vector, frag.light_vector), 0.0);
 
-vec3 diffuse_component = lambertian 
+vec3 diffuse_color = lambertian 
     * u_shading.diffuse_reflectance 
     * u_lighting.diffuse_color 
     * frag.mapped_color.rgb;

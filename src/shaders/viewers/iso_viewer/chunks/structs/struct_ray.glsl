@@ -8,15 +8,15 @@ struct Ray
     vec3  step_direction;       // direction vector for each step along the ray
     float step_distance;        // fixed step distance for each ray 
     float rand_distance;        // random distance for dithering
-   
+    float min_step_distance;    // minimum step distance for adaptive stepping
+    float max_step_distance;    // maximum step distance for adaptive stepping
+
     vec3  start_position;       // starting position of the current ray in 3d model coordinates for ray march
     vec3  end_position;         // ending position of the current ray in 3d model coordinates for ray march
     float start_distance;       // starting distance along the current ray from origin for ray march
     float end_distance;         // ending distance along the current ray from origin for ray march
     float span_distance;        // total distance that can be covered by the current ray for ray march
 
-    float min_step_distance;    // minimum step distance for adaptive stepping
-    float max_step_distance;    // maximum step distance for adaptive stepping
     int   max_step_count;       // maximum number of steps allowed
     int   max_skip_count;       // maximum number of skips allowed
 };

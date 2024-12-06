@@ -28,7 +28,7 @@ struct Debug
     vec4 frag_shaded_color; 
     vec4 frag_shaded_luminance; 
     
-
+    vec4 ray_discarded;
     vec4 ray_step_direction;
     vec4 ray_step_distance;
     vec4 ray_rand_distance;
@@ -109,16 +109,17 @@ Debug set_debug()
     debug.frag_shaded_color     = vec4(vec3(0.0), 1.0);
     debug.frag_shaded_luminance = vec4(vec3(0.0), 1.0);
 
-    debug.ray_end_distance         = vec4(vec3(0.0), 1.0);
-    debug.ray_end_position         = vec4(vec3(0.0), 1.0);
-    debug.ray_rand_distance        = vec4(vec3(0.0), 1.0);
-    debug.ray_span_distance        = vec4(vec3(0.0), 1.0);
-    debug.ray_start_distance       = vec4(vec3(0.0), 1.0);
-    debug.ray_start_position       = vec4(vec3(0.0), 1.0);
-    debug.ray_step_direction       = vec4(vec3(0.0), 1.0);
-    debug.ray_step_distance        = vec4(vec3(0.0), 1.0);
-    debug.ray_max_step_count       = vec4(vec3(0.0), 1.0);
-    debug.ray_max_skip_count       = vec4(vec3(0.0), 1.0);
+    debug.ray_discarded      = vec4(vec3(0.0), 1.0);
+    debug.ray_step_direction = vec4(vec3(0.0), 1.0);
+    debug.ray_step_distance  = vec4(vec3(0.0), 1.0);
+    debug.ray_rand_distance  = vec4(vec3(0.0), 1.0);
+    debug.ray_start_distance = vec4(vec3(0.0), 1.0);
+    debug.ray_end_distance   = vec4(vec3(0.0), 1.0);
+    debug.ray_span_distance  = vec4(vec3(0.0), 1.0);
+    debug.ray_start_position = vec4(vec3(0.0), 1.0);
+    debug.ray_end_position   = vec4(vec3(0.0), 1.0);
+    debug.ray_max_step_count = vec4(vec3(0.0), 1.0);
+    debug.ray_max_skip_count = vec4(vec3(0.0), 1.0);
 
     debug.trace_intersected        = vec4(vec3(0.0), 1.0);
     debug.trace_terminated         = vec4(vec3(0.0), 1.0);

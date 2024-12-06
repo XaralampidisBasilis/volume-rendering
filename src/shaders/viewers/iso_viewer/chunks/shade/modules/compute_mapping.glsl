@@ -18,7 +18,7 @@ frag.mapped_value = posterize(frag.mapped_value, float(u_colormap.levels));
 
 // interpolate the u-coordinate within the colormap texture columns
 float colormap_coords_x = mix(u_colormap.start_coords.x, u_colormap.end_coords.x, frag.mapped_value);
-float colormap_coords_y = u_colormap.start_coords.y
+float colormap_coords_y = u_colormap.start_coords.y;
 
 // Create the UV coordinates for the texture lookup
 vec2 colormap_coords = vec2(colormap_coords_x, colormap_coords_y);

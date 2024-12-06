@@ -21,9 +21,6 @@ struct Trace
     float mean_step_scaling;    // mean step scaling that is covered
     float spanned_distance;     // total spanned distance from ray start
     float stepped_distance;     // total stepped distance 
-
-    vec4  mapped_color;         // color mapped from the voxel value
-    vec4  shaded_color;         // color after shading has been applied
 };
 
 Trace set_trace()
@@ -43,8 +40,6 @@ Trace set_trace()
     trace.derivative         = 0.0;
     trace.spanned_distance   = 0.0;
     trace.stepped_distance   = 0.0;
-    trace.mapped_color       = vec4(vec3(0.0), 1.0);
-    trace.shaded_color       = vec4(vec3(0.0), 1.0);
     return trace;
 }
 void discard_trace(inout Trace trace)
@@ -63,8 +58,6 @@ void discard_trace(inout Trace trace)
     trace.derivative         = trace.derivative;
     trace.spanned_distance   = trace.spanned_distance;
     trace.stepped_distance   = trace.stepped_distance;
-    trace.mapped_color       = trace.mapped_color;
-    trace.shaded_color       = trace.shaded_color;
 }
 
 

@@ -5,7 +5,7 @@ if (trace.intersected)
     #include "./refine_intersection"
     #endif
     #if TRACE_REFINE_GRADIENT_ENABLED == 1
-    #include "./refine_normals"
+    #include "./refine_gradients"
     #endif
 }
 

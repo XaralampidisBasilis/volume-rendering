@@ -1,12 +1,13 @@
 
-#include "./modules/compute_color"
+#include "./modules/compute_mapping"
 
 #include "./modules/compute_depth"
 
 // Compute shading vectors
-vec3 light_position = u_lighting.position_offset * u_volume.size + ray.camera_position;
+vec3 light_offset = u_lighting.position_offset * u_volume.size;
+vec3 light_position = camera.position + light_offset;
 frag.light_vector  = light_position - trace.position;
-frag.view_vector   = ray.camera_position - trace.position;
+frag.view_vector   = camera.position - trace.position;
 frag.normal_vector = - voxel.gradient;
 
 // Normalize shading vectors
@@ -30,11 +31,11 @@ frag.view_vector   = normalize(frag.view_vector);
 #include "./modules/compute_specular"
 
 // Compute directional component
-vec3 directional_component = mix(diffuse_component, specular_component, specular);
-directional_component *= min(shadows_fading, edge_fading);
+vec3 directional_color = mix(diffuse_color, specular_color, specular);
+directional_color *= min(shadows_fading, edge_fading);
 
 // Compose colors
-frag.shaded_color.rgb = ambient_component + directional_component;
+frag.shaded_color.rgb = ambient_color + directional_color;
 frag.shaded_color.rgb *= u_lighting.intensity;
 
 // Assign frag color
