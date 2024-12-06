@@ -33,6 +33,7 @@
 #include "../../../../libraries/utils/linear_roots"
 #include "../../../../libraries/utils/quadratic_roots"
 #include "../../../../libraries/utils/cubic_roots"
+#include "../../../../libraries/utils/logical"
 
 
 

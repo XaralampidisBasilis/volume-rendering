@@ -1,6 +1,10 @@
 #ifndef CLAMPABS
 #define CLAMPABS
 
+#ifndef SSIGN
+#include "./ssign"
+#endif
+
 float clampabs(in float v, in float a, in float b) { return ssign(v) * clamp(abs(v), a, b); }
 vec2  clampabs(in vec2  v, in float a, in float b) { return ssign(v) * clamp(abs(v), a, b); }
 vec3  clampabs(in vec3  v, in float a, in float b) { return ssign(v) * clamp(abs(v), a, b); }

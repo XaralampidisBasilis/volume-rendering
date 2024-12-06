@@ -1,6 +1,18 @@
 #ifndef LAGRANGE_QUADRATIC_COEFFICIENTS
 #define LAGRANGE_QUADRATIC_COEFFICIENTS
 
+#ifndef MICRO_TOLERANCE
+#define MICRO_TOLERANCE 1e-6
+#endif
+
+#ifndef PROD
+#include "./prod"
+#endif
+
+#ifndef MAXABS
+#include "./maxabs"
+#endif
+
 // https://www.wikiwand.com/en/articles/Lagrange_polynomial
 // returns quadratic polynomial coefficients in the form:
 // coeff[0] + coeff[1] * t + coeff[2] * t^2
@@ -30,7 +42,7 @@ vec3 lagrange_quadratic_coefficients(in vec3 t, in vec3 f)
 
     // matrix-vector multiplication with f_weighted
     mat3 t_matrix = mat3(t_part_prod, - t_comp_sum, vec3(1.0));
-    vec3 f_weighted = f / stabilize(t_cross_prod); 
+    vec3 f_weighted = f / maxabs(t_cross_prod, MICRO_TOLERANCE); 
     
     // compute and return coefficients
     vec3 coeff = f_weighted * t_matrix; 

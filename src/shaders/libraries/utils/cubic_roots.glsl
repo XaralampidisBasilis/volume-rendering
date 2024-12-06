@@ -1,6 +1,19 @@
 #ifndef CUBIC_ROOTS
 #define CUBIC_ROOTS
 
+#ifndef PICO_TOLERANCE
+#define PICO_TOLERANCE 1e-12
+#endif
+
+#ifndef QUADRATIC_ROOTS
+#include "./quadratic_roots"
+#endif
+
+#ifndef CBRT
+#include "./cbrt"
+#endif
+
+
 // Based on Blinn's paper (https://courses.cs.washington.edu/courses/cse590b/13au/lecture_notes/solvecubic_p5.pdf)
 // Article by Christoph Peters (https://momentsingraphics.de/CubicRoots.html#_Blinn07b)
 // Shadertoy example (// https://www.shadertoy.com/view/7tBGzK)

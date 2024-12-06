@@ -1,6 +1,10 @@
 #ifndef BESSELI
 #define BESSELI
 
+ #ifndef MICRO_TOLERANCE
+#define MICRO_TOLERANCE 1e-6
+#endif
+
 //Returns the modified Bessel function I0(x) for any real x.
 // source : http://www.ff.bg.ac.rs/Katedre/Nuklearna/SiteNuklearna/bookcpdf/c6-6.pdf, Chapter 6, Numerical Recipes in C
 

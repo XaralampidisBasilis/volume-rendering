@@ -1,6 +1,10 @@
 #ifndef MINABS
 #define MINABS
 
+#ifndef SSIGN
+#include "./ssign"
+#endif
+
 float minabs(in float v, in float b) { return ssign(v) * min(abs(v), b); }
 vec2  minabs(in vec2  v, in float b) { return ssign(v) * min(abs(v), b); }
 vec3  minabs(in vec3  v, in float b) { return ssign(v) * min(abs(v), b); }

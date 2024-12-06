@@ -1,6 +1,10 @@
 #ifndef MAXABS
 #define MAXABS
 
+#ifndef SSIGN
+#include "./ssign"
+#endif
+
 float maxabs(in float v, in float a) { return ssign(v) * max(abs(v), a); }
 vec2  maxabs(in vec2  v, in float a) { return ssign(v) * max(abs(v), a); }
 vec3  maxabs(in vec3  v, in float a) { return ssign(v) * max(abs(v), a); }

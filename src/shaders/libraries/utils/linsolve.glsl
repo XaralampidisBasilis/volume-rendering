@@ -1,6 +1,10 @@
 #ifndef LINSOLVE
 #define LINSOLVE
 
+#ifndef MICRO_TOLERANCE
+#define MICRO_TOLERANCE 1e-6
+#endif
+
 vec2 linsolve(in mat2 A, in vec2 b)
 {
     // compute the matrix norm (maximum absolute row sum norm)

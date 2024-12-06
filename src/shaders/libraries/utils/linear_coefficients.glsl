@@ -6,13 +6,22 @@
 #ifndef LINEAR_COEEFICIENTS
 #define LINEAR_COEEFICIENTS
 
+#ifndef MICRO_TOLERANCE
+#define MICRO_TOLERANCE 1e-6
+#endif
+
+#ifndef MAXABS
+#include "./maxabs"
+#endif
+
+
 vec2 linear_coefficients(in vec2 t, in vec2 f)
 {
     // cross differences
     vec2 t_diff = t.xy - t.yx;
 
     // avoid division by small values by enforcing a minimum threshold
-    t_diff = maxabs(t_diff, PICO_TOLERANCE);
+    t_diff = maxabs(t_diff, MICRO_TOLERANCE);
 
     // matrix-vector multiplication with f_weighted
     mat2 t_matrix = mat2(-t.yx, vec2(1.0));

@@ -3,7 +3,7 @@
 vec2 trace_values = vec2(prev_trace.value, trace.value);
 vec2 trace_distances = vec2(prev_trace.distance, trace.distance);
 trace_distances = clamp(trace_distances, ray.box_start_distance, ray.box_end_distance);
-Trace trace_tmp = trace;
+Trace temp_trace = trace;
 
 // Compute iterative bisection
 for (int iter = 0; iter < 10; iter++, trace.step_count++) 
@@ -43,9 +43,7 @@ for (int iter = 0; iter < 10; iter++, trace.step_count++)
 }
 
 // Rollback if greater absolute error
-if (abs(trace.value_error) > abs(trace_tmp.value_error)) 
+if (abs(trace.value_error) > abs(temp_trace.value_error)) 
 {
-    trace = trace_tmp;
+    trace = temp_trace;
 }
-
-#include "./refine_trace_position_copy"

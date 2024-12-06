@@ -1,6 +1,14 @@
 #ifndef INTERSECT_BOX_MAX
 #define INTERSECT_BOX_MAX
 
+#ifndef MMIN
+#include "./mmin"
+#endif
+
+#ifndef MMAX
+#include "./mmax"
+#endif
+
 float intersect_box_max(vec3 box_min, vec3 box_max, vec3 start, vec3 dir) 
 {
     // Ray-AABB (Axis Aligned Bounding Box) intersection.

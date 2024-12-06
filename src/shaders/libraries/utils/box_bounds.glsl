@@ -10,6 +10,10 @@
 #ifndef BOX_BOUNDS
 #define BOX_BOUNDS
 
+#ifndef MMAX
+#include "./mmax"
+#endif
+
 vec2 box_bounds(vec2 b_min, vec2 b_max, vec2 p) 
 {
     vec2 c = (b_max + b_min) / 2.0;

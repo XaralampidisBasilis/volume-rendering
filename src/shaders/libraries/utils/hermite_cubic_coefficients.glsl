@@ -1,6 +1,14 @@
 #ifndef HERMITE_CUBIC_COEFFICIENTS
 #define HERMITE_CUBIC_COEFFICIENTS
 
+#ifndef MILLI_TOLERANCE
+#define MILLI_TOLERANCE 1e-3
+#endif
+
+#ifndef LINSOLVE
+#include "./linsolve"
+#endif
+
 // Function to compute the Hermite coefficients based on time (t), function values (f), and gradients (g)
 // returns cubic polynomial coefficients in the form:
 // coeff[0] + coeff[1] * t + coeff[2] * t^2 + coeff[3] * t^3

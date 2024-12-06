@@ -1,6 +1,14 @@
 #ifndef QUADRATIC_ROOTS
 #define QUADRATIC_ROOTS
 
+#ifndef PICO_TOLERANCE
+#define PICO_TOLERANCE 1e-12
+#endif
+
+#ifndef LINEAR_ROOTS
+#include "./linear_roots"
+#endif
+
 // coeff[0] + coeff[1] * t + coeff[2] * t^2
 vec2 quadratic_roots(in vec3 coeff, out int num_roots) 
 {

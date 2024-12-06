@@ -42,6 +42,7 @@ Trace set_trace()
     trace.skip_distance      = 0.0;
     trace.position           = vec3(0.0);
     trace.distance           = 0.0;
+    trace.derivative         = 0.0; 
     trace.spanned_distance   = 0.0;
     trace.stepped_distance   = 0.0;
     trace.skipped_distance   = 0.0;
@@ -61,7 +62,8 @@ void discard_trace(inout Trace trace)
     trace.mean_step_distance = trace.mean_step_distance; 
     trace.skip_distance      = trace.skip_distance;      
     trace.position           = trace.position;           
-    trace.distance           = trace.distance;           
+    trace.distance           = trace.distance;   
+    trace.derivative         = trace.derivative; 
     trace.spanned_distance   = trace.spanned_distance;   
     trace.stepped_distance   = trace.stepped_distance;   
     trace.skipped_distance   = trace.skipped_distance;       

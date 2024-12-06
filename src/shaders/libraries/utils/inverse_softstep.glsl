@@ -1,6 +1,18 @@
 #ifndef INVERSE_SOFTSTEP
 #define INVERSE_SOFTSTEP
 
+#ifndef MICRO_TOLERANCE
+#define MICRO_TOLERANCE 1e-6
+#endif
+
+#ifndef NANO_TOLERANCE
+#define NANO_TOLERANCE 1e-9
+#endif
+
+#ifndef POWN
+#include "./pown"
+#endif
+
 // source : https://www.peterstock.co.uk/games/adjustable_smoothstep/
 // formulas in desmos : https://www.desmos.com/calculator/ovekxhisxy
 // glsl code in desmos : https://www.desmos.com/calculator/4anckbpwml

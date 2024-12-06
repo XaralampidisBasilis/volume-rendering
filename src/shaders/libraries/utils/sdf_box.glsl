@@ -10,6 +10,10 @@
 #ifndef SDF_BOX
 #define SDF_BOX
 
+#ifndef MMAX
+#include "./mmax"
+#endif
+
 float sdf_box(vec2 b_min, vec2 b_max, vec2 p) 
 {
     vec2 c = (b_max + b_min) / 2.0;

@@ -16,6 +16,10 @@
 #ifndef SOFTSTEP
 #define SOFTSTEP
 
+#ifndef MICRO_TOLERANCE
+#define MICRO_TOLERANCE 1e-6
+#endif
+
 float softstep(in float edge0, in float edge1, in float x)
 {
     float t = map(edge0, edge1, x);

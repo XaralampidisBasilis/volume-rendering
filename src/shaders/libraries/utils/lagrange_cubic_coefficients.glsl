@@ -1,6 +1,18 @@
 #ifndef LAGRANGE_CUBIC_COEFFICIENTS
 #define LAGRANGE_CUBIC_COEFFICIENTS
 
+#ifndef MICRO_TOLERANCE
+#define MICRO_TOLERANCE 1e-6
+#endif
+
+#ifndef PROD
+#include "./prod"
+#endif
+
+#ifndef MAXABS
+#include "./maxabs"
+#endif
+
 // https://www.wikiwand.com/en/articles/Lagrange_polynomial
 // returns quadratic polynomial coefficients in the form:
 // coeff[0] + coeff[1] * t + coeff[2] * t^2 + coeff[3] * t^3
@@ -41,7 +53,7 @@ vec4 lagrange_cubic_coefficients(in vec4 t, in vec4 f)
 
     // matrix-vector multiplication with f_weighted
     mat4 t_matrix = mat4(-t_part_prod, t_mixed_sum, -t_comp_sum, vec4(1.0));
-    vec4 f_weighted = f / stabilize(t_cross_prod); 
+    vec4 f_weighted = f / maxabs(t_cross_prod, MICRO_TOLERANCE); 
     
     // compute and return coefficients
     vec4 coeff = f_weighted * t_matrix; 

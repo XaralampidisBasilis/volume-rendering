@@ -18,3 +18,4 @@ trace.step_stretching = clamp(trace.step_stretching, 0.4, 1.0);
 // apply stretching base on camera
 trace.step_distance *= trace.step_stretching;
 trace.step_distance = clamp(trace.step_distance, ray.min_step_distance, ray.max_step_distance);
+
