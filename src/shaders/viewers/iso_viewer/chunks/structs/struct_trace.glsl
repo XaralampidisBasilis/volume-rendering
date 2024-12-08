@@ -16,11 +16,13 @@ struct Trace
     vec3  position;             // current position in 3d model coordinates
     float distance;             // current distance traveled from camera
     float derivative;           // directional derivative at the sample position
+    float error;
 
     float mean_step_distance;   // mean step distance that is covered
     float mean_step_scaling;    // mean step scaling that is covered
     float spanned_distance;     // total spanned distance from ray start
     float stepped_distance;     // total stepped distance 
+    float skipped_distance;
 };
 
 Trace set_trace()
@@ -38,27 +40,15 @@ Trace set_trace()
     trace.position           = vec3(0.0);
     trace.distance           = 0.0;
     trace.derivative         = 0.0;
+    trace.error              = 0.0;
     trace.spanned_distance   = 0.0;
     trace.stepped_distance   = 0.0;
+    trace.skipped_distance   = 0.0;
     return trace;
 }
 void discard_trace(inout Trace trace)
 {
-    trace.intersected        = trace.intersected;
-    trace.terminated         = trace.terminated;
-    trace.exhausted          = trace.exhausted;
-    trace.step_count         = trace.step_count;
-    trace.step_scaling       = trace.step_scaling;
-    trace.step_stretching    = trace.step_stretching;
-    trace.step_distance      = trace.step_distance;
-    trace.mean_step_scaling  = trace.mean_step_scaling;
-    trace.mean_step_distance = trace.mean_step_distance;
-    trace.position           = trace.position;
-    trace.distance           = trace.distance;
-    trace.derivative         = trace.derivative;
-    trace.spanned_distance   = trace.spanned_distance;
-    trace.stepped_distance   = trace.stepped_distance;
-}
 
+}
 
 #endif // STRUCT_TRACE

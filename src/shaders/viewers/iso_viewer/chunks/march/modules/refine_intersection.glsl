@@ -47,4 +47,5 @@ else
 
     // update trace
     trace.derivative = dot(voxel.gradient, ray.step_direction);
+    trace.error = u_rendering.min_value - voxel.value;
 }

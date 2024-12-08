@@ -22,6 +22,6 @@ seed_position = v_model_view_matrix * seed_position;
 // update ray start based on random step distance
 ray.rand_distance = random(seed_position.xyz) * ray.step_distance;
 ray.start_distance -= ray.rand_distance;
-ray.start_distance = max(ray.start_distance, ray.box_start_distance);
+ray.start_distance = max(ray.start_distance, box.entry_distance);
 ray.start_position = camera.position + ray.step_direction * ray.start_distance;
 ray.span_distance = ray.end_distance - ray.start_distance;

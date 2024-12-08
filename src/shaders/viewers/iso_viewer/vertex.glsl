@@ -26,8 +26,8 @@ void main() {
     // Camera varying
     v_camera_position = camera_position.xyz; // camera position in model coordinates
     v_camera_direction = camera_direction.xyz; // camera direction in model coordinates
-    v_camera_near_distance = camera_depth_offset / (2.0 * camera_depth_scale + 2.0); // camera near clip plane distance in view coordinates
-    v_camera_far_distance = camera_depth_offset / (2.0 * camera_depth_scale - 2.0); // camera far clip plane distance in view coordinates
+    v_camera_near_distance = 0.5 * camera_depth_offset / (camera_depth_scale - 1.0); // camera near clip plane distance in view coordinates
+    v_camera_far_distance = 0.5 * camera_depth_offset / (camera_depth_scale + 1.0); // camera far clip plane distance in view coordinates
     v_camera_near_distance = length(inv_model_matrix * vec4(0.0, 0.0, -v_camera_near_distance, 0.0)); // camera near clip plane distance in model coordinates
     v_camera_far_distance = length(inv_model_matrix * vec4(0.0, 0.0, -v_camera_far_distance, 0.0)); // camera far clip plane distance in model coordinates
 
