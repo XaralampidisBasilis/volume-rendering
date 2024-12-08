@@ -138,14 +138,12 @@ export default class ISOViewer extends EventEmitter
         // volume
         uVolume.dimensions.copy(volumeParams.dimensions)
         uVolume.spacing.copy(volumeParams.spacing)
-        uVolume.spacing_length = volumeParams.spacing.length()
         uVolume.size.copy(volumeParams.size)
-        uVolume.size_length = volumeParams.size.length()
+        uVolume.size_length = volumeParams.sizeLength
+        uVolume.spacing_length = volumeParams.spacingLength
         uVolume.inv_dimensions.copy(volumeParams.invDimensions)
         uVolume.inv_spacing.copy(volumeParams.invSpacing)
-        uVolume.inv_spacing_length = volumeParams.invSpacing.length()
         uVolume.inv_size.copy(volumeParams.invSize)
-        uVolume.inv_size_length = volumeParams.invSize.length()
         uVolume.min_intensity = taylormapParams.minValue.x
         uVolume.max_intensity = taylormapParams.maxValue.x
         uVolume.min_gradient.fromArray(taylormapParams.minValue.toArray().slice(1))

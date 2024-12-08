@@ -51,14 +51,16 @@ export default class VolumeProcessor
     {
         this.volume.params = 
         {
-            size         : new THREE.Vector3().fromArray(this.volume.size),
-            dimensions   : new THREE.Vector3().fromArray(this.volume.dimensions),
-            spacing      : new THREE.Vector3().fromArray(this.volume.spacing),
-            invSize      : new THREE.Vector3().fromArray(this.volume.size.map(x => 1/x)),
-            invDimensions: new THREE.Vector3().fromArray(this.volume.dimensions.map(x => 1/x)),
-            invSpacing   : new THREE.Vector3().fromArray(this.volume.spacing.map(x => 1/x)),
-            numVoxels    : this.volume.dimensions.reduce((voxels, dim) => voxels * dim, 1),
-            shape        : this.volume.dimensions.toReversed().concat(1),
+            dimensions       : new THREE.Vector3().fromArray(this.volume.dimensions),
+            spacing          : new THREE.Vector3().fromArray(this.volume.spacing),
+            size             : new THREE.Vector3().fromArray(this.volume.size),
+            spacingLength    : new THREE.Vector3().fromArray(this.volume.spacing).length(),
+            sizeLength       : new THREE.Vector3().fromArray(this.volume.size).length(),
+            invDimensions    : new THREE.Vector3().fromArray(this.volume.dimensions.map(x => 1/x)),
+            invSpacing       : new THREE.Vector3().fromArray(this.volume.spacing.map(x => 1/x)),
+            invSize          : new THREE.Vector3().fromArray(this.volume.size.map(x => 1/x)),
+            numVoxels        : this.volume.dimensions.reduce((voxels, dim) => voxels * dim, 1),
+            shape            : this.volume.dimensions.toReversed().concat(1),
         }
     }
 

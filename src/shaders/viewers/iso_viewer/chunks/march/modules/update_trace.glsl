@@ -22,7 +22,6 @@ trace.exhausted = trace.step_count >= ray.max_step_count;
 
 // update cumulatives
 trace.stepped_distance += trace.step_distance;
-trace.spanned_distance += trace.step_distance;
 trace.mean_step_scaling = trace.step_scaling + trace.mean_step_scaling * float(trace.step_count);
 trace.mean_step_distance = trace.step_distance + trace.mean_step_distance * float(trace.step_count);
 trace.mean_step_scaling /= float(trace.step_count + 1);

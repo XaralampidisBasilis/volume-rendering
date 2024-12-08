@@ -6,14 +6,12 @@ struct Volume
 {
     ivec3 dimensions;    
     vec3  spacing;           
-    float spacing_length;                
     vec3  size;         
+    float spacing_length;                
     float size_length;  
     vec3  inv_dimensions;      
     vec3  inv_spacing;   
     vec3  inv_size;            
-    float inv_spacing_length;                  
-    float inv_size_length;         
     vec3  min_position;          
     vec3  max_position;          
     vec3  min_gradient;          

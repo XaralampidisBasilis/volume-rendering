@@ -42,7 +42,7 @@ Ray set_ray()
 
 void discard_ray(inout Ray ray)
 {
- 
+    ray.discarded = true;
 }
 
 #endif // STRUCT_RAY
