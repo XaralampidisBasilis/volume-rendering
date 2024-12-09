@@ -2,8 +2,8 @@
 block.coords = ivec3(trace.position * u_distmap.inv_spacing);
 
 // Sample the distance map and compute if block is occupied
-block.value = int(texelFetch(u_textures.distmap, block.coords, 0).r * 255.0) - 1;
-block.occupied = block.value <= 0;
+block.value = int(texelFetch(u_textures.distmap, block.coords, 0).r * 255.0);
+block.occupied = block.value <= 1;
 
 // Compute block min max coords in distance map
 block.min_coords = block.coords - block.value + 1;

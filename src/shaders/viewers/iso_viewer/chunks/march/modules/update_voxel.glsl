@@ -3,6 +3,7 @@
 prev_voxel = voxel;
 
 // update position
+voxel.coords = ivec3(trace.position * u_volume.inv_spacing);
 voxel.texture_coords = trace.position * u_volume.inv_size;
 vec4 texture_sample = texture(u_textures.taylormap, voxel.texture_coords);
 
