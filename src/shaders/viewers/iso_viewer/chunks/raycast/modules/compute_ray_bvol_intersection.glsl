@@ -17,6 +17,11 @@ for (block.skip_count = 0; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_c
     }
 }
 
+if (block.occupied)
+{
+    #include "./compute_ray_bvol_intersection/refine_ray_start"
+}
+
 // Compute ray exit with bounding volume
 for (block.skip_count; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_count++) 
 {
@@ -33,6 +38,11 @@ for (block.skip_count; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_count
     {
         break;
     }
+}
+
+if (block.occupied)
+{
+    #include "./compute_ray_bvol_intersection/refine_ray_end"
 }
 
 // Discard ray if no intersection with bounding volume
