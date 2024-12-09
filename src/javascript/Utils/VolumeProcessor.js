@@ -16,8 +16,6 @@ export default class VolumeProcessor
         this.setObjects()
         this.setVolumeParameters()
 
-        console.log(tf.memory())
-
         // this.computeIntensityMap()
         // this.computeGradientMap()
         // this.computeTaylorMap()
@@ -36,15 +34,15 @@ export default class VolumeProcessor
 
     setObjects()
     {
-        this.intensityMap = {}
-        this.gradientMap = {}
-        this.taylorMap = {}
-        this.occupancyMap = {}
-        this.occupancyDistanceMap = {}
-        this.occupancyMipmaps = {}
-        this.occupancyBoundingBox = {}
-        this.extremaMap = {}
-        this.extremaDistanceMap = {}
+        this.intensityMap         = { params: null, tensor: null, texture: null}
+        this.gradientMap          = { params: null, tensor: null, texture: null}
+        this.taylorMap            = { params: null, tensor: null, texture: null}
+        this.occupancyMap         = { params: null, tensor: null, texture: null}
+        this.occupancyDistanceMap = { params: null, tensor: null, texture: null}
+        this.occupancyMipmaps     = { params: null, tensor: null, texture: null}
+        this.occupancyBoundingBox = { params: null, tensor: null, texture: null}
+        this.extremaMap           = { params: null, tensor: null, texture: null}
+        this.extremaDistanceMap   = { params: null, tensor: null, texture: null}
     }
 
     setVolumeParameters()
@@ -70,7 +68,7 @@ export default class VolumeProcessor
     {
         timeit('computeIntensityMap', () =>
         {
-            if (this.intensityMap?.tensor) 
+            if (this.intensityMap.tensor) 
                 this.intensityMap.tensor.dispose()
 
             this.intensityMap.tensor = tf.tensor4d(this.volume.data, this.volume.params.shape,'float32')
@@ -85,10 +83,10 @@ export default class VolumeProcessor
     {
         timeit('computeGradientMap', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`computeGradientMap: intensityMap is not computed`)
 
-            if (this.gradientMap?.tensor) 
+            if (this.gradientMap.tensor) 
                 this.gradientMap.tensor.dispose()
             
             this.gradientMap.tensor = TensorUtils.gradients3d(this.intensityMap.tensor, this.volume.params.spacing)
@@ -104,13 +102,13 @@ export default class VolumeProcessor
     {
         timeit('computeTaylorMap', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`computeTaylorMap: intensityMap is not computed`)    
 
-            if (!this.gradientMap?.tensor) 
+            if (!this.gradientMap.tensor) 
                 throw new Error(`computeTaylorMap: intensityMap is not computed`)   
 
-            if (this.taylorMap?.tensor) 
+            if (this.taylorMap.tensor) 
                 this.taylorMap.tensor.dispose()
 
             this.taylorMap.tensor = tf.concat([this.intensityMap.tensor, this.gradientMap.tensor], 3)
@@ -126,8 +124,8 @@ export default class VolumeProcessor
     {
         timeit('computeOccupancyMap', () =>
         {
-            if (this.occupancyMap?.tensor) 
-                this.occupancyMap?.tensor.dispose()
+            if (this.occupancyMap.tensor) 
+                this.occupancyMap.tensor.dispose()
 
             this.occupancyMap.tensor = TensorUtils.occupancyMap(this.intensityMap.tensor, threshold, division)
 
@@ -151,10 +149,10 @@ export default class VolumeProcessor
     {
         timeit('computeOccupancyMipmaps', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`computeOccupancyMipmaps: intensityMap is not computed`)
 
-            if (this.occupancyMipmaps?.tensor) 
+            if (this.occupancyMipmaps.tensor) 
                 this.occupancyMipmaps.tensor.dispose()
 
             const occupancyMipmaps = TensorUtils.occupancyMipmaps(this.intensityMap.tensor, threshold, division)
@@ -179,10 +177,10 @@ export default class VolumeProcessor
     {
         timeit('computeOccupancyDistanceMap', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`computeOccupancyDistanceMap: intensityMap is not computed`)
-
-            if (this.occupancyDistanceMap?.tensor) 
+            
+            if (this.occupancyDistanceMap.tensor) 
                 this.occupancyDistanceMap.tensor.dispose()
 
             this.occupancyDistanceMap.tensor = TensorUtils.occupancyDistanceMap(this.intensityMap.tensor, threshold, division, maxIters)
@@ -209,7 +207,7 @@ export default class VolumeProcessor
     {
         timeit('computeOccupancyBoundingBox', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`computeOccupancyBoundingBox: intensityMap is not computed`)
 
             const boundingBox = TensorUtils.occupancyBoundingBox(this.intensityMap.tensor, threshold)
@@ -229,10 +227,10 @@ export default class VolumeProcessor
     {
         timeit('computeExtremaMap', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`computeExtremaMap: intensityMap is not computed`)
 
-            if (this.extremaMap?.tensor) 
+            if (this.extremaMap.tensor) 
                 this.extremaMap.tensor.dispose()
 
             this.extremaMap.tensor = TensorUtils.extremaMap(this.intensityMap.tensor, division)
@@ -253,10 +251,10 @@ export default class VolumeProcessor
     {
         timeit('computeExtremaDistanceMap', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`computeExtremaDistanceMap: intensityMap is not computed`)
 
-            if (this.extremaDistanceMap?.tensor) 
+            if (this.extremaDistanceMap.tensor) 
                 this.extremaDistanceMap.tensor.dispose()
 
             this.extremaDistanceMap.tensor = TensorUtils.extremaDistanceMap(this.intensityMap.tensor, division, maxDistance)
@@ -279,7 +277,7 @@ export default class VolumeProcessor
     {
         timeit('normalizeIntensityMap', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`normalizeIntensityMap: intensityMap is not computed`)
 
             const [normalizedIntensityMap, minValue, maxValue] = TensorUtils.normalize3d(this.intensityMap.tensor) 
@@ -297,7 +295,7 @@ export default class VolumeProcessor
     {
         timeit('downscaleIntensityMap', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`downscaleIntensityMap: intensityMap is not computed`)
 
             const intensityMap = TensorUtils.downscale3d(this.intensityMap.tensor, scale)
@@ -319,7 +317,7 @@ export default class VolumeProcessor
     {
         timeit('downscaleIntensityMap', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`smoothIntensityMap: intensityMap is not computed`)
 
             const downscaledIntensityMap = TensorUtils.smooth3d(this.intensityMap.tensor, radius)
@@ -336,7 +334,7 @@ export default class VolumeProcessor
     {
         timeit('quantizeIntensityMap', () =>
         {
-            if (!this.intensityMap?.tensor) 
+            if (!this.intensityMap.tensor) 
                 throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
 
             const [quantizedIntensityMap, minValue, maxValue] = TensorUtils.quantize3d(this.intensityMap.tensor) 
@@ -354,7 +352,7 @@ export default class VolumeProcessor
     {
         timeit('quantizeGradientMap', () =>
         {
-            if (!this.gradientMap?.tensor) 
+            if (!this.gradientMap.tensor) 
                 throw new Error(`quantizeGradientMap: gradientMap is not computed`)
 
             const [quantizedGradientMap, minValue, maxValue] = TensorUtils.quantize3d(this.gradientMap.tensor) 
@@ -372,7 +370,7 @@ export default class VolumeProcessor
     {
         timeit('quantizeTaylorMap', () =>
         {
-            if (!this.taylorMap?.tensor) 
+            if (!this.taylorMap.tensor) 
                 throw new Error(`quantizeTaylorMap: taylorMap is not computed`)
 
             const [quantizedTaylorMap, minValue, maxValue] = TensorUtils.quantize3d(this.taylorMap.tensor) 
@@ -392,10 +390,10 @@ export default class VolumeProcessor
     {
         timeit(`generateTexture(${key})`, () =>
         {
-            if (!this[key]?.tensor) 
+            if (!this[key].tensor) 
                 throw new Error(`${key} is not computed`)
 
-            if (this[key]?.texture) 
+            if (this[key].texture) 
                 this[key].texture.dispose()
 
             let array
@@ -442,13 +440,13 @@ export default class VolumeProcessor
         {
             // console.log(this[key])
 
-            if (this[key]?.tensor) 
+            if (this[key].tensor) 
                 this[key].tensor.dispose()
 
-            if (this[key]?.texture) 
+            if (this[key].texture) 
                 this[key].texture.dispose()
 
-            if (this[key]?.params) 
+            if (this[key].params) 
                 delete this[key].params
         })
 

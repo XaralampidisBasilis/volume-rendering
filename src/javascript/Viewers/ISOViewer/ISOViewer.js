@@ -30,6 +30,7 @@ export default class ISOViewer extends EventEmitter
             this.setGeometry()
             this.setMaterial()
             this.setMesh()
+            this.logMemory()
             this.trigger('ready')
         })
     }
@@ -57,7 +58,9 @@ export default class ISOViewer extends EventEmitter
         
         const boxParams = this.processor.occupancyBoundingBox.params 
         uVolume.min_position.copy(boxParams.minPosition)
-        uVolume.max_position.copy(boxParams.maxPosition)      
+        uVolume.max_position.copy(boxParams.maxPosition)     
+        
+        this.logMemory() 
     }   
 
     async updateDistmap()
@@ -82,6 +85,8 @@ export default class ISOViewer extends EventEmitter
         uTextures.distmap = this.processor.getTexture('occupancyDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
         uTextures.distmap.needsUpdate = true
         this.processor.occupancyDistanceMap.tensor.dispose()
+
+        this.logMemory()
     }
 
     setParameters()
@@ -97,11 +102,11 @@ export default class ISOViewer extends EventEmitter
         // taylormap
         this.textures.taylormap = this.processor.getTexture('taylorMap', THREE.RGBAFormat, THREE.UnsignedByteType)
         this.processor.taylorMap.tensor.dispose()
-        
+
         // distmap
         this.textures.distmap = this.processor.getTexture('occupancyDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
         this.processor.occupancyDistanceMap.tensor.dispose()
-        
+
         // colormaps
         this.textures.colormaps = this.resources.items.colormaps                      
         this.textures.colormaps.colorSpace = THREE.SRGBColorSpace
@@ -196,7 +201,7 @@ export default class ISOViewer extends EventEmitter
 
         if (this.processor)
             this.processor.destroy()
-    
+
         // Clean up references
         this.scene = null
         this.resources = null
@@ -208,6 +213,11 @@ export default class ISOViewer extends EventEmitter
         this.gui = null
 
         console.log("ISOViewer destroyed")
+    }
+
+    logMemory()
+    {
+        console.log(`Tensors = ${tf.memory().numTensors}, Textures = ${this.renderer.instance.info.memory.textures}`)
     }
     
 }
