@@ -26,4 +26,9 @@ for (trace.step_count = 0; trace.step_count < MAX_TRACE_STEP_COUNT; trace.step_c
     }
 }   
 
+if (block.occupied)
+{
+    #include "./compute_march_skip/refine_trace"
+}
+
 #include "./end_march"
