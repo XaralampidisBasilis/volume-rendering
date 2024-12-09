@@ -68,263 +68,308 @@ export default class VolumeProcessor
     {
         timeit('computeIntensityMap', () =>
         {
-            if (this.intensityMap.tensor) 
-                this.intensityMap.tensor.dispose()
+            [this.intensityMap.tensor, this.intensityMap.params] = tf.tidy(() =>
+            {
+                const tensor  = tf.tensor4d(this.volume.data, this.volume.params.shape,'float32')
+                const params = {...this.volume.params}
 
-            this.intensityMap.tensor = tf.tensor4d(this.volume.data, this.volume.params.shape,'float32')
-
-            this.intensityMap.params = {...this.volume.params}
-            
-            // console.log('intensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
+                return [tensor, params]
+            })            
         })
+
+        // console.log('intensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
     }
 
     async computeGradientMap()
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeGradientMap: intensityMap is not computed`)
+        }
+
         timeit('computeGradientMap', () =>
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`computeGradientMap: intensityMap is not computed`)
+            [this.gradientMap.tensor, this.gradientMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.gradients3d(this.intensityMap.tensor, this.volume.params.spacing)
+                const params =  {...this.volume.params}
+                params.shape = tensor.shape
 
-            if (this.gradientMap.tensor) 
-                this.gradientMap.tensor.dispose()
-            
-            this.gradientMap.tensor = TensorUtils.gradients3d(this.intensityMap.tensor, this.volume.params.spacing)
-            
-            this.gradientMap.params =  {...this.volume.params}
-            this.gradientMap.params.shape = this.gradientMap.tensor.shape
-            
-            // console.log('gradientMap', this.gradientMap.params, this.gradientMap.tensor.dataSync())
+                return [tensor, params]
+            })            
         })
+
+        // console.log('gradientMap', this.gradientMap.params, this.gradientMap.tensor.dataSync())
     }
  
     async computeTaylorMap()
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeTaylorMap: intensityMap is not computed`)
+        }
+        if (!(this.gradientMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeTaylorMap: gradientMap is not computed`)
+        }
+        
         timeit('computeTaylorMap', () =>
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`computeTaylorMap: intensityMap is not computed`)    
+            [this.taylorMap.tensor, this.taylorMap.params] = tf.tidy(() =>
+            {
+                const tensor = tf.concat([this.intensityMap.tensor, this.gradientMap.tensor], 3)
+                const params =  {...this.volume.params}
+                params.shape = tensor.shape
 
-            if (!this.gradientMap.tensor) 
-                throw new Error(`computeTaylorMap: intensityMap is not computed`)   
-
-            if (this.taylorMap.tensor) 
-                this.taylorMap.tensor.dispose()
-
-            this.taylorMap.tensor = tf.concat([this.intensityMap.tensor, this.gradientMap.tensor], 3)
-
-            this.taylorMap.params =  {...this.volume.params}
-            this.taylorMap.params.shape = this.taylorMap.tensor.shape
-            
-            // console.log('taylorMap', this.taylorMap.params, this.taylorMap.tensor.dataSync())
+                return [tensor, params]
+            })
         })       
+
+        // console.log('taylorMap', this.taylorMap.params, this.taylorMap.tensor.dataSync())s
     }
 
     async computeOccupancyMap(threshold = 0, division = 4)
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeOccupancyMipmaps: intensityMap is not computed`)
+        }
+
         timeit('computeOccupancyMap', () =>
         {
-            if (this.occupancyMap.tensor) 
-                this.occupancyMap.tensor.dispose()
+            [this.occupancyMap.tensor, this.occupancyMap.params] = tf.tidy(() => 
+            {
+                const tensor = TensorUtils.occupancyMap(this.intensityMap.tensor, threshold, division)
+                const params = {}
+                params.threshold = threshold
+                params.division = division
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.shape = tensor.shape
+                params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
+                params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
+                params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
 
-            this.occupancyMap.tensor = TensorUtils.occupancyMap(this.intensityMap.tensor, threshold, division)
-
-            this.occupancyMap.params = {}
-            this.occupancyMap.params.threshold = threshold
-            this.occupancyMap.params.division = division
-            this.occupancyMap.params.dimensions = new THREE.Vector3().fromArray(this.occupancyMap.tensor.shape.slice(0, 3).toReversed())
-            this.occupancyMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
-            this.occupancyMap.params.size = new THREE.Vector3().copy(this.occupancyMap.params.dimensions).multiply(this.occupancyMap.params.spacing)
-            this.occupancyMap.params.numBlocks = this.occupancyMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-            this.occupancyMap.params.shape = this.occupancyMap.tensor.shape
-            this.occupancyMap.params.invDimensions = new THREE.Vector3().fromArray(this.occupancyMap.params.dimensions.toArray().map(x => 1/x))
-            this.occupancyMap.params.invSpacing = new THREE.Vector3().fromArray(this.occupancyMap.params.spacing.toArray().map(x => 1/x))
-            this.occupancyMap.params.invSize = new THREE.Vector3().fromArray(this.occupancyMap.params.size.toArray().map(x => 1/x))
-
-            // console.log('occupancyMap', this.occupancyMap.params, this.occupancyMap.tensor.dataSync())
+                return [tensor, params]
+            })
         })
+
+        // console.log('occupancyMap', this.occupancyMap.params, this.occupancyMap.tensor.dataSync())
     }
 
     async computeOccupancyMipmaps(threshold = 0, division = 4)
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeOccupancyMipmaps: intensityMap is not computed`)
+        }
+
         timeit('computeOccupancyMipmaps', () =>
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`computeOccupancyMipmaps: intensityMap is not computed`)
+            [this.occupancyMipmaps.tensor, this.occupancyMipmaps.params] = tf.tidy(() =>
+            {
+                const array = arrayUtils.occupancyMipmaps(this.intensityMap.tensor, threshold, division)
+                const tensor = TensorUtils.compactMipmaps(array)
+                const params = {}
+                params.threshold = threshold
+                params.division = division
+                params.levels = occupancyMipmaps.length
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.shape = tensor.shape
+                params.dimensions0 = new THREE.Vector3().fromArray(occupancyMipmaps[0].shape.slice(0, 3).toReversed())
+                params.spacing0 = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+                params.size0 = new THREE.Vector3().copy(params.dimensions0).multiply(this.occupancyMipmaps.params.spacing0)
 
-            if (this.occupancyMipmaps.tensor) 
-                this.occupancyMipmaps.tensor.dispose()
-
-            const occupancyMipmaps = TensorUtils.occupancyMipmaps(this.intensityMap.tensor, threshold, division)
-            const compactOccupancyMipmaps = TensorUtils.compactMipmaps(occupancyMipmaps)
-
-            this.occupancyMipmaps.tensor = compactOccupancyMipmaps
-            this.occupancyMipmaps.params = {}
-            this.occupancyMipmaps.params.threshold = threshold
-            this.occupancyMipmaps.params.division = division
-            this.occupancyMipmaps.params.levels = occupancyMipmaps.length
-            this.occupancyMipmaps.params.dimensions = new THREE.Vector3().fromArray(compactOccupancyMipmaps.shape.slice(0, 3).toReversed())
-            this.occupancyMipmaps.params.shape = compactOccupancyMipmaps.shape
-            this.occupancyMipmaps.params.dimensions0 = new THREE.Vector3().fromArray(occupancyMipmaps[0].shape.slice(0, 3).toReversed())
-            this.occupancyMipmaps.params.spacing0 = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
-            this.occupancyMipmaps.params.size0 = new THREE.Vector3().copy(this.occupancyMipmaps.params.dimensions0).multiply(this.occupancyMipmaps.params.spacing0)
-            
-            // console.log('occupancyMipmaps', this.occupancyMipmaps.params, this.occupancyMipmaps.tensor.dataSync())
-        })        
+                return [tensor, params]
+            })
+        })    
+        
+        // console.log('occupancyMipmaps', this.occupancyMipmaps.params, this.occupancyMipmaps.tensor.dataSync())
     }
 
     async computeOccupancyDistanceMap(threshold = 0, division = 2, maxIters = 255)
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeOccupancyDistanceMap: intensityMap is not computed`)
+        }
+       
         timeit('computeOccupancyDistanceMap', () =>
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`computeOccupancyDistanceMap: intensityMap is not computed`)
-            
-            if (this.occupancyDistanceMap.tensor) 
-                this.occupancyDistanceMap.tensor.dispose()
-
-            this.occupancyDistanceMap.tensor = TensorUtils.occupancyDistanceMap(this.intensityMap.tensor, threshold, division, maxIters)
-
-            this.occupancyDistanceMap.params = {}
-            this.occupancyDistanceMap.params.threshold = threshold
-            this.occupancyDistanceMap.params.division = division
-            this.occupancyDistanceMap.params.maxDistance = this.occupancyDistanceMap.tensor.max().arraySync()
-            this.occupancyDistanceMap.params.dimensions = new THREE.Vector3().fromArray(this.occupancyDistanceMap.tensor.shape.slice(0, 3).toReversed())
-            this.occupancyDistanceMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(this.occupancyDistanceMap.params.division)
-            this.occupancyDistanceMap.params.size = new THREE.Vector3().copy(this.occupancyDistanceMap.params.dimensions).multiply(this.occupancyDistanceMap.params.spacing)
-            this.occupancyDistanceMap.params.numBlocks = this.occupancyDistanceMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-            this.occupancyDistanceMap.params.shape = this.occupancyDistanceMap.tensor.shape
-            this.occupancyDistanceMap.params.invDimensions = new THREE.Vector3().fromArray(this.occupancyDistanceMap.params.dimensions.toArray().map(x => 1/x))
-            this.occupancyDistanceMap.params.invSpacing = new THREE.Vector3().fromArray(this.occupancyDistanceMap.params.spacing.toArray().map(x => 1/x))
-            this.occupancyDistanceMap.params.invSize = new THREE.Vector3().fromArray(this.occupancyDistanceMap.params.size.toArray().map(x => 1/x))
-
-            //
-            // console.log('occupancyDistanceMap', this.occupancyDistanceMap.params, this.occupancyDistanceMap.tensor.dataSync())
+            [this.occupancyDistanceMap.tensor, this.occupancyDistanceMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.occupancyDistanceMap(this.intensityMap.tensor, threshold, division, maxIters)
+                const params = {}
+                params.threshold = threshold
+                params.division = division
+                params.shape = tensor.shape
+                params.maxDistance = tensor.max().arraySync()
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(params.division)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
+                params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
+                params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
+                
+                return [tensor, params]
+            })
         })
+
+        // console.log('occupancyDistanceMap', this.occupancyDistanceMap.params, occupancyDistanceMap.dataSync())
     }
 
     async computeOccupancyBoundingBox(threshold = 0)
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeOccupancyBoundingBox: intensityMap is not computed`)
+        }
+
         timeit('computeOccupancyBoundingBox', () =>
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`computeOccupancyBoundingBox: intensityMap is not computed`)
-
-            const boundingBox = TensorUtils.occupancyBoundingBox(this.intensityMap.tensor, threshold)
-  
-            this.occupancyBoundingBox.params = {}
-            this.occupancyBoundingBox.params.threshold = threshold
-            this.occupancyBoundingBox.params.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
-            this.occupancyBoundingBox.params.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
-            this.occupancyBoundingBox.params.minPosition = new THREE.Vector3().fromArray(boundingBox.minCoords).multiply(this.volume.params.spacing)
-            this.occupancyBoundingBox.params.maxPosition = new THREE.Vector3().fromArray(boundingBox.maxCoords).multiply(this.volume.params.spacing)
-
-            // console.log('occupancyBoundingBox', this.occupancyBoundingBox.params)
+            this.occupancyBoundingBox.params = tf.tidy(() =>
+            {
+                const boundingBox = TensorUtils.occupancyBoundingBox(this.intensityMap.tensor, threshold)
+                const params = {}
+                params.threshold = threshold
+                params.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
+                params.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
+                params.minPosition = new THREE.Vector3().fromArray(boundingBox.minCoords).multiply(this.volume.params.spacing)
+                params.maxPosition = new THREE.Vector3().fromArray(boundingBox.maxCoords).multiply(this.volume.params.spacing)
+                
+                return params
+            })          
         })
+
+        // console.log('occupancyBoundingBox', this.occupancyBoundingBox.params)
     }
 
     async computeExtremaMap(division = 4)
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeExtremaMap: intensityMap is not computed`)
+        }
+
         timeit('computeExtremaMap', () =>
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`computeExtremaMap: intensityMap is not computed`)
+            [this.extremaMap.tensor, this.extremaMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.extremaMap(this.intensityMap.tensor, division)
+                const params = {}
+                params.division = division
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.shape = tensor.shape
 
-            if (this.extremaMap.tensor) 
-                this.extremaMap.tensor.dispose()
-
-            this.extremaMap.tensor = TensorUtils.extremaMap(this.intensityMap.tensor, division)
-
-            this.extremaMap.params = {}
-            this.extremaMap.params.division = division
-            this.extremaMap.params.dimensions = new THREE.Vector3().fromArray(this.extremaMap.tensor.shape.slice(0, 3).toReversed())
-            this.extremaMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
-            this.extremaMap.params.size = new THREE.Vector3().copy(this.extremaMap.params.dimensions).multiply(this.extremaMap.params.spacing)
-            this.extremaMap.params.numBlocks = this.extremaMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-            this.extremaMap.params.shape = this.extremaMap.tensor.shape
-            
-            // console.log('extremaMap', this.extremaMap.params, this.extremaMap.tensor.dataSync())
+                return [tensor, params]
+            })            
         })
+
+        // console.log('extremaMap', this.extremaMap.params, this.extremaMap.tensor.dataSync())
     }
 
     async computeExtremaDistanceMap(division = 4, maxDistance = 255)
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeExtremaDistanceMap: intensityMap is not computed`)
+        }
+        
         timeit('computeExtremaDistanceMap', () =>
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`computeExtremaDistanceMap: intensityMap is not computed`)
-
-            if (this.extremaDistanceMap.tensor) 
-                this.extremaDistanceMap.tensor.dispose()
-
-            this.extremaDistanceMap.tensor = TensorUtils.extremaDistanceMap(this.intensityMap.tensor, division, maxDistance)
-            this.extremaDistanceMap.params = {}
-            this.extremaDistanceMap.params.division = division
-            this.extremaDistanceMap.params.maxDistance = maxDistance
-            this.extremaDistanceMap.params.dimensions = new THREE.Vector3().fromArray(this.extremaDistanceMap.tensor.shape.slice(0, 3).toReversed())
-            this.extremaDistanceMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
-            this.extremaDistanceMap.params.size = new THREE.Vector3().copy(this.extremaDistanceMap.params.dimensions).multiply(this.extremaDistanceMap.params.spacing)
-            this.extremaDistanceMap.params.numBlocks = this.extremaDistanceMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-            this.extremaDistanceMap.params.shape = this.extremaDistanceMap.tensor.shape
-
-            // console.log('extremaDistanceMap', this.extremaDistanceMap.params, this.extremaDistanceMap.tensor.dataSync())
+            [this.extremaDistanceMap.tensor, this.extremaDistanceMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.extremaDistanceMap(this.intensityMap.tensor, division, maxDistance)
+                const params = {}
+                params.division = division
+                params.maxDistance = maxDistance
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.shape = tensor.shape
+                
+                return [tensor, params]
+            })
         })
-    }
 
-    // alter functions
+        // console.log('extremaDistanceMap', this.extremaDistanceMap.params, this.extremaDistanceMap.tensor.dataSync())
+    }
 
     async normalizeIntensityMap()
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`normalizeIntensityMap: intensityMap is not computed`)
+        }
+
         timeit('normalizeIntensityMap', () =>
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`normalizeIntensityMap: intensityMap is not computed`)
+            [this.intensityMap.tensor, this.intensityMap.params] = tf.tidy(() =>
+            {
+                const [tensor, minValue, maxValue] = TensorUtils.normalize3d(this.intensityMap.tensor) 
+                const params =  {...this.intensityMap.params}
+                params.minValue = minValue[0]
+                params.maxValue = maxValue[0]  
 
-            const [normalizedIntensityMap, minValue, maxValue] = TensorUtils.normalize3d(this.intensityMap.tensor) 
-
-            this.intensityMap.tensor.dispose()
-            this.intensityMap.tensor = normalizedIntensityMap
-            this.intensityMap.params.minValue = minValue[0]
-            this.intensityMap.params.maxValue = maxValue[0]  
-
-            // console.log('normalizedIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
+                return [tensor, params]
+            })
         })
+
+        // console.log('normalizedIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
     }
 
     async downscaleIntensityMap(scale = 2)
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`downscaleIntensityMap: intensityMap is not computed`)
+        }
+
         timeit('downscaleIntensityMap', () =>
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`downscaleIntensityMap: intensityMap is not computed`)
+            [this.intensityMap.tensor, this.intensityMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.downscale3d(this.intensityMap.tensor, scale)
+                const params =  {...this.intensityMap.params}
+                params.downScale = scale
+                params.dimensions = new THREE.Vector3().fromArray(this.intensityMap.tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(scale)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.shape = this.intensityMap.tensor.shape
 
-            const intensityMap = TensorUtils.downscale3d(this.intensityMap.tensor, scale)
-
-            this.intensityMap.tensor.dispose()
-            this.intensityMap.tensor = intensityMap
-            this.intensityMap.params.downScale = scale
-            this.intensityMap.params.dimensions = new THREE.Vector3().fromArray(this.intensityMap.tensor.shape.slice(0, 3).toReversed())
-            this.intensityMap.params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(scale)
-            this.intensityMap.params.size = new THREE.Vector3().copy(this.intensityMap.params.dimensions).multiply(this.intensityMap.params.spacing)
-            this.intensityMap.params.numBlocks = this.intensityMap.params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-            this.intensityMap.params.shape = this.intensityMap.tensor.shape
-
-            // console.log('downscaledIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
+                return [tensor, params]
+            })
         })
+
+        // console.log('downscaledIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
     }
 
     async smoothIntensityMap(radius = 1)
     {
-        timeit('downscaleIntensityMap', () =>
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`smoothIntensityMap: intensityMap is not computed`)
+            throw new Error(`smoothIntensityMap: intensityMap is not computed`)
+        }
 
-            const downscaledIntensityMap = TensorUtils.smooth3d(this.intensityMap.tensor, radius)
+        timeit('smoothIntensityMap', () =>
+        {
+            [this.intensityMap.tensor, this.intensityMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.smooth3d(this.intensityMap.tensor, radius)
+                const params =  {...this.intensityMap.params}
+                params.smoothingRadius = radius
 
-            this.intensityMap.tensor.dispose()
-            this.intensityMap.tensor = downscaledIntensityMap
-            this.intensityMap.params.smoothingRadius = radius
+                return [tensor, params]
+            })
+           
             
             // console.log('smoothedIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
         })
@@ -332,70 +377,89 @@ export default class VolumeProcessor
 
     async quantizeIntensityMap()
     {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
+        }
+
         timeit('quantizeIntensityMap', () =>
         {
-            if (!this.intensityMap.tensor) 
-                throw new Error(`quantizeIntensityMap: intensityMap is not computed`)
+            [this.intensityMap.tensor, this.intensityMap.params] = tf.tidy(() =>
+            {
+                const [tensor, minValue, maxValue] = TensorUtils.quantize3d(this.intensityMap.tensor) 
+                const params =  {...this.intensityMap.params}
+                params.minValue = minValue
+                params.maxValue = maxValue  
 
-            const [quantizedIntensityMap, minValue, maxValue] = TensorUtils.quantize3d(this.intensityMap.tensor) 
-
-            this.intensityMap.tensor.dispose()
-            this.intensityMap.tensor = quantizedIntensityMap
-            this.intensityMap.params.minValue = minValue
-            this.intensityMap.params.maxValue = maxValue  
-            
-            // console.log('quantizedIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
+                return [tensor, params]
+            })            
         })
+
+        // console.log('quantizedIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
     }
 
     async quantizeGradientMap()
     {
+        if (!(this.gradientMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`quantizeGradientMap: gradientMap is not computed`)
+        }
+
         timeit('quantizeGradientMap', () =>
         {
-            if (!this.gradientMap.tensor) 
-                throw new Error(`quantizeGradientMap: gradientMap is not computed`)
+            [this.gradientMap.tensor, this.gradientMap.params] = tf.tidy(() =>
+            {
+                const [tensor, minValue, maxValue] = TensorUtils.quantize3d(this.gradientMap.tensor) 
+                const params =  {...this.gradientMap.params}
+                params.minValue = new THREE.Vector3().fromArray(minValue)
+                params.maxValue = new THREE.Vector3().fromArray(maxValue) 
 
-            const [quantizedGradientMap, minValue, maxValue] = TensorUtils.quantize3d(this.gradientMap.tensor) 
-
-            this.gradientMap.tensor.dispose()
-            this.gradientMap.tensor = quantizedGradientMap
-            this.gradientMap.params.minValue = new THREE.Vector3().fromArray(minValue)
-            this.gradientMap.params.maxValue = new THREE.Vector3().fromArray(maxValue) 
-            
-            // console.log('quantizedGradientMap', this.gradientMap.params, this.gradientMap.tensor.dataSync())
+                return [tensor, params]
+            })
         })
+
+        // console.log('quantizedGradientMap', this.gradientMap.params, this.gradientMap.tensor.dataSync())
     }
 
     async quantizeTaylorMap()
     {
+        if (!(this.taylorMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`quantizeTaylorMap: taylorMap is not computed`)
+        }
+
         timeit('quantizeTaylorMap', () =>
         {
-            if (!this.taylorMap.tensor) 
-                throw new Error(`quantizeTaylorMap: taylorMap is not computed`)
+            [this.taylorMap.tensor, this.taylorMap.params] = tf.tidy(() =>
+            {
+                const [tensor, minValue, maxValue] = TensorUtils.quantize3d(this.taylorMap.tensor) 
+                const params =  {...this.taylorMap.params}
+                params.minValue = new THREE.Vector4().fromArray(minValue)
+                params.maxValue = new THREE.Vector4().fromArray(maxValue) 
 
-            const [quantizedTaylorMap, minValue, maxValue] = TensorUtils.quantize3d(this.taylorMap.tensor) 
-
-            this.taylorMap.tensor.dispose()
-            this.taylorMap.tensor = quantizedTaylorMap
-            this.taylorMap.params.minValue = new THREE.Vector4().fromArray(minValue)
-            this.taylorMap.params.maxValue = new THREE.Vector4().fromArray(maxValue) 
-            
-            // console.log('quantizedTaylorMap', this.taylorMap.params, this.taylorMap.tensor.dataSync())
+                return [tensor, params]
+            })            
         })
+
+        // console.log('quantizedTaylorMap', this.taylorMap.params, this.taylorMap.tensor.dataSync())
     }
 
     // helper functions
 
     getTexture(key, format, type) 
     {
+        if (!(this[key].tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`${key} is not computed`)
+        }
+
+        if (this[key].texture instanceof THREE.Data3DTexture) 
+        {
+            this[key].texture.dispose()
+        }
+
         timeit(`generateTexture(${key})`, () =>
         {
-            if (!this[key].tensor) 
-                throw new Error(`${key} is not computed`)
-
-            if (this[key].texture) 
-                this[key].texture.dispose()
-
             let array
             switch (type) 
             {
@@ -440,12 +504,18 @@ export default class VolumeProcessor
         {
             // console.log(this[key])
 
-            if (this[key].tensor) 
+            if (this[key] instanceof tf.Tensor) 
+            {
                 this[key].tensor.dispose()
+                this[key].tensor = null
+            }
 
-            if (this[key].texture) 
+            if (this[key] instanceof THREE.Data3DTexture) 
+            {
                 this[key].texture.dispose()
-
+                this[key].texture = null
+            }
+        
             if (this[key].params) 
                 delete this[key].params
         })
