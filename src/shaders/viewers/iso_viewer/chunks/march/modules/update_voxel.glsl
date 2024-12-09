@@ -14,3 +14,4 @@ trace.intersected = voxel.value > u_rendering.min_value;
 // update gradient
 voxel.gradient = texture_sample.gba;
 voxel.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, voxel.gradient);
+

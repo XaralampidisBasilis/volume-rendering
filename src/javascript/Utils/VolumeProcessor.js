@@ -128,7 +128,7 @@ export default class VolumeProcessor
         // console.log('taylorMap', this.taylorMap.params, this.taylorMap.tensor.dataSync())s
     }
 
-    async computeOccupancyMap(threshold = 0, division = 4)
+    async computeOccupancyMap(threshold = 0, subDivision = 4)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
@@ -139,12 +139,12 @@ export default class VolumeProcessor
         {
             [this.occupancyMap.tensor, this.occupancyMap.params] = tf.tidy(() => 
             {
-                const tensor = TensorUtils.occupancyMap(this.intensityMap.tensor, threshold, division)
+                const tensor = TensorUtils.occupancyMap(this.intensityMap.tensor, threshold, subDivision)
                 const params = {}
                 params.threshold = threshold
-                params.division = division
+                params.subDivision = subDivision
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
-                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
                 params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
                 params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
                 params.shape = tensor.shape
@@ -159,7 +159,7 @@ export default class VolumeProcessor
         // console.log('occupancyMap', this.occupancyMap.params, this.occupancyMap.tensor.dataSync())
     }
 
-    async computeOccupancyMipmaps(threshold = 0, division = 4)
+    async computeOccupancyMipmaps(threshold = 0, subDivision = 4)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
@@ -170,16 +170,16 @@ export default class VolumeProcessor
         {
             [this.occupancyMipmaps.tensor, this.occupancyMipmaps.params] = tf.tidy(() =>
             {
-                const array = arrayUtils.occupancyMipmaps(this.intensityMap.tensor, threshold, division)
+                const array = arrayUtils.occupancyMipmaps(this.intensityMap.tensor, threshold, subDivision)
                 const tensor = TensorUtils.compactMipmaps(array)
                 const params = {}
                 params.threshold = threshold
-                params.division = division
+                params.subDivision = subDivision
                 params.levels = occupancyMipmaps.length
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
                 params.shape = tensor.shape
                 params.dimensions0 = new THREE.Vector3().fromArray(occupancyMipmaps[0].shape.slice(0, 3).toReversed())
-                params.spacing0 = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+                params.spacing0 = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
                 params.size0 = new THREE.Vector3().copy(params.dimensions0).multiply(this.occupancyMipmaps.params.spacing0)
 
                 return [tensor, params]
@@ -189,7 +189,7 @@ export default class VolumeProcessor
         // console.log('occupancyMipmaps', this.occupancyMipmaps.params, this.occupancyMipmaps.tensor.dataSync())
     }
 
-    async computeOccupancyDistanceMap(threshold = 0, division = 2, maxIters = 255)
+    async computeOccupancyDistanceMap(threshold = 0, subDivision = 2, maxIters = 255)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
@@ -200,14 +200,14 @@ export default class VolumeProcessor
         {
             [this.occupancyDistanceMap.tensor, this.occupancyDistanceMap.params] = tf.tidy(() =>
             {
-                const tensor = TensorUtils.occupancyDistanceMap(this.intensityMap.tensor, threshold, division, maxIters)
+                const tensor = TensorUtils.occupancyDistanceMap(this.intensityMap.tensor, threshold, subDivision, maxIters)
                 const params = {}
                 params.threshold = threshold
-                params.division = division
+                params.subDivision = subDivision
                 params.shape = tensor.shape
                 params.maxDistance = tensor.max().arraySync()
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
-                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(params.division)
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(params.subDivision)
                 params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
                 params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
                 params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
@@ -247,7 +247,7 @@ export default class VolumeProcessor
         // console.log('occupancyBoundingBox', this.occupancyBoundingBox.params)
     }
 
-    async computeExtremaMap(division = 4)
+    async computeExtremaMap(subDivision = 4)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
@@ -258,11 +258,11 @@ export default class VolumeProcessor
         {
             [this.extremaMap.tensor, this.extremaMap.params] = tf.tidy(() =>
             {
-                const tensor = TensorUtils.extremaMap(this.intensityMap.tensor, division)
+                const tensor = TensorUtils.extremaMap(this.intensityMap.tensor, subDivision)
                 const params = {}
-                params.division = division
+                params.subDivision = subDivision
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
-                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
                 params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
                 params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
                 params.shape = tensor.shape
@@ -274,7 +274,7 @@ export default class VolumeProcessor
         // console.log('extremaMap', this.extremaMap.params, this.extremaMap.tensor.dataSync())
     }
 
-    async computeExtremaDistanceMap(division = 4, maxDistance = 255)
+    async computeExtremaDistanceMap(subDivision = 4, maxDistance = 255)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
@@ -285,12 +285,12 @@ export default class VolumeProcessor
         {
             [this.extremaDistanceMap.tensor, this.extremaDistanceMap.params] = tf.tidy(() =>
             {
-                const tensor = TensorUtils.extremaDistanceMap(this.intensityMap.tensor, division, maxDistance)
+                const tensor = TensorUtils.extremaDistanceMap(this.intensityMap.tensor, subDivision, maxDistance)
                 const params = {}
-                params.division = division
+                params.subDivision = subDivision
                 params.maxDistance = maxDistance
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
-                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(division)
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
                 params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
                 params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
                 params.shape = tensor.shape
@@ -314,6 +314,8 @@ export default class VolumeProcessor
             [this.intensityMap.tensor, this.intensityMap.params] = tf.tidy(() =>
             {
                 const [tensor, minValue, maxValue] = TensorUtils.normalize3d(this.intensityMap.tensor) 
+                this.intensityMap.tensor.dispose()
+
                 const params =  {...this.intensityMap.params}
                 params.minValue = minValue[0]
                 params.maxValue = maxValue[0]  
@@ -337,6 +339,8 @@ export default class VolumeProcessor
             [this.intensityMap.tensor, this.intensityMap.params] = tf.tidy(() =>
             {
                 const tensor = TensorUtils.downscale3d(this.intensityMap.tensor, scale)
+                this.intensityMap.tensor.dispose()
+
                 const params =  {...this.intensityMap.params}
                 params.downScale = scale
                 params.dimensions = new THREE.Vector3().fromArray(this.intensityMap.tensor.shape.slice(0, 3).toReversed())
@@ -364,6 +368,8 @@ export default class VolumeProcessor
             [this.intensityMap.tensor, this.intensityMap.params] = tf.tidy(() =>
             {
                 const tensor = TensorUtils.smooth3d(this.intensityMap.tensor, radius)
+                this.intensityMap.tensor.dispose()
+
                 const params =  {...this.intensityMap.params}
                 params.smoothingRadius = radius
 
@@ -387,6 +393,8 @@ export default class VolumeProcessor
             [this.intensityMap.tensor, this.intensityMap.params] = tf.tidy(() =>
             {
                 const [tensor, minValue, maxValue] = TensorUtils.quantize3d(this.intensityMap.tensor) 
+                this.intensityMap.tensor.dispose()
+
                 const params =  {...this.intensityMap.params}
                 params.minValue = minValue
                 params.maxValue = maxValue  
@@ -410,6 +418,8 @@ export default class VolumeProcessor
             [this.gradientMap.tensor, this.gradientMap.params] = tf.tidy(() =>
             {
                 const [tensor, minValue, maxValue] = TensorUtils.quantize3d(this.gradientMap.tensor) 
+                this.gradientMap.tensor.dispose()
+
                 const params =  {...this.gradientMap.params}
                 params.minValue = new THREE.Vector3().fromArray(minValue)
                 params.maxValue = new THREE.Vector3().fromArray(maxValue) 
@@ -433,6 +443,8 @@ export default class VolumeProcessor
             [this.taylorMap.tensor, this.taylorMap.params] = tf.tidy(() =>
             {
                 const [tensor, minValue, maxValue] = TensorUtils.quantize3d(this.taylorMap.tensor) 
+                this.taylorMap.tensor.dispose()
+
                 const params =  {...this.taylorMap.params}
                 params.minValue = new THREE.Vector4().fromArray(minValue)
                 params.maxValue = new THREE.Vector4().fromArray(maxValue) 
@@ -460,7 +472,9 @@ export default class VolumeProcessor
 
         timeit(`generateTexture(${key})`, () =>
         {
+            let dimensions = this[key].params.dimensions.toArray()
             let array
+
             switch (type) 
             {
                 case THREE.FloatType:
@@ -485,7 +499,6 @@ export default class VolumeProcessor
                     throw new Error(`Unsupported type: ${type}`)
             }
 
-            let dimensions = this[key].params.dimensions.toArray()
             this[key].texture = new THREE.Data3DTexture(array, ...dimensions)
             this[key].texture.format = format
             this[key].texture.type = type

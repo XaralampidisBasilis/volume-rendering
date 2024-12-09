@@ -75,36 +75,34 @@ export default class ISOGui
     {
         const folder = this.subfolders.rendering
         const material = this.viewer.material
-        const uniforms = this.viewer.material.uniforms.u_rendering.value
+        const uRendering = this.viewer.material.uniforms.u_rendering.value
+        const uDistmap = this.viewer.material.uniforms.u_distmap.value
         const defines = this.viewer.material.defines
         const objects = { 
-            min_value                    : uniforms.min_value,
-            RAY_INTERSECT_BBOX_ENABLED   : Boolean(defines.RAY_INTERSECT_BBOX_ENABLED),
-            RAY_INTERSECT_BVOL_ENABLED   : Boolean(defines.RAY_INTERSECT_BVOL_ENABLED),
-            RAY_DITHERING_ENABLED        : Boolean(defines.RAY_DITHERING_ENABLED),
-            TRACE_SKIPPING_ENABLED       : Boolean(defines.TRACE_SKIPPING_ENABLED),
-            TRACE_STEPPING_ENABLED       : Boolean(defines.TRACE_STEPPING_ENABLED),
-            TRACE_REFINE_POSITION_ENABLED: Boolean(defines.TRACE_REFINE_POSITION_ENABLED),
-            TRACE_REFINE_GRADIENT_ENABLED: Boolean(defines.TRACE_REFINE_GRADIENT_ENABLED),
+            min_value                  : uRendering.min_value,
+            INTERSECT_BBOX_ENABLED     : Boolean(defines.INTERSECT_BBOX_ENABLED),
+            INTERSECT_BVOL_ENABLED     : Boolean(defines.INTERSECT_BVOL_ENABLED),
+            REFINE_INTERSECTION_ENABLED: Boolean(defines.REFINE_INTERSECTION_ENABLED),
+            REFINE_GRADIENTS_ENABLED   : Boolean(defines.REFINE_GRADIENTS_ENABLED),
+            DITHERING_ENABLED          : Boolean(defines.DITHERING_ENABLED),
+            SKIPPING_ENABLED           : Boolean(defines.SKIPPING_ENABLED),
         }
     
-
         this.controllers.rendering = 
         {
-            minValue           : folder.add(objects, 'min_value').min(0).max(1).step(0.0001).onFinishChange((value) => { uniforms.min_value = value, this.viewer.updateBoundingBox(),  this.viewer.updateDistmap() }),
-            minStepScale       : folder.add(uniforms, 'min_step_scaling').min(0.001).max(5).step(0.001),
-            maxStepScale       : folder.add(uniforms, 'max_step_scaling').min(0.001).max(5).step(0.001),
-            maxStepCount       : folder.add(uniforms, 'max_step_count').min(0).max(1000).step(1),
-            maxSkipCount       : folder.add(uniforms, 'max_skip_count').min(0).max(200).step(1),
-            enableIntersectBbox: folder.add(objects, 'RAY_INTERSECT_BBOX_ENABLED').name('enable_intersect_bbox').onFinishChange((value) => { defines.RAY_INTERSECT_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
-            enableIntersectBvol: folder.add(objects, 'RAY_INTERSECT_BVOL_ENABLED').name('enable_intersect_bvol').onFinishChange((value) => { defines.RAY_INTERSECT_BVOL_ENABLED = Number(value), material.needsUpdate = true }),
-            enableDithering    : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableStepping     : folder.add(objects, 'TRACE_STEPPING_ENABLED').name('enable_stepping').onFinishChange((value) => { defines.TRACE_STEPPING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableSkipping     : folder.add(objects, 'TRACE_SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.TRACE_SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableRefinePos    : folder.add(objects, 'TRACE_REFINE_POSITION_ENABLED').name('enable_refine_position').onFinishChange((value) => { defines.TRACE_REFINE_POSITION_ENABLED = Number(value), material.needsUpdate = true }),
-            enableRefineGrad   : folder.add(objects, 'TRACE_REFINE_GRADIENT_ENABLED').name('enable_refine_gradient').onFinishChange((value) => { defines.TRACE_REFINE_GRADIENT_ENABLED = Number(value), material.needsUpdate = true }),
+            minValue           : folder.add(objects, 'min_value').min(0).max(1).step(0.0001).onFinishChange((value) => { uRendering.min_value = value, this.viewer.updateBoundingBox(),  this.viewer.updateDistmap() }),
+            minStepScale       : folder.add(uRendering, 'min_step_scaling').min(0.001).max(5).step(0.001),
+            maxStepScale       : folder.add(uRendering, 'max_step_scaling').min(0.001).max(5).step(0.001),
+            maxStepCount       : folder.add(uRendering, 'max_step_count').min(0).max(1000).step(1),
+            maxSkipCount       : folder.add(uRendering, 'max_skip_count').min(0).max(200).step(1),
+            subDivision        : folder.add(uDistmap, 'sub_division').min(2).max(16).step(1).onFinishChange((value) => { uDistmap.sub_division = value, this.viewer.updateDistmap() }),
+            enableIntersectBbox: folder.add(objects, 'INTERSECT_BBOX_ENABLED').name('enable_intersect_bbox').onFinishChange((value) => { defines.INTERSECT_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
+            enableIntersectBvol: folder.add(objects, 'INTERSECT_BVOL_ENABLED').name('enable_intersect_bvol').onFinishChange((value) => { defines.INTERSECT_BVOL_ENABLED = Number(value), material.needsUpdate = true }),
+            enableRefineInter  : folder.add(objects, 'REFINE_INTERSECTION_ENABLED').name('enable_refine_position').onFinishChange((value) => { defines.REFINE_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
+            enableRefineGrad   : folder.add(objects, 'REFINE_GRADIENTS_ENABLED').name('enable_refine_gradient').onFinishChange((value) => { defines.REFINE_GRADIENTS_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipping     : folder.add(objects, 'SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableDithering    : folder.add(objects, 'DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
         }
-
     }
 
     addControllersColormap() 
@@ -163,7 +161,7 @@ export default class ISOGui
         const uniforms = this.viewer.material.uniforms.u_debugging.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
-        const objects = { FRAGMENT_DISCARDING_DISABLED: Boolean(defines.FRAGMENT_DISCARDING_DISABLED) }
+        const objects = { DISCARDING_DISABLED: Boolean(defines.DISCARDING_DISABLED) }
 
         this.controllers.debugging = 
         {
@@ -245,7 +243,7 @@ export default class ISOGui
             variable1 : folder.add(uniforms, 'variable1').min(-2).max(2).step(0.00000001),
             variable2 : folder.add(uniforms, 'variable2').min(0).max(256).step(0.00000001),
             variable3 : folder.add(uniforms, 'variable3').min(0).max(10).step(1),
-            discarding: folder.add(objects, 'FRAGMENT_DISCARDING_DISABLED').name('discarding').onFinishChange((value) => { defines.FRAGMENT_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
+            discarding: folder.add(objects, 'DISCARDING_DISABLED').name('discarding').onFinishChange((value) => { defines.DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }
     }
     

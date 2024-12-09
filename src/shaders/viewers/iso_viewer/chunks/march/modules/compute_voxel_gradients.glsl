@@ -29,7 +29,3 @@ voxel.gradient = vec3(
     values[3] + values[4] + values[5] + values[7] - values[0] - values[2] - values[1] - values[6]
 );
 voxel.gradient *= u_volume.inv_spacing * 0.25;
-
-// update trace
-trace.derivative = dot(voxel.gradient, ray.step_direction);
-

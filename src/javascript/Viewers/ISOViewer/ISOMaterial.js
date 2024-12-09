@@ -34,7 +34,7 @@ export default function()
         u_distmap : new THREE.Uniform
         ({
             max_distance  : 0,
-            division      : 3,
+            sub_division  : 3,
             dimensions    : new THREE.Vector3(),
             spacing       : new THREE.Vector3(),
             size          : new THREE.Vector3(),
@@ -91,14 +91,13 @@ export default function()
 
     const defines = 
     {           
-        RAY_INTERSECT_BBOX_ENABLED   : 1,
-        RAY_INTERSECT_BVOL_ENABLED   : 1,
-        RAY_DITHERING_ENABLED        : 0,
-        TRACE_SKIPPING_ENABLED       : 1,
-        TRACE_STEPPING_ENABLED       : 1,
-        TRACE_REFINE_POSITION_ENABLED: 1,
-        TRACE_REFINE_GRADIENT_ENABLED: 1,
-        FRAGMENT_DISCARDING_DISABLED : 0,
+        INTERSECT_BBOX_ENABLED     : 1,
+        INTERSECT_BVOL_ENABLED     : 1,
+        REFINE_INTERSECTION_ENABLED: 1,
+        REFINE_GRADIENTS_ENABLED   : 1,
+        SKIPPING_ENABLED           : 1,
+        DITHERING_ENABLED          : 0,
+        DISCARDING_DISABLED        : 0,
     }
 
     const material = new THREE.ShaderMaterial

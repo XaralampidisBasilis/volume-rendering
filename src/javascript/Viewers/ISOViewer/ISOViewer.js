@@ -30,7 +30,7 @@ export default class ISOViewer extends EventEmitter
             this.setGeometry()
             this.setMaterial()
             this.setMesh()
-            this.logMemory()
+            this.logMemory('precompute')
             this.trigger('ready')
         })
     }
@@ -46,7 +46,7 @@ export default class ISOViewer extends EventEmitter
         await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
         await this.processor.quantizeTaylorMap()
         await this.processor.computeOccupancyBoundingBox(uRendering.min_value)
-        await this.processor.computeOccupancyDistanceMap(uRendering.min_value, uDistmap.division, 50)
+        await this.processor.computeOccupancyDistanceMap(uRendering.min_value, uDistmap.sub_division, 50)
     }
 
     async updateBoundingBox()
@@ -59,8 +59,6 @@ export default class ISOViewer extends EventEmitter
         const boxParams = this.processor.occupancyBoundingBox.params 
         uVolume.min_position.copy(boxParams.minPosition)
         uVolume.max_position.copy(boxParams.maxPosition)     
-        
-        this.logMemory() 
     }   
 
     async updateDistmap()
@@ -69,11 +67,11 @@ export default class ISOViewer extends EventEmitter
         const uDistmap = this.material.uniforms.u_distmap.value
         const uTextures = this.material.uniforms.u_textures.value
 
-        await this.processor.computeOccupancyDistanceMap(uRendering.min_value, uDistmap.division, 50)
+        await this.processor.computeOccupancyDistanceMap(uRendering.min_value, uDistmap.sub_division, 50)
         
         const distmapParams =  this.processor.occupancyDistanceMap.params
         uDistmap.max_distance = distmapParams.maxDistance
-        uDistmap.division = distmapParams.division
+        uDistmap.sub_division = distmapParams.sub_division
         uDistmap.dimensions.copy(distmapParams.dimensions)
         uDistmap.spacing.copy(distmapParams.spacing)
         uDistmap.size.copy(distmapParams.size)
@@ -86,7 +84,7 @@ export default class ISOViewer extends EventEmitter
         uTextures.distmap.needsUpdate = true
         this.processor.occupancyDistanceMap.tensor.dispose()
 
-        this.logMemory()
+        this.logMemory('updateDistmap')
     }
 
     setParameters()
@@ -215,9 +213,9 @@ export default class ISOViewer extends EventEmitter
         console.log("ISOViewer destroyed")
     }
 
-    logMemory()
+    logMemory(fun)
     {
-        console.log(`Tensors = ${tf.memory().numTensors}, Textures = ${this.renderer.instance.info.memory.textures}`)
+        console.log(`${fun}: Tensors = ${tf.memory().numTensors}, Textures = ${this.renderer.instance.info.memory.textures}`)
     }
     
 }

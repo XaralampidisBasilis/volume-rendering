@@ -45,6 +45,22 @@ Frag set_frag()
 
 void discard_frag(inout Frag frag)
 {
+    frag.depth          = 0.0;
+    frag.position       = vec3(0.0);
+    frag.mapped_value   = 0.0;
+    frag.mapped_color   = vec4(vec3(0.0), 1.0);
+    frag.ambient_color  = vec3(0.0);
+    frag.diffuse_color  = vec3(0.0);
+    frag.specular_color = vec3(0.0);
+    frag.shaded_color   = vec4(vec3(0.0), 1.0);
+    frag.light_vector   = vec3(0.0);
+    frag.view_vector    = vec3(0.0);
+    frag.normal_vector  = vec3(0.0);
+    frag.halfway_vector = vec3(0.0);
+    frag.light_angle    = 0.0;
+    frag.view_angle     = 0.0;
+    frag.halfway_angle  = 0.0;
+    frag.camera_angle   = 0.0;
 }
 
 #endif // STRUCT_FRAG

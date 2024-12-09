@@ -48,7 +48,13 @@ Trace set_trace()
 }
 void discard_trace(inout Trace trace)
 {
-
+    trace.step_scaling       = 0.0;
+    trace.step_stretching    = 0.0;
+    trace.step_distance      = 0.0;
+    trace.position           = vec3(0.0);
+    trace.distance           = 0.0;
+    trace.derivative         = 0.0;
+    trace.error              = 0.0;
 }
 
 #endif // STRUCT_TRACE

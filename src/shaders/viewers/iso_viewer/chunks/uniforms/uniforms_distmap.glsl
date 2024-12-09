@@ -5,7 +5,7 @@
 struct Distmap
 {
     int   max_distance;
-    int   division;
+    int   sub_division;
     ivec3 dimensions;    
     vec3  spacing;                  
     vec3  size;                  
