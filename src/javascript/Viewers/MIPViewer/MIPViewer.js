@@ -1,13 +1,10 @@
 import * as THREE from 'three'
+import * as tf from '@tensorflow/tfjs'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
+import VolumeProcessor from '../../Utils/VolumeProcessor'
 import MIPMaterial from './MIPMaterial'
 import MIPGui from './MIPGui'
-import ComputeResizing from './TensorFlow/Resizing/ComputeResizing'
-import ComputeExtremap from './TensorFlow/Extremap/ComputeExtremap'
-import ComputeGradients from './TensorFlow/Gradients/ComputeGradients'
-import ComputeSmoothing from './TensorFlow/Smoothing/ComputeSmoothing'
-import * as tf from '@tensorflow/tfjs'
 
 export default class MIPViewer extends EventEmitter
 {
@@ -22,269 +19,170 @@ export default class MIPViewer extends EventEmitter
         this.camera = this.experience.camera
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
+        this.material = MIPMaterial()
+        this.gui = new MIPGui(this)
 
-        this.setParameters()
-        this.setTensors()
-
-        this.computeResizing  = new ComputeResizing(this)
-        this.computeResizing.compute().then(() =>
+        this.processor = new VolumeProcessor(this.resources.items.volumeNifti)
+        this.precompute().then(() => 
         {
-            this.setData()
+            this.setParameters()
             this.setTextures()
             this.setGeometry()
             this.setMaterial()
             this.setMesh()
-
-            this.precompute().then(() =>
-            {
-                if (this.debug.active) 
-                    this.gui = new MIPGui(this)
-    
-                this.trigger('ready')
-            })
+            this.logMemory('precompute')
+            this.trigger('ready')
         })
+    }
+    
+    async precompute()
+    {
+        const uRendering = this.material.uniforms.u_rendering.value
+        const uDistmap = this.material.uniforms.u_distmap.value
+
+        await this.processor.computeIntensityMap()
+        await this.processor.normalizeIntensityMap()
+        await this.processor.computeGradientMap()
+        await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
+        await this.processor.quantizeTaylorMap()
+        await this.processor.computeExtremaDistanceMap(uDistmap.sub_division, 100)
+    }
+
+    async updateDistmap()
+    {
+        const uDistmap = this.material.uniforms.u_distmap.value
+        const uTextures = this.material.uniforms.u_textures.value
+
+        await this.processor.computeExtremaDistanceMap(uDistmap.sub_division, 100)
         
+        const distmapParams =  this.processor.extremaDistanceMap.params
+        uDistmap.max_distance = distmapParams.maxDistance
+        uDistmap.sub_division = distmapParams.sub_division
+        uDistmap.dimensions.copy(distmapParams.dimensions)
+        uDistmap.spacing.copy(distmapParams.spacing)
+        uDistmap.size.copy(distmapParams.size)
+        uDistmap.inv_dimensions.copy(distmapParams.invDimensions)
+        uDistmap.inv_spacing.copy(distmapParams.invSpacing)
+        uDistmap.inv_size.copy(distmapParams.invSize)
+
+        uTextures.distmap.dispose()
+        uTextures.distmap = this.processor.getTexture('extremaDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
+        uTextures.distmap.needsUpdate = true
+        this.processor.extremaDistanceMap.tensor.dispose()
+
+        this.logMemory('updateDistmap')
     }
 
     setParameters()
     {
         this.parameters = {}
-
-        // volume parameters
-        this.parameters.volume = {
-            size         : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size),
-            dimensions   : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.dimensions),
-            spacing      : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.spacing),
-            invSize      : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.size.map((x) => 1 / x)),
-            invDimensions: new THREE.Vector3().fromArray(this.resources.items.volumeNifti.dimensions.map((x) => 1 / x)),
-            invSpacing   : new THREE.Vector3().fromArray(this.resources.items.volumeNifti.spacing.map((x) => 1 / x)),
-            tensorShape  : this.resources.items.volumeNifti.dimensions.toReversed().concat(1), // // tensor flow uses the NHWC format by default
-            count        : this.resources.items.volumeNifti.dimensions.reduce((product, value) => product * value, 1),
-        }
-
-        // mask parameters
-        this.parameters.mask = {
-            size         : new THREE.Vector3().fromArray(this.resources.items.maskNifti.size),
-            dimensions   : new THREE.Vector3().fromArray(this.resources.items.maskNifti.dimensions),
-            spacing      : new THREE.Vector3().fromArray(this.resources.items.maskNifti.spacing),
-            invSize      : new THREE.Vector3().fromArray(this.resources.items.maskNifti.size.map((x) => 1 / x)),
-            invDimensions: new THREE.Vector3().fromArray(this.resources.items.maskNifti.dimensions.map((x) => 1 / x)),
-            invSpacing   : new THREE.Vector3().fromArray(this.resources.items.maskNifti.spacing.map((x) => 1 / x)),
-            tensorShape  : this.resources.items.maskNifti.dimensions.toReversed().concat(1), // // tensor flow uses the NHWC format by default
-            count        : this.resources.items.maskNifti.dimensions.reduce((product, value) => product * value, 1),
-        }
-    }
-
-    setTensors()
-    {
-        this.tensors = {}
-        this.tensors.volume = tf.tensor4d(this.resources.items.volumeNifti.getData(), this.parameters.volume.tensorShape,'float32')
-        this.tensors.mask = tf.tensor4d(this.resources.items.maskNifti.getData(), this.parameters.mask.tensorShape,'bool')
-    }
-
-    setData()
-    {
-        this.data = {}
-
-        // volume data
-        let tensorQuantized = tf.tidy(() => this.tensors.volume.mul(255).round())
-        let dataQuantized = new Uint8ClampedArray(tensorQuantized.dataSync())
-        this.data.volume = new Uint8ClampedArray(this.parameters.volume.count * 4)
-
-        for (let i = 0; i < this.parameters.volume.count; i++) 
-        {
-            const i4 = i * 4
-            this.data.volume[i4 + 0] = dataQuantized[i]
-        }
-
-        tensorQuantized.dispose()
-        tensorQuantized = null
-        dataQuantized = null
-
-        // mask data
-        this.data.mask = new Uint8ClampedArray(this.parameters.mask.count * 4)
+        this.parameters.volume = this.processor.volume.params
     }
 
     setTextures()
     {
         this.textures = {}
-        this.setVolumeTexture()
-        this.setMaskTexture()
-        this.setNoisemapTexture()
-        this.setColormapsTexture()
-    }
 
-    setVolumeTexture()
-    {
-        const volumeDimensions = this.parameters.volume.dimensions.toArray()
-        this.textures.volume = new THREE.Data3DTexture(this.data.volume, ...volumeDimensions)
-        this.textures.volume.format = THREE.RGBAFormat
-        this.textures.volume.type = THREE.UnsignedByteType     
-        this.textures.volume.wrapS = THREE.ClampToEdgeWrapping
-        this.textures.volume.wrapT = THREE.ClampToEdgeWrapping
-        this.textures.volume.wrapR = THREE.ClampToEdgeWrapping
-        this.textures.volume.minFilter = THREE.LinearFilter
-        this.textures.volume.magFilter = THREE.LinearFilter
-        this.textures.volume.generateMipmaps = false
-        this.textures.volume.unpackAlignment = 4 
-        this.textures.volume.needsUpdate = true   
-    }
+        // taylormap
+        this.textures.taylormap = this.processor.getTexture('taylorMap', THREE.RGBAFormat, THREE.UnsignedByteType)
+        this.processor.taylorMap.tensor.dispose()
 
-    setMaskTexture()
-    {
-        const maskDimensions = this.parameters.mask.dimensions.toArray()
-        this.textures.mask = new THREE.Data3DTexture(this.data.mask, ...maskDimensions)
-        this.textures.mask.format = THREE.RedFormat 
-        this.textures.mask.type = THREE.UnsignedByteType     
-        this.textures.mask.wrapS = THREE.ClampToEdgeWrapping
-        this.textures.mask.wrapT = THREE.ClampToEdgeWrapping
-        this.textures.mask.wrapR = THREE.ClampToEdgeWrapping
-        this.textures.mask.minFilter = THREE.LinearFilter
-        this.textures.mask.magFilter = THREE.LinearFilter
-        this.textures.mask.generateMipmaps = false
-        this.textures.mask.unpackAlignment = 1   
-        this.textures.mask.needsUpdate = true  
-    }
+        // distmap
+        this.textures.distmap = this.processor.getTexture('extremaDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
+        this.processor.extremaDistanceMap.tensor.dispose()
 
-    setNoisemapTexture()
-    {
-        this.textures.noisemap = this.resources.items.blue256Noisemap
-        this.textures.noisemap.repeat.set(4, 4)
-        this.textures.noisemap.format = THREE.RedFormat
-        this.textures.noisemap.type = THREE.UnsignedByteType
-        this.textures.noisemap.wrapS = THREE.RepeatWrapping
-        this.textures.noisemap.wrapT = THREE.RepeatWrapping
-        this.textures.noisemap.minFilter = THREE.NearestFilter
-        this.textures.noisemap.magFilter = THREE.NearestFilter
-        this.textures.noisemap.generateMipmaps = false
-        this.textures.noisemap.unpackAlignment = 8   
-        this.textures.noisemap.needsUpdate = true         
-    }
-
-    setColormapsTexture()
-    {        
+        // colormaps
         this.textures.colormaps = this.resources.items.colormaps                      
         this.textures.colormaps.colorSpace = THREE.SRGBColorSpace
         this.textures.colormaps.minFilter = THREE.LinearFilter
         this.textures.colormaps.magFilter = THREE.LinearFilter         
-        this.textures.colormaps.unpackAlignment = 8
         this.textures.colormaps.generateMipmaps = false
         this.textures.colormaps.needsUpdate = true 
     }
   
     setGeometry()
     {
-        const geometrySize = this.parameters.volume.size
-        const geometryCenter = this.parameters.volume.size.clone().divideScalar(2)
-        this.geometry = new THREE.BoxGeometry(...geometrySize)
-        this.geometry.translate(...geometryCenter) // to align model and texel coordinates
+        const size = this.parameters.volume.size
+        const center = this.parameters.volume.size.clone().divideScalar(2)
+        this.geometry = new THREE.BoxGeometry(...size)
+        
+        // In order to align model vertex coordinates with texture coordinates
+        // we translate all with the center, so now they start at zero
+        this.geometry.translate(...center) 
     }
 
     setMaterial()
-    {
-        this.material = new MIPMaterial()
+    {        
+        // parameters
+        const volumeParams = this.processor.volume.params
+        const taylormapParams = this.processor.taylorMap.params
+        const distmapParams =  this.processor.extremaDistanceMap.params
 
-        this.material.uniforms.u_volume.value.dimensions.copy(this.parameters.volume.dimensions)
-        this.material.uniforms.u_volume.value.size.copy(this.parameters.volume.size)
-        this.material.uniforms.u_volume.value.spacing.copy(this.parameters.volume.spacing)
-        this.material.uniforms.u_volume.value.inv_dimensions.copy(this.parameters.volume.invDimensions)
-        this.material.uniforms.u_volume.value.inv_size.copy(this.parameters.volume.invSize)
-        this.material.uniforms.u_volume.value.inv_spacing.copy(this.parameters.volume.invSpacing)
-        this.material.uniforms.u_volume.value.size_length = this.parameters.volume.size.length()
-        this.material.uniforms.u_volume.value.spacing_length = this.parameters.volume.spacing.length()
-        this.material.uniforms.u_volume.value.inv_size_length = this.parameters.volume.invSize.length()
-        this.material.uniforms.u_volume.value.inv_spacing_length = this.parameters.volume.invSpacing.length()
+        // uniforms
+        const uVolume = this.material.uniforms.u_volume.value
+        const uDistmap = this.material.uniforms.u_distmap.value
+        const uTextures = this.material.uniforms.u_textures.value
 
-        this.material.uniforms.u_textures.value.volume = this.textures.volume
-        this.material.uniforms.u_textures.value.mask = this.textures.mask
-        this.material.uniforms.u_textures.value.colormaps = this.textures.colormaps    
-        this.material.uniforms.u_textures.value.noisemap = this.textures.noisemap
+        // volume
+        uVolume.dimensions.copy(volumeParams.dimensions)
+        uVolume.spacing.copy(volumeParams.spacing)
+        uVolume.size.copy(volumeParams.size)
+        uVolume.size_length = volumeParams.sizeLength
+        uVolume.spacing_length = volumeParams.spacingLength
+        uVolume.inv_dimensions.copy(volumeParams.invDimensions)
+        uVolume.inv_spacing.copy(volumeParams.invSpacing)
+        uVolume.inv_size.copy(volumeParams.invSize)
+        uVolume.min_intensity = taylormapParams.minValue.x
+        uVolume.max_intensity = taylormapParams.maxValue.x
+        uVolume.min_gradient.fromArray(taylormapParams.minValue.toArray().slice(1))
+        uVolume.max_gradient.fromArray(taylormapParams.maxValue.toArray().slice(1))
+        uVolume.max_gradient_length = Math.max(uVolume.max_gradient.length(), uVolume.min_gradient.length())
+
+        // distmap
+        uDistmap.max_distance = distmapParams.maxDistance
+        uDistmap.sub_division = distmapParams.sub_division
+        uDistmap.dimensions.copy(distmapParams.dimensions)
+        uDistmap.spacing.copy(distmapParams.spacing)
+        uDistmap.size.copy(distmapParams.size)
+        uDistmap.inv_dimensions.copy(distmapParams.invDimensions)
+        uDistmap.inv_spacing.copy(distmapParams.invSpacing)
+        uDistmap.inv_size.copy(distmapParams.invSize)
+
+        // textures
+        uTextures.taylormap = this.textures.taylormap
+        uTextures.distmap = this.textures.distmap
+        uTextures.colormaps = this.textures.colormaps   
     }
 
     setMesh()
-    {
+    {   
         this.mesh = new THREE.Mesh(this.geometry, this.material)
-        this.mesh.position.copy(this.parameters.volume.size).multiplyScalar(- 0.5)
+        this.mesh.position.copy(this.parameters.volume.size).multiplyScalar(-0.5)
         this.scene.add(this.mesh)
-    }
-
-    async precompute()
-    {
-        this.computeExtremap  = new ComputeExtremap(this)
-        this.computeSmoothing = new ComputeSmoothing(this)
-        this.computeGradients = new ComputeGradients(this)
-
-        return Promise.allSettled([
-            this.computeExtremap.compute(),
-            this.computeSmoothing.compute(), 
-            this.computeGradients.compute()
-        ])
-    }
-
-    update()
-    {
-
     }
 
     destroy() 
     {
-        // Dispose tensors
-        if (this.tensors.volume) {
-            this.tensors.volume.dispose()
-            this.tensors.volume = null
-        }
-        if (this.tensors.mask) {
-            this.tensors.mask.dispose()
-            this.tensors.mask = null
-        }
     
-        // Dispose textures
-        if (this.textures.volume) {
-            this.textures.volume.dispose()
-            this.textures.volume = null
-        }
-        if (this.textures.mask) {
-            this.textures.mask.dispose()
-            this.textures.mask = null
-        }
+        Object.keys(this.textures).forEach(key => 
+        {
+            if (this.textures[key]) 
+                this.textures[key].dispose()
+        })
     
-        // Dispose geometry
-        if (this.geometry) {
-            this.geometry.dispose()
-            this.geometry = null
-        }
-    
-        // Dispose material
-        if (this.material) {
-            this.material.dispose()
-            this.material = null
-        }
-    
-        // Remove mesh from the scene
-        if (this.mesh) {
+        if (this.mesh) 
+        {
             this.scene.remove(this.mesh)
             this.mesh.geometry.dispose()
             this.mesh.material.dispose()
-            this.mesh = null
         }
+    
+        // if (this.gui) 
+        //     this.gui.destroy()
 
-        if (this.gradients) {
-            this.gradients.dispose()
-            this.gradients.destroy()
-            this.gradients = null
-        }
-        if (this.smoothing) {
-            this.smoothing.dispose()
-            this.smoothing.destroy()
-            this.smoothing = null
-        }
-    
-        // Dispose GUI if it exists
-        if (this.gui) {
-            this.gui.destroy()
-            this.gui = null
-        }
-    
+        if (this.processor)
+            this.processor.destroy()
+
         // Clean up references
         this.scene = null
         this.resources = null
@@ -292,8 +190,15 @@ export default class MIPViewer extends EventEmitter
         this.camera = null
         this.sizes = null
         this.debug = null
-    
+        this.mesh = null
+        this.gui = null
+
         console.log("MIPViewer destroyed")
+    }
+
+    logMemory(fun)
+    {
+        console.log(`${fun}: Tensors = ${tf.memory().numTensors}, Textures = ${this.renderer.instance.info.memory.textures}`)
     }
     
 }

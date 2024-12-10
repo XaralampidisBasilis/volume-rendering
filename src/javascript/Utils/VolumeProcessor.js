@@ -287,18 +287,21 @@ export default class VolumeProcessor
                 const tensor = TensorUtils.extremaDistanceMap(this.intensityMap.tensor, subDivision, maxDistance)
                 const params = {}
                 params.subDivision = subDivision
-                params.maxDistance = maxDistance
+                params.shape = tensor.shape
+                params.maxDistance = tensor.max().arraySync()
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
-                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(params.subDivision)
                 params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
                 params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-                params.shape = tensor.shape
+                params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
+                params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
+                params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
                 
                 return [tensor, params]
             })
         })
 
-        // console.log('extremaDistanceMap', this.extremaDistanceMap.params, this.extremaDistanceMap.tensor.dataSync())
+        console.log('extremaDistanceMap', this.extremaDistanceMap.params, this.extremaDistanceMap.tensor.dataSync())
     }
 
     async normalizeIntensityMap()

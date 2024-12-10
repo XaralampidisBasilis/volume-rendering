@@ -7,42 +7,32 @@ export default function()
 {
     const uniforms = 
     {
-        u_textures: new THREE.Uniform({
-            volume   : null,
-            mask     : null,
-            extremap : null,
+        u_textures: new THREE.Uniform
+        ({
+            taylormap: null,
+            distmap  : null,
             colormaps: null,
-            noisemap : null,
         }),
 
-        u_volume : new THREE.Uniform({
+        u_volume : new THREE.Uniform
+        ({
             dimensions            : new THREE.Vector3(),
-            size                  : new THREE.Vector3(),
             spacing               : new THREE.Vector3(),
-            size_length           : 0.0,
+            size                  : new THREE.Vector3(),
             spacing_length        : 0.0,
+            size_length           : 0.0,
             inv_dimensions        : new THREE.Vector3(),
-            inv_size              : new THREE.Vector3(),
             inv_spacing           : new THREE.Vector3(),
-            inv_size_length       : 0.0,
-            inv_spacing_length    : 0.0,
+            inv_size              : new THREE.Vector3(),
             min_gradient          : new THREE.Vector3(),
             max_gradient          : new THREE.Vector3(),
-            max_gradient_length: 0.0,
+            max_gradient_length   : 0.0,
         }),
 
-        u_mask : new THREE.Uniform({
-            dimensions    : new THREE.Vector3(),
-            size          : new THREE.Vector3(),
-            spacing       : new THREE.Vector3(),
-            inv_dimensions: new THREE.Vector3(),
-            inv_size      : new THREE.Vector3(),
-            inv_spacing   : new THREE.Vector3(),
-        }),
-
-        u_extremap: new THREE.Uniform
+        u_distmap : new THREE.Uniform
         ({
-            divisions     : 2,
+            max_distance  : 0,
+            sub_division  : 3,
             dimensions    : new THREE.Vector3(),
             spacing       : new THREE.Vector3(),
             size          : new THREE.Vector3(),
@@ -51,7 +41,17 @@ export default function()
             inv_size      : new THREE.Vector3(),
         }),
 
-        u_colormap: new THREE.Uniform({
+        u_rendering: new THREE.Uniform
+        ({
+            min_value        : 0,
+            min_step_scaling : 1,
+            max_step_scaling : 5,
+            max_step_count   : 1000,
+            max_skip_count   : 200,
+        }),
+
+        u_colormap: new THREE.Uniform
+        ({
             levels      : 255,
             name        : 'viridis',
             thresholds  : new THREE.Vector2(0, 1),
@@ -59,40 +59,34 @@ export default function()
             end_coords  : new THREE.Vector2(colormapLocations['viridis'].x_end,   colormapLocations['viridis'].y),
         }),
 
-        u_raymarch: new THREE.Uniform({
-            min_sample_value: 0,
-            max_sample_value: 1,
-            step_speed      : 1.0 / 255,
-            min_step_scaling: 1,
-            max_step_scaling: 1,
-            max_step_count  : 1000,
+        u_shading: new THREE.Uniform
+        ({
+            shininess            : 40.0,
+            edge_contrast        : 0.0,
         }),
-
-        u_debugger: new THREE.Uniform({
+        
+        u_debugging: new THREE.Uniform
+        ({
             option    : 0,
             variable1 : 0,
             variable2 : 0,
             variable3 : 0,
-            variable4 : 0,
         }),
     }
 
     const defines = 
-    {
-        VOLUME_GRADIENTS_METHOD          : 1,
-        VOLUME_SMOOTHING_METHOD          : 1,
-        VOLUME_SMOOTHING_RADIUS          : 0,
-        RAY_DITHERING_ENABLED            : 0,
-        TRACE_ADAPTIVE_STEP_ENABLED      : 0,
-        TRACE_POSITION_REFINEMENT_ENABLED: 0,
-        TRACE_BVH_MARCHING_ENABLED       : 0,
-        FRAGMENT_DISCARDING_DISABLED     : 0,
+    {           
+        INTERSECT_BVOL_ENABLED     : 0,
+        REFINE_INTERSECTION_ENABLED: 0,
+        SKIPPING_ENABLED           : 0,
+        DITHERING_ENABLED          : 0,
+        DISCARDING_DISABLED        : 0,
     }
 
-    const material = new THREE.ShaderMaterial({
-        
+    const material = new THREE.ShaderMaterial
+    ({    
         side: THREE.BackSide,
-        transparent: true,
+        transparent: false,
         depthTest: true,
         depthWrite: true,
 

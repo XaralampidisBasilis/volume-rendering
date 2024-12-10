@@ -1,4 +1,9 @@
-
+#include "./struct_camera"
+#include "./struct_frag"
+#include "./struct_box"
 #include "./struct_ray"
 #include "./struct_trace"
+#include "./struct_voxel"
+#include "./struct_doxel"
+#include "./struct_block"
 #include "./struct_debug"

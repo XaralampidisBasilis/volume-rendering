@@ -157,7 +157,7 @@ export default class ISOViewer extends EventEmitter
 
         // distmap
         uDistmap.max_distance = distmapParams.maxDistance
-        uDistmap.division = distmapParams.division
+        uDistmap.sub_division = distmapParams.sub_division
         uDistmap.dimensions.copy(distmapParams.dimensions)
         uDistmap.spacing.copy(distmapParams.spacing)
         uDistmap.size.copy(distmapParams.size)

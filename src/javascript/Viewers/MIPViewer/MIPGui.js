@@ -27,10 +27,10 @@ export default class MIPGui
     addSubfolders()
     {
         this.subfolders          = {}
-        this.subfolders.raymarch = this.folders.viewer.addFolder('raymarch').close()
-        this.subfolders.volume   = this.folders.viewer.addFolder('volume').close()
+        this.subfolders.rendering = this.folders.viewer.addFolder('rendering').close()
         this.subfolders.colormap = this.folders.viewer.addFolder('colormap').close()
-        this.subfolders.debug    = this.folders.viewer.addFolder('debug').close()
+        this.subfolders.shading  = this.folders.viewer.addFolder('shading').close()
+        this.subfolders.debugging = this.folders.viewer.addFolder('debugging').close()
 
         this.addToggles()            
     }
@@ -61,61 +61,41 @@ export default class MIPGui
     addControllers()
     {
         this.controllers = {}
-        this.addControllersRaymarch() 
-        this.addControllersVolume() 
+        this.addControllersRendering() 
         this.addControllersColormap() 
-        this.addControllersDebug() 
+        this.addControllersShading() 
+        this.addControllersDebugging() 
         
         // this.setBindings()  
     }
 
-    addControllersRaymarch() 
+    addControllersRendering() 
     {
-        const folder = this.subfolders.raymarch
+        const folder = this.subfolders.rendering
         const material = this.viewer.material
-        const uniforms = this.viewer.material.uniforms.u_raymarch.value
+        const uRendering = this.viewer.material.uniforms.u_rendering.value
+        const uDistmap = this.viewer.material.uniforms.u_distmap.value
         const defines = this.viewer.material.defines
         const objects = { 
-            RAY_DITHERING_ENABLED            : Boolean(defines.RAY_DITHERING_ENABLED),
-            TRACE_BVH_MARCHING_ENABLED       : Boolean(defines.TRACE_BVH_MARCHING_ENABLED),
-            TRACE_ADAPTIVE_STEP_ENABLED      : Boolean(defines.TRACE_ADAPTIVE_STEP_ENABLED),
-            TRACE_POSITION_REFINEMENT_ENABLED: Boolean(defines.TRACE_POSITION_REFINEMENT_ENABLED),
-            TRACE_BVH_MARCHING_ENABLED       : Boolean(defines.TRACE_BVH_MARCHING_ENABLED),
+            min_value                  : uRendering.min_value,
+            INTERSECT_BVOL_ENABLED     : Boolean(defines.INTERSECT_BVOL_ENABLED),
+            REFINE_INTERSECTION_ENABLED: Boolean(defines.REFINE_INTERSECTION_ENABLED),
+            DITHERING_ENABLED          : Boolean(defines.DITHERING_ENABLED),
+            SKIPPING_ENABLED           : Boolean(defines.SKIPPING_ENABLED),
         }
     
-
-        this.controllers.raymarch = 
+        this.controllers.rendering = 
         {
-            stepSpeed          : folder.add(uniforms, 'step_speed').min(0.001).max(1).step(0.0001),
-            minStepScale       : folder.add(uniforms, 'min_step_scaling').min(0.001).max(10).step(0.001),
-            maxStepScale       : folder.add(uniforms, 'max_step_scaling').min(0.001).max(10).step(0.001),
-            maxStepCount       : folder.add(uniforms, 'max_step_count').min(0).max(2000).step(1),
-            enableDithering    : folder.add(objects, 'RAY_DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.RAY_DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
-            enableAdaptiveStep : folder.add(objects, 'TRACE_ADAPTIVE_STEP_ENABLED').name('enable_adaptive_step').onFinishChange((value) => { defines.TRACE_ADAPTIVE_STEP_ENABLED = Number(value), material.needsUpdate = true }),
-            enablePosRefinement: folder.add(objects, 'TRACE_POSITION_REFINEMENT_ENABLED').name('enable_position_refinement').onFinishChange((value) => { defines.TRACE_POSITION_REFINEMENT_ENABLED = Number(value), material.needsUpdate = true }),
-            enableBvhMarching  : folder.add(objects, 'TRACE_BVH_MARCHING_ENABLED').name('enable_bvh_marching').onFinishChange((value) => { defines.TRACE_BVH_MARCHING_ENABLED = Number(value), material.needsUpdate = true }),
+            minStepScale       : folder.add(uRendering, 'min_step_scaling').min(0.001).max(5).step(0.001),
+            maxStepScale       : folder.add(uRendering, 'max_step_scaling').min(0.001).max(5).step(0.001),
+            maxStepCount       : folder.add(uRendering, 'max_step_count').min(0).max(1000).step(1),
+            maxSkipCount       : folder.add(uRendering, 'max_skip_count').min(0).max(200).step(1),
+            subDivision        : folder.add(uDistmap, 'sub_division').min(2).max(16).step(1).onFinishChange((value) => { uDistmap.sub_division = value, this.viewer.updateDistmap() }),
+            enableIntersectBvol: folder.add(objects, 'INTERSECT_BVOL_ENABLED').name('enable_intersect_bvol').onFinishChange((value) => { defines.INTERSECT_BVOL_ENABLED = Number(value), material.needsUpdate = true }),
+            enableRefineInter  : folder.add(objects, 'REFINE_INTERSECTION_ENABLED').name('enable_refine_position').onFinishChange((value) => { defines.REFINE_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
+            enableSkipping     : folder.add(objects, 'SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
+            enableDithering    : folder.add(objects, 'DITHERING_ENABLED').name('enable_dithering').onFinishChange((value) => { defines.DITHERING_ENABLED = Number(value), material.needsUpdate = true }),
         }
-
-    }
-
-    addControllersVolume() 
-    {
-        const folder = this.subfolders.volume
-        const material = this.viewer.material
-        const defines = this.viewer.material.defines
-        const options = {
-            VOLUME_GRADIENTS_METHOD: { scharr: 1, sobel: 2, prewitt: 3, tetrahedron: 4, central: 5 },
-            VOLUME_SMOOTHING_METHOD: { bessel: 1, gaussian: 2, average: 3 },
-        }
-
-        this.controllers.volume = 
-        {
-            gradientsMethod: folder.add(defines, 'VOLUME_GRADIENTS_METHOD').name('gradients_method').options(options.VOLUME_GRADIENTS_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            smoothingMethod: folder.add(defines, 'VOLUME_SMOOTHING_METHOD').name('smoothing_method').options(options.VOLUME_SMOOTHING_METHOD).onFinishChange(() => { material.needsUpdate = true }),
-            smoothingRadius: folder.add(defines, 'VOLUME_SMOOTHING_RADIUS').name('smoothing_radius').min(0).max(5).step(1).onFinishChange(() => { this.viewer.computeSmoothing() }),
-            enableVolume   : folder.add(material, 'visible').name('enable_volume')
-        }
-
     }
 
     addControllersColormap() 
@@ -135,167 +115,111 @@ export default class MIPGui
 
     }
     
-    addControllersDebug()
+    addControllersShading() 
     {
-        const folder = this.subfolders.debug
-        const uniforms = this.viewer.material.uniforms.u_debugger.value
+        const folder = this.subfolders.shading
+        const uniforms = this.viewer.material.uniforms.u_shading.value
+
+        this.controllers.shading = 
+        {
+            shininess          : folder.add(uniforms, 'shininess').min(0).max(40.0).step(0.2),
+            edgeContrast       : folder.add(uniforms, 'edge_contrast').min(0).max(1).step(0.001),
+        }
+    }
+    
+    addControllersDebugging()
+    {
+        const folder = this.subfolders.debugging
+        const uniforms = this.viewer.material.uniforms.u_debugging.value
         const defines = this.viewer.material.defines
         const material = this.viewer.material
-        const objects = { FRAGMENT_DISCARDING_DISABLED: Boolean(defines.FRAGMENT_DISCARDING_DISABLED) }
+        const objects = { DISCARDING_DISABLED: Boolean(defines.DISCARDING_DISABLED) }
 
-        this.controllers.debug = 
+        this.controllers.debugging = 
         {
             option: folder.add(uniforms, 'option').options({ 
-                default                     : 0,
-                frag_depth                  : 1,
-                ray_camera_position         : 2,
-                ray_camera_direction        : 3,
-                ray_step_direction          : 4,
-                ray_step_distance           : 5,
-                ray_rand_distance           : 6,
-                ray_start_distance          : 7,
-                ray_end_distance            : 8,
-                ray_span_distance           : 9,
-                ray_start_position          : 10,
-                ray_end_position            : 11,
-                ray_max_step_count          : 12,
-                ray_min_start_distance      : 13,
-                ray_max_end_distance        : 14,
-                ray_max_span_distance       : 15,
-                trace_terminated            : 16,
-                trace_suspended             : 17,
-                trace_distance              : 18,
-                trace_position              : 19,
-                trace_voxel_coords          : 20,
-                trace_step_count            : 21,
-                trace_step_distance         : 22,
-                trace_step_scaling          : 23,
-                trace_mean_step_scaling     : 24,
-                trace_mean_step_distance    : 25,
-                max_trace_distance          : 26,
-                max_trace_position          : 27,
-                max_trace_voxel_coords      : 28,
-                max_trace_step_count        : 29,
-                max_trace_step_distance     : 30,
-                max_trace_step_scaling      : 31,
-                max_trace_sample_value      : 32,
-                max_trace_mapped_color      : 33,
-                max_trace_gradient          : 34,
-                max_trace_gradient_magnitude: 35,
-                max_trace_gradient_direction: 36,
-                max_trace_derivative        : 37,
-                debug_variable1             : 38,
-                debug_variable2             : 39,
-                debug_variable3             : 40,
+                default                 : 0,
+                box_entry_distance      : 1,
+                box_exit_distance       : 2,
+                box_span_distance       : 3,
+                box_entry_position      : 4,
+                box_exit_position       : 5,
+                box_min_entry_distance  : 6,
+                box_max_exit_distance   : 7,
+                box_max_span_distance   : 8,
+                camera_position         : 9,
+                camera_direction        : 10,
+                camera_far_distance     : 11,
+                camera_near_distance    : 12,
+                frag_depth              : 13,
+                frag_position           : 14,
+                frag_normal_vector      : 15,
+                frag_view_vector        : 16,
+                frag_light_vector       : 17,
+                frag_halfway_vector     : 18,
+                frag_view_angle         : 19,
+                frag_light_angle        : 20,
+                frag_halfway_angle      : 21,
+                frag_camera_angle       : 22,
+                frag_mapped_value       : 23,
+                frag_mapped_color       : 24,
+                frag_ambient_color      : 25,
+                frag_diffuse_color      : 26,
+                frag_specular_color     : 27,
+                frag_shaded_color       : 28,
+                frag_shaded_luminance   : 29,
+                ray_discarded           : 30,
+                ray_step_direction      : 31,
+                ray_step_distance       : 32,
+                ray_rand_distance       : 33,
+                ray_start_distance      : 34,
+                ray_end_distance        : 35,
+                ray_span_distance       : 36,
+                ray_start_position      : 37,
+                ray_end_position        : 38,
+                ray_max_step_count      : 39,
+                ray_max_skip_count      : 40,
+                trace_intersected       : 41,
+                trace_terminated        : 42,
+                trace_exhausted         : 43,
+                trace_distance          : 44,
+                trace_outside           : 45,
+                trace_position          : 46,
+                trace_error             : 47,
+                trace_abs_error         : 48,
+                trace_derivative        : 49,
+                trace_delta_distance    : 50,
+                trace_step_distance     : 51,
+                trace_step_scaling      : 52,
+                trace_step_stretching   : 53,
+                trace_step_count        : 54,
+                trace_mean_step_scaling : 55,
+                trace_mean_step_distance: 56,
+                trace_stepped_distance  : 57,
+                trace_skipped_distance  : 58,
+                trace_spanned_distance  : 59,
+                voxel_coords            : 60,
+                voxel_texture_coords    : 61,
+                voxel_gradient          : 62,
+                voxel_gradient_length   : 63,
+                voxel_value             : 64,
+                block_value             : 65,
+                block_occupied          : 66,
+                block_coords            : 67,
+                block_skip_count        : 68,
+                debug_variable1         : 69,
+                debug_variable2         : 70,
+                debug_variable3         : 71,
             }),
 
-            variable1 : folder.add(uniforms, 'variable1').min(-1).max(1).step(0.00000001),
-            variable2 : folder.add(uniforms, 'variable2').min(-10).max(10).step(0.00000001),
-            variable3 : folder.add(uniforms, 'variable3').min(0).max(50).step(1),
-            variable4 : folder.add(uniforms, 'variable4').min(1).max(5).step(1),
-            discarding: folder.add(objects, 'FRAGMENT_DISCARDING_DISABLED').name('discarding').onFinishChange((value) => { defines.FRAGMENT_DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
+            variable1 : folder.add(uniforms, 'variable1').min(-2).max(2).step(0.00000001),
+            variable2 : folder.add(uniforms, 'variable2').min(0).max(256).step(0.00000001),
+            variable3 : folder.add(uniforms, 'variable3').min(0).max(10).step(1),
+            discarding: folder.add(objects, 'DISCARDING_DISABLED').name('discarding').onFinishChange((value) => { defines.DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }
     }
     
     // controllers bindings
-
-    setBindings()
-    {
-    
-        // raymarch threshold controller
-        this.controllers.raymarch.threshold
-        .onChange(() => 
-        {
-            this.displaceColormapLow() // displace colormap low based on raymarch threshold
-            this.displaceColormapHigh()  // displace colormap high based on raymarch threshold
-        })
-
-        // cap colormap low based on raymarch threshold
-        this.controllers.colormap.low.onChange(() => this.capColormapLow())
-
-        // cap colormap high based on raymarch threshold
-        this.controllers.colormap.high.onChange(() => this.capColormapHigh())
-
-        // cap raymarch spacing min based on spacing max
-        this.controllers.raymarch.steppingMin.onChange(() => this.capRaycastSpacingMin())
-
-        // cap raymarch spacing max based on spacing min
-        this.controllers.raymarch.steppingMax.onChange(() => this.capRaycastSpacingMax())
-    }
-
-    capRaycastSpacingMin()
-    {
-        this.controllers.raycast.steppingMin.setValue
-        (
-            Math.min
-            (
-                this.controllers.raycast.steppingMin.getValue(),
-                this.controllers.raycast.steppingMax.getValue()
-            )
-        ).updateDisplay()
-    }
-
-    capRaycastSpacingMax()
-    {
-        this.controllers.raymarch.steppingMax.setValue
-        (
-            Math.max
-            (
-                this.controllers.raymarch.steppingMin.getValue(),
-                this.controllers.raymarch.steppingMax.getValue()
-            )
-        ).updateDisplay()
-    }
-
-    displaceColormapLow()
-    {
-        this.controllers.colormap.low.setValue
-        (
-            Math.min
-            (
-                this.controllers.colormap.low.getValue(), 
-                this.controllers.raymarch.sampleThreshold.getValue()
-            )
-        ).updateDisplay()
-    }
-
-    displaceColormapHigh()
-    {
-        this.controllers.colormap.high.setValue
-        (
-            Math.max
-            (
-                this.controllers.raymarch.sampleThreshold.getValue(),
-                this.controllers.colormap.high.getValue()
-            )
-        ).updateDisplay()
-    }
-
-    capColormapLow()
-    {
-        this.controllers.colormap.low.setValue
-        (
-            Math.min
-            (
-                this.controllers.colormap.low.getValue(),            
-                this.controllers.raymarch.sampleThreshold.getValue(),
-                this.controllers.colormap.high.getValue()
-            )
-        ).updateDisplay()
-    }
-
-    capColormapHigh()
-    {
-        this.controllers.colormap.high.setValue
-        (
-            Math.max
-            (
-                this.controllers.colormap.low.getValue(), 
-                this.controllers.raymarch.sampleThreshold.getValue(), 
-                this.controllers.colormap.high.getValue()
-            )
-        ).updateDisplay()
-    }
 
     flipColormap()
     {
@@ -311,7 +235,7 @@ export default class MIPGui
         this.viewer.material.uniforms.u_colormap.value.end_coords.set(x_end, y)      
     }
 
-    dispose() {
+    destroy() {
 
         // Dispose of controllers
         Object.values(this.controllers).forEach(group => {
@@ -332,11 +256,6 @@ export default class MIPGui
             folder.destroy()
         })
     
-        // Remove any additional debug setups if necessary
-        if (this.debug.active) {
-            this.viewer.occupancy.dispose()
-            this.viewer.occupancy = null
-        }
     
         // Clear references
         this.controllers = null
