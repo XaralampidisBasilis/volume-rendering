@@ -812,7 +812,7 @@ export function extremaDistanceMap(tensor, division, maxDistance)
 {
     return tf.tidy(() => 
     {
-        let [minimaMap, maximaMap] = tf.unstack(extremaMap(tensor, division)).map((tensor) => tensor.expandDims(-1))
+        let [minimaMap, maximaMap] = tf.unstack(extremaMap(tensor, division), 3).map((tensor) => tensor.expandDims(-1))
         let distanceMap = tf.zeros(minimaMap.shape, 'int32')
     
         for (let iter = 0; iter <= maxDistance; iter++) 

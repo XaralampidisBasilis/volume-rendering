@@ -21,3 +21,8 @@ if (ray_box_distances.x < ray_box_distances.y)
     ray.start_position = box.entry_position;
     ray.end_position   = box.exit_position;
 }
+// discard ray if there is no intersection
+else
+{
+    #include "./discard_ray"
+}
