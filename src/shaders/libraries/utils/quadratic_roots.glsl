@@ -28,7 +28,7 @@ vec2 quadratic_roots(in vec3 coeff, out int num_roots)
     // If the discriminant is negative, there's no real solution
     if (discriminant < 0.0) {
         num_roots = 0; 
-        return vec2(0.0); // Not solvable in the real number system, return a default root (0.0)
+        return vec2(-1.0); // Not solvable in the real number system, return a default root (-1.0)
     }
        
     // Calculate the roots using the quadratic formula
@@ -53,7 +53,7 @@ vec2 quadratic_roots(in vec3 coeff)
     float discriminant = coeff.y * coeff.y - coeff.x;
 
     // If the discriminant is negative, there's no real solution
-    if (discriminant < 0.0)  return vec2(0.0); // Not solvable in the real number system, return a default root (0.0)
+    if (discriminant < 0.0)  return vec2(-1.0); // Not solvable in the real number system, return a default root (-1.0)
 
     // Return the quadratic roots sorted 
     return sqrt(discriminant) * vec2(-1.0, 1.0) - coeff.y;

@@ -4,6 +4,7 @@ Box    box        = set_box();
 Ray    ray        = set_ray();
 Trace  trace      = set_trace();
 Voxel  voxel      = set_voxel();
+Doxel  doxel      = set_doxel();
 Block  block      = set_block();
 Debug  debug      = set_debug();
 Trace  prev_trace = set_trace();

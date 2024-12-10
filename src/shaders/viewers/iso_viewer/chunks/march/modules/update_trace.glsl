@@ -4,7 +4,7 @@ prev_trace = trace;
 
 // update normals
 trace.derivative = dot(voxel.gradient, ray.step_direction);
-trace.error = u_rendering.min_value - voxel.value;
+trace.error = u_rendering.min_value - voxel.value;                                                                                                                                                                                                                                                                                                                                                                          
 
 // update step
 trace.step_distance = trace.error / trace.derivative;

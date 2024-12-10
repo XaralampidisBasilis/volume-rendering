@@ -1,4 +1,4 @@
-// Compute block coords from ray end position
+// Compute block coords from trace position
 block.coords = ivec3(trace.position * u_distmap.inv_spacing);
 
 // Sample the distance map and compute if block is occupied
