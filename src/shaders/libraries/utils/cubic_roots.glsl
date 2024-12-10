@@ -1,8 +1,8 @@
 #ifndef CUBIC_ROOTS
 #define CUBIC_ROOTS
 
-#ifndef PICO_TOLERANCE
-#define PICO_TOLERANCE 1e-12
+#ifndef MICRO_TOLERANCE
+#define MICRO_TOLERANCE 1e-6
 #endif
 
 #ifndef QUADRATIC_ROOTS
@@ -26,13 +26,12 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
     // check if cubic
     // float disc = dot(vec2(coeff.y, -4.0 * coeff.z), coeff.yy);
     // float error = (coeff.y + sqrt(abs(disc))) * cbrt(coeff.w);
-    // float tolerance = abs(2.0 * coeff.z) * PICO_TOLERANCE;
-
+    // float tolerance = abs(2.0 * coeff.z) * MICRO_TOLERANCE;
     // if (abs(error) < tolerance) {
     //     roots2 = quadratic_roots(coeff.xyz, num_roots);
     //     return roots2.xyy;
     // }
-    if (abs(coeff.w) < PICO_TOLERANCE) {
+    if (abs(coeff.w) < MICRO_TOLERANCE) {
         roots2 = quadratic_roots(coeff.xyz, num_roots);
         return roots2.xyy;
     }
@@ -80,7 +79,7 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
     roots3 = sqrt(max(0.0, -coeff_depressed.y)) * roots3 * 2.0 - coeff.z; 
     roots3 = sort(roots3);     
 
-    num_roots = 3 - 2 * int(discriminant < PICO_TOLERANCE);
+    num_roots = 3 - 2 * int(discriminant < MICRO_TOLERANCE);
     return roots3;
 }
 
@@ -90,15 +89,7 @@ vec3 cubic_roots(in vec4 coeff)
     float root12; vec2 roots2; vec3 roots3;
 
     // check if quadratic
-    // float disc = dot(vec2(coeff.y, -4.0 * coeff.z), coeff.yy);
-    // float error = (coeff.y + sqrt(abs(disc))) * cbrt(coeff.w);
-    // float tolerance = abs(2.0 * coeff.z) * PICO_TOLERANCE;
-
-    // if (abs(error) < tolerance) {
-    //     roots2 = quadratic_roots(coeff.xyz);
-    //     return roots2.xyy;
-    // }
-    if (abs(coeff.w) < PICO_TOLERANCE) {
+    if (abs(coeff.w) < MICRO_TOLERANCE) {
         roots2 = quadratic_roots(coeff.xyz);
         return roots2.xyy;
     }
@@ -126,7 +117,7 @@ vec3 cubic_roots(in vec4 coeff)
     vec2 cubic_root = vec2(cos(theta), sin(theta));
 
     // compute real root using cubic root formula for one real and two complex roots eq(0.15)
-    if (discriminant < PICO_TOLERANCE) {
+    if (discriminant < MICRO_TOLERANCE) {
         root12 = cbrt((-coeff_depressed.x + sqrt_discrim) * 0.5) 
                + cbrt((-coeff_depressed.x - sqrt_discrim) * 0.5)
                - coeff.z;

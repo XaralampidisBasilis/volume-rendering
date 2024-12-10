@@ -361,7 +361,7 @@ export default class ISOGui
         this.viewer.material.uniforms.u_colormap.value.end_coords.set(x_end, y)      
     }
 
-    dispose() {
+    destroy() {
 
         // Dispose of controllers
         Object.values(this.controllers).forEach(group => {
@@ -382,11 +382,6 @@ export default class ISOGui
             folder.destroy()
         })
     
-        // Remove any additional debug setups if necessary
-        if (this.debug.active) {
-            this.viewer.occupancy.dispose()
-            this.viewer.occupancy = null
-        }
     
         // Clear references
         this.controllers = null

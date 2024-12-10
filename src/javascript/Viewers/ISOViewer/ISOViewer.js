@@ -194,8 +194,8 @@ export default class ISOViewer extends EventEmitter
             this.mesh.material.dispose()
         }
     
-        if (this.gui) 
-            this.gui.destroy()
+        // if (this.gui) 
+        //     this.gui.destroy()
 
         if (this.processor)
             this.processor.destroy()

@@ -11,7 +11,6 @@ export default class VolumeProcessor
 {
     constructor(volume, renderer)
     {
-        this.renderer = renderer
         this.volume = volume
         this.setObjects()
         this.setVolumeParameters()
@@ -517,24 +516,30 @@ export default class VolumeProcessor
         {
             // console.log(this[key])
 
-            if (this[key] instanceof tf.Tensor) 
+            if (this[key]?.tensor instanceof tf.Tensor) 
             {
                 this[key].tensor.dispose()
                 this[key].tensor = null
             }
 
-            if (this[key] instanceof THREE.Data3DTexture) 
+            if (this[key]?.texture instanceof THREE.Data3DTexture) 
             {
                 this[key].texture.dispose()
                 this[key].texture = null
             }
         
-            if (this[key].params) 
+            if (this[key]?.params) 
+            {
                 delete this[key].params
+            }
+
+            if (this[key])
+            {
+                this[key] = null
+            }
         })
 
         this.volume = null;
-        this.renderer = null;
     
         console.log("VolumeProcessor destroyed.");
     }
