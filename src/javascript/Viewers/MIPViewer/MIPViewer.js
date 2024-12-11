@@ -45,7 +45,7 @@ export default class MIPViewer extends EventEmitter
         await this.processor.computeGradientMap()
         await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
         await this.processor.quantizeTaylorMap()
-        await this.processor.computeExtremaDistanceMap(uDistmap.sub_division, 100)
+        await this.processor.computeExtremaDistanceMap(uDistmap.sub_division, 50)
     }
 
     async updateDistmap()
@@ -53,7 +53,7 @@ export default class MIPViewer extends EventEmitter
         const uDistmap = this.material.uniforms.u_distmap.value
         const uTextures = this.material.uniforms.u_textures.value
 
-        await this.processor.computeExtremaDistanceMap(uDistmap.sub_division, 100)
+        await this.processor.computeExtremaDistanceMap(uDistmap.sub_division, 50)
         
         const distmapParams =  this.processor.extremaDistanceMap.params
         uDistmap.max_distance = distmapParams.maxDistance
@@ -65,9 +65,9 @@ export default class MIPViewer extends EventEmitter
         uDistmap.inv_spacing.copy(distmapParams.invSpacing)
         uDistmap.inv_size.copy(distmapParams.invSize)
 
-        uTextures.distmap.dispose()
-        uTextures.distmap = this.processor.getTexture('extremaDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
-        uTextures.distmap.needsUpdate = true
+        uTextures.distance_map.dispose()
+        uTextures.distance_map = this.processor.getTexture('extremaDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
+        uTextures.distance_map.needsUpdate = true
         this.processor.extremaDistanceMap.tensor.dispose()
 
         this.logMemory('updateDistmap')
@@ -83,21 +83,21 @@ export default class MIPViewer extends EventEmitter
     {
         this.textures = {}
 
-        // taylormap
-        this.textures.taylormap = this.processor.getTexture('taylorMap', THREE.RGBAFormat, THREE.UnsignedByteType)
+        // taylor_map
+        this.textures.taylor_map = this.processor.getTexture('taylorMap', THREE.RGBAFormat, THREE.UnsignedByteType)
         this.processor.taylorMap.tensor.dispose()
 
-        // distmap
-        this.textures.distmap = this.processor.getTexture('extremaDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
+        // distance_map
+        this.textures.distance_map = this.processor.getTexture('extremaDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
         this.processor.extremaDistanceMap.tensor.dispose()
 
-        // colormaps
-        this.textures.colormaps = this.resources.items.colormaps                      
-        this.textures.colormaps.colorSpace = THREE.SRGBColorSpace
-        this.textures.colormaps.minFilter = THREE.LinearFilter
-        this.textures.colormaps.magFilter = THREE.LinearFilter         
-        this.textures.colormaps.generateMipmaps = false
-        this.textures.colormaps.needsUpdate = true 
+        // color_maps
+        this.textures.color_maps = this.resources.items.colormaps                      
+        this.textures.color_maps.colorSpace = THREE.SRGBColorSpace
+        this.textures.color_maps.minFilter = THREE.LinearFilter
+        this.textures.color_maps.magFilter = THREE.LinearFilter         
+        this.textures.color_maps.generateMipmaps = false
+        this.textures.color_maps.needsUpdate = true 
     }
   
     setGeometry()
@@ -138,7 +138,7 @@ export default class MIPViewer extends EventEmitter
         uVolume.max_gradient.fromArray(taylormapParams.maxValue.toArray().slice(1))
         uVolume.max_gradient_length = Math.max(uVolume.max_gradient.length(), uVolume.min_gradient.length())
 
-        // distmap
+        // distance_map
         uDistmap.max_distance = distmapParams.maxDistance
         uDistmap.sub_division = distmapParams.sub_division
         uDistmap.dimensions.copy(distmapParams.dimensions)
@@ -149,9 +149,9 @@ export default class MIPViewer extends EventEmitter
         uDistmap.inv_size.copy(distmapParams.invSize)
 
         // textures
-        uTextures.taylormap = this.textures.taylormap
-        uTextures.distmap = this.textures.distmap
-        uTextures.colormaps = this.textures.colormaps   
+        uTextures.taylor_map = this.textures.taylor_map
+        uTextures.distance_map = this.textures.distance_map
+        uTextures.color_maps = this.textures.color_maps   
     }
 
     setMesh()

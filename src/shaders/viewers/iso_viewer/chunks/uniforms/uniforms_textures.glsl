@@ -3,9 +3,9 @@
 
 struct Textures 
 {
-    sampler3D taylormap;
-    sampler3D distmap;
-    sampler2D colormaps;      
+    sampler3D taylor_map;
+    sampler3D distance_map;
+    sampler2D color_maps;      
 };
 
 uniform Textures u_textures;

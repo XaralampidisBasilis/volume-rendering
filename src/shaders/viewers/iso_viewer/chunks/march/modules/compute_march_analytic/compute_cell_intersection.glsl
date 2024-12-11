@@ -15,7 +15,7 @@ if (u_debugging.variable1 > 0.0)
     // Compute cell vertex values 
     #pragma unroll_loop_start
     for (int i = 0; i < 8; i++) {
-        cell_values[i] = textureOffset(u_textures.taylormap, cell_min_position * u_volume.inv_size, binary_offsets[i]).r;
+        cell_values[i] = textureOffset(u_textures.taylor_map, cell_min_position * u_volume.inv_size, binary_offsets[i]).r;
     }
     #pragma unroll_loop_end
 
@@ -51,7 +51,7 @@ if (u_debugging.variable1 > 0.0)
         trace.position = camera.position + ray.step_direction * trace.distance;
         trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
         trace.voxel_texels = trace.position * u_volume.inv_size;
-        vec4 texture_sample = texture(u_textures.taylormap, trace.voxel_texels);
+        vec4 texture_sample = texture(u_textures.taylor_map, trace.voxel_texels);
 
         // Update value
         trace.value = texture_sample.r;

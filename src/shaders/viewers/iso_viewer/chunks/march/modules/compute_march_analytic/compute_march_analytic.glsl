@@ -27,10 +27,10 @@ prev_trace = trace;
 
 //     // Update values
 //     vec4 values = vec4(
-//         texture(u_textures.taylormap, (camera.position + ray.step_direction * sample_distances.x) * u_volume.inv_size).r,
-//         texture(u_textures.taylormap, (camera.position + ray.step_direction * sample_distances.y) * u_volume.inv_size).r,
-//         texture(u_textures.taylormap, (camera.position + ray.step_direction * sample_distances.z) * u_volume.inv_size).r,
-//         texture(u_textures.taylormap, (camera.position + ray.step_direction * sample_distances.w) * u_volume.inv_size).r
+//         texture(u_textures.taylor_map, (camera.position + ray.step_direction * sample_distances.x) * u_volume.inv_size).r,
+//         texture(u_textures.taylor_map, (camera.position + ray.step_direction * sample_distances.y) * u_volume.inv_size).r,
+//         texture(u_textures.taylor_map, (camera.position + ray.step_direction * sample_distances.z) * u_volume.inv_size).r,
+//         texture(u_textures.taylor_map, (camera.position + ray.step_direction * sample_distances.w) * u_volume.inv_size).r
 //     );
 
 //     // Compute cubic coefficients
@@ -69,7 +69,7 @@ prev_trace = trace;
 //     //     // update position
 //     //     voxel.coords = ivec3(trace.position * u_volume.inv_spacing);
 //     //     voxel.texture_coords = trace.position * u_volume.inv_size;
-//     //     vec4 texture_sample = texture(u_textures.taylormap, voxel.texture_coords);
+//     //     vec4 texture_sample = texture(u_textures.taylor_map, voxel.texture_coords);
 
 //     //     voxel.value = texture_sample.r;
 //     //     voxel.gradient = texture_sample.gba;

@@ -296,7 +296,7 @@ export default class VolumeProcessor
                 params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
                 params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
                 params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
-                
+            
                 return [tensor, params]
             })
         })

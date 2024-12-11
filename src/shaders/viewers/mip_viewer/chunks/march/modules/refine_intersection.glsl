@@ -18,7 +18,7 @@ for (int iter = 0; iter < 10; iter++, trace.step_count++)
 
     // update voxel
     voxel.texture_coords = trace.position * u_volume.inv_size;
-    voxel.value = texture(u_textures.taylormap, voxel.texture_coords).r;
+    voxel.value = texture(u_textures.taylor_map, voxel.texture_coords).r;
 
     // update interval
     float interval = step(u_rendering.min_value, voxel.value);
@@ -42,7 +42,7 @@ if (abs(voxel.value) > abs(temp_voxel.value))
 else 
 {
     // update voxel
-    voxel.gradient = texture(u_textures.taylormap, voxel.texture_coords).gba;
+    voxel.gradient = texture(u_textures.taylor_map, voxel.texture_coords).gba;
     voxel.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, voxel.gradient);
 
     // update trace

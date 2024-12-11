@@ -18,7 +18,7 @@ vec3 texture_coords = trace.voxel_texels - u_volume.inv_dimensions * 0.5;
 
 #pragma unroll_loop_start
 for (int i = 0; i < 8; i++) {
-    values[i] = textureOffset(u_textures.taylormap, texture_coords, binary_offsets[i]).r;
+    values[i] = textureOffset(u_textures.taylor_map, texture_coords, binary_offsets[i]).r;
 }
 #pragma unroll_loop_end
 

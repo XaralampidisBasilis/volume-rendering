@@ -9,9 +9,9 @@ export default function()
     {
         u_textures: new THREE.Uniform
         ({
-            taylormap: null,
-            distmap  : null,
-            colormaps: null,
+            taylor_map: null,
+            distance_map  : null,
+            color_maps: null,
         }),
 
         u_volume : new THREE.Uniform
