@@ -4,8 +4,8 @@
 #include "./modules/compute_depth"
 
 // Compute shading vectors
-frag.view_vector    = camera.position - trace.position;
-frag.normal_vector  = - voxel.gradient;
+frag.view_vector    = camera.position - proj_trace.position;
+frag.normal_vector  = - proj_voxel.gradient;
 
 // Normalize shading vectors
 frag.view_vector    = normalize(frag.view_vector);

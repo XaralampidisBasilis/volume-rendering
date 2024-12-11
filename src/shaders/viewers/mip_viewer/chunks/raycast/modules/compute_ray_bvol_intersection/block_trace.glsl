@@ -1,7 +1,4 @@
 
-// Update count
-block.skip_count++;
-
 // Compute block coords from trace position
 block.coords = ivec3(trace.position * u_extremap.inv_spacing);
 block.texture_coords = ray.start_position * u_extremap.inv_size;

@@ -1,4 +1,7 @@
 
-// #if REFINE_INTERSECTION_ENABLED == 1
-// #include "./refine_intersection"
+// #if TRACE_POSITION_REFINEMENT_ENABLED == 1
+// #include "./compute_position_refinement/compute_position_refinement"
 // #endif
+
+
+

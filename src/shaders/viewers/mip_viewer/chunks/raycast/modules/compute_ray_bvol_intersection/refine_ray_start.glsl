@@ -1,4 +1,7 @@
 
+// Update count
+block.skip_count++;
+
 // Compute block coords from ray start position
 block.coords = ivec3(ray.start_position * u_extremap.inv_spacing);
 

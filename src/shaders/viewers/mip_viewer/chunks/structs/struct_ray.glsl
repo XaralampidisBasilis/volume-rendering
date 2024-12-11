@@ -19,6 +19,8 @@ struct Ray
 
     float min_value;
     float max_value;
+    float span_value;
+
     int   max_step_count;       // maximum number of steps allowed
     int   max_skip_count;       // maximum number of skips allowed
 };
@@ -38,7 +40,8 @@ Ray set_ray()
     ray.min_step_distance = 0.0;
     ray.max_step_distance = 0.0;
     ray.min_value         = 0.0;
-    ray.max_value         = 0.0;
+    ray.max_value         = 1.0;
+    ray.span_value        = 1.0;
     ray.max_step_count    = 0;
     ray.max_skip_count    = 0;
     return ray;

@@ -16,6 +16,7 @@ trace.position = camera.position + ray.step_direction * trace.distance;
 // update conditions
 trace.terminated = trace.distance > ray.end_distance;
 trace.exhausted = trace.step_count >= ray.max_step_count;
+trace.saturated = abs(proj_voxel.value - ray.max_value) < CENTI_TOLERANCE;
 
 // update cumulatives
 trace.stepped_distance += trace.step_distance;

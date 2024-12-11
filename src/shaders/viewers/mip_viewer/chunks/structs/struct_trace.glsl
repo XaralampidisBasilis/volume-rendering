@@ -4,6 +4,7 @@
 // struct to hold information about the current ray trace 
 struct Trace 
 {
+    bool  saturated;
     bool  terminated;           // flag indicating if the trace has reached out of u_volume bounds
     bool  exhausted;            // flag indicating if the trace has reached the max step count
 
@@ -26,6 +27,7 @@ struct Trace
 Trace set_trace()
 {
     Trace trace;
+    trace.saturated          = false;
     trace.terminated         = false;
     trace.exhausted          = false;
     trace.step_count         = 0;
