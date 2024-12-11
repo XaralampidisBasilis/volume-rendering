@@ -1,16 +1,36 @@
 
-// Compute ray entry with bounding volume
-for (block.skip_count = 0; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_count++) 
+// Start trace
+trace.distance = ray.start_distance;
+trace.position = ray.start_position;
+
+// Compute ray bounding values
+for (int count = 0; count < 500; count++) 
 {
-    #include "./compute_ray_bvol_intersection/update_block_start
-    
-    if (block.occupied) 
+    #include "./compute_ray_bvol_intersection/block_trace"
+    #include "./compute_ray_bvol_intersection/update_trace"
+
+    // update ray bounding values
+    ray.min_value = max(ray.min_value, block.min_value);
+    ray.max_value = max(ray.max_value, block.max_value);    
+ 
+    if (trace.distance > ray.end_distance) 
     {
         break;
-    }   
+    }
+}
 
-    #include "./compute_ray_bvol_intersection/update_ray_start
-    
+// Compute ray start
+for (int count = 0; count < 100; count++) 
+{
+    #include "./compute_ray_bvol_intersection/block_ray_start"
+
+    if (block.occupied)  
+    {
+        break;
+    }
+        
+    #include "./compute_ray_bvol_intersection/update_ray_start"
+
     if (ray.start_distance > ray.end_distance) 
     {
         break;
@@ -22,18 +42,18 @@ if (block.occupied)
     #include "./compute_ray_bvol_intersection/refine_ray_start"
 }
 
-// Compute ray exit with bounding volume
-for (block.skip_count; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_count++) 
+// Compute ray end
+for (int count = 0; count < 100; count++) 
 {
-    #include "./compute_ray_bvol_intersection/update_block_end
+    #include "./compute_ray_bvol_intersection/block_ray_end"
 
-    if (block.occupied) 
+    if (block.occupied)  
     {
         break;
-    }   
+    }
+ 
+    #include "./compute_ray_bvol_intersection/update_ray_end"
 
-    #include "./compute_ray_bvol_intersection/update_ray_end
-    
     if (ray.start_distance > ray.end_distance) 
     {
         break;
@@ -45,14 +65,5 @@ if (block.occupied)
     #include "./compute_ray_bvol_intersection/refine_ray_end"
 }
 
-// Discard ray if no intersection with bounding volume
-if (ray.start_distance > ray.end_distance)
-{
-    #include "./discard_ray"
-}
-else 
-{
-    ray.span_distance = ray.end_distance - ray.start_distance;
-}
-
-
+// Compute span
+ray.span_distance = ray.end_distance - ray.start_distance;

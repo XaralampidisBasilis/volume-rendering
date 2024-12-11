@@ -792,8 +792,12 @@ export function extremaMap(tensor, division)
     return tf.tidy(() =>
     {
         const divisions = [division, division, division]
-        const minimaMap = minPool3d(tensor, divisions, divisions, 'same')
-        const maximaMap = tf.maxPool3d(tensor, divisions, divisions, 'same')
+        const minimaMapTemp = minPool3d(tensor, divisions, divisions, 'same')
+        const minimaMap = minPool3d(minimaMapTemp, [3, 3, 3], [1, 1, 1], 'same') // to account for trilinear filtering
+        minimaMapTemp.dispose()
+        const maximaMapTemp = tf.maxPool3d(tensor, divisions, divisions, 'same')
+        const maximaMap = tf.maxPool3d(maximaMapTemp, [3, 3, 3], [1, 1, 1], 'same') // to account for trilinear filtering
+        maximaMapTemp.dispose()
         const extremaMap = tf.concat([minimaMap, maximaMap], 3)            
         return extremaMap
     })

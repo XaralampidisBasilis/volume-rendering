@@ -61,7 +61,7 @@ export default class ISOViewer extends EventEmitter
         uVolume.max_position.copy(boxParams.maxPosition)     
     }   
 
-    async updateDistmap()
+    async updateDistanceMap()
     {
         const uRendering = this.material.uniforms.u_rendering.value
         const uDistmap = this.material.uniforms.u_distmap.value

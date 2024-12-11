@@ -1,8 +1,8 @@
 
 // Compute block coords from trace position
-block.coords = ivec3(trace.position * u_distmap.inv_spacing);
-block.min_position = vec3(block.coords + 0) * u_distmap.spacing;
-block.max_position = vec3(block.coords + 1) * u_distmap.spacing;
+block.coords = ivec3(trace.position * u_extremap.inv_spacing);
+block.min_position = vec3(block.coords + 0) * u_extremap.spacing;
+block.max_position = vec3(block.coords + 1) * u_extremap.spacing;
 
 // Refine trace position from block entry distance
 trace.distance = intersect_box_min(block.min_position, block.max_position, camera.position, ray.step_direction);

@@ -2,7 +2,7 @@
 // Compute ray entry with bounding volume
 for (block.skip_count = 0; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_count++) 
 {
-    #include "./compute_ray_bvol_intersection/update_block_start
+    #include "./compute_ray_bvol_intersection/block_ray_start
     
     if (block.occupied) 
     {
@@ -25,7 +25,7 @@ if (block.occupied)
 // Compute ray exit with bounding volume
 for (block.skip_count; block.skip_count < MAX_BLOCK_SKIP_COUNT; block.skip_count++) 
 {
-    #include "./compute_ray_bvol_intersection/update_block_end
+    #include "./compute_ray_bvol_intersection/block_ray_end
 
     if (block.occupied) 
     {

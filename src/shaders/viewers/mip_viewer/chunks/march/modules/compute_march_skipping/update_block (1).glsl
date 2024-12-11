@@ -8,3 +8,10 @@ block_max_position *= u_extremap.spacing;
 // compute distance to exit the current block
 trace.distance = intersect_box_max(block_min_position, block_max_position, ray.camera_position, ray.step_direction);
 
+// update trace
+trace.position = ray.camera_position + ray.step_direction * trace.distance;
+trace.voxel_coords = ivec3(trace.position * u_volume.inv_spacing);
+trace.voxel_texture_coords = trace.position * u_volume.inv_size;
+
+// do not take next step 
+trace.step_distance = 0.0;

@@ -5,7 +5,7 @@
 // Compute intersection of ray with volume box
 #include "./modules/compute_ray_box_intersection"
 
-// Compute intersection of ray with bounding volume
+// Compute ray extrema 
 #if INTERSECT_BVOL_ENABLED == 1
 #include "./modules/compute_ray_bvol_intersection"
 #endif

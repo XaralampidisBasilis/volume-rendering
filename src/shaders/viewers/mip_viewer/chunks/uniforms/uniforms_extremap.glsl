@@ -1,10 +1,9 @@
-#ifndef UNIFORMS_DISTMAP
-#define UNIFORMS_DISTMAP
+#ifndef UNIFORMS_EXTREMAP
+#define UNIFORMS_EXTREMAP
 
 // struct to hold occupancy uniforms
-struct Distmap
+struct Extremap
 {
-    int   max_distance;
     int   sub_division;
     ivec3 dimensions;    
     vec3  spacing;                  
@@ -14,6 +13,6 @@ struct Distmap
     vec3  inv_size;              
 };
 
-uniform Distmap u_distmap;
+uniform Extremap u_extremap;
 
-#endif // UNIFORMS_DISTMAP
+#endif // UNIFORMS_EXTREMAP

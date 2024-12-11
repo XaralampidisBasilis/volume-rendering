@@ -19,8 +19,9 @@ const vec3 center_offsets[8] = vec3[8]
 );
 
 
+const int MAX_LOOP_COUNT = 500;
 const int MAX_TRACE_STEP_COUNT = 1000;
-const int MAX_BLOCK_SKIP_COUNT = 100;
+const int MAX_BLOCK_SKIP_COUNT = 500;
 
 const float MIN_TRACE_STEP_SCALING = 0.01;
 const float MAX_TRACE_STEP_SCALING = 5.00;

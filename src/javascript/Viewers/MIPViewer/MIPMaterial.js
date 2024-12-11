@@ -10,7 +10,7 @@ export default function()
         u_textures: new THREE.Uniform
         ({
             taylor_map: null,
-            distance_map  : null,
+            extrema_map : null,
             color_maps: null,
         }),
 
@@ -29,9 +29,8 @@ export default function()
             max_gradient_length   : 0.0,
         }),
 
-        u_distmap : new THREE.Uniform
+        u_extremap : new THREE.Uniform
         ({
-            max_distance  : 0,
             sub_division  : 3,
             dimensions    : new THREE.Vector3(),
             spacing       : new THREE.Vector3(),

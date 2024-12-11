@@ -4,7 +4,7 @@
 struct Textures 
 {
     sampler3D taylor_map;
-    sampler3D distance_map;
+    sampler3D extrema_map;
     sampler2D color_maps;      
 };
 
