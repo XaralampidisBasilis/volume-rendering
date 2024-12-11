@@ -12,7 +12,7 @@
 #include "./debug_ray/debug_ray_max_skip_count"       
 #include "./debug_ray/debug_ray_min_value"       
 #include "./debug_ray/debug_ray_max_value"   
-#include "./debug_ray/debug_ray_span_value"   
+#include "./debug_ray/debug_ray_range_value"   
 
 switch (u_debugging.option - debug.ray_slot)
 {
@@ -29,5 +29,5 @@ switch (u_debugging.option - debug.ray_slot)
     case 11: fragColor = debug.ray_max_skip_count; break;
     case 12: fragColor = debug.ray_min_value;      break;
     case 13: fragColor = debug.ray_max_value;      break;
-    case 14: fragColor = debug.ray_span_value;     break;
+    case 14: fragColor = debug.ray_range_value;     break;
 }

@@ -6,6 +6,7 @@ trace.error = proj_voxel.value - voxel.value;
 // update step
 trace.step_distance = (trace.error + CENTI_TOLERANCE) / trace.derivative;
 trace.step_distance = trace.derivative > 0.0 ? trace.step_distance : ray.max_step_distance;
+// trace.step_distance = trace.derivative > 0.0 ? trace.step_distance : ray.step_distance;
 trace.step_distance = clamp(trace.step_distance, ray.min_step_distance, ray.max_step_distance);
 trace.step_scaling = trace.step_distance / ray.step_distance;
 

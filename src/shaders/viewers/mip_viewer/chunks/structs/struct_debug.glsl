@@ -33,7 +33,7 @@ struct Debug
     vec4 ray_max_skip_count;
     vec4 ray_min_value;
     vec4 ray_max_value;
-    vec4 ray_span_value;
+    vec4 ray_range_value;
 
     int  trace_slot;
     vec4 trace_saturated;
@@ -133,7 +133,7 @@ Debug set_debug()
     debug.ray_max_skip_count         = vec4(vec3(0.0), 1.0);
     debug.ray_min_value              = vec4(vec3(0.0), 1.0);
     debug.ray_max_value              = vec4(vec3(0.0), 1.0);
-    debug.ray_span_value             = vec4(vec3(0.0), 1.0);
+    debug.ray_range_value             = vec4(vec3(0.0), 1.0);
 
     debug.trace_slot = 300;  
     debug.trace_saturated            = vec4(vec3(0.0), 1.0);

@@ -167,7 +167,7 @@ export default class MIPGui
                 ray_max_skip_count        : 211,
                 ray_min_value             : 212,
                 ray_max_value             : 213,
-                ray_span_value            : 214,
+                ray_range_value            : 214,
 
                 trace_saturated           : 301,
                 trace_terminated          : 302,

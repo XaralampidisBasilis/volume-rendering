@@ -1,10 +1,12 @@
 
-// Start trace
+// Setup
 trace.distance = ray.start_distance;
 trace.position = ray.start_position;
+ray.max_value = 0.0;
+
 
 // Compute ray bounding values
-for (int count = 0; count < 500; count++) 
+for (int count = 0; count < 400; count++) 
 {
     #include "./compute_ray_bvol_intersection/block_trace"
     #include "./compute_ray_bvol_intersection/update_trace"
@@ -65,5 +67,6 @@ if (block.occupied)
     #include "./compute_ray_bvol_intersection/refine_ray_end"
 }
 
-// Compute span
+// Finish
+ray.range_value = ray.max_value - ray.min_value;
 ray.span_distance = ray.end_distance - ray.start_distance;

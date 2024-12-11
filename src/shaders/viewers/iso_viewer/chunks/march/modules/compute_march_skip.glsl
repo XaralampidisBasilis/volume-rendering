@@ -2,7 +2,7 @@
 
 for (trace.step_count = 0; trace.step_count < MAX_TRACE_STEP_COUNT; trace.step_count++) 
 {
-    #include "./compute_march_skipping/update_block
+    #include "./compute_march_skip/update_block
     
     if (block.occupied) 
     {
@@ -17,7 +17,7 @@ for (trace.step_count = 0; trace.step_count < MAX_TRACE_STEP_COUNT; trace.step_c
     }  
     else
     {
-        #include "./compute_march_skipping/skip_block" 
+        #include "./compute_march_skip/skip_block" 
     }
 
     if (trace.terminated || trace.exhausted) 
@@ -28,7 +28,7 @@ for (trace.step_count = 0; trace.step_count < MAX_TRACE_STEP_COUNT; trace.step_c
 
 if (block.occupied)
 {
-    #include "./compute_march_skipping/refine_trace"
+    #include "./compute_march_skip/refine_trace"
 }
 
 #include "./end_march"
