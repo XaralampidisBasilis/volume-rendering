@@ -2,11 +2,10 @@
 #define INTERSECT_BOX
 
 #ifndef MMIN
-#include "./mmin"
+#include "../mmin"
 #endif
-
 #ifndef MMAX
-#include "./mmax"
+#include "../mmax"
 #endif
 
 vec2 intersect_box(vec3 box_min, vec3 box_max, vec3 start, vec3 dir) 

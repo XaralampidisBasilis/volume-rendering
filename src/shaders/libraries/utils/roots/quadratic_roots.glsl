@@ -4,9 +4,11 @@
 #ifndef MICRO_TOLERANCE
 #define MICRO_TOLERANCE 1e-6
 #endif
-
 #ifndef LINEAR_ROOTS
 #include "./linear_roots"
+#endif
+#ifndef SORT
+#include "../sort"
 #endif
 
 // coeff[0] + coeff[1] * t + coeff[2] * t^2

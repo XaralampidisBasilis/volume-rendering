@@ -1,22 +1,21 @@
+// https://www.wikiwand.com/en/articles/Lagrange_polynomial
+// returns quadratic polynomial coefficients in the form:
+// coeff[0] + coeff[1] * t + coeff[2] * t^2
+// numerically stable solution
+
 #ifndef LAGRANGE_QUADRATIC_COEFFICIENTS
 #define LAGRANGE_QUADRATIC_COEFFICIENTS
 
 #ifndef MICRO_TOLERANCE
 #define MICRO_TOLERANCE 1e-6
 #endif
-
 #ifndef PROD
-#include "./prod"
+#include "../prod"
 #endif
-
 #ifndef MAXABS
-#include "./maxabs"
+#include "../maxabs"
 #endif
 
-// https://www.wikiwand.com/en/articles/Lagrange_polynomial
-// returns quadratic polynomial coefficients in the form:
-// coeff[0] + coeff[1] * t + coeff[2] * t^2
-// numerically stable solution
 vec3 lagrange_quadratic_coefficients(in vec3 t, in vec3 f)
 {
     // cross differences products
@@ -51,10 +50,6 @@ vec3 lagrange_quadratic_coefficients(in vec3 t, in vec3 f)
     return coeff;
 }
 
-// depricated
-// returns quadratic polynomial coefficients in the form:
-// coeff[0] + coeff[1] * t + coeff[2] * t^2
-// https://www.wikiwand.com/en/articles/Lagrange_polynomial
 // vec3 lagrange_quadratic_coefficients(in vec3 t, in vec3 f)
 // {
 //     vec3 t2 = t * t;

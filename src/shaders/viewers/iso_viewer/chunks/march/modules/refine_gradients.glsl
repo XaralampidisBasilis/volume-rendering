@@ -16,7 +16,7 @@ for (int i = 0; i < 8; i++)
 {
     vec3 texture_coords = voxel.texture_coords + u_volume.inv_dimensions * center_offsets[i];
     values[i] = texture(u_textures.taylor_map, texture_coords).r;
-    values[i] /= exp2(sum(outside(0.0, 1.0, texture_coords))); // correct edge cases due to trilinear interpolation and clamp to edge wrapping   
+    values[i] /= exp2(sum(outside_open(0.0, 1.0, texture_coords))); // correct edge cases due to trilinear interpolation and clamp to edge wrapping   
 }
 
 // update voxel

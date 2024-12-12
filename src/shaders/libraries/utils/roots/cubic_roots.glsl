@@ -1,23 +1,23 @@
+// Based on Blinn's paper (https://courses.cs.washington.edu/courses/cse590b/13au/lecture_notes/solvecubic_p5.pdf)
+// Article by Christoph Peters (https://momentsingraphics.de/CubicRoots.html#_Blinn07b)
+// Shadertoy example (// https://www.shadertoy.com/view/7tBGzK)
+// Solves a cubic equation given the coefficients: coefficient[0] * x^0 + coefficient[1] * x^1 + coefficient[2] * x^2 + coefficient[3] * x^3
+
 #ifndef CUBIC_ROOTS
 #define CUBIC_ROOTS
 
 #ifndef MICRO_TOLERANCE
 #define MICRO_TOLERANCE 1e-6
 #endif
-
 #ifndef QUADRATIC_ROOTS
 #include "./quadratic_roots"
 #endif
-
 #ifndef CBRT
-#include "./cbrt"
+#include "../cbrt"
 #endif
-
-
-// Based on Blinn's paper (https://courses.cs.washington.edu/courses/cse590b/13au/lecture_notes/solvecubic_p5.pdf)
-// Article by Christoph Peters (https://momentsingraphics.de/CubicRoots.html#_Blinn07b)
-// Shadertoy example (// https://www.shadertoy.com/view/7tBGzK)
-// Solves a cubic equation given the coefficients: coefficient[0] * x^0 + coefficient[1] * x^1 + coefficient[2] * x^2 + coefficient[3] * x^3
+#ifndef SORT
+#include "../sort"
+#endif
 
 vec3 cubic_roots(in vec4 coeff, out int num_roots)
 {

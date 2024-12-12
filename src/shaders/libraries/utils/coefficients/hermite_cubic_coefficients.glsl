@@ -1,18 +1,21 @@
+// Function to compute the Hermite coefficients based on time (t), function values (f), and gradients (g)
+// returns cubic polynomial coefficients in the form:
+// coeff[0] + coeff[1] * t + coeff[2] * t^2 + coeff[3] * t^3
+// https://www.wikiwand.com/en/articles/Hermite_interpolation
+
 #ifndef HERMITE_CUBIC_COEFFICIENTS
 #define HERMITE_CUBIC_COEFFICIENTS
 
 #ifndef MILLI_TOLERANCE
 #define MILLI_TOLERANCE 1e-3
 #endif
-
+#ifndef MAXABS
+#include "../maxabs"
+#endif
 #ifndef LINSOLVE
-#include "./linsolve"
+#include "../linsolve"
 #endif
 
-// Function to compute the Hermite coefficients based on time (t), function values (f), and gradients (g)
-// returns cubic polynomial coefficients in the form:
-// coeff[0] + coeff[1] * t + coeff[2] * t^2 + coeff[3] * t^3
-// https://www.wikiwand.com/en/articles/Hermite_interpolation
 vec4 hermite_cubic_coefficients(in vec2 t, in  vec2 f, in  vec2 g)
 {
     // Compute the difference between the two time values (t0 - t1)
@@ -60,4 +63,4 @@ vec4 hermite_cubic_coefficients(in vec2 t, in  vec2 f, in  vec2 g)
 //     return coeffs;
 // }
 
-#endif // HERMITE_CUBIC_COEFFICIENTS
+#endif 

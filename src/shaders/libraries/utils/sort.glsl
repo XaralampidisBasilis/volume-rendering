@@ -22,5 +22,26 @@ vec4 sort(in vec4 v)
     return v;
 }
 
+// vec2 sort(in vec2 v)
+// {
+//     return (v.y > v.x) ? v.xy : v.yx;
+// }
+// vec3 sort(in vec3 v)
+// {
+//     v.xy = (v.y > v.x) ? v.xy : v.yx; // Swap x and y if x > y
+//     v.yz = (v.z > v.y) ? v.yz : v.zy; // Swap y and z if y > z
+//     v.xy = (v.y > v.x) ? v.xy : v.yx; // Final check for x and y
+//     return v;
+// }
+// vec4 sort(in vec4 v) 
+// {
+//     v.xy = (v.y > v.x) ? v.xy : v.yx; // Swap x and y if x > y
+//     v.zw = (v.w > v.z) ? v.zw : v.wz; // Swap z and w if z > w
+//     v.yz = (v.z > v.y) ? v.yz : v.zy; // Swap y and z if y > z
+//     v.xy = (v.y > v.x) ? v.xy : v.yx; // Final check for x and y
+//     v.zw = (v.w > v.z) ? v.zw : v.wz; // Final check for z and w
+//     return v;
+// }
+
 #endif // SORT
 

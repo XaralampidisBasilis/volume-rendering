@@ -1,11 +1,3 @@
-#ifndef RAY_TRILINEAR_CUBIC_COEFFS
-#define RAY_TRILINEAR_CUBIC_COEFFS
-
- // Dependencies
-#ifndef PROD
-#include "./prod"
-#endif
-
 /**
  * Computes the cubic polynomial coefficients for the trilinear interpolation 
  * value along a ray passing through a 3D cell.
@@ -30,6 +22,15 @@
  * Reference:
  * https://www.wikiwand.com/en/Trilinear_interpolation
  */
+
+#ifndef RAY_TRILINEAR_CUBIC_COEFFS
+#define RAY_TRILINEAR_CUBIC_COEFFS
+
+ // Dependencies
+#ifndef PROD
+#include "./prod"
+#endif
+
 
 /* Simplest version
 vec4 ray_trilinear_cubic_coeffs(in float f[8], in vec3 origin, in vec3 direction)

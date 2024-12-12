@@ -1,6 +1,6 @@
 
 
-float debug_trace_outside = outside_box_inclusive(0.0, 1.0, 
+float debug_trace_outside = outside_open_box(0.0, 1.0, 
     map(box.min_position, box.max_position, trace.position)
 );
 

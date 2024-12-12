@@ -1,7 +1,7 @@
 #ifndef BESSELI
 #define BESSELI
 
- #ifndef MICRO_TOLERANCE
+#ifndef MICRO_TOLERANCE
 #define MICRO_TOLERANCE 1e-6
 #endif
 

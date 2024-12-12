@@ -36,7 +36,7 @@ if (u_debugging.variable1 > 0.0)
     vec2 step_bounds = intersect_box(cell_min_position, cell_max_position, trace.position, ray.step_direction);
 
     // Update trace distance based on the shortest distance found inside the cell
-    vec3 is_inside = inside(step_bounds.x, step_bounds.y, step_distances);
+    vec3 is_inside = inside_closed(step_bounds.x, step_bounds.y, step_distances);
     float is_solution = prod(is_inside);
 
     debug.variable1 = vec4(vec3(is_solution), 1.0);
