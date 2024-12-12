@@ -13,7 +13,7 @@
 #include "./quadratic_roots"
 #endif
 #ifndef CBRT
-#include "../cbrt"
+#include "../functions/cbrt"
 #endif
 #ifndef SORT
 #include "../sort"

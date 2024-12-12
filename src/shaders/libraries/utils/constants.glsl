@@ -51,7 +51,7 @@ license:
 
     // TOLERANCES
     #ifndef QUETTA_TOLERANCE
-    #define QUETTA_TOLERANCE 1e+27
+    #define QUETTA_TOLERANCE 1e+30
     #endif
     #ifndef RONNA_TOLERANCE
     #define RONNA_TOLERANCE 1e+27

@@ -2,7 +2,7 @@
 #define MINABS
 
 #ifndef SSIGN
-#include "./ssign"
+#include "./functions/ssign"
 #endif
 
 float minabs(in float v, in float b) { return ssign(v) * min(abs(v), b); }

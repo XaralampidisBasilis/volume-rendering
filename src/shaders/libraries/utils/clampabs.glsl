@@ -2,7 +2,7 @@
 #define CLAMPABS
 
 #ifndef SSIGN
-#include "./ssign"
+#include "./functions/ssign"
 #endif
 
 float clampabs(in float v, in float a, in float b) { return ssign(v) * clamp(abs(v), a, b); }

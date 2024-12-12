@@ -6,6 +6,9 @@
 #ifndef MICRO_TOLERANCE
 #define MICRO_TOLERANCE 1e-6
 #endif
+#ifndef MAP
+#include "../map"
+#endif
 
 float hillstep(in float edge0, in float edge1, in float x, in float slope)
 {

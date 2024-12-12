@@ -8,17 +8,6 @@ const mat4 A = mat4(
     0.0, 1.0, -4.5, 4.5 
 );
 
-// const vec4 t = vec4(0.125, 0.375, 0.625, 0.875);
-// const mat4 A = mat4(
-//  105.0, -568.0,   960.0,   -512.0,
-// -105.0, 1128.0, -2496.0,   1536.0,
-//   63.0, -744.0, 2112.0, -1536.0,
-// -15.0, 184.0, -576.0,   512.0 
-// ) / 48.0;
-
-
-
-
 // start march
 trace.distance = ray.start_distance;
 trace.position = ray.start_position;
@@ -30,8 +19,8 @@ for (trace.step_count = 0; trace.step_count < u_rendering.max_step_count; trace.
     doxel.coords = ivec3(trace.position * u_volume.inv_spacing - 0.5);
 
     // Compute doxel box in model coords
-    doxel.min_position = (vec3(doxel.coords) + 0.5) * u_volume.spacing;
-    doxel.max_position = (vec3(doxel.coords) + 1.5) * u_volume.spacing;
+    doxel.min_position = (vec3(doxel.coords) + 0.5 - MILLI_TOLERANCE) * u_volume.spacing;
+    doxel.max_position = (vec3(doxel.coords) + 1.5 + MILLI_TOLERANCE) * u_volume.spacing;
 
     // Update position
     vec2 distance_bounds = intersect_box(doxel.min_position, doxel.max_position, camera.position, ray.step_direction);
@@ -49,6 +38,7 @@ for (trace.step_count = 0; trace.step_count < u_rendering.max_step_count; trace.
 
     vec4 coeffs = A * values;
 
+    debug.variable1 = vec4(vec3(mmin(abs(coeffs)) <= MILLI_TOLERANCE), 1.0);
 
     /* Tests
 
@@ -96,11 +86,11 @@ for (trace.step_count = 0; trace.step_count < u_rendering.max_step_count; trace.
     // debug.variable3 = vec4(vec3(greaterThan(trace_distances, vec3(1.0))), 1.0);
 
     // // THERE IS A PROBLEM SOMEWHERE HERE
-    vec3 is_inside = inside_open(0.0, 1.0, trace_distances);
-    debug.variable1 = vec4(vec3(is_inside), 1.0);
+    vec3 is_inside = inside_closed(0.0, 1.0, trace_distances);
+    // debug.variable1 = vec4(vec3(is_inside), 1.0);
 
     float is_solution = some(is_inside);
-    debug.variable2 = vec4(vec3(is_solution), 1.0);
+    // debug.variable2 = vec4(vec3(is_solution), 1.0);
 
     // check condition
     trace.intersected = is_solution > 0.5;
@@ -129,7 +119,7 @@ for (trace.step_count = 0; trace.step_count < u_rendering.max_step_count; trace.
     prev_trace = trace;
 
     // update position
-    trace.distance = distance_bounds.y + u_volume.spacing_length * MILLI_TOLERANCE;
+    trace.distance = distance_bounds.y;
     trace.position = camera.position + ray.step_direction * trace.distance; 
 
     // update conditions

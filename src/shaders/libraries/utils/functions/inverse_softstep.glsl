@@ -15,6 +15,9 @@
 #ifndef POWN
 #include "./pown"
 #endif
+#ifndef MAP
+#include "../map"
+#endif
 
 float inverse_softstep(in float edge0, in float edge1, in float x)
 {
