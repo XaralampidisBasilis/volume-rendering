@@ -13,6 +13,7 @@
  * @param q_inflex: The inflection point y of the curve where the second derivative, curvature, changes sign (float)
  * @return        : A smooth transition value in the range [0, 1] (float)
  */
+ 
 #ifndef SOFTSTEP
 #define SOFTSTEP
 

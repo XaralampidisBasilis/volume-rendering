@@ -1,3 +1,8 @@
+
+// source : https://www.peterstock.co.uk/games/adjustable_smoothstep/
+// formulas in desmos : https://www.desmos.com/calculator/ovekxhisxy
+// glsl code in desmos : https://www.desmos.com/calculator/4anckbpwml
+
 #ifndef INVERSE_SOFTSTEP
 #define INVERSE_SOFTSTEP
 
@@ -10,10 +15,6 @@
 #ifndef POWN
 #include "./pown"
 #endif
-
-// source : https://www.peterstock.co.uk/games/adjustable_smoothstep/
-// formulas in desmos : https://www.desmos.com/calculator/ovekxhisxy
-// glsl code in desmos : https://www.desmos.com/calculator/4anckbpwml
 
 float inverse_softstep(in float edge0, in float edge1, in float x)
 {
