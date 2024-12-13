@@ -5,5 +5,6 @@
 #include "./linear_solver"
 #include "./quadratic_solver"
 #include "./cubic_solver"
+#include "./is_cubic_solvable"
 
 #endif
