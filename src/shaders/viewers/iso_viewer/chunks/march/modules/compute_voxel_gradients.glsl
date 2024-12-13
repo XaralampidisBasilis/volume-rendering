@@ -17,7 +17,8 @@ float values[8];
 vec3 texture_coords = trace.voxel_texels - u_volume.inv_dimensions * 0.5;
 
 #pragma unroll_loop_start
-for (int i = 0; i < 8; i++) {
+for (int i = 0; i < 8; i++) 
+{
     values[i] = textureOffset(u_textures.taylor_map, texture_coords, binary_offsets[i]).r;
 }
 #pragma unroll_loop_end
@@ -28,4 +29,5 @@ voxel.gradient = vec3(
     values[2] + values[4] + values[6] + values[7] - values[0] - values[3] - values[1] - values[5],
     values[3] + values[4] + values[5] + values[7] - values[0] - values[2] - values[1] - values[6]
 );
+
 voxel.gradient *= u_volume.inv_spacing * 0.25;

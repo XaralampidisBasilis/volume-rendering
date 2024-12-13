@@ -780,11 +780,111 @@ export function occupancyBoundingBox(tensor, threshold)
 }
 
 /**
+ * Computes the isosurface map for a given tensor based on the method described
+ * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
+ */
+export function isosurfaceMap(tensor, threshold, tolerance = 1/255, subDivision = 2)
+{
+    return tf.tidy(() =>
+    {
+        const greater = tensor.greater(tf.scalar(threshold - tolerance, 'float32'))
+        const less = tensor.less(tf.scalar(threshold + tolerance, 'float32'))
+        const condition = tf.logicalAnd(greater, less);
+        greater.dispose()
+        less.dispose()
+
+        const subDivisions = [subDivision, subDivision, subDivision]
+        const occupancymapTemp = tf.maxPool3d(condition, subDivisions, subDivisions, 'same')
+        condition.dispose()
+    
+        const isosurfaceMap = occupancymapTemp.mul(tf.scalar(255, 'int32'))
+        occupancymapTemp.dispose()
+    
+        return isosurfaceMap
+    })
+}
+
+/**
+ * Computes the Chebyshev distance map for a given tensor based on the method described
+ * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
+ */
+export function isosurfaceDistanceMap(tensor, threshold, tolerance = 1/255, subDivisions = 2, maxIters = 255) 
+{
+    return tf.tidy(() => 
+    {
+        const occupancy = isosurfaceMap(tensor, threshold, tolerance, subDivisions)
+
+        let diffusionNext = occupancy.cast('bool')
+        let diffusionPrev = tf.zeros(diffusionNext.shape, 'bool')
+        let distanceMap = tf.zeros(diffusionNext.shape, 'int32')
+    
+        for (let iter = 0; iter <= maxIters; iter++) 
+        {
+            const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
+            const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(iter, 'int32'))
+            diffusionUpdate.dispose()
+            
+            const distanceMapTemp = distanceMap.add(distanceMapUpdate);
+            distanceMapUpdate.dispose()
+    
+            distanceMap.dispose()
+            distanceMap = distanceMapTemp
+    
+            diffusionPrev.dispose() 
+            diffusionPrev = diffusionNext
+            diffusionNext = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
+        }
+        
+        const diffusionUpdate = tf.logicalNot(diffusionPrev)
+        const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(maxIters, 'int32'))
+        diffusionUpdate.dispose()
+    
+        const distanceMapTemp = distanceMap.add(distanceMapUpdate);
+        distanceMapUpdate.dispose()
+    
+        distanceMap.dispose()
+        distanceMap = distanceMapTemp
+    
+        return distanceMap
+    })
+}
+
+export function isosurfaceBoundingBox(tensor, threshold = 0, tolerance = 1/255) 
+{
+    return tf.tidy(() => 
+    {
+        // Create a binary mask where tensor values are greater than the threshold
+        const greater = tensor.greater(tf.scalar(threshold - tolerance, 'float32'))
+        const less = tensor.less(tf.scalar(threshold + tolerance, 'float32'))
+        const condition = tf.logicalAnd(greater, less);
+        greater.dispose()
+        less.dispose()
+
+        // Get the tensor rank (number of dimensions)
+        const rank = tensor.rank
+
+        // Compute the bounds for each axis dynamically
+        const bounds = Array.from({ length: rank }, (_, axis) => indexBounds(condition, axis))
+
+        // Separate min and max bounds
+        const minCoords = tf.stack(bounds.map(b => b[0]), 0)
+        const maxCoords = tf.stack(bounds.map(b => b[1]), 0)
+
+        // Convert tensors to arrays
+        const minCoordsArray = minCoords.arraySync().slice(0, 3).toReversed()
+        const maxCoordsArray = maxCoords.arraySync().slice(0, 3).toReversed()
+
+        return { minCoords: minCoordsArray, maxCoords: maxCoordsArray}
+    })
+}
+
+
+/**
  * Computes the extrema map for a given tensor based on the method described
  * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
  *
  * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the extrema map is computed.
- * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of the map.
+ * @param {number} subDivisions - The size of the pooling kernel in each dimension, determining the granularity of the map.
  * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the extrema values map.
  */
 export function extremaMap(tensor, division)

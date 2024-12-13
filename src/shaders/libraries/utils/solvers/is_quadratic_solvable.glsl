@@ -11,7 +11,6 @@
 #include "./quadratic_pows"
 #endif
 
-
 // compute quadratic derivative factors
 const vec2 quadratic_derivative_factors = vec2(1.0, 2.0);
 
@@ -29,17 +28,13 @@ bool is_quadratic_solvable(in vec3 coeffs, in float value, in float start, in fl
 
     // compute the derivative of quadratic and solve for the extrema values
     vec2 linear_coeffs = coeffs.yz * quadratic_derivative_factors;
-    float linear_roots = linear_solver(linear_coeffs, 0.0, start);
+    float linear_root = linear_solver(linear_coeffs, 0.0, start);
 
-    // compute the quadratic at the extrema values
-    vec2 extrema_values = vec2
-    (
-        dot(coeffs, quadratic_pows(quadratic_roots.x)),
-        dot(coeffs, quadratic_pows(quadratic_roots.y))
-    );
+    // compute the extrema value
+    float extrema_value = dot(coeffs, quadratic_pows(linear_root));
     
     // check if the extrema are within the interval and evaluate the quadratic at those points
-    bvec2 is_inside = greaterThan(inside_open(start, end, quadratic_roots), vec2(MICRO_TOLERANCE));
+    bool is_inside = inside_open(start, end, linear_root) > MICRO_TOLERANCE;
 
     // check solution based on intermediate value theorem
     bool is_solvable = (boundary_values.x * boundary_values.y <= MICRO_TOLERANCE);
@@ -47,16 +42,11 @@ bool is_quadratic_solvable(in vec3 coeffs, in float value, in float start, in fl
     // check solution based on the extrema values inside the interval
     is_solvable = is_solvable || 
 
-        (is_inside.x && ((extrema_values.x * boundary_start < MICRO_TOLERANCE) ||
-                         (extrema_values.x * boundary_end   < MICRO_TOLERANCE) || 
-                         (abs(extrema_values.x) < MICRO_TOLERANCE))) ||
+        (is_inside && ((extrema_value * boundary_values.x < MICRO_TOLERANCE) ||
+                       (extrema_value * boundary_values.y < MICRO_TOLERANCE) || 
+                       (abs(extrema_value) < MICRO_TOLERANCE)));
 
-        (is_inside.y && ((extrema_values.y * boundary_start < MICRO_TOLERANCE) ||
-                         (extrema_values.y * boundary_end   < MICRO_TOLERANCE) || 
-                         (abs(extrema_values.y) < MICRO_TOLERANCE))); 
-
-
-    // return 
+    // return result
     return is_solvable;
 }
 

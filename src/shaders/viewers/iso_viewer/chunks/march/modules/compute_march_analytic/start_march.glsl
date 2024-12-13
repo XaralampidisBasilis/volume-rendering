@@ -27,3 +27,9 @@ vec4 voxel_values = vec4
     texture(u_textures.taylor_map, camera.texture_position + ray.texture_direction * trace_distances.z).r,
     texture(u_textures.taylor_map, camera.texture_position + ray.texture_direction * trace_distances.w).r
 );
+
+// compute trilinear interpolation cubic coefficients for the current cell
+vec4 coefficients = sample_matrix * voxel_values;
+trace.intersected = is_cubic_solvable(coefficients, u_rendering.min_value, 0.0, 1.0);
+
+

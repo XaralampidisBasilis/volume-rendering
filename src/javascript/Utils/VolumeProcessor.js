@@ -33,15 +33,18 @@ export default class VolumeProcessor
 
     setObjects()
     {
-        this.intensityMap         = { params: null, tensor: null, texture: null}
-        this.gradientMap          = { params: null, tensor: null, texture: null}
-        this.taylorMap            = { params: null, tensor: null, texture: null}
-        this.occupancyMap         = { params: null, tensor: null, texture: null}
-        this.occupancyDistanceMap = { params: null, tensor: null, texture: null}
-        this.occupancyMipmaps     = { params: null, tensor: null, texture: null}
-        this.occupancyBoundingBox = { params: null, tensor: null, texture: null}
-        this.extremaMap           = { params: null, tensor: null, texture: null}
-        this.extremaDistanceMap   = { params: null, tensor: null, texture: null}
+        this.intensityMap          = { params: null, tensor: null, texture: null}
+        this.gradientMap           = { params: null, tensor: null, texture: null}
+        this.taylorMap             = { params: null, tensor: null, texture: null}
+        this.occupancyMap          = { params: null, tensor: null, texture: null}
+        this.occupancyDistanceMap  = { params: null, tensor: null, texture: null}
+        this.occupancyMipmaps      = { params: null, tensor: null, texture: null}
+        this.occupancyBoundingBox  = { params: null, tensor: null, texture: null}
+        this.isosurfaceMap         = { params: null, tensor: null, texture: null}
+        this.isosurfaceDistanceMap = { params: null, tensor: null, texture: null}
+        this.isosurfaceBoundingBox = { params: null, tensor: null, texture: null}
+        this.extremaMap            = { params: null, tensor: null, texture: null}
+        this.extremaDistanceMap    = { params: null, tensor: null, texture: null}
     }
 
     setVolumeParameters()
@@ -244,6 +247,97 @@ export default class VolumeProcessor
         })
 
         // console.log('occupancyBoundingBox', this.occupancyBoundingBox.params)
+    }
+
+    async computeIsosurfaceMap(threshold = 0, tolerance = 1/255, subDivision = 4, )
+    {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeIsosurfaceMipmaps: intensityMap is not computed`)
+        }
+
+        timeit('computeIsosurfaceMap', () =>
+        {
+            [this.isosurfaceMap.tensor, this.isosurfaceMap.params] = tf.tidy(() => 
+            {
+                const tensor = TensorUtils.isosurfaceMap(this.intensityMap.tensor, threshold, tolerance, subDivision)
+                const params = {}
+                params.threshold = threshold
+                params.tolerance = tolerance
+                params.subDivision = subDivision
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.shape = tensor.shape
+                params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
+                params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
+                params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
+
+                return [tensor, params]
+            })
+        })
+
+        // console.log('isosurfaceMap', this.isosurfaceMap.params, this.isosurfaceMap.tensor.dataSync())
+    }
+
+    async computeIsosurfaceDistanceMap(threshold = 0, tolerance = 1/255, subDivision = 2, maxIters = 255)
+    {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeIsosurfaceDistanceMap: intensityMap is not computed`)
+        }
+       
+        timeit('computeIsosurfaceDistanceMap', () =>
+        {
+            [this.isosurfaceDistanceMap.tensor, this.isosurfaceDistanceMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.isosurfaceDistanceMap(this.intensityMap.tensor, threshold, tolerance, subDivision, maxIters)
+                const params = {}
+                params.threshold = threshold
+                params.tolerance = tolerance
+                params.subDivision = subDivision
+                params.shape = tensor.shape
+                params.maxDistance = tensor.max().arraySync()
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(params.subDivision)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
+                params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
+                params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
+                
+                return [tensor, params]
+            })
+        })
+
+        console.log('isosurfaceDistanceMap', this.isosurfaceDistanceMap.params, this.isosurfaceDistanceMap.tensor.dataSync())
+    }
+
+    async computeIsosurfaceBoundingBox(threshold = 0, tolerance = 1/255)
+    {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeIsosurfaceBoundingBox: intensityMap is not computed`)
+        }
+
+        timeit('computeIsosurfaceBoundingBox', () =>
+        {
+            this.isosurfaceBoundingBox.params = tf.tidy(() =>
+            {
+                const boundingBox = TensorUtils.isosurfaceBoundingBox(this.intensityMap.tensor, threshold, tolerance)
+                const params = {}
+                params.threshold = threshold
+                params.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
+                params.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
+                params.minPosition = new THREE.Vector3().fromArray(boundingBox.minCoords).multiply(this.volume.params.spacing)
+                params.maxPosition = new THREE.Vector3().fromArray(boundingBox.maxCoords).multiply(this.volume.params.spacing)
+                
+                return params
+            })          
+        })
+
+        // console.log('isosurfaceBoundingBox', this.isosurfaceBoundingBox.params)
     }
 
     async computeExtremaMap(subDivision = 4)

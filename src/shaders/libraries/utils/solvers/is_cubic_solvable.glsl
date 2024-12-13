@@ -44,24 +44,17 @@ bool is_cubic_solvable(in vec4 coeffs, in float value, in float start, in float 
     bool is_solvable = (boundary_values.x * boundary_values.y <= MICRO_TOLERANCE);
 
     // check solution based on the first extrema value inside the interval
-    is_solvable = is_solvable || is_inside.x && 
-    (
-        (extrema_values.x * boundary_values.x < MICRO_TOLERANCE) || 
-        (extrema_values.x * boundary_values.y < MICRO_TOLERANCE) || 
-        
-        // for numerical instabilities
-        (abs(extrema_values.x) < MICRO_TOLERANCE)
-    );
-    
-    is_solvable = is_solvable || is_inside.y && 
-    (
-        (extrema_values.y * boundary_values.x < MICRO_TOLERANCE) || 
-        (extrema_values.y * boundary_values.y < MICRO_TOLERANCE) || 
+    is_solvable = is_solvable || 
 
-        // for numerical instabilities
-        (abs(extrema_values.y) < MICRO_TOLERANCE) 
-    );
+        (is_inside.x && ((extrema_values.x * boundary_values.x < MICRO_TOLERANCE) ||
+                         (extrema_values.x * boundary_values.y < MICRO_TOLERANCE) || 
+                         (abs(extrema_values.x) < MICRO_TOLERANCE))) ||
 
+        (is_inside.y && ((extrema_values.y * boundary_values.x < MICRO_TOLERANCE) ||
+                         (extrema_values.y * boundary_values.y < MICRO_TOLERANCE) || 
+                         (abs(extrema_values.y) < MICRO_TOLERANCE))); 
+
+    // return result
     return is_solvable;
 }
 
