@@ -26,6 +26,10 @@ export default class Camera
     {
         this.controls = new OrbitControls(this.instance, this.canvas)
         this.controls.enableDamping = true
+        this.controls.enableZoom = true
+        this.controls.zoomToCursor = true
+        this.controls.zoomSpeed = 2
+        // this.controls.target = new THREE.Vector3(0,0,-1000);
     }
 
     resize()

@@ -249,7 +249,7 @@ export default class VolumeProcessor
         // console.log('occupancyBoundingBox', this.occupancyBoundingBox.params)
     }
 
-    async computeIsosurfaceMap(threshold = 0, tolerance = 1/255, subDivision = 4, )
+    async computeIsosurfaceMap(threshold = 0, subDivision = 4)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
@@ -260,10 +260,9 @@ export default class VolumeProcessor
         {
             [this.isosurfaceMap.tensor, this.isosurfaceMap.params] = tf.tidy(() => 
             {
-                const tensor = TensorUtils.isosurfaceMap(this.intensityMap.tensor, threshold, tolerance, subDivision)
+                const tensor = TensorUtils.isosurfaceMap(this.intensityMap.tensor, threshold, subDivision)
                 const params = {}
                 params.threshold = threshold
-                params.tolerance = tolerance
                 params.subDivision = subDivision
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
                 params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
@@ -281,7 +280,7 @@ export default class VolumeProcessor
         // console.log('isosurfaceMap', this.isosurfaceMap.params, this.isosurfaceMap.tensor.dataSync())
     }
 
-    async computeIsosurfaceDistanceMap(threshold = 0, tolerance = 1/255, subDivision = 2, maxIters = 255)
+    async computeIsosurfaceDistanceMap(threshold = 0, subDivision = 2, maxIters = 255)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
@@ -292,10 +291,9 @@ export default class VolumeProcessor
         {
             [this.isosurfaceDistanceMap.tensor, this.isosurfaceDistanceMap.params] = tf.tidy(() =>
             {
-                const tensor = TensorUtils.isosurfaceDistanceMap(this.intensityMap.tensor, threshold, tolerance, subDivision, maxIters)
+                const tensor = TensorUtils.isosurfaceDistanceMap(this.intensityMap.tensor, threshold, subDivision, maxIters)
                 const params = {}
                 params.threshold = threshold
-                params.tolerance = tolerance
                 params.subDivision = subDivision
                 params.shape = tensor.shape
                 params.maxDistance = tensor.max().arraySync()
@@ -314,7 +312,7 @@ export default class VolumeProcessor
         console.log('isosurfaceDistanceMap', this.isosurfaceDistanceMap.params, this.isosurfaceDistanceMap.tensor.dataSync())
     }
 
-    async computeIsosurfaceBoundingBox(threshold = 0, tolerance = 1/255)
+    async computeIsosurfaceBoundingBox(threshold = 0)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
@@ -325,7 +323,7 @@ export default class VolumeProcessor
         {
             this.isosurfaceBoundingBox.params = tf.tidy(() =>
             {
-                const boundingBox = TensorUtils.isosurfaceBoundingBox(this.intensityMap.tensor, threshold, tolerance)
+                const boundingBox = TensorUtils.isosurfaceBoundingBox(this.intensityMap.tensor, threshold)
                 const params = {}
                 params.threshold = threshold
                 params.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)

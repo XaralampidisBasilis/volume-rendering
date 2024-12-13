@@ -7,9 +7,13 @@ block.max_coords = block.coords + 1;
 block.min_position = vec3(block.min_coords) * u_distmap.spacing;
 block.max_position = vec3(block.max_coords) * u_distmap.spacing;
 
+// Increase block size by a voxel
+block.min_position -= u_volume.spacing;
+block.max_position += u_volume.spacing;
+
 // intersect ray with block to find start distance and position
 ray.start_distance = intersect_box_min(block.min_position, block.max_position, camera.position, ray.step_direction);
-ray.start_distance -= u_volume.spacing_length * 2.0;
+// ray.start_distance -= u_volume.spacing_length * 2.0;
 
 // update ray start position
 ray.start_distance = max(ray.start_distance, box.entry_distance);

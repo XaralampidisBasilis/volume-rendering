@@ -783,22 +783,48 @@ export function occupancyBoundingBox(tensor, threshold)
  * Computes the isosurface map for a given tensor based on the method described
  * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
  */
-export function isosurfaceMap(tensor, threshold, tolerance = 1/255, subDivision = 2)
+export function isosurfaceMap(tensor, threshold = 0, subDivision = 2)
 {
     return tf.tidy(() =>
     {
-        const greater = tensor.greater(tf.scalar(threshold - tolerance, 'float32'))
-        const less = tensor.less(tf.scalar(threshold + tolerance, 'float32'))
-        const condition = tf.logicalAnd(greater, less);
+        const scalarThreshold = tf.scalar(threshold, 'float32')
+        const scalarZero = tf.scalar(0.0, 'float32')
+        const scalarEpsilon = tf.scalar(1e-6, 'float32')
+        const scalar255 = tf.scalar(255, 'int32')
+
+        const error = tensor.sub(scalarThreshold)
+
+        const minima = minPool3d(error, [3, 3, 3], [1, 1, 1], 'same')
+        const undershoot = tf.mul(minima, error)
+        minima.dispose()
+        const lesser = tf.less(undershoot, scalarZero)
+        undershoot.dispose()
+
+        const maxima = tf.maxPool(error, [3, 3, 3], [1, 1, 1], 'same')
+        const overshoot = tf.mul(maxima, error)
+        maxima.dispose()
+        const greater = tf.less(overshoot, scalarZero)
+        overshoot.dispose()
+      
+        const approximate = tf.logicalOr(greater, lesser);
         greater.dispose()
-        less.dispose()
+        lesser.dispose()
+
+        const absError = error.abs()
+        error.dispose()
+        const equal = tf.lessEqual(absError, scalarEpsilon);
+        absError.dispose()
+        
+        const condition = tf.logicalOr(equal, approximate)
+        approximate.dispose()
+        equal.dispose()
 
         const subDivisions = [subDivision, subDivision, subDivision]
-        const occupancymapTemp = tf.maxPool3d(condition, subDivisions, subDivisions, 'same')
+        const isosurfaceMapTemp = (subDivision > 1) ? tf.maxPool3d(condition, subDivisions, subDivisions, 'same') : condition.clone();
         condition.dispose()
     
-        const isosurfaceMap = occupancymapTemp.mul(tf.scalar(255, 'int32'))
-        occupancymapTemp.dispose()
+        const isosurfaceMap = isosurfaceMapTemp.mul(scalar255)
+        isosurfaceMapTemp.dispose()
     
         return isosurfaceMap
     })
@@ -808,11 +834,11 @@ export function isosurfaceMap(tensor, threshold, tolerance = 1/255, subDivision 
  * Computes the Chebyshev distance map for a given tensor based on the method described
  * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
  */
-export function isosurfaceDistanceMap(tensor, threshold, tolerance = 1/255, subDivisions = 2, maxIters = 255) 
+export function isosurfaceDistanceMap(tensor, threshold, subDivisions = 2, maxIters = 255) 
 {
     return tf.tidy(() => 
     {
-        const occupancy = isosurfaceMap(tensor, threshold, tolerance, subDivisions)
+        const occupancy = isosurfaceMap(tensor, threshold, subDivisions)
 
         let diffusionNext = occupancy.cast('bool')
         let diffusionPrev = tf.zeros(diffusionNext.shape, 'bool')
@@ -820,9 +846,12 @@ export function isosurfaceDistanceMap(tensor, threshold, tolerance = 1/255, subD
     
         for (let iter = 0; iter <= maxIters; iter++) 
         {
+            const scalarIter = tf.scalar(iter, 'int32');
+
             const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
-            const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(iter, 'int32'))
+            const distanceMapUpdate = diffusionUpdate.mul(scalarIter)
             diffusionUpdate.dispose()
+            scalarIter.dispose()
             
             const distanceMapTemp = distanceMap.add(distanceMapUpdate);
             distanceMapUpdate.dispose()
@@ -835,8 +864,9 @@ export function isosurfaceDistanceMap(tensor, threshold, tolerance = 1/255, subD
             diffusionNext = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
         }
         
+        const scalarMaxIters = tf.scalar(maxIters, 'int32');
         const diffusionUpdate = tf.logicalNot(diffusionPrev)
-        const distanceMapUpdate = diffusionUpdate.mul(tf.scalar(maxIters, 'int32'))
+        const distanceMapUpdate = diffusionUpdate.mul(scalarMaxIters)
         diffusionUpdate.dispose()
     
         const distanceMapTemp = distanceMap.add(distanceMapUpdate);
@@ -849,22 +879,46 @@ export function isosurfaceDistanceMap(tensor, threshold, tolerance = 1/255, subD
     })
 }
 
-export function isosurfaceBoundingBox(tensor, threshold = 0, tolerance = 1/255) 
+export function isosurfaceBoundingBox(tensor, threshold = 0) 
 {
     return tf.tidy(() => 
     {
-        // Create a binary mask where tensor values are greater than the threshold
-        const greater = tensor.greater(tf.scalar(threshold - tolerance, 'float32'))
-        const less = tensor.less(tf.scalar(threshold + tolerance, 'float32'))
-        const condition = tf.logicalAnd(greater, less);
+        const scalarThreshold = tf.scalar(threshold, 'float32')
+        const scalarZero = tf.scalar(0.0, 'float32')
+        const scalarEpsilon = tf.scalar(1e-6, 'float32')
+
+        const error = tensor.sub(scalarThreshold)
+
+        const minima = minPool3d(error, [3, 3, 3], [1, 1, 1], 'same')
+        const undershoot = tf.mul(minima, error)
+        minima.dispose()
+        const lesser = tf.less(undershoot, scalarZero)
+        undershoot.dispose()
+
+        const maxima = tf.maxPool(error, [3, 3, 3], [1, 1, 1], 'same')
+        const overshoot = tf.mul(maxima, error)
+        maxima.dispose()
+        const greater = tf.less(overshoot, scalarZero)
+        overshoot.dispose()
+      
+        const conditionTemp = tf.logicalOr(greater, lesser);
         greater.dispose()
-        less.dispose()
+        lesser.dispose()
+
+        const absError = error.abs()
+        error.dispose()
+        const equal = tf.lessEqual(absError, scalarEpsilon);
+        error.dispose()
+
+        const condition = tf.logicalOr(equal, conditionTemp)
+        conditionTemp.dispose()
+        equal.dispose()
 
         // Get the tensor rank (number of dimensions)
         const rank = tensor.rank
 
         // Compute the bounds for each axis dynamically
-        const bounds = Array.from({ length: rank }, (_, axis) => indexBounds(condition, axis))
+        const bounds = Array.from({ length: rank }, (value, axis) => indexBounds(condition, axis))
 
         // Separate min and max bounds
         const minCoords = tf.stack(bounds.map(b => b[0]), 0)

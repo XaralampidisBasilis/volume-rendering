@@ -11,13 +11,15 @@ vec3 light_position = camera.position + light_offset;
 frag.light_vector   = light_position - trace.position;
 frag.view_vector    = camera.position - trace.position;
 frag.halfway_vector = frag.light_vector + frag.view_vector;
-frag.normal_vector  = - voxel.gradient;
 
 // Normalize shading vectors
 frag.light_vector   = normalize(frag.light_vector);
 frag.view_vector    = normalize(frag.view_vector);
 frag.halfway_vector = normalize(frag.halfway_vector);
-frag.normal_vector  = normalize(frag.normal_vector);
+
+// Compute normal vector
+frag.normal_vector  = normalize(voxel.gradient);
+frag.normal_vector *= ssign(dot(frag.normal_vector, frag.view_vector));
 
 // Compute vector angles
 frag.light_angle   = dot(frag.light_vector, frag.normal_vector);

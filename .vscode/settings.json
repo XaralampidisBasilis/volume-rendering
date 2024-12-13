@@ -80,6 +80,7 @@
         "scharr",
         "smoothstep",
         "sobel",
+        "ssign",
         "subind",
         "subm",
         "taylormap",
