@@ -13,26 +13,50 @@
 #include "./quadratic_roots"
 #endif
 #ifndef CBRT
-#include "../functions/cbrt"
+#include "./cbrt"
 #endif
-#ifndef SORT
-#include "../sort"
-#endif
+
+
+/**
+ * Determines if a cubic equation can be approximated as a quadratic equation.
+ *
+ * This function calculates whether the cubic term of a given cubic polynomial 
+ * contributes negligibly to the overall solution, allowing the polynomial 
+ * to be reduced to a quadratic form. It achieves this by estimating the 
+ * cubic term's error and comparing it against a small tolerance value.
+ *
+ * The cubic polynomial is represented as:
+ *     coeff[0] + coeff[1] * x + coeff[2] * x^2 + coeff[3] * x^3 = 0
+ *
+ * @param coeff  A vec4 containing the coefficients of the cubic polynomial:
+ *               coeff.x = constant term,
+ *               coeff.y = linear term,
+ *               coeff.z = quadratic term,
+ *               coeff.w = cubic term.
+ *
+ * @return A float value indicating whether the cubic term is negligible:
+ *         Returns 1.0 (true) if the cubic term's error is below a predefined tolerance,
+ *         Returns 0.0 (false) otherwise.
+ */
+bool is_quadratic(in vec4 coeff)
+{
+    vec2 c = coeff.xy / (coeff.z + MICRO_TOLERANCE);
+    c.y /= 2.0;
+
+    float t = abs(c.y) + sqrt(abs(c.y * c.y - c.x));
+    float cubic_error = coeff.w * cbrt(t);
+
+    return abs(cubic_error) < MICRO_TOLERANCE;
+}
 
 vec3 cubic_roots(in vec4 coeff, out int num_roots)
 {
     float root12; vec2 roots2; vec3 roots3;
 
-    // check if cubic
-    // float disc = dot(vec2(coeff.y, -4.0 * coeff.z), coeff.yy);
-    // float error = (coeff.y + sqrt(abs(disc))) * cbrt(coeff.w);
-    // float tolerance = abs(2.0 * coeff.z) * MICRO_TOLERANCE;
-    // if (abs(error) < tolerance) {
-    //     roots2 = quadratic_roots(coeff.xyz, num_roots);
-    //     return roots2.xyy;
-    // }
-    if (abs(coeff.w) < MICRO_TOLERANCE) {
+    if (abs(coeff.w) < MICRO_TOLERANCE) 
+    {
         roots2 = quadratic_roots(coeff.xyz, num_roots);
+
         return roots2.xyy;
     }
 
@@ -56,11 +80,13 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
     vec2 coeff_depressed = vec2(delta.y - 2.0 * coeff.z * delta.x, delta.x);
 
     // compute real root using cubic root formula for one real and two complex roots eq(0.15)
-    if (discriminant < 0.0) {
+    if (discriminant < 0.0) 
+    {
         num_roots = 1;
         root12 = cbrt((-coeff_depressed.x + sqrt_discrim) * 0.5) 
                + cbrt((-coeff_depressed.x - sqrt_discrim) * 0.5)
                - coeff.z;
+
         return vec3(root12);
     }
 
@@ -77,9 +103,8 @@ vec3 cubic_roots(in vec4 coeff, out int num_roots)
 
     // revert transformation and sort the three real roots eq(0.2) and eq(0.16)
     roots3 = sqrt(max(0.0, -coeff_depressed.y)) * roots3 * 2.0 - coeff.z; 
-    roots3 = sort(roots3);     
-
     num_roots = 3 - 2 * int(discriminant < MICRO_TOLERANCE);
+
     return roots3;
 }
 
@@ -89,8 +114,10 @@ vec3 cubic_roots(in vec4 coeff)
     float root12; vec2 roots2; vec3 roots3;
 
     // check if quadratic
-    if (abs(coeff.w) < MICRO_TOLERANCE) {
+    if (abs(coeff.w) < MICRO_TOLERANCE) 
+    {
         roots2 = quadratic_roots(coeff.xyz);
+
         return roots2.xyy;
     }
 
@@ -117,10 +144,12 @@ vec3 cubic_roots(in vec4 coeff)
     vec2 cubic_root = vec2(cos(theta), sin(theta));
 
     // compute real root using cubic root formula for one real and two complex roots eq(0.15)
-    if (discriminant < MICRO_TOLERANCE) {
+    if (discriminant < MICRO_TOLERANCE) 
+    {
         root12 = cbrt((-coeff_depressed.x + sqrt_discrim) * 0.5) 
                + cbrt((-coeff_depressed.x - sqrt_discrim) * 0.5)
                - coeff.z;
+
         return vec3(root12);
     }
    
@@ -133,7 +162,6 @@ vec3 cubic_roots(in vec4 coeff)
 
     // revert transformation and sort the three real roots eq(0.2) and eq(0.16)
     roots3 = sqrt(max(0.0, -coeff_depressed.y)) * roots3 * 2.0 - coeff.z; 
-    roots3 = sort(roots3);     
 
     return roots3;
 }

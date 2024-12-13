@@ -16,7 +16,7 @@
 #include "../maxabs"
 #endif
 #ifndef LINSOLVE
-#include "../linsolve"
+#include "../solvers/linsolve"
 #endif
 
 

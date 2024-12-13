@@ -8,6 +8,9 @@ const mat4 A = mat4(
     0.0, 1.0, -4.5, 4.5 
 );
 
+Voxel dual_voxel = set_voxel();
+vec4 sample_values = vec4(0.0);
+
 // start march
 trace.distance = ray.start_distance;
 trace.position = ray.start_position;
@@ -15,85 +18,35 @@ prev_trace = trace;
 
 for (trace.step_count = 0; trace.step_count < u_rendering.max_step_count; trace.step_count++) 
 {
-    // Compute doxel coords from trace position
-    doxel.coords = ivec3(trace.position * u_volume.inv_spacing - 0.5);
+    // Compute dual voxel coords from trace position
+    dual_voxel.coords = ivec3(trace.position * u_volume.inv_spacing - 0.5);
 
-    // Compute doxel box in model coords
-    doxel.min_position = (vec3(doxel.coords) + 0.5 - MILLI_TOLERANCE) * u_volume.spacing;
-    doxel.max_position = (vec3(doxel.coords) + 1.5 + MILLI_TOLERANCE) * u_volume.spacing;
+    // Compute dual_voxel box in model coords
+    dual_voxel.min_position = (vec3(dual_voxel.coords) + 0.5 - MILLI_TOLERANCE) * u_volume.spacing;
+    dual_voxel.max_position = (vec3(dual_voxel.coords) + 1.5 + MILLI_TOLERANCE) * u_volume.spacing;
 
     // Update position
-    vec2 distance_bounds = intersect_box(doxel.min_position, doxel.max_position, camera.position, ray.step_direction);
+    vec2 distance_bounds = intersect_box(dual_voxel.min_position, dual_voxel.max_position, camera.position, ray.step_direction);
     vec4 sample_distances = mmix(distance_bounds.x, distance_bounds.y, t);
 
-    // Update values
-    vec4 values = vec4(
-        texture(u_textures.taylor_map, (camera.position + ray.step_direction * sample_distances.x) * u_volume.inv_size).r,
-        texture(u_textures.taylor_map, (camera.position + ray.step_direction * sample_distances.y) * u_volume.inv_size).r,
-        texture(u_textures.taylor_map, (camera.position + ray.step_direction * sample_distances.z) * u_volume.inv_size).r,
-        texture(u_textures.taylor_map, (camera.position + ray.step_direction * sample_distances.w) * u_volume.inv_size).r
+    // Update value samples
+    sample_values.x = sample_values.w;
+    sample_values.yzw = vec3(
+        texture(u_textures.taylor_map, camera.texture_position + ray.texture_direction * sample_distances.y).r,
+        texture(u_textures.taylor_map, camera.texture_position + ray.texture_direction * sample_distances.z).r,
+        texture(u_textures.taylor_map, camera.texture_position + ray.texture_direction * sample_distances.w).r
     );
-
+       
     // Compute cubic coefficients
 
-    vec4 coeffs = A * values;
-
+    vec4 coeffs = A * sample_values;
     debug.variable1 = vec4(vec3(mmin(abs(coeffs)) <= MILLI_TOLERANCE), 1.0);
 
-    /* Tests
-
-        // Seems okey
-        // float tau = map(distance_bounds.x, distance_bounds.y, trace.distance);
-        // float val_aprx = dot(coeffs, vec4(1.0, tau, pow2(tau), pow3(tau)));
-        // float val = texture(u_textures.taylor_map, (camera.position + ray.step_direction * trace.distance) * u_volume.inv_size).r;
-        // vec3 err = mmix(BLUE_COLOR, BLACK_COLOR, RED_COLOR, map(-1.0, 1.0, (val_aprx - val)));
-        // debug.variable1 = vec4(err, 1.0); // the error is close to zero
-
-
-        // Seems okey, there are some salt pepper errors
-        // float val = texture(u_textures.taylor_map, (camera.position + ray.step_direction * trace.distance) * u_volume.inv_size).r;
-        // coeffs[0] -= val;
-        // vec3 trace_distances = cubic_roots(coeffs);
-        // float tau = map(distance_bounds.x, distance_bounds.y, trace.distance);
-        // debug.variable1 = vec4(vec3(mmin(abs(trace_distances - tau))), 1.0);
-
-        // Seems okey, there are some salt pepper errors
-        // coeffs[0] -= u_rendering.min_value;
-        // vec3 tau = cubic_roots(coeffs);
-        // coeffs[0] += u_rendering.min_value;
-        // vec3 vals = vec3(
-        //     dot(coeffs, vec4(1.0, tau.x, pow2(tau.x), pow3(tau.x))),
-        //     dot(coeffs, vec4(1.0, tau.y, pow2(tau.y), pow3(tau.y))),
-        //     dot(coeffs, vec4(1.0, tau.z, pow2(tau.z), pow3(tau.z)))
-        // );
-        // vec3 errs = vec3(
-        //     abs(u_rendering.min_value - vals.x),
-        //     abs(u_rendering.min_value - vals.y),
-        //     abs(u_rendering.min_value - vals.z)
-        // );
-        // debug.variable1 = vec4(vals, 1.0);
-        // debug.variable2 = vec4(errs, 1.0);
-
-    */
-    
-
-    coeffs[0] -= u_rendering.min_value;
-    int num_roots;
-    vec3 trace_distances = cubic_roots(coeffs, num_roots);
-    // debug.variable1 = vec4(vec3(float(num_roots) / 3.0), 1.0);
-    // debug.variable2 = vec4(vec3(lessThanEqual(trace_distances, vec3(0.0))), 1.0);
-    // debug.variable3 = vec4(vec3(lessThanEqual(trace_distances, vec3(1.0))), 1.0);
-    // debug.variable3 = vec4(vec3(greaterThan(trace_distances, vec3(1.0))), 1.0);
-
-    // // THERE IS A PROBLEM SOMEWHERE HERE
-    vec3 is_inside = inside_closed(0.0, 1.0, trace_distances);
-    // debug.variable1 = vec4(vec3(is_inside), 1.0);
-
-    float is_solution = some(is_inside);
-    // debug.variable2 = vec4(vec3(is_solution), 1.0);
+    vec3 trace_distances = cubic_solver(coeffs, u_rendering.min_value);
+    vec3 is_inside = inside_open(0.0, 1.0, trace_distances);
+    trace.intersected = some(is_inside) > MICRO_TOLERANCE;
 
     // check condition
-    trace.intersected = is_solution > 0.5;
     if (trace.intersected)
     {
         trace_distances = mmix(1.0, trace_distances, is_inside);

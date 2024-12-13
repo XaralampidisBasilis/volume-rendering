@@ -2,7 +2,7 @@
 #include "../../../../libraries/utils/intersections/intersections"
 #include "../../../../libraries/utils/inclusions/inclusions"
 #include "../../../../libraries/utils/logical/logical"
-#include "../../../../libraries/utils/roots/roots"
+#include "../../../../libraries/utils/solvers/solvers"
 #include "../../../../libraries/utils/functions/pown"
 #include "../../../../libraries/utils/functions/cbrt"
 #include "../../../../libraries/utils/functions/softstep"

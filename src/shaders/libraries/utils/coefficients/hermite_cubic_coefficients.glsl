@@ -13,7 +13,7 @@
 #include "../maxabs"
 #endif
 #ifndef LINSOLVE
-#include "../linsolve"
+#include "../solvers/linsolve"
 #endif
 
 vec4 hermite_cubic_coefficients(in vec2 t, in  vec2 f, in  vec2 g)
