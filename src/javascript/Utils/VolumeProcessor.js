@@ -309,7 +309,7 @@ export default class VolumeProcessor
             })
         })
 
-        console.log('isosurfaceDistanceMap', this.isosurfaceDistanceMap.params, this.isosurfaceDistanceMap.tensor.dataSync())
+        // console.log('isosurfaceDistanceMap', this.isosurfaceDistanceMap.params, this.isosurfaceDistanceMap.tensor.dataSync())
     }
 
     async computeIsosurfaceBoundingBox(threshold = 0)

@@ -56,6 +56,7 @@
         "Mipmaps",
         "mmax",
         "mmin",
+        "mmix",
         "multisampling",
         "nand",
         "nevery",

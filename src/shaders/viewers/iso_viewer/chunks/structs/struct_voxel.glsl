@@ -10,7 +10,6 @@ struct Voxel
     vec3  texture_coords;  // normalized texture coordinates
     vec4  texture_sample;
     vec3  gradient;        // gradient vector
-    vec4  values;          
     float value;           // sampled value at the current position
 };
 
@@ -24,7 +23,6 @@ Voxel set_voxel()
     voxel.texture_coords = vec3(0.0);
     voxel.texture_sample = vec4(0.0);
     voxel.gradient       = vec3(0.0);
-    voxel.values         = vec4(0.0);
     voxel.value          = 0.0;
     return voxel;
 }
