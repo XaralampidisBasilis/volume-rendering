@@ -9,6 +9,7 @@ voxel.texture_sample = texture(u_textures.taylor_map, voxel.texture_coords);
 
 // update value
 voxel.value = voxel.texture_sample.r;
+voxel.error = voxel.value - u_rendering.min_value;
 trace.intersected = voxel.value > u_rendering.min_value;
 
 // update gradient

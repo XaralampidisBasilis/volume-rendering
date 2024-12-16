@@ -1,7 +1,16 @@
 
 if (trace.intersected) 
 {
+    #include "./modules/compute_intersection"
+    #if REFINE_INTERSECTION_ENABLED == 1
+    #include "./refine_intersection"
+    #endif
     #include "./compute_gradients"
+}
+
+if (trace.exhausted)
+{
+    // nothing
 }
 
 if (trace.terminated)
@@ -14,7 +23,3 @@ if (trace.terminated)
     #endif
 }
 
-if (trace.exhausted)
-{
-    // nothing
-}

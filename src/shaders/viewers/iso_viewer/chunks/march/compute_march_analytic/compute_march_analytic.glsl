@@ -18,9 +18,4 @@ for (trace.step_count = 0; trace.step_count < MAX_TRACE_STEP_COUNT; trace.step_c
     }
 }   
 
-if (trace.intersected)
-{
-    #include "./modules/compute_intersection_2"
-}
-
 #include "./modules/end_march"

@@ -1,12 +1,12 @@
 
 // compute cell coords from trace position
-cell.coords += cell.coords_step;
+cell.coords += cell.step_coords;
 cell.min_position = (vec3(cell.coords) - 0.5) * u_volume.spacing;
 cell.max_position = (vec3(cell.coords) + 0.5) * u_volume.spacing;
 
 // update position
 cell.bounds.x = cell.bounds.y;
-cell.bounds.y = intersect_box_max(cell.min_position, cell.max_position, camera.position, ray.step_direction, cell.coords_step);
+cell.bounds.y = intersect_box_max(cell.min_position, cell.max_position, camera.position, ray.step_direction, cell.step_coords);
 
 // update distances
 cell.distances.x = cell.distances.w;

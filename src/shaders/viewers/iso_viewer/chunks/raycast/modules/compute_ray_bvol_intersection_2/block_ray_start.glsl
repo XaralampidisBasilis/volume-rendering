@@ -1,8 +1,7 @@
 
 // Update block coords
 // block.coords += block.coords_step;
-// block.coords = ivec3((ray.start_position + u_volume.spacing * 0.5) * u_distmap.inv_spacing);
-block.coords = ivec3(ray.end_position * u_distmap.inv_spacing - 0.5);
+block.coords = ivec3((ray.start_position + u_volume.spacing * 0.5) * u_distmap.inv_spacing);
 
 // Sample the distance map and compute if block is occupied
 block.value = int(round(texelFetch(u_textures.distance_map, block.coords, 0).r * 255.0));
