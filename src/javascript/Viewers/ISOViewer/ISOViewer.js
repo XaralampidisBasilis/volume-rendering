@@ -46,7 +46,7 @@ export default class ISOViewer extends EventEmitter
         await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
         await this.processor.quantizeTaylorMap()
         await this.processor.computeIsosurfaceBoundingBox(uRendering.min_value)
-        await this.processor.computeIsosurfaceDistanceMap(uRendering.min_value, uDistmap.sub_division, 80)
+        await this.processor.computeIsosurfaceDistanceDualMap(uRendering.min_value, uDistmap.sub_division, 80)
     }
 
     async updateBoundingBox()
@@ -67,22 +67,26 @@ export default class ISOViewer extends EventEmitter
         const uDistmap = this.material.uniforms.u_distmap.value
         const uTextures = this.material.uniforms.u_textures.value
 
-        await this.processor.computeIsosurfaceDistanceMap(uRendering.min_value, uDistmap.sub_division, 80)
+        await this.processor.computeIsosurfaceDistanceDualMap(uRendering.min_value, uDistmap.sub_division, 80)
         
-        const distmapParams =  this.processor.isosurfaceDistanceMap.params
+        const distmapParams =  this.processor.isosurfaceDistanceDualMap.params
         uDistmap.max_distance = distmapParams.maxDistance
-        uDistmap.sub_division = distmapParams.sub_division
+        uDistmap.sub_division = distmapParams.subDivision
         uDistmap.dimensions.copy(distmapParams.dimensions)
         uDistmap.spacing.copy(distmapParams.spacing)
         uDistmap.size.copy(distmapParams.size)
+        uDistmap.inv_sub_division = distmapParams.invSubDivision
         uDistmap.inv_dimensions.copy(distmapParams.invDimensions)
         uDistmap.inv_spacing.copy(distmapParams.invSpacing)
         uDistmap.inv_size.copy(distmapParams.invSize)
 
         uTextures.distance_map.dispose()
-        uTextures.distance_map = this.processor.getTexture('isosurfaceDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
+        uTextures.distance_map = this.processor.getTexture('isosurfaceDistanceDualMap', THREE.RedFormat, THREE.UnsignedByteType)
         uTextures.distance_map.needsUpdate = true
-        this.processor.isosurfaceDistanceMap.tensor.dispose()
+        this.processor.isosurfaceDistanceDualMap.tensor.dispose()
+
+        console.log(distmapParams)
+        console.log(uDistmap)
 
         this.logMemory('updateDistmap')
     }
@@ -102,8 +106,8 @@ export default class ISOViewer extends EventEmitter
         this.processor.taylorMap.tensor.dispose()
 
         // distance_map
-        this.textures.distance_map = this.processor.getTexture('isosurfaceDistanceMap', THREE.RedFormat, THREE.UnsignedByteType)
-        this.processor.isosurfaceDistanceMap.tensor.dispose()
+        this.textures.distance_map = this.processor.getTexture('isosurfaceDistanceDualMap', THREE.RedFormat, THREE.UnsignedByteType)
+        this.processor.isosurfaceDistanceDualMap.tensor.dispose()
 
         // color_maps
         this.textures.color_maps = this.resources.items.colormaps                      
@@ -130,7 +134,7 @@ export default class ISOViewer extends EventEmitter
         // parameters
         const volumeParams = this.processor.volume.params
         const taylormapParams = this.processor.taylorMap.params
-        const distmapParams =  this.processor.isosurfaceDistanceMap.params
+        const distmapParams =  this.processor.isosurfaceDistanceDualMap.params
         const boxParams = this.processor.isosurfaceBoundingBox.params
 
         // uniforms
@@ -157,10 +161,11 @@ export default class ISOViewer extends EventEmitter
 
         // distance_map
         uDistmap.max_distance = distmapParams.maxDistance
-        uDistmap.sub_division = distmapParams.sub_division
+        uDistmap.sub_division = distmapParams.subDivision
         uDistmap.dimensions.copy(distmapParams.dimensions)
         uDistmap.spacing.copy(distmapParams.spacing)
         uDistmap.size.copy(distmapParams.size)
+        uDistmap.inv_sub_division = distmapParams.invSubDivision
         uDistmap.inv_dimensions.copy(distmapParams.invDimensions)
         uDistmap.inv_spacing.copy(distmapParams.invSpacing)
         uDistmap.inv_size.copy(distmapParams.invSize)

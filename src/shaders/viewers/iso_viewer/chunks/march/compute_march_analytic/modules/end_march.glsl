@@ -1,9 +1,7 @@
 
 if (trace.intersected) 
 {
-    #if REFINE_GRADIENTS_ENABLED == 1
     #include "./compute_gradients"
-    #endif
 }
 
 if (trace.terminated)

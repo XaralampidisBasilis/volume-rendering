@@ -149,6 +149,7 @@ export default class VolumeProcessor
                 const params = {}
                 params.threshold = threshold
                 params.subDivision = subDivision
+                params.invSubDivision = 1/subDivision
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
                 params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
                 params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
@@ -181,6 +182,7 @@ export default class VolumeProcessor
                 const params = {}
                 params.threshold = threshold
                 params.subDivision = subDivision
+                params.invSubDivision = 1/subDivision
                 params.levels = occupancyMipmaps.length
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
                 params.shape = tensor.shape
@@ -210,6 +212,7 @@ export default class VolumeProcessor
                 const params = {}
                 params.threshold = threshold
                 params.subDivision = subDivision
+                params.invSubDivision = 1/subDivision
                 params.shape = tensor.shape
                 params.maxDistance = tensor.max().arraySync()
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
@@ -268,6 +271,7 @@ export default class VolumeProcessor
                 const params = {}
                 params.threshold = threshold
                 params.subDivision = subDivision
+                params.invSubDivision = 1/subDivision
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
                 params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
                 params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
@@ -299,6 +303,7 @@ export default class VolumeProcessor
                 const params = {}
                 params.threshold = threshold
                 params.subDivision = subDivision
+                params.invSubDivision = 1/subDivision
                 params.shape = tensor.shape
                 params.maxDistance = tensor.max().arraySync()
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
@@ -344,19 +349,20 @@ export default class VolumeProcessor
 
     async computeIsosurfaceDualMap(threshold = 0, subDivision = 4)
     {
-        if (!(this.intensityDualMap.tensor instanceof tf.Tensor)) 
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
-            throw new Error(`computeIsosurfaceMipDualMaps: intensityDualMap is not computed`)
+            throw new Error(`computeIsosurfaceMipDualMaps: intensityMap is not computed`)
         }
 
         timeit('computeIsosurfaceDualMap', () =>
         {
             [this.isosurfaceDualMap.tensor, this.isosurfaceDualMap.params] = tf.tidy(() => 
             {
-                const tensor = TensorUtils.isosurfaceDualMap(this.intensityDualMap.tensor, threshold, subDivision)
+                const tensor = TensorUtils.isosurfaceDualMap(this.intensityMap.tensor, threshold, subDivision)
                 const params = {}
                 params.threshold = threshold
                 params.subDivision = subDivision
+                params.invSubDivision = 1/subDivision
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
                 params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
                 params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
@@ -375,16 +381,16 @@ export default class VolumeProcessor
 
     async computeIsosurfaceDistanceDualMap(threshold = 0, subDivision = 2, maxIters = 255)
     {
-        if (!(this.intensityDualMap.tensor instanceof tf.Tensor)) 
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
-            throw new Error(`computeIsosurfaceDistanceDualMap: intensityDualMap is not computed`)
+            throw new Error(`computeIsosurfaceDistanceDualMap: intensityMap is not computed`)
         }
        
         timeit('computeIsosurfaceDistanceDualMap', () =>
         {
             [this.isosurfaceDistanceDualMap.tensor, this.isosurfaceDistanceDualMap.params] = tf.tidy(() =>
             {
-                const tensor = TensorUtils.isosurfaceDistanceDualMap(this.intensityDualMap.tensor, threshold, subDivision, maxIters)
+                const tensor = TensorUtils.isosurfaceDistanceDualMap(this.intensityMap.tensor, threshold, subDivision, maxIters)
                 const params = {}
                 params.threshold = threshold
                 params.subDivision = subDivision
@@ -394,6 +400,7 @@ export default class VolumeProcessor
                 params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(params.subDivision)
                 params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
                 params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.invSubDivision = 1/subDivision
                 params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
                 params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
                 params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
@@ -450,6 +457,7 @@ export default class VolumeProcessor
                 const tensor = TensorUtils.extremaDistanceMap(this.intensityMap.tensor, subDivision, maxDistance)
                 const params = {}
                 params.subDivision = subDivision
+                params.invSubDivision = 1/subDivision
                 params.shape = tensor.shape
                 params.maxDistance = tensor.max().arraySync()
                 params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
@@ -464,7 +472,7 @@ export default class VolumeProcessor
             })
         })
 
-        console.log('extremaDistanceMap', this.extremaDistanceMap.params, this.extremaDistanceMap.tensor.dataSync())
+        // console.log('extremaDistanceMap', this.extremaDistanceMap.params, this.extremaDistanceMap.tensor.dataSync())
     }
 
     async normalizeIntensityMap()

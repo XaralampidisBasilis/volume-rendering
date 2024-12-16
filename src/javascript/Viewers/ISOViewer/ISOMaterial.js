@@ -33,14 +33,15 @@ export default function()
 
         u_distmap : new THREE.Uniform
         ({
-            max_distance  : 0,
-            sub_division  : 2,
-            dimensions    : new THREE.Vector3(),
-            spacing       : new THREE.Vector3(),
-            size          : new THREE.Vector3(),
-            inv_dimensions: new THREE.Vector3(),
-            inv_spacing   : new THREE.Vector3(),
-            inv_size      : new THREE.Vector3(),
+            max_distance    : 0,
+            sub_division    : 16,
+            dimensions      : new THREE.Vector3(),
+            spacing         : new THREE.Vector3(),
+            size            : new THREE.Vector3(),
+            inv_sub_division: 0.0,
+            inv_dimensions  : new THREE.Vector3(),
+            inv_spacing     : new THREE.Vector3(),
+            inv_size        : new THREE.Vector3(),
         }),
 
         u_rendering: new THREE.Uniform

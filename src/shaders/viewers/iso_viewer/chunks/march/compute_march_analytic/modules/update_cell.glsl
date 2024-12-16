@@ -1,8 +1,8 @@
 
 // compute cell coords from trace position
 cell.coords += cell.coords_step;
-cell.min_position = (vec3(cell.coords) + 0.5) * u_volume.spacing;
-cell.max_position = (vec3(cell.coords) + 1.5) * u_volume.spacing;
+cell.min_position = (vec3(cell.coords) - 0.5) * u_volume.spacing;
+cell.max_position = (vec3(cell.coords) + 0.5) * u_volume.spacing;
 
 // update position
 cell.bounds.x = cell.bounds.y;

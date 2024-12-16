@@ -357,53 +357,6 @@ export function shift(tensor, axes, shifts)
     })
 }
 
-function padRep(tensor, paddings) 
-{
-    return tf.tidy(() => 
-    {
-        let tensorPadded = tensor.clone()
-
-        paddings.forEach((pad, axis) => 
-        {
-            const [padBefore, padAfter] = pad
-
-            if (padBefore > 0) 
-            {
-                // Slice the boundary region at the start of the axis and repeat it
-                const beforeSlice = tf.slice(
-                    tensorPadded,
-                    Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? 0 : 0)),
-                    Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? 1 : tensorPadded.shape[i]))
-                )
-
-                const beforePad = tf.tile(beforeSlice, Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? padBefore : 1)))
-                const tensorPaddedTemp = tf.concat([beforePad, tensorPadded], axis)
-                tensorPadded.dispose()
-                tensorPadded = tensorPaddedTemp
-                tf.dispose(beforeSlice, beforePad)
-            }
-
-            if (padAfter > 0) 
-            {
-                // Slice the boundary region at the end of the axis and repeat it
-                const afterSlice = tf.slice(
-                    tensorPadded,
-                    Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? tensorPadded.shape[axis] - 1 : 0)),
-                    Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? 1 : tensorPadded.shape[i]))
-                )
-
-                const afterPad = tf.tile(afterSlice, Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? padAfter : 1)))
-                const tensorPaddedTemp = tf.concat([tensorPadded, afterPad], axis)
-                tensorPadded.dispose()
-                tensorPadded = tensorPaddedTemp
-                tf.dispose(afterSlice, afterPad)
-            }
-        })
-
-        return tensorPadded
-    })
-}
-
 export function padCeil(tensor, divisions)
 {
     return tf.tidy(() => 
@@ -1081,25 +1034,27 @@ export function isosurfaceDualMap(tensor, threshold = 0, subDivision = 2)
         const scalarThreshold = tf.scalar(threshold, 'float32')
         const scalar255 = tf.scalar(255, 'int32')
 
-        const minima = minPool3d(tensor, [2, 2, 2], [1, 1, 1], 'same')
+        const tensorPadded = tf.mirrorPad(tensor, [[1, 0], [1, 0], [1, 0], [0, 0]], 'symmetric')
+
+        const minima = minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
         const lesser = tf.lessEqual(minima, scalarThreshold)
         minima.dispose()
 
-        const maxima = tf.maxPool(tensor, [2, 2, 2], [1, 1, 1], 'same')
+        const maxima = tf.maxPool(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
         const greater = tf.greaterEqual(maxima, scalarThreshold)
         maxima.dispose()
       
-        const condition = tf.logicalAnd(greater, lesser)
+        const occupied = tf.logicalAnd(lesser, greater)
         greater.dispose()
         lesser.dispose()
 
         if(subDivision == 1) 
         {
-            return condition.mul(scalar255)
+            return occupied.mul(scalar255)
         }
         const subDivisions = [subDivision, subDivision, subDivision]
-        const isosurfaceMapTemp = tf.maxPool3d(condition, subDivisions, subDivisions, 'same')
-        condition.dispose()
+        const isosurfaceMapTemp = tf.maxPool3d(occupied, subDivisions, subDivisions, 'same')
+        occupied.dispose()
     
         const isosurfaceMap = isosurfaceMapTemp.mul(scalar255)
         isosurfaceMapTemp.dispose()

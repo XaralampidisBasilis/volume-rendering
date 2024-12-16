@@ -9,8 +9,8 @@ const mat4 sample_matrix = mat4(
 );
 
 // start cell
-cell.coords = ivec3(ray.start_position * u_volume.inv_spacing - 0.5);
 cell.coords_step = ivec3(0.0);
+cell.coords = ivec3(ray.start_position * u_volume.inv_spacing + 0.5);
 cell.bounds.y = ray.start_distance;
 cell.values.w = texture(u_textures.taylor_map, camera.texture_position + ray.texture_direction * ray.start_distance).r;
 

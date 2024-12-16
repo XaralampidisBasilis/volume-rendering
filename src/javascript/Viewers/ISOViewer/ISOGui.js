@@ -80,6 +80,7 @@ export default class ISOGui
         const defines = this.viewer.material.defines
         const objects = { 
             min_value                  : uRendering.min_value,
+            sub_division               : uDistmap.sub_division,
             INTERSECT_BBOX_ENABLED     : Boolean(defines.INTERSECT_BBOX_ENABLED),
             INTERSECT_BVOL_ENABLED     : Boolean(defines.INTERSECT_BVOL_ENABLED),
             REFINE_INTERSECTION_ENABLED: Boolean(defines.REFINE_INTERSECTION_ENABLED),
@@ -95,7 +96,7 @@ export default class ISOGui
             maxStepScale       : folder.add(uRendering, 'max_step_scaling').min(0.001).max(5).step(0.001),
             maxStepCount       : folder.add(uRendering, 'max_step_count').min(0).max(1000).step(1),
             maxSkipCount       : folder.add(uRendering, 'max_skip_count').min(0).max(200).step(1),
-            subDivision        : folder.add(uDistmap, 'sub_division').min(1).max(16).step(1).onFinishChange((value) => { uDistmap.sub_division = value, this.viewer.updateDistanceMap() }),
+            subDivision        : folder.add(objects, 'sub_division').min(2).max(32).step(1).onFinishChange((value) => { uDistmap.sub_division = value, this.viewer.updateDistanceMap() }),
             enableIntersectBbox: folder.add(objects, 'INTERSECT_BBOX_ENABLED').name('enable_intersect_bbox').onFinishChange((value) => { defines.INTERSECT_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
             enableIntersectBvol: folder.add(objects, 'INTERSECT_BVOL_ENABLED').name('enable_intersect_bvol').onFinishChange((value) => { defines.INTERSECT_BVOL_ENABLED = Number(value), material.needsUpdate = true }),
             enableRefineInter  : folder.add(objects, 'REFINE_INTERSECTION_ENABLED').name('enable_refine_position').onFinishChange((value) => { defines.REFINE_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
