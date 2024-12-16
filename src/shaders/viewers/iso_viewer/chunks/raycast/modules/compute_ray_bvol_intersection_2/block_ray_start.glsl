@@ -1,6 +1,6 @@
 
 // Update block coords
-// block.coords += block.coords_step;
+// block.coords += block.step_coords;
 block.coords = ivec3((ray.start_position + u_volume.spacing * 0.5) * u_distmap.inv_spacing);
 
 // Sample the distance map and compute if block is occupied

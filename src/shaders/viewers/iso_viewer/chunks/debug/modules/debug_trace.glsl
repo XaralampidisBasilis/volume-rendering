@@ -1,4 +1,4 @@
-#include "./debug_trace/debug_trace_saturated"         
+#include "./debug_trace/debug_trace_intersected"         
 #include "./debug_trace/debug_trace_terminated"         
 #include "./debug_trace/debug_trace_exhausted"          
 #include "./debug_trace/debug_trace_distance"           
@@ -16,7 +16,7 @@
 
 switch (u_debugging.option - debug.trace_slot)
 { 
-    case  1: fragColor = debug.trace_saturated;           break;
+    case  1: fragColor = debug.trace_intersected;         break;
     case  2: fragColor = debug.trace_terminated;          break;
     case  3: fragColor = debug.trace_exhausted;           break;
     case  4: fragColor = debug.trace_outside;             break;

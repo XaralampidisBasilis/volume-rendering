@@ -7,7 +7,7 @@
 #include "./debug_voxel/debug_voxel_error"                   
 #include "./debug_voxel/debug_voxel_abs_error"                   
 
-switch (u_debugging.option - debug.trace_slot)
+switch (u_debugging.option - debug.voxel_slot)
 { 
     case 1: fragColor = debug.voxel_coords;          break;
     case 2: fragColor = debug.voxel_step_coords;     break;

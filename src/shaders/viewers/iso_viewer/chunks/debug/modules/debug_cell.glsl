@@ -9,7 +9,7 @@
 #include "./debug_cell/debug_cell_values"
 #include "./debug_cell/debug_cell_coeffs"
 
-switch (u_debugging.option - debug.trace_slot)
+switch (u_debugging.option - debug.cell_slot)
 { 
     case 1: fragColor = debug.cell_coords;         break; 
     case 2: fragColor = debug.cell_step_coords;    break; 

@@ -1,6 +1,6 @@
 
 // Compute ray entry with bounding volume
-block.coords_step = ivec3(0);
+block.step_coords = ivec3(0);
 block.coords = ivec3((ray.start_position + u_volume.spacing * 0.5) * u_distmap.inv_spacing);
 
 for (int count = 0; count < u_rendering.max_skip_count; count++, block.skip_count++) 
@@ -26,7 +26,7 @@ if (block.occupied)
 }
 
 // // Compute ray exit with bounding volume
-// block.coords_step = ivec3(0);
+// block.step_coords = ivec3(0);
 // block.coords = ivec3((ray.end_position + u_volume.spacing * 0.5) * u_distmap.inv_spacing);
 
 // for (int count = 0; count < u_rendering.max_skip_count; count++, block.skip_count++) 

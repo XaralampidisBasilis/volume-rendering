@@ -4,6 +4,7 @@
 struct Voxel 
 {
     ivec3 coords;
+    ivec3 step_coords;
     vec3  position;
     vec3  min_position;
     vec3  max_position;
@@ -18,6 +19,7 @@ Voxel set_voxel()
 {
     Voxel voxel;
     voxel.coords         = ivec3(0);
+    voxel.step_coords    = ivec3(0);
     voxel.position       = vec3(0.0);
     voxel.min_position   = vec3(0.0);
     voxel.max_position   = vec3(0.0);

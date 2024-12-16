@@ -6,8 +6,8 @@ ray.start_distance = intersect_box_max(block.min_position, block.max_position, c
 ray.start_position = camera.position + ray.step_direction * ray.start_distance; 
 
 // // Compute block coords step
-// ivec3 mask = abs(block.coords_step);
+// ivec3 mask = abs(block.step_coords);
 // ivec3 coords = ivec3((ray.start_position + u_volume.spacing * 0.5) * u_distmap.inv_spacing);
-// ivec3 coords_step = coords - block.coords;
-// block.coords_step *= block.value;
-// block.coords_step = coords_step + mask * (block.coords_step - coords_step);
+// ivec3 step_coords = coords - block.coords;
+// block.step_coords *= block.value;
+// block.step_coords = step_coords + mask * (block.step_coords - step_coords);

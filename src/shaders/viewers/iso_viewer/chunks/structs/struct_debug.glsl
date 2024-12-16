@@ -17,7 +17,7 @@ struct Debug
     vec4 ray_max_skip_count;
 
     int  trace_slot;
-    vec4 trace_saturated;          
+    vec4 trace_intersected;          
     vec4 trace_terminated;         
     vec4 trace_exhausted;          
     vec4 trace_outside;            
@@ -35,12 +35,14 @@ struct Debug
 
     int  voxel_slot;
     vec4 voxel_coords;           
+    vec4 voxel_step_coords;           
     vec4 voxel_position;         
     vec4 voxel_min_position;     
     vec4 voxel_max_position;         
     vec4 voxel_texture_coords;   
     vec4 voxel_texture_sample;   
     vec4 voxel_gradient;         
+    vec4 voxel_gradient_length;         
     vec4 voxel_value;            
     vec4 voxel_error;            
     vec4 voxel_abs_error;   
@@ -50,9 +52,11 @@ struct Debug
     vec4 cell_step_coords;
     vec4 cell_min_position;
     vec4 cell_max_position;
-    vec4 cell_coeffs;    
-    vec4 cell_values;    
+    vec4 cell_entry_distance;
+    vec4 cell_exit_distance;
     vec4 cell_distances;
+    vec4 cell_values;    
+    vec4 cell_coeffs;    
     vec4 cell_bounds;         
 
     int  block_slot;
@@ -121,7 +125,7 @@ Debug set_debug()
     debug.ray_max_step_count       = vec4(vec3(0.0), 1.0);
     debug.ray_max_skip_count       = vec4(vec3(0.0), 1.0);
 
-    debug.trace_saturated          = vec4(vec3(0.0), 1.0);
+    debug.trace_intersected        = vec4(vec3(0.0), 1.0);
     debug.trace_terminated         = vec4(vec3(0.0), 1.0);
     debug.trace_exhausted          = vec4(vec3(0.0), 1.0);
     debug.trace_outside            = vec4(vec3(0.0), 1.0);
@@ -138,12 +142,14 @@ Debug set_debug()
     debug.trace_spanned_distance   = vec4(vec3(0.0), 1.0);
 
     debug.voxel_coords             = vec4(vec3(0.0), 1.0);
+    debug.voxel_step_coords        = vec4(vec3(0.0), 1.0);
     debug.voxel_position           = vec4(vec3(0.0), 1.0);
     debug.voxel_min_position       = vec4(vec3(0.0), 1.0);
     debug.voxel_max_position       = vec4(vec3(0.0), 1.0);
     debug.voxel_texture_coords     = vec4(vec3(0.0), 1.0);
     debug.voxel_texture_sample     = vec4(vec3(0.0), 1.0);
     debug.voxel_gradient           = vec4(vec3(0.0), 1.0);
+    debug.voxel_gradient_length    = vec4(vec3(0.0), 1.0);
     debug.voxel_value              = vec4(vec3(0.0), 1.0);
     debug.voxel_error              = vec4(vec3(0.0), 1.0);
     debug.voxel_abs_error          = vec4(vec3(0.0), 1.0);
@@ -152,9 +158,11 @@ Debug set_debug()
     debug.cell_step_coords         = vec4(vec3(0.0), 1.0);        
     debug.cell_min_position        = vec4(vec3(0.0), 1.0);         
     debug.cell_max_position        = vec4(vec3(0.0), 1.0);         
-    debug.cell_coeffs              = vec4(vec3(0.0), 1.0);       
-    debug.cell_values              = vec4(vec3(0.0), 1.0);       
+    debug.cell_entry_distance      = vec4(vec3(0.0), 1.0);      
+    debug.cell_exit_distance       = vec4(vec3(0.0), 1.0);      
     debug.cell_distances           = vec4(vec3(0.0), 1.0);      
+    debug.cell_values              = vec4(vec3(0.0), 1.0);       
+    debug.cell_coeffs              = vec4(vec3(0.0), 1.0);       
     debug.cell_bounds              = vec4(vec3(0.0), 1.0);          
 
     debug.block_value              = vec4(vec3(0.0), 1.0);
