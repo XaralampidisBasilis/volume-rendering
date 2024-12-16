@@ -1,9 +1,14 @@
 
 // compute solution
+float solutions[7];
 cell.coeffs = sample_matrix * cell.values;
-vec3 solutions = cubic_solver(cell.coeffs, u_rendering.min_value);
-vec3 is_inside = inside_closed(0.0, 1.0, solutions);
-float solution = mmin(mmix(1.0, solutions, is_inside));
+cubic_solver_least_squares(solutions, cell.coeffs, u_rendering.min_value, 0.0, 1.0);
+
+float solution = 1.0;
+for (int i = 0; i < 7; i++)
+{
+    solution = min(solution, solutions[i]);
+}
 
 // update trace 
 prev_trace = trace;
@@ -17,8 +22,7 @@ voxel.coords = ivec3(trace.position * u_volume.inv_spacing);
 voxel.texture_coords = trace.position * u_volume.inv_size;
 voxel.texture_sample = texture(u_textures.taylor_map, voxel.texture_coords);
 voxel.value = voxel.texture_sample.r;
-voxel.gradient = voxel.texture_sample.gba;
-voxel.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, voxel.gradient);
+voxel.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, voxel.texture_sample.gba);
 
 // update error
 trace.error = u_rendering.min_value - voxel.value;

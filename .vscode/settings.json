@@ -75,6 +75,7 @@
         "Precomputes",
         "prewitt",
         "quefficients",
+        "raphson",
         "raycast",
         "Raycaster",
         "raymarch",

@@ -7,6 +7,7 @@ struct Block
     int   value;
     bool  occupied;
     ivec3 coords;  
+    ivec3 coords_step;
     vec3  texture_coords;
     ivec3 min_coords;
     ivec3 max_coords;
@@ -21,6 +22,7 @@ Block set_block()
     block.value          = 0;
     block.occupied       = false;
     block.coords         = ivec3(0);
+    block.coords_step    = ivec3(0);
     block.texture_coords = vec3(0.0);
     block.min_coords     = ivec3(0);
     block.max_coords     = ivec3(0);

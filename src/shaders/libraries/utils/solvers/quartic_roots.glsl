@@ -1,5 +1,3 @@
-// https://momentsingraphics.de/GPUPolynomialRoots.html
-
 #ifndef POLYNOMIAL_ROOTS
 #define POLYNOMIAL_ROOTS
 
@@ -31,9 +29,12 @@ bool newton_bisection(out float out_root, out float out_end_value,
     }
     // Evaluate the polynomial at the end of the interval
     out_end_value = poly[MAX_DEGREE];
-    //[[unroll]]
-    for (int i = MAX_DEGREE - 1; i != -1; --i)
-        out_end_value = out_end_value * end + poly[i];
+    out_end_value = out_end_value * end + poly[5];
+    out_end_value = out_end_value * end + poly[4];
+    out_end_value = out_end_value * end + poly[3];
+    out_end_value = out_end_value * end + poly[2];
+    out_end_value = out_end_value * end + poly[1];
+    out_end_value = out_end_value * end + poly[0];
     // If the values at both ends have the same non-zero sign, there is no root
     if (begin_value * out_end_value > 0.0)
         return false;
@@ -45,11 +46,16 @@ bool newton_bisection(out float out_root, out float out_end_value,
         // Evaluate the polynomial and its derivative
         float value = poly[MAX_DEGREE] * current + poly[MAX_DEGREE - 1];
         float derivative = poly[MAX_DEGREE];
-        //[[unroll]]
-        for (int j = MAX_DEGREE - 2; j != -1; --j) {
-            derivative = derivative * current + value;
-            value = value * current + poly[j];
-        }
+        derivative = derivative * current + value;
+        value = value * current + poly[4];
+        derivative = derivative * current + value;
+        value = value * current + poly[3];
+        derivative = derivative * current + value;
+        value = value * current + poly[2];
+        derivative = derivative * current + value;
+        value = value * current + poly[1];
+        derivative = derivative * current + value;
+        value = value * current + poly[0];
         // Shorten the interval
         bool right = begin_value * value > 0.0;
         begin = right ? current : begin;
@@ -84,9 +90,10 @@ void find_roots(out float out_roots[MAX_DEGREE + 1], float poly[MAX_DEGREE + 1],
     derivative[0] = poly[MAX_DEGREE - 2];
     derivative[1] = float(MAX_DEGREE - 1) * poly[MAX_DEGREE - 1];
     derivative[2] = (0.5 * float((MAX_DEGREE - 1) * MAX_DEGREE)) * poly[MAX_DEGREE - 0];
-    //[[unroll]]
-    for (int i = 3; i != MAX_DEGREE + 1; ++i)
-        derivative[i] = 0.0;
+    derivative[3] = 0.0;
+    derivative[4] = 0.0;
+    derivative[5] = 0.0;
+    derivative[6] = 0.0;
     // Compute its two roots using the quadratic formula
     float discriminant = derivative[1] * derivative[1] - 4.0 * derivative[0] * derivative[2];
     if (discriminant >= 0.0) {
@@ -104,10 +111,11 @@ void find_roots(out float out_roots[MAX_DEGREE + 1], float poly[MAX_DEGREE + 1],
     }
     // The last entry in the root array is set to end to make it easier to
     // iterate over relevant intervals, all untouched roots are set to begin
-    out_roots[MAX_DEGREE] = end;
-    //[[unroll]]
-    for (int i = 0; i != MAX_DEGREE - 2; ++i)
-        out_roots[i] = begin;
+    out_roots[0] = begin;
+    out_roots[1] = begin;
+    out_roots[2] = begin;
+    out_roots[3] = begin;
+    out_roots[4] = begin;
     // Work your way up to derivatives of higher degree until you reach the
     // polynomial itself. This implementation may seem peculiar: It always
     // treats the derivative as though it had degree MAX_DEGREE and it
@@ -122,37 +130,26 @@ void find_roots(out float out_roots[MAX_DEGREE + 1], float poly[MAX_DEGREE + 1],
         // constant coefficient can still be copied directly from poly)
         float prev_derivative_order = float(MAX_DEGREE + 1 - degree);
         //[[unroll]]
-        for (int i = MAX_DEGREE; i != 0; --i)
-            derivative[i] = derivative[i - 1] * (prev_derivative_order * (1.0 / float(i)));
-        // Copy the constant coefficient without causing spilling. This part
-        // would be harder if the derivative were not scaled the way it is.
-        //[[unroll]]
-        for (int i = 0; i != MAX_DEGREE - 2; ++i)
-            derivative[0] = (degree == MAX_DEGREE - i) ? poly[i] : derivative[0];
+        derivative[6] = derivative[5] * (prev_derivative_order * (1.0 / 6.0));
+        derivative[5] = derivative[4] * (prev_derivative_order * (1.0 / 5.0));
+        derivative[4] = derivative[3] * (prev_derivative_order * (1.0 / 4.0));
+        derivative[3] = derivative[2] * (prev_derivative_order * (1.0 / 3.0));
+        derivative[2] = derivative[1] * (prev_derivative_order * (1.0 / 2.0));
+        derivative[1] = derivative[0] * prev_derivative_order;
+        derivative[0] = (degree == MAX_DEGREE) ? poly[MAX_DEGREE - degree] : derivative[0];
         // Determine the value of this derivative at begin
         float begin_value = derivative[MAX_DEGREE];
-        //[[unroll]]
-        for (int i = MAX_DEGREE - 1; i != -1; --i)
-            begin_value = begin_value * begin + derivative[i];
+        begin_value = begin_value * begin + derivative[5];
+        begin_value = begin_value * begin + derivative[4];
+        begin_value = begin_value * begin + derivative[3];
+        begin_value = begin_value * begin + derivative[2];
+        begin_value = begin_value * begin + derivative[1];
+        begin_value = begin_value * begin + derivative[0];
         // Iterate over the intervals where roots may be found
         //[[unroll]]
-        for (int i = 0; i != MAX_DEGREE; ++i) {
-            if (i < MAX_DEGREE - degree)
-                continue;
-            float current_begin = out_roots[i];
-            float current_end = out_roots[i + 1];
-            // Try to find a root
-            float root;
-            if (newton_bisection(root, begin_value, derivative, current_begin, current_end, begin_value, tolerance))
-                out_roots[i] = root;
-            else if (degree < MAX_DEGREE)
-                // Create an empty interval for the next iteration
-                out_roots[i] = out_roots[i - 1];
-            else
-                out_roots[i] = NO_INTERSECTION;
-        }
+        float current_begin = out_roots[0];
+        float current_end = out_roots[1];
     }
-    // We no longer need this array entry
     out_roots[MAX_DEGREE] = NO_INTERSECTION;
 }
 

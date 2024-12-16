@@ -46,7 +46,7 @@ export default class ISOViewer extends EventEmitter
         await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
         await this.processor.quantizeTaylorMap()
         await this.processor.computeIsosurfaceBoundingBox(uRendering.min_value)
-        await this.processor.computeIsosurfaceDistanceMap(uRendering.min_value, uDistmap.sub_division, 100)
+        await this.processor.computeIsosurfaceDistanceMap(uRendering.min_value, uDistmap.sub_division, 80)
     }
 
     async updateBoundingBox()
@@ -67,7 +67,7 @@ export default class ISOViewer extends EventEmitter
         const uDistmap = this.material.uniforms.u_distmap.value
         const uTextures = this.material.uniforms.u_textures.value
 
-        await this.processor.computeIsosurfaceDistanceMap(uRendering.min_value, uDistmap.sub_division, 100)
+        await this.processor.computeIsosurfaceDistanceMap(uRendering.min_value, uDistmap.sub_division, 80)
         
         const distmapParams =  this.processor.isosurfaceDistanceMap.params
         uDistmap.max_distance = distmapParams.maxDistance

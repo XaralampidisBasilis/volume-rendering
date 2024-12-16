@@ -281,6 +281,129 @@ export function mix(A, B, t)
     return mixed
 }
 
+export function shift(tensor, axes, shifts) 
+{
+    return tf.tidy(() => 
+    {
+        let shiftedTensor = tensor.clone()
+
+        // Iterate through each axis and perform the shift
+        for (let i = 0; i < axes.length; i++) 
+        {
+            const axis = axes[i]
+            const shift = shifts[i]
+            const shape = shiftedTensor.shape
+            const size = shape[axis]
+            const shiftAbs = Math.abs(shift)
+
+            let shiftedPart, repeatedPart, lastSlice, firstSlice, shiftedTensorTemp
+
+            if (shift > 0) 
+            {
+                // Positive shift (right/down)
+                shiftedPart = tf.slice(
+                    shiftedTensor,
+                    Array.from({ length: shiftedTensor.rank }, (dim, j) => (j === axis ? shiftAbs : 0)),
+                    Array.from({ length: shiftedTensor.rank }, (dim, j) => (j === axis ? size - shiftAbs : shape[j]))
+                )
+
+                lastSlice = tf.slice(
+                    shiftedTensor,
+                    Array.from({ length: shiftedTensor.rank }, (dim, j) => (j === axis ? size - 1 : 0)),
+                    Array.from({ length: shiftedTensor.rank }, (dim, j) => (j === axis ? 1 : shape[j]))
+                )
+
+                repeatedPart = tf.tile(
+                    lastSlice,
+                    Array.from({ length: shiftedTensor.rank }, (dim, j) => (j === axis ? shiftAbs : 1))
+                )
+
+                shiftedTensorTemp = tf.concat([repeatedPart, shiftedPart], axis)
+
+                // Dispose intermediate tensors
+                tf.dispose([shiftedPart, lastSlice, repeatedPart])
+            } 
+            else 
+            {
+                // Negative shift (left/up)
+                shiftedPart = tf.slice(
+                    shiftedTensor,
+                    Array.from({ length: shiftedTensor.rank }, (dim, j) => (j === axis ? 0 : 0)),
+                    Array.from({ length: shiftedTensor.rank }, (dim, j) => (j === axis ? size - shiftAbs : shape[j]))
+                )
+
+                firstSlice = tf.slice(
+                    shiftedTensor,
+                    Array.from({ length: shiftedTensor.rank }, (dim, j) => (j === axis ? 0 : 0)),
+                    Array.from({ length: shiftedTensor.rank }, (dim, j) => (j === axis ? 1 : shape[j]))
+                )
+
+                repeatedPart = tf.tile(
+                    firstSlice,
+                    Array.from({ length: shiftedTensor.rank }, (dim, j) => (j === axis ? shiftAbs : 1))
+                )
+
+                shiftedTensorTemp = tf.concat([shiftedPart, repeatedPart], axis)
+
+                // Dispose intermediate tensors
+                tf.dispose([shiftedPart, firstSlice, repeatedPart])
+            }
+
+            shiftedTensor.dispose()
+            shiftedTensor = shiftedTensorTemp
+        }
+
+        return shiftedTensor
+    })
+}
+
+function padRep(tensor, paddings) 
+{
+    return tf.tidy(() => 
+    {
+        let tensorPadded = tensor.clone()
+
+        paddings.forEach((pad, axis) => 
+        {
+            const [padBefore, padAfter] = pad
+
+            if (padBefore > 0) 
+            {
+                // Slice the boundary region at the start of the axis and repeat it
+                const beforeSlice = tf.slice(
+                    tensorPadded,
+                    Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? 0 : 0)),
+                    Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? 1 : tensorPadded.shape[i]))
+                )
+
+                const beforePad = tf.tile(beforeSlice, Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? padBefore : 1)))
+                const tensorPaddedTemp = tf.concat([beforePad, tensorPadded], axis)
+                tensorPadded.dispose()
+                tensorPadded = tensorPaddedTemp
+                tf.dispose(beforeSlice, beforePad)
+            }
+
+            if (padAfter > 0) 
+            {
+                // Slice the boundary region at the end of the axis and repeat it
+                const afterSlice = tf.slice(
+                    tensorPadded,
+                    Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? tensorPadded.shape[axis] - 1 : 0)),
+                    Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? 1 : tensorPadded.shape[i]))
+                )
+
+                const afterPad = tf.tile(afterSlice, Array.from({ length: tensorPadded.rank }, (_, i) => (i === axis ? padAfter : 1)))
+                const tensorPaddedTemp = tf.concat([tensorPadded, afterPad], axis)
+                tensorPadded.dispose()
+                tensorPadded = tensorPaddedTemp
+                tf.dispose(afterSlice, afterPad)
+            }
+        })
+
+        return tensorPadded
+    })
+}
+
 export function padCeil(tensor, divisions)
 {
     return tf.tidy(() => 
@@ -819,8 +942,10 @@ export function isosurfaceMap(tensor, threshold = 0, subDivision = 2)
         approximate.dispose()
         equal.dispose()
 
+        if(subDivision == 1) return condition.mul(scalar255)
         const subDivisions = [subDivision, subDivision, subDivision]
-        const isosurfaceMapTemp = (subDivision > 1) ? tf.maxPool3d(condition, subDivisions, subDivisions, 'same') : condition.clone();
+
+        const isosurfaceMapTemp =tf.maxPool3d(condition, subDivisions, subDivisions, 'same');
         condition.dispose()
     
         const isosurfaceMap = isosurfaceMapTemp.mul(scalar255)
@@ -830,51 +955,68 @@ export function isosurfaceMap(tensor, threshold = 0, subDivision = 2)
     })
 }
 
-/**
- * Computes the Chebyshev distance map for a given tensor based on the method described
- * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
- */
 export function isosurfaceDistanceMap(tensor, threshold, subDivisions = 2, maxIters = 255) 
 {
     return tf.tidy(() => 
     {
-        const occupancy = isosurfaceMap(tensor, threshold, subDivisions)
+        console.log(tf.memory())
 
-        let diffusionNext = occupancy.cast('bool')
-        let diffusionPrev = tf.zeros(diffusionNext.shape, 'bool')
-        let distanceMap = tf.zeros(diffusionNext.shape, 'int32')
-    
+        // Compute isosurface map
+        const isosurface = isosurfaceMap(tensor, threshold, subDivisions)
+        
+        // Initialize next diffusion
+        let diffusionNext = isosurface.cast('bool')
+        isosurface.dispose()
+
+        // Initialize previous diffusion
+        let diffusionPrev = tf.zeros(isosurface.shape, 'bool')
+
+        // Initialize distance map 
+        let distanceMap = tf.zeros(isosurface.shape, 'int32')
+
         for (let iter = 0; iter <= maxIters; iter++) 
         {
-            const scalarIter = tf.scalar(iter, 'int32');
+            const scalarIter = tf.scalar(iter, 'int32')
 
+            // Compute distance update
             const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
-            const distanceMapUpdate = diffusionUpdate.mul(scalarIter)
+            const distanceUpdate = diffusionUpdate.mul(scalarIter)
             diffusionUpdate.dispose()
             scalarIter.dispose()
-            
-            const distanceMapTemp = distanceMap.add(distanceMapUpdate);
-            distanceMapUpdate.dispose()
-    
+
+            // Update distance map
+            const distanceMapTemp = distanceMap.add(distanceUpdate)
+            distanceUpdate.dispose()
             distanceMap.dispose()
             distanceMap = distanceMapTemp
-    
-            diffusionPrev.dispose() 
-            diffusionPrev = diffusionNext
-            diffusionNext = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
+
+            // Update previous diffusion 
+            diffusionPrev.dispose()
+            diffusionPrev = diffusionNext.clone()
+
+            // Compute next diffusion with max pooling
+            const diffusionNextTemp = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
+            diffusionNext.dispose()
+            diffusionNext = diffusionNextTemp
         }
-        
-        const scalarMaxIters = tf.scalar(maxIters, 'int32');
+
+        diffusionNext.dispose()
+        const scalarMaxIters = tf.scalar(maxIters, 'int32')
+
+        // Compute final distance update
         const diffusionUpdate = tf.logicalNot(diffusionPrev)
-        const distanceMapUpdate = diffusionUpdate.mul(scalarMaxIters)
+        diffusionPrev.dispose()
+        const distanceUpdate = diffusionUpdate.mul(scalarMaxIters)
         diffusionUpdate.dispose()
-    
-        const distanceMapTemp = distanceMap.add(distanceMapUpdate);
-        distanceMapUpdate.dispose()
-    
+        scalarMaxIters.dispose()
+
+        // Update final distance map
+        const distanceMapTemp = distanceMap.add(distanceUpdate)
+        distanceUpdate.dispose()
         distanceMap.dispose()
         distanceMap = distanceMapTemp
-    
+
+        // Return the final distance map
         return distanceMap
     })
 }
@@ -932,6 +1074,139 @@ export function isosurfaceBoundingBox(tensor, threshold = 0)
     })
 }
 
+export function isosurfaceDualMap(tensor, threshold = 0, subDivision = 2)
+{
+    return tf.tidy(() =>
+    {
+        const scalarThreshold = tf.scalar(threshold, 'float32')
+        const scalar255 = tf.scalar(255, 'int32')
+
+        const minima = minPool3d(tensor, [2, 2, 2], [1, 1, 1], 'same')
+        const lesser = tf.lessEqual(minima, scalarThreshold)
+        minima.dispose()
+
+        const maxima = tf.maxPool(tensor, [2, 2, 2], [1, 1, 1], 'same')
+        const greater = tf.greaterEqual(maxima, scalarThreshold)
+        maxima.dispose()
+      
+        const condition = tf.logicalAnd(greater, lesser)
+        greater.dispose()
+        lesser.dispose()
+
+        if(subDivision == 1) 
+        {
+            return condition.mul(scalar255)
+        }
+        const subDivisions = [subDivision, subDivision, subDivision]
+        const isosurfaceMapTemp = tf.maxPool3d(condition, subDivisions, subDivisions, 'same')
+        condition.dispose()
+    
+        const isosurfaceMap = isosurfaceMapTemp.mul(scalar255)
+        isosurfaceMapTemp.dispose()
+    
+        return isosurfaceMap
+    })
+}
+
+export function isosurfaceDistanceDualMap(tensor, threshold, subDivisions = 2, maxIters = 255) 
+{
+    return tf.tidy(() => 
+    {
+        console.log(tf.memory())
+
+        // Compute isosurface map
+        const isosurface = isosurfaceDualMap(tensor, threshold, subDivisions)
+        
+        // Initialize next diffusion
+        let diffusionNext = isosurface.cast('bool')
+        isosurface.dispose()
+
+        // Initialize previous diffusion
+        let diffusionPrev = tf.zeros(isosurface.shape, 'bool')
+
+        // Initialize distance map 
+        let distanceMap = tf.zeros(isosurface.shape, 'int32')
+
+        for (let iter = 0; iter <= maxIters; iter++) 
+        {
+            const scalarIter = tf.scalar(iter, 'int32')
+
+            // Compute distance update
+            const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
+            const distanceUpdate = diffusionUpdate.mul(scalarIter)
+            diffusionUpdate.dispose()
+            scalarIter.dispose()
+
+            // Update distance map
+            const distanceMapTemp = distanceMap.add(distanceUpdate)
+            distanceUpdate.dispose()
+            distanceMap.dispose()
+            distanceMap = distanceMapTemp
+
+            // Update previous diffusion 
+            diffusionPrev.dispose()
+            diffusionPrev = diffusionNext.clone()
+
+            // Compute next diffusion with max pooling
+            const diffusionNextTemp = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
+            diffusionNext.dispose()
+            diffusionNext = diffusionNextTemp
+        }
+
+        diffusionNext.dispose()
+        const scalarMaxIters = tf.scalar(maxIters, 'int32')
+
+        // Compute final distance update
+        const diffusionUpdate = tf.logicalNot(diffusionPrev)
+        diffusionPrev.dispose()
+        const distanceUpdate = diffusionUpdate.mul(scalarMaxIters)
+        diffusionUpdate.dispose()
+        scalarMaxIters.dispose()
+
+        // Update final distance map
+        const distanceMapTemp = distanceMap.add(distanceUpdate)
+        distanceUpdate.dispose()
+        distanceMap.dispose()
+        distanceMap = distanceMapTemp
+
+        // Return the final distance map
+        return distanceMap
+    })
+}
+
+export function minimaMap(tensor, subDivision)
+{
+    return tf.tidy(() =>
+    {
+        const scalar2 = tf.scalar(2, 'float32')
+        const subDivisions = [subDivision, subDivision, subDivision]
+
+        // compute the min possible value inside a voxel due to trilinear interpolation
+        const minimaNear = minPool3d(tensor, [3, 3, 3], [1, 1, 1], 'same')
+        const minima = tf.add(tensor, minimaNear).div(scalar2)
+        if (subDivision == 1) return minima
+
+        // compute the block min value based on sub divisions
+        return minPool3d(minima, subDivisions, subDivisions, 'same') 
+    })
+}
+
+export function maximaMap(tensor, subDivision)
+{
+    return tf.tidy(() =>
+    {
+        const scalar2 = tf.scalar(2, 'float32')
+        const subDivisions = [subDivision, subDivision, subDivision]
+
+        // compute the max possible value inside a voxel due to trilinear interpolation
+        const maximaNear = tf.maxPool3d(tensor, [3, 3, 3], [1, 1, 1], 'same')
+        const maxima = tf.add(tensor, maximaNear).div(scalar2)
+        if (subDivision == 1) return maxima
+
+        // compute the block max value based on sub divisions
+        return tf.maxPool3d(maxima, subDivisions, subDivisions, 'same') 
+    })
+}
 
 /**
  * Computes the extrema map for a given tensor based on the method described
@@ -941,17 +1216,12 @@ export function isosurfaceBoundingBox(tensor, threshold = 0)
  * @param {number} subDivisions - The size of the pooling kernel in each dimension, determining the granularity of the map.
  * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the extrema values map.
  */
-export function extremaMap(tensor, division)
+export function extremaMap(tensor, subDivision)
 {
     return tf.tidy(() =>
     {
-        const divisions = [division, division, division]
-        const minimaMapTemp = minPool3d(tensor, divisions, divisions, 'same')
-        const minimaMap = minPool3d(minimaMapTemp, [3, 3, 3], [1, 1, 1], 'same') // to account for trilinear filtering
-        minimaMapTemp.dispose()
-        const maximaMapTemp = tf.maxPool3d(tensor, divisions, divisions, 'same')
-        const maximaMap = tf.maxPool3d(maximaMapTemp, [3, 3, 3], [1, 1, 1], 'same') // to account for trilinear filtering
-        maximaMapTemp.dispose()
+        const minimaMap = minimaMap(tensor, subDivision)
+        const maximaMap = maximaMap(tensor, subDivision)
         const extremaMap = tf.concat([minimaMap, maximaMap], 3)            
         return extremaMap
     })

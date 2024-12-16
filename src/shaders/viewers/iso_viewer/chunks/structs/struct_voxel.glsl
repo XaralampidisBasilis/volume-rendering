@@ -11,6 +11,7 @@ struct Voxel
     vec4  texture_sample;
     vec3  gradient;        // gradient vector
     float value;           // sampled value at the current position
+    float error;           
 };
 
 Voxel set_voxel()
@@ -24,6 +25,7 @@ Voxel set_voxel()
     voxel.texture_sample = vec4(0.0);
     voxel.gradient       = vec3(0.0);
     voxel.value          = 0.0;
+    voxel.error          = 0.0;
     return voxel;
 }
 void discard_voxel(inout Voxel voxel)

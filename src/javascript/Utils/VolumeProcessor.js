@@ -33,18 +33,22 @@ export default class VolumeProcessor
 
     setObjects()
     {
-        this.intensityMap          = { params: null, tensor: null, texture: null}
-        this.gradientMap           = { params: null, tensor: null, texture: null}
-        this.taylorMap             = { params: null, tensor: null, texture: null}
-        this.occupancyMap          = { params: null, tensor: null, texture: null}
-        this.occupancyDistanceMap  = { params: null, tensor: null, texture: null}
-        this.occupancyMipmaps      = { params: null, tensor: null, texture: null}
-        this.occupancyBoundingBox  = { params: null, tensor: null, texture: null}
-        this.isosurfaceMap         = { params: null, tensor: null, texture: null}
-        this.isosurfaceDistanceMap = { params: null, tensor: null, texture: null}
-        this.isosurfaceBoundingBox = { params: null, tensor: null, texture: null}
-        this.extremaMap            = { params: null, tensor: null, texture: null}
-        this.extremaDistanceMap    = { params: null, tensor: null, texture: null}
+        this.intensityMap              = { params: null, tensor: null, texture: null}
+        this.gradientMap               = { params: null, tensor: null, texture: null}
+        this.taylorMap                 = { params: null, tensor: null, texture: null}
+        this.occupancyMap              = { params: null, tensor: null, texture: null}
+        this.occupancyDistanceMap      = { params: null, tensor: null, texture: null}
+        this.occupancyMipmaps          = { params: null, tensor: null, texture: null}
+        this.occupancyBoundingBox      = { params: null, tensor: null, texture: null}
+        this.isosurfaceMap             = { params: null, tensor: null, texture: null}
+        this.isosurfaceDistanceMap     = { params: null, tensor: null, texture: null}
+        this.isosurfaceBoundingBox     = { params: null, tensor: null, texture: null}
+        this.isosurfaceDualMap         = { params: null, tensor: null, texture: null}
+        this.isosurfaceDistanceDualMap = { params: null, tensor: null, texture: null}
+        this.minimaMap                 = { params: null, tensor: null, texture: null}
+        this.maximaMap                 = { params: null, tensor: null, texture: null}
+        this.extremaMap                = { params: null, tensor: null, texture: null}
+        this.extremaDistanceMap        = { params: null, tensor: null, texture: null}
     }
 
     setVolumeParameters()
@@ -309,7 +313,7 @@ export default class VolumeProcessor
             })
         })
 
-        // console.log('isosurfaceDistanceMap', this.isosurfaceDistanceMap.params, this.isosurfaceDistanceMap.tensor.dataSync())
+        console.log('isosurfaceDistanceMap', this.isosurfaceDistanceMap.params, this.isosurfaceDistanceMap.tensor.dataSync())
     }
 
     async computeIsosurfaceBoundingBox(threshold = 0)
@@ -337,6 +341,70 @@ export default class VolumeProcessor
 
         // console.log('isosurfaceBoundingBox', this.isosurfaceBoundingBox.params)
     }
+
+    async computeIsosurfaceDualMap(threshold = 0, subDivision = 4)
+    {
+        if (!(this.intensityDualMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeIsosurfaceMipDualMaps: intensityDualMap is not computed`)
+        }
+
+        timeit('computeIsosurfaceDualMap', () =>
+        {
+            [this.isosurfaceDualMap.tensor, this.isosurfaceDualMap.params] = tf.tidy(() => 
+            {
+                const tensor = TensorUtils.isosurfaceDualMap(this.intensityDualMap.tensor, threshold, subDivision)
+                const params = {}
+                params.threshold = threshold
+                params.subDivision = subDivision
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.shape = tensor.shape
+                params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
+                params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
+                params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
+
+                return [tensor, params]
+            })
+        })
+
+        console.log('isosurfaceDualMap', this.isosurfaceDualMap.params, this.isosurfaceDualMap.tensor.dataSync())
+    }
+
+    async computeIsosurfaceDistanceDualMap(threshold = 0, subDivision = 2, maxIters = 255)
+    {
+        if (!(this.intensityDualMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeIsosurfaceDistanceDualMap: intensityDualMap is not computed`)
+        }
+       
+        timeit('computeIsosurfaceDistanceDualMap', () =>
+        {
+            [this.isosurfaceDistanceDualMap.tensor, this.isosurfaceDistanceDualMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.isosurfaceDistanceDualMap(this.intensityDualMap.tensor, threshold, subDivision, maxIters)
+                const params = {}
+                params.threshold = threshold
+                params.subDivision = subDivision
+                params.shape = tensor.shape
+                params.maxDistance = tensor.max().arraySync()
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(params.subDivision)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
+                params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
+                params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
+                
+                return [tensor, params]
+            })
+        })
+
+        console.log('isosurfaceDistanceDualMap', this.isosurfaceDistanceDualMap.params, this.isosurfaceDistanceDualMap.tensor.dataSync())
+    }
+
 
     async computeExtremaMap(subDivision = 4)
     {

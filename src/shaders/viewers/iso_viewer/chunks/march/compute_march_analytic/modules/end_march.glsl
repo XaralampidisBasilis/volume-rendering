@@ -1,0 +1,22 @@
+
+if (trace.intersected) 
+{
+    #if REFINE_GRADIENTS_ENABLED == 1
+    #include "./compute_gradients"
+    #endif
+}
+
+if (trace.terminated)
+{
+    #if DISCARDING_DISABLED == 0
+    discard;  
+    #else
+    // discard_trace(trace);
+    // discard_voxel(voxel);
+    #endif
+}
+
+if (trace.exhausted)
+{
+    // nothing
+}
