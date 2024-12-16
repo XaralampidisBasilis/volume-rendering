@@ -1,8 +1,10 @@
-#include "./debug_block/debug_block_min_value"              
-#include "./debug_block/debug_block_max_value"              
-#include "./debug_block/debug_block_occupied"           
-#include "./debug_block/debug_block_coords"             
-#include "./debug_block/debug_block_skip_count"         
+#include "./debug_block/debug.block_value"       
+#include "./debug_block/debug.block_occupied"    
+#include "./debug_block/debug.block_coords"      
+#include "./debug_block/debug.block_step_coords" 
+#include "./debug_block/debug.block_min_position"
+#include "./debug_block/debug.block_min_position"
+#include "./debug_block/debug.block_skip_count"        
            
 switch (u_debugging.option - debug.block_slot)
 {
