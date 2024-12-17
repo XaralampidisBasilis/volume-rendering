@@ -3,7 +3,7 @@
 
 struct Rendering 
 {
-    float min_value;   
+    float threshold_value;   
     float min_step_scaling;     
     float max_step_scaling;     
     int   max_step_count;     

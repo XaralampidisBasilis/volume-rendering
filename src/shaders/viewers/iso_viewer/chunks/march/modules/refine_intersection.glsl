@@ -12,7 +12,7 @@ Voxel temp_voxel = voxel;
 for (int iter = 0; iter < 10; iter++, trace.step_count++) 
 {
     // update trace
-    float lerp = map(voxel_values.x, voxel_values.y, u_rendering.min_value);
+    float lerp = map(voxel_values.x, voxel_values.y, u_rendering.threshold_value);
     trace.distance = mix(trace_distances.x, trace_distances.y, lerp);
     trace.position = camera.position + ray.step_direction * trace.distance;
 
@@ -21,10 +21,10 @@ for (int iter = 0; iter < 10; iter++, trace.step_count++)
     voxel.gradient = texture(u_textures.taylor_map, voxel.texture_coords).gba;
     voxel.gradient = mix(u_volume.min_gradient, u_volume.max_gradient, voxel.gradient);
     voxel.value = texture(u_textures.taylor_map, voxel.texture_coords).r;
-    voxel.error = voxel.value - u_rendering.min_value;
+    voxel.error = voxel.value - u_rendering.threshold_value;
 
     // update interval
-    float interval = step(u_rendering.min_value, voxel.value);
+    float interval = step(u_rendering.threshold_value, voxel.value);
     voxel_values = mix(
         vec2(voxel.value, voxel_values.y), 
         vec2(voxel_values.x, voxel.value), 

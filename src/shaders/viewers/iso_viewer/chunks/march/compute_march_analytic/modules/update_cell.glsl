@@ -22,6 +22,6 @@ cell.values.w = texture(u_textures.taylor_map, camera.texture_position + ray.tex
 cell.coeffs = sample_matrix * cell.values;
 
 // update intersection
-trace.intersected = is_cubic_solvable(cell.coeffs, u_rendering.min_value, 0.0, 1.0);
+trace.intersected = is_cubic_solvable(cell.coeffs, u_rendering.threshold_value, 0.0, 1.0);
 
 

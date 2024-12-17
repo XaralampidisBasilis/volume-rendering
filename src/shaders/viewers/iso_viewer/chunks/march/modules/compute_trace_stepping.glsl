@@ -1,6 +1,6 @@
 
 // compute step distance based on taylor expansion 
-trace.step_distance = (u_rendering.min_value - voxel.value) / trace.derivative;
+trace.step_distance = (u_rendering.threshold_value - voxel.value) / trace.derivative;
 trace.step_distance = trace.derivative > 0.0 ? trace.step_distance : ray.max_step_distance; 
 trace.step_distance = clamp(trace.step_distance, ray.min_step_distance, ray.max_step_distance); 
 trace.step_scaling = trace.step_distance / ray.step_distance;

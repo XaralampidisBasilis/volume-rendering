@@ -79,7 +79,7 @@ export default class ISOGui
         const uDistmap = this.viewer.material.uniforms.u_distmap.value
         const defines = this.viewer.material.defines
         const objects = { 
-            min_value                  : uRendering.min_value,
+            threshold_value            : uRendering.threshold_value,
             sub_division               : uDistmap.sub_division,
             INTERSECT_BBOX_ENABLED     : Boolean(defines.INTERSECT_BBOX_ENABLED),
             INTERSECT_BVOL_ENABLED     : Boolean(defines.INTERSECT_BVOL_ENABLED),
@@ -91,12 +91,12 @@ export default class ISOGui
     
         this.controllers.rendering = 
         {
-            minValue           : folder.add(objects, 'min_value').min(0).max(1).step(0.0001).onFinishChange((value) => { uRendering.min_value = value, this.viewer.updateBoundingBox(),  this.viewer.updateDistanceMap() }),
+            thresholdValue     : folder.add(objects, 'threshold_value').min(0).max(1).step(0.0001).onFinishChange((value) => { uRendering.threshold_value = value, this.viewer.updateBoundingBox(),  this.viewer.updateDistanceMap() }),
             minStepScale       : folder.add(uRendering, 'min_step_scaling').min(0.001).max(5).step(0.001),
             maxStepScale       : folder.add(uRendering, 'max_step_scaling').min(0.001).max(5).step(0.001),
             maxStepCount       : folder.add(uRendering, 'max_step_count').min(0).max(1000).step(1),
             maxSkipCount       : folder.add(uRendering, 'max_skip_count').min(0).max(200).step(1),
-            subDivision        : folder.add(objects, 'sub_division').min(2).max(32).step(1).onFinishChange((value) => { uDistmap.sub_division = value, this.viewer.updateDistanceMap() }),
+            subDivision        : folder.add(objects, 'sub_division').min(2).max(16).step(1).onFinishChange((value) => { uDistmap.sub_division = value, this.viewer.updateDistanceMap() }),
             enableIntersectBbox: folder.add(objects, 'INTERSECT_BBOX_ENABLED').name('enable_intersect_bbox').onFinishChange((value) => { defines.INTERSECT_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
             enableIntersectBvol: folder.add(objects, 'INTERSECT_BVOL_ENABLED').name('enable_intersect_bvol').onFinishChange((value) => { defines.INTERSECT_BVOL_ENABLED = Number(value), material.needsUpdate = true }),
             enableRefineInter  : folder.add(objects, 'REFINE_INTERSECTION_ENABLED').name('enable_refine_position').onFinishChange((value) => { defines.REFINE_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
@@ -264,7 +264,7 @@ export default class ISOGui
             variable1 : folder.add(uniforms, 'variable1').min(-2).max(2).step(0.00000001),
             variable2 : folder.add(uniforms, 'variable2').min(0).max(256).step(0.00000001),
             variable3 : folder.add(uniforms, 'variable3').min(0).max(10).step(1),
-            discarding: folder.add(objects, 'DISCARDING_DISABLED').name('discarding').onFinishChange((value) => { defines.DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
+            discarding: folder.add(objects, 'DISCARDING_DISABLED').name('disable_discarding').onFinishChange((value) => { defines.DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }
     }
     

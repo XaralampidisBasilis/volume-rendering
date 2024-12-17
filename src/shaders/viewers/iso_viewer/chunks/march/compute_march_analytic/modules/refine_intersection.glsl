@@ -10,7 +10,7 @@ next_trace.distance = min(next_trace.distance, ray.end_distance);
 next_voxel.texture_coords = trace.position * u_volume.inv_size;
 next_voxel.texture_sample = texture(u_textures.taylor_map, next_voxel.texture_coords);
 next_voxel.value = next_voxel.texture_sample.r;
-next_voxel.error = next_voxel.value - u_rendering.min_value;
+next_voxel.error = next_voxel.value - u_rendering.threshold_value;
 
 // update previous trace 
 prev_trace.distance = trace.distance - ray.step_distance * DECI_TOLERANCE;
@@ -20,7 +20,7 @@ prev_trace.distance = max(prev_trace.distance, ray.start_distance);
 prev_voxel.texture_coords = prev_trace.position * u_volume.inv_size;
 prev_voxel.texture_sample = texture(u_textures.taylor_map, prev_voxel.texture_coords);
 prev_voxel.value = prev_voxel.texture_sample.r;
-prev_voxel.error = prev_voxel.value - u_rendering.min_value;
+prev_voxel.error = prev_voxel.value - u_rendering.threshold_value;
 
 
 debug.variable1 = vec4(vec3(voxel.error * prev_voxel.error > 0.0), 1.0);
@@ -38,7 +38,7 @@ for (int iter = 0; iter < 10; iter++)
     // update voxel
     next_voxel.texture_coords = next_trace.position * u_volume.inv_size;
     next_voxel.value = texture(u_textures.taylor_map, next_voxel.texture_coords).r;
-    next_voxel.error = next_voxel.value - u_rendering.min_value;
+    next_voxel.error = next_voxel.value - u_rendering.threshold_value;
 
     // update interval
     float interval = step(0.0, errors.x * next_voxel.error);

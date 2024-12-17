@@ -22,8 +22,9 @@ for (int count = 0; count < u_rendering.max_skip_count; count++, block.skip_coun
 
 if (block.occupied)
 {
-    // #include "./compute_ray_bvol_intersection_2/refine_ray_start"
+    #include "./compute_ray_bvol_intersection_2/refine_ray_start"
 }
+
 
 // // Compute ray exit with bounding volume
 // block.step_coords = ivec3(0);

@@ -34,7 +34,7 @@ export default function()
         u_distmap : new THREE.Uniform
         ({
             max_distance    : 0,
-            sub_division    : 16,
+            sub_division    : 2,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
             size            : new THREE.Vector3(),
@@ -46,7 +46,7 @@ export default function()
 
         u_rendering: new THREE.Uniform
         ({
-            min_value        : 0.6,
+            threshold_value  : 0.3,
             min_step_scaling : 0.1,
             max_step_scaling : 2.0,
             max_step_count   : 1000,
