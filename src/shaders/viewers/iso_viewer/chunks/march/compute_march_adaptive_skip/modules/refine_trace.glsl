@@ -13,14 +13,14 @@ trace.position = camera.position + ray.step_direction * trace.distance;
 // Continue trace march from refined position
 for (trace.step_count; trace.step_count < MAX_TRACE_STEP_COUNT; trace.step_count++) 
 {
-    #include "../update_voxel" 
+    #include "./update_voxel" 
 
     if (trace.intersected)
     {
         break;
     }
 
-    #include "../update_trace" 
+    #include "./update_trace" 
 
     if (trace.terminated || trace.exhausted) 
     {

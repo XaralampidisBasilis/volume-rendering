@@ -15,12 +15,12 @@
 #ifndef MAP
 #define MAP
 
-float map(in float a, in float b, in float x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
-vec2  map(in float a, in float b, in vec2  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
-vec2  map(in vec2  a, in vec2  b, in vec2  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
-vec3  map(in float a, in float b, in vec3  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
-vec3  map(in vec3  a, in vec3  b, in vec3  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
-vec4  map(in float a, in float b, in vec4  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
-vec4  map(in vec4  a, in vec4  b, in vec4  x) {return clamp((x - a) / (b - a), 0.0, 1.0);}
+float map(in float a, in float b, in float x) {return (x - a) / (b - a);}
+vec2  map(in float a, in float b, in vec2  x) {return (x - a) / (b - a);}
+vec2  map(in vec2  a, in vec2  b, in vec2  x) {return (x - a) / (b - a);}
+vec3  map(in float a, in float b, in vec3  x) {return (x - a) / (b - a);}
+vec3  map(in vec3  a, in vec3  b, in vec3  x) {return (x - a) / (b - a);}
+vec4  map(in float a, in float b, in vec4  x) {return (x - a) / (b - a);}
+vec4  map(in vec4  a, in vec4  b, in vec4  x) {return (x - a) / (b - a);}
 
 #endif // MAP

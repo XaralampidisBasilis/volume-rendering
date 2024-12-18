@@ -8,14 +8,7 @@ const mat4 sample_matrix = mat4(
     0.0, 1.0, -4.5,   4.5 
 );
 
-// start cell
-cell.step_coords = ivec3(0.0);
-cell.coords = ivec3(ray.start_position * u_volume.inv_spacing + 0.5);
-cell.bounds.y = ray.start_distance;
-cell.distances.w = ray.start_distance;
-cell.values.w = texture(u_textures.taylor_map, camera.texture_position + ray.texture_direction * cell.distances.w).r;
-
 // start trace
 trace.distance = ray.start_distance;
-trace.position = camera.position + ray.step_direction * trace.distance;
+trace.position = camera.position + ray.step_direction * ray.start_distance;
 prev_trace = trace;

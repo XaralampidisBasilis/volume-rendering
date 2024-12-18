@@ -2,9 +2,11 @@
 if (trace.intersected) 
 {
     #include "./compute_intersection"
+    
     #if REFINE_INTERSECTION_ENABLED == 1
     #include "./refine_intersection"
     #endif
+
     #include "./compute_gradients"
 }
 

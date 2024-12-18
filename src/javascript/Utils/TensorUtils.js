@@ -1023,15 +1023,15 @@ export function isosurfaceOccupancyDualMap(tensor4d, threshold = 0, subDivision 
         const scalar255 = tf.scalar(255, 'int32')
 
         // Symmetric padding to handle boundaries
-        const tensorPadded = tf.mirrorPad(tensor4d, [[1, 0], [1, 0], [1, 0], [0, 0]], 'symmetric')
+        const tensorPadded = tf.mirrorPad(tensor4d, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
 
         // Min pooling for lower bound detection
-        const minima = minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
+        const minima = minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
         const lesser = tf.lessEqual(minima, scalarThreshold)
         minima.dispose()
 
         // Max pooling for upper bound detection
-        const maxima = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
+        const maxima = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
         const greater = tf.greaterEqual(maxima, scalarThreshold)
         maxima.dispose()
 
@@ -1140,15 +1140,15 @@ export function isosurfaceBoundingBoxDualMap(tensor4d, threshold = 0)
         const scalarThreshold = tf.scalar(threshold, 'float32')
 
         // Symmetric padding to handle boundaries
-        const tensorPadded = tf.mirrorPad(tensor4d, [[1, 0], [1, 0], [1, 0], [0, 0]], 'symmetric')
+        const tensorPadded = tf.mirrorPad(tensor4d, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
 
         // Min pooling for lower bound detection
-        const minima = minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
+        const minima = minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
         const lesser = tf.lessEqual(minima, scalarThreshold)
         minima.dispose()
 
         // Max pooling for upper bound detection
-        const maxima = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
+        const maxima = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
         const greater = tf.greaterEqual(maxima, scalarThreshold)
         maxima.dispose()
 
