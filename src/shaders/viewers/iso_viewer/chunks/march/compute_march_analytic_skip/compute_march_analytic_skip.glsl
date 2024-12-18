@@ -1,7 +1,7 @@
 
 #include "./modules/start_march"
 
-for (int count = 0; count < u_rendering.max_step_count; count++, trace.step_count++) 
+for (int count = 0; count < MAX_TRACE_STEP_COUNT; count++, trace.step_count++) 
 {
     #include "./modules/update_block
 
@@ -29,7 +29,7 @@ for (int count = 0; count < u_rendering.max_step_count; count++, trace.step_coun
 
 // if (block.occupied)
 // {
-//     #include "./modules/refine_trace"
+//     #include "./modules/refine_march"
 // }
 
 #include "./modules/end_march"
