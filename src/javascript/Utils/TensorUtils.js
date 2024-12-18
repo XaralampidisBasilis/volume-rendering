@@ -219,44 +219,38 @@ export function resizeLinear(tensor, axis, newSize)
     })
 }
 
-/**
- * Computes the range of indices along a specific axis where the tensor has non-zero values.
- * @param {tf.Tensor} binaryTensor - The input tensor.
- * @param {number} axis - The axis along which to compute the range.
- * @returns {Array} [minInd, maxInd] - The minimum and maximum indices (exclusive).
- */
-export function indexBounds(binaryTensor, axis) 
+export function boundingInterval(occupancy, axis) 
 {
     return tf.tidy(() => 
     {
+        // Check input is boolean
+        if (occupancy.dtype !== "bool") {
+            throw new Error('Input tensor must be of type bool');
+        }
+        
+        // Scalar tensors
+        const scalarOne = tf.scalar(1, 'int32')
+
         // Create a list of all axes and remove the target axis
-        const axes = [...Array(binaryTensor.rank).keys()].filter(a => a !== axis)
+        const axes = [...Array(occupancy.rank).keys()].filter((x) => x !== axis)
         
         // Compute the collapsed view along the specified axis
-        const collapsed = binaryTensor.any(axes) 
-
-        // Check if there are any non-zero (True) values in the collapsed tensor
-        const isNonSingular = tf.any(collapsed).arraySync();
-
-        if (!isNonSingular) {
-            // If all values are false, return default bounds for an empty axis
-            return [tf.scalar(0, 'int32'), tf.scalar(0, 'int32')]
-        }
-        
-        if (!isNonSingular) {
-            // If all values are zero, return the last index as minInd and the first as maxInd
-            const lastIndex = tf.scalar(binaryTensor.shape[axis] - 1, 'int32');
-            const firstIndex = tf.scalar(0, 'int32');
-            return [lastIndex, firstIndex];
-        }
+        const collapsed = occupancy.any(axes) 
         
         // Find the first non-zero index (minInd)
-        const minInd = collapsed.argMax(0) // First True from the left
+        const minIndTemp = collapsed.argMax(0) // First True from the left
         
         // Find the last non-zero index (maxInd)
         const reversed = collapsed.reverse()
-        const maxInd = tf.sub(binaryTensor.shape[axis], reversed.argMax()) // First True from the right
+        const maxIndTemp = tf.sub(occupancy.shape[axis], reversed.argMax()).sub(scalarOne) // First True from the right
         
+        // Check if there are any true values in the collapsed tensor
+        const isNonSingular = tf.any(collapsed)
+
+        // If collapsed is singular return zero indices
+        const minInd = minIndTemp.mul(isNonSingular) // min indices are included 
+        const maxInd = maxIndTemp.mul(isNonSingular) // max indices are included 
+
         // Return the bounds
         return [minInd, maxInd] 
     })
@@ -357,13 +351,13 @@ export function shift(tensor, axes, shifts)
     })
 }
 
-export function padCeil(tensor, divisions)
+export function padCeil(tensor, divisions, constantValue = 0)
 {
     return tf.tidy(() => 
     {
         const ceilDiv = (dimension) => Math.ceil(dimension / divisions)
         const padShape = tensor.shape.map(ceilDiv)
-        const padded = tensor.pad(padShape.map((dim, i) => [0, dim - tensor.shape[i]]))
+        const padded = tensor.pad(padShape.map((dim, i) => [0, dim - tensor.shape[i]]), constantValue)
         return padded
     })
 }
@@ -383,10 +377,11 @@ export function minPool3d(tensor, filterSize, strides, pad)
 {
     return tf.tidy(() =>
     {
-        const negative = tensor.mul([-1])
+        const scalarNegativeOne = tf.scalar(-1, 'float32')
+        const negative = tensor.mul(scalarNegativeOne)
         const negMaxPool = tf.maxPool3d(negative, filterSize, strides, pad)
         negative.dispose()
-        const tensorMinPool = negMaxPool.mul([-1])
+        const tensorMinPool = negMaxPool.mul(scalarNegativeOne)
         negMaxPool.dispose()
         return tensorMinPool
     })
@@ -657,47 +652,53 @@ export function prewittKernel()
     })
 }
 
-/**
- * Computes the occupancy map for a given tensor based on the method described
- * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
- *
- * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the occupancy map is computed.
- * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of occupancy.
- * @returns {tf.Tensor} - A 3D tensor of the same shape as the input, containing the occupancy values map.
- */
-export function occupancyMap(tensor, threshold, division)
+
+export function densityOccupancyMap(tensor4d, threshold, subDivision)
 {
     return tf.tidy(() =>
     {
-        const condition = tensor.greater(tf.scalar(threshold, 'float32'))
-        const divisions = [division, division, division]
+        // Scalars for threshold and output scaling
+        const scalarThreshold = tf.scalar(threshold, 'float32')
+        const scalar255 = tf.scalar(255, 'int32')
+    
+        // Compute occupied regions greater than threshold
+        const occupied = tensor4d.greater(scalarThreshold)
 
-        const occupancymapTemp = tf.maxPool3d(condition, divisions, divisions, 'same')
-        condition.dispose()
-    
-        const occupancyMap = occupancymapTemp.mul(tf.scalar(255, 'int32'))
-        occupancymapTemp.dispose()
-    
+        // If no subdivision is needed, scale and return
+        if (subDivision === 1) {
+            return occupied.mul(scalar255)
+        }
+
+        // Calculate necessary padding for valid subdivisions
+        const padAmounts = occupied.shape.map((dim, i) => {
+            const paddedDim = i < 3 ? Math.ceil(dim / subDivision) * subDivision : dim // Only pad spatial dimensions
+            return [0, paddedDim - dim]
+        })
+
+        // Apply padding
+        const occupiedPadded = tf.pad(occupied, padAmounts)
+        occupied.dispose()
+
+        // Apply max pooling with valid padding and subdivision
+        const subDivisions = [subDivision, subDivision, subDivision]
+        const occupancyMapTemp = tf.maxPool3d(occupiedPadded, subDivisions, subDivisions, 'valid')
+        occupiedPadded.dispose()
+
+        // Scale the result and return
+        const occupancyMap = occupancyMapTemp.mul(scalar255)
+        occupancyMapTemp.dispose()
         return occupancyMap
     })
 }
 
-/**
- * Computes the multi-resolution occupancy maps as an array of mipmaps for a given tensor.
- *
- * @param {tf.Tensor} tensor - A 3D tensor representing the input data where the occupancy maps are computed.
- * @param {number} threshold - The threshold value to determine occupancy.
- * @param {number} division - The size of the pooling kernel in each dimension, determining the granularity of occupancy.
- * @returns {tf.Tensor[]} - An array of tensors, each representing a mipmap level.
- */
-export function occupancyMipmaps(tensor, threshold, division) 
+export function densityOccupancyMipmaps(tensor, threshold, subDivisions) 
 {
     return tf.tidy(() => 
     {
-        if (Math.log2(division) % 1 !== 0) throw new Error(`occupancyMipmaps: input division ${division} is not a power of 2`)
+        if (Math.log2(subDivisions) % 1 !== 0) throw new Error(`occupancyMipmaps: input division ${subDivisions} is not a power of 2`)
 
         const condition = tensor.greater(tf.scalar(threshold, 'float32'))
-        const divisions = [division, division, division]
+        const divisions = [subDivisions, subDivisions, subDivisions]
 
         // Pad the condition tensor to the nearest power of 2
         const conditionPadded = padCeilPow2(condition)
@@ -726,12 +727,6 @@ export function occupancyMipmaps(tensor, threshold, division)
     })
 }
 
-/**
- * Combines multiple mipmaps into a single compact 3D tensor by stacking them in a hierarchical layout.
- *
- * @param {tf.Tensor[]} mipmaps - An array of mipmap tensors, where each tensor represents a different resolution level.
- * @returns {tf.Tensor} - A single compact 3D tensor containing all mipmaps in a hierarchical layout.
- */
 export function compactMipmaps(mipmaps) 
 {
     return tf.tidy(() => 
@@ -780,20 +775,11 @@ export function compactMipmaps(mipmaps)
     })
 }
 
-/**
- * Computes the Chebyshev distance map for a given tensor based on the method described
- * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
- *
- * @param {tf.Tensor} occupancyMap - A occupancyMap representing the input data where the distance map is computed.
- * @param {number} spacing - The size of the pooling kernel in each dimension, determining the granularity of distance calculation.
- * @param {number} maxIters - The maximum distance to compute for the distance map. 
- * @returns {tf.Tensor} - A tensor of the same shape as the input, containing the computed Chebyshev distance map.
- */
 export function occupancyDistanceMap(tensor, threshold, division, maxIters) 
 {
     return tf.tidy(() => 
     {
-        const occupancy = occupancyMap(tensor, threshold, division)
+        const occupancy = densityOccupancyMap(tensor, threshold, division)
 
         let diffusionNext = occupancy.cast('bool')
         let diffusionPrev = tf.zeros(diffusionNext.shape, 'bool')
@@ -841,7 +827,7 @@ export function occupancyBoundingBox(tensor, threshold)
         const rank = tensor.rank
 
         // Compute the bounds for each axis dynamically
-        const bounds = Array.from({ length: rank }, (_, axis) => indexBounds(condition, axis))
+        const bounds = Array.from({ length: rank }, (_, axis) => boundingInterval(condition, axis))
 
         // Separate min and max bounds
         const minCoords = tf.stack(bounds.map(b => b[0]), 0)
@@ -855,11 +841,9 @@ export function occupancyBoundingBox(tensor, threshold)
     })
 }
 
-/**
- * Computes the isosurface map for a given tensor based on the method described
- * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
- */
-export function isosurfaceMap(tensor, threshold = 0, subDivision = 2)
+// Isosurface Maps
+
+export function isosurfaceOccupancyMap(tensor, threshold = 0, subDivision = 2)
 {
     return tf.tidy(() =>
     {
@@ -876,7 +860,7 @@ export function isosurfaceMap(tensor, threshold = 0, subDivision = 2)
         const lesser = tf.less(undershoot, scalarZero)
         undershoot.dispose()
 
-        const maxima = tf.maxPool(error, [3, 3, 3], [1, 1, 1], 'same')
+        const maxima = tf.maxPool3d(error, [3, 3, 3], [1, 1, 1], 'same')
         const overshoot = tf.mul(maxima, error)
         maxima.dispose()
         const greater = tf.less(overshoot, scalarZero)
@@ -915,7 +899,7 @@ export function isosurfaceDistanceMap(tensor, threshold, subDivisions = 2, maxIt
         console.log(tf.memory())
 
         // Compute isosurface map
-        const isosurface = isosurfaceMap(tensor, threshold, subDivisions)
+        const isosurface = isosurfaceOccupancyMap(tensor, threshold, subDivisions)
         
         // Initialize next diffusion
         let diffusionNext = isosurface.cast('bool')
@@ -974,7 +958,7 @@ export function isosurfaceDistanceMap(tensor, threshold, subDivisions = 2, maxIt
     })
 }
 
-export function isosurfaceBoundingBox(tensor, threshold = 0) 
+export function isosurfaceMapBoundingBox(tensor, threshold = 0) 
 {
     return tf.tidy(() => 
     {
@@ -990,7 +974,7 @@ export function isosurfaceBoundingBox(tensor, threshold = 0)
         const lesser = tf.less(undershoot, scalarZero)
         undershoot.dispose()
 
-        const maxima = tf.maxPool(error, [3, 3, 3], [1, 1, 1], 'same')
+        const maxima = tf.maxPool3d(error, [3, 3, 3], [1, 1, 1], 'same')
         const overshoot = tf.mul(maxima, error)
         maxima.dispose()
         const greater = tf.less(overshoot, scalarZero)
@@ -1013,7 +997,7 @@ export function isosurfaceBoundingBox(tensor, threshold = 0)
         const rank = tensor.rank
 
         // Compute the bounds for each axis dynamically
-        const bounds = Array.from({ length: rank }, (value, axis) => indexBounds(condition, axis))
+        const bounds = Array.from({ length: rank }, (value, axis) => boundingInterval(condition, axis))
 
         // Separate min and max bounds
         const minCoords = tf.stack(bounds.map(b => b[0]), 0)
@@ -1027,50 +1011,69 @@ export function isosurfaceBoundingBox(tensor, threshold = 0)
     })
 }
 
-export function isosurfaceDualMap(tensor, threshold = 0, subDivision = 2)
+
+// Isosurface Dual Maps
+
+export function isosurfaceOccupancyDualMap(tensor4d, threshold = 0, subDivision = 2) 
 {
-    return tf.tidy(() =>
+    return tf.tidy(() => 
     {
+        // Scalars for threshold and output scaling
         const scalarThreshold = tf.scalar(threshold, 'float32')
         const scalar255 = tf.scalar(255, 'int32')
 
-        const tensorPadded = tf.mirrorPad(tensor, [[1, 0], [1, 0], [1, 0], [0, 0]], 'symmetric')
+        // Symmetric padding to handle boundaries
+        const tensorPadded = tf.mirrorPad(tensor4d, [[1, 0], [1, 0], [1, 0], [0, 0]], 'symmetric')
 
+        // Min pooling for lower bound detection
         const minima = minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
         const lesser = tf.lessEqual(minima, scalarThreshold)
         minima.dispose()
 
-        const maxima = tf.maxPool(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
+        // Max pooling for upper bound detection
+        const maxima = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
         const greater = tf.greaterEqual(maxima, scalarThreshold)
         maxima.dispose()
-      
-        const occupied = tf.logicalAnd(lesser, greater)
-        greater.dispose()
-        lesser.dispose()
 
-        if(subDivision == 1) 
-        {
+        // Logical AND to find isosurface occupied regions
+        const occupied = tf.logicalAnd(lesser, greater)
+        lesser.dispose()
+        greater.dispose()
+
+        // If no subdivision is needed, scale and return
+        if (subDivision === 1) {
             return occupied.mul(scalar255)
         }
-        const subDivisions = [subDivision, subDivision, subDivision]
-        const isosurfaceMapTemp = tf.maxPool3d(occupied, subDivisions, subDivisions, 'same')
+
+        // Calculate necessary padding for valid subdivisions
+        const padAmounts = occupied.shape.map((dim, i) => {
+            const paddedDim = i < 3 ? Math.ceil(dim / subDivision) * subDivision : dim // Only pad spatial dimensions
+            return [0, paddedDim - dim]
+        })
+
+        // Apply padding
+        const occupiedPadded = tf.pad(occupied, padAmounts)
         occupied.dispose()
-    
+
+        // Apply max pooling with valid padding and subdivision
+        const subDivisions = [subDivision, subDivision, subDivision]
+        const isosurfaceMapTemp = tf.maxPool3d(occupiedPadded, subDivisions, subDivisions, 'valid')
+        occupiedPadded.dispose()
+
+        // Scale the result and return
         const isosurfaceMap = isosurfaceMapTemp.mul(scalar255)
         isosurfaceMapTemp.dispose()
-    
+
         return isosurfaceMap
-    })
+    });
 }
 
 export function isosurfaceDistanceDualMap(tensor, threshold, subDivisions = 2, maxIters = 255) 
 {
     return tf.tidy(() => 
     {
-        console.log(tf.memory())
-
         // Compute isosurface map
-        const isosurface = isosurfaceDualMap(tensor, threshold, subDivisions)
+        const isosurface = isosurfaceOccupancyDualMap(tensor, threshold, subDivisions)
         
         // Initialize next diffusion
         let diffusionNext = isosurface.cast('bool')
@@ -1128,6 +1131,50 @@ export function isosurfaceDistanceDualMap(tensor, threshold, subDivisions = 2, m
         return distanceMap
     })
 }
+
+export function isosurfaceBoundingBoxDualMap(tensor4d, threshold = 0) 
+{
+    return tf.tidy(() => 
+    {
+        // Scalars for threshold and output scaling
+        const scalarThreshold = tf.scalar(threshold, 'float32')
+
+        // Symmetric padding to handle boundaries
+        const tensorPadded = tf.mirrorPad(tensor4d, [[1, 0], [1, 0], [1, 0], [0, 0]], 'symmetric')
+
+        // Min pooling for lower bound detection
+        const minima = minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
+        const lesser = tf.lessEqual(minima, scalarThreshold)
+        minima.dispose()
+
+        // Max pooling for upper bound detection
+        const maxima = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
+        const greater = tf.greaterEqual(maxima, scalarThreshold)
+        maxima.dispose()
+
+        // Logical AND to find isosurface occupied regions
+        const occupied = tf.logicalAnd(lesser, greater)
+        lesser.dispose()
+        greater.dispose()
+
+        // Compute the bounds for each axis dynamically
+        const rank = tensor4d.rank
+        const boundingIntervals = Array.from({ length: rank }, (_, axis) => boundingInterval(occupied, axis))
+
+        // Separate min and max bounds
+        const minCoords = tf.stack(boundingIntervals.map(interval => interval[0]), 0)
+        const maxCoords = tf.stack(boundingIntervals.map(interval => interval[1]), 0)
+
+        // Convert tensors to arrays
+        const minCoordsArray = minCoords.arraySync().slice(0, 3).toReversed()
+        const maxCoordsArray = maxCoords.arraySync().slice(0, 3).toReversed()
+
+        return { minCoords: minCoordsArray, maxCoords: maxCoordsArray}
+    })
+}
+
+
+// Extrema Maps
 
 export function minimaMap(tensor, subDivision)
 {
@@ -1160,6 +1207,40 @@ export function maximaMap(tensor, subDivision)
 
         // compute the block max value based on sub divisions
         return tf.maxPool3d(maxima, subDivisions, subDivisions, 'same') 
+    })
+}
+
+export function minimaDualMap(tensor, subDivision)
+{
+    return tf.tidy(() =>
+    {
+        const tensorPadded = tf.mirrorPad(tensor, [[1, 0], [1, 0], [1, 0], [0, 0]], 'symmetric')
+        const minima = tf.minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
+        tensorPadded.dispose()
+      
+        if(subDivision == 1) return minima
+        const subDivisions = [subDivision, subDivision, subDivision]
+        const minimaMap = tf.maxPool3d(minima, subDivisions, subDivisions, 'same')
+        minima.dispose()
+    
+        return minimaMap
+    })
+}
+
+export function maximaDualMap(tensor, subDivision)
+{
+    return tf.tidy(() =>
+    {
+        const tensorPadded = tf.mirrorPad(tensor, [[1, 0], [1, 0], [1, 0], [0, 0]], 'symmetric')
+        const maxima = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
+        tensorPadded.dispose()
+      
+        if(subDivision == 1) return maxima
+        const subDivisions = [subDivision, subDivision, subDivision]
+        const maximaMap = tf.maxPool3d(maxima, subDivisions, subDivisions, 'same')
+        maxima.dispose()
+    
+        return maximaMap
     })
 }
 

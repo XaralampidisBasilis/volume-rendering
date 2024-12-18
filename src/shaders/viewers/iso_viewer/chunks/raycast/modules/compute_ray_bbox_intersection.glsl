@@ -3,11 +3,6 @@
 vec3 bbox_min_position = u_volume.min_position;
 vec3 bbox_max_position = u_volume.max_position;
 
-// Enlarge volume bounding box by a voxel to include bounds
-// that are occupied due to linear filtering
-bbox_min_position -= u_volume.spacing;
-bbox_max_position += u_volume.spacing;
-
 // make sure volume bounding box is not bigger than volume box
 bbox_min_position = max(bbox_min_position, box.min_position);
 bbox_max_position = min(bbox_max_position, box.max_position);

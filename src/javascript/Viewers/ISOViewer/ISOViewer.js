@@ -45,7 +45,7 @@ export default class ISOViewer extends EventEmitter
         await this.processor.computeGradientMap()
         await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
         await this.processor.quantizeTaylorMap()
-        await this.processor.computeIsosurfaceBoundingBox(uRendering.threshold_value)
+        await this.processor.computeIsosurfaceBoundingBoxDualMap(uRendering.threshold_value)
         await this.processor.computeIsosurfaceDistanceDualMap(uRendering.threshold_value, uDistmap.sub_division, 80)
     }
 
@@ -54,9 +54,9 @@ export default class ISOViewer extends EventEmitter
         const uRendering = this.material.uniforms.u_rendering.value
         const uVolume = this.material.uniforms.u_volume.value
 
-        await this.processor.computeIsosurfaceBoundingBox(uRendering.threshold_value)
+        await this.processor.computeIsosurfaceBoundingBoxDualMap(uRendering.threshold_value)
         
-        const boxParams = this.processor.isosurfaceBoundingBox.params 
+        const boxParams = this.processor.isosurfaceBoundingBoxDualMap.params 
         uVolume.min_position.copy(boxParams.minPosition)
         uVolume.max_position.copy(boxParams.maxPosition)     
     }   
@@ -135,7 +135,7 @@ export default class ISOViewer extends EventEmitter
         const volumeParams = this.processor.volume.params
         const taylormapParams = this.processor.taylorMap.params
         const distmapParams =  this.processor.isosurfaceDistanceDualMap.params
-        const boxParams = this.processor.isosurfaceBoundingBox.params
+        const boxParams = this.processor.isosurfaceBoundingBoxDualMap.params
 
         // uniforms
         const uVolume = this.material.uniforms.u_volume.value

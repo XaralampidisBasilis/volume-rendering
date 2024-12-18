@@ -33,22 +33,23 @@ export default class VolumeProcessor
 
     setObjects()
     {
-        this.intensityMap              = { params: null, tensor: null, texture: null}
-        this.gradientMap               = { params: null, tensor: null, texture: null}
-        this.taylorMap                 = { params: null, tensor: null, texture: null}
-        this.occupancyMap              = { params: null, tensor: null, texture: null}
-        this.occupancyDistanceMap      = { params: null, tensor: null, texture: null}
-        this.occupancyMipmaps          = { params: null, tensor: null, texture: null}
-        this.occupancyBoundingBox      = { params: null, tensor: null, texture: null}
-        this.isosurfaceMap             = { params: null, tensor: null, texture: null}
-        this.isosurfaceDistanceMap     = { params: null, tensor: null, texture: null}
-        this.isosurfaceBoundingBox     = { params: null, tensor: null, texture: null}
-        this.isosurfaceDualMap         = { params: null, tensor: null, texture: null}
-        this.isosurfaceDistanceDualMap = { params: null, tensor: null, texture: null}
-        this.minimaMap                 = { params: null, tensor: null, texture: null}
-        this.maximaMap                 = { params: null, tensor: null, texture: null}
-        this.extremaMap                = { params: null, tensor: null, texture: null}
-        this.extremaDistanceMap        = { params: null, tensor: null, texture: null}
+        this.intensityMap                 = { params: null, tensor: null, texture: null}
+        this.gradientMap                  = { params: null, tensor: null, texture: null}
+        this.taylorMap                    = { params: null, tensor: null, texture: null}
+        this.occupancyMap                 = { params: null, tensor: null, texture: null}
+        this.occupancyDistanceMap         = { params: null, tensor: null, texture: null}
+        this.occupancyMipmaps             = { params: null, tensor: null, texture: null}
+        this.occupancyBoundingBox         = { params: null, tensor: null, texture: null}
+        this.isosurfaceMap                = { params: null, tensor: null, texture: null}
+        this.isosurfaceDistanceMap        = { params: null, tensor: null, texture: null}
+        this.isosurfaceMapBoundingBox     = { params: null, tensor: null, texture: null}
+        this.isosurfaceOccupancyDualMap   = { params: null, tensor: null, texture: null}
+        this.isosurfaceDistanceDualMap    = { params: null, tensor: null, texture: null}
+        this.isosurfaceBoundingBoxDualMap = { params: null, tensor: null, texture: null}
+        this.minimaMap                    = { params: null, tensor: null, texture: null}
+        this.maximaMap                    = { params: null, tensor: null, texture: null}
+        this.extremaMap                   = { params: null, tensor: null, texture: null}
+        this.extremaDistanceMap           = { params: null, tensor: null, texture: null}
     }
 
     setVolumeParameters()
@@ -145,7 +146,7 @@ export default class VolumeProcessor
         {
             [this.occupancyMap.tensor, this.occupancyMap.params] = tf.tidy(() => 
             {
-                const tensor = TensorUtils.occupancyMap(this.intensityMap.tensor, threshold, subDivision)
+                const tensor = TensorUtils.densityOccupancyMap(this.intensityMap.tensor, threshold, subDivision)
                 const params = {}
                 params.threshold = threshold
                 params.subDivision = subDivision
@@ -267,7 +268,7 @@ export default class VolumeProcessor
         {
             [this.isosurfaceMap.tensor, this.isosurfaceMap.params] = tf.tidy(() => 
             {
-                const tensor = TensorUtils.isosurfaceMap(this.intensityMap.tensor, threshold, subDivision)
+                const tensor = TensorUtils.isosurfaceOccupancyMap(this.intensityMap.tensor, threshold, subDivision)
                 const params = {}
                 params.threshold = threshold
                 params.subDivision = subDivision
@@ -321,7 +322,7 @@ export default class VolumeProcessor
         console.log('isosurfaceDistanceMap', this.isosurfaceDistanceMap.params, this.isosurfaceDistanceMap.tensor.dataSync())
     }
 
-    async computeIsosurfaceBoundingBox(threshold = 0)
+    async computeIsosurfaceMapBoundingBox(threshold = 0)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
@@ -330,9 +331,9 @@ export default class VolumeProcessor
 
         timeit('computeIsosurfaceBoundingBox', () =>
         {
-            this.isosurfaceBoundingBox.params = tf.tidy(() =>
+            this.isosurfaceMapBoundingBox.params = tf.tidy(() =>
             {
-                const boundingBox = TensorUtils.isosurfaceBoundingBox(this.intensityMap.tensor, threshold)
+                const boundingBox = TensorUtils.isosurfaceMapBoundingBox(this.intensityMap.tensor, threshold)
                 const params = {}
                 params.threshold = threshold
                 params.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
@@ -344,21 +345,22 @@ export default class VolumeProcessor
             })          
         })
 
-        // console.log('isosurfaceBoundingBox', this.isosurfaceBoundingBox.params)
+        // console.log('isosurfaceMapBoundingBox', this.isosurfaceMapBoundingBox.params)
     }
 
-    async computeIsosurfaceDualMap(threshold = 0, subDivision = 4)
+
+    async computeIsosurfaceOccupancyDualMap(threshold = 0, subDivision = 4)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
         {
-            throw new Error(`computeIsosurfaceMipDualMaps: intensityMap is not computed`)
+            throw new Error(`computeIsosurfaceOccupancyDualMap: intensityMap is not computed`)
         }
 
-        timeit('computeIsosurfaceDualMap', () =>
+        timeit('computeIsosurfaceOccupancyDualMap', () =>
         {
-            [this.isosurfaceDualMap.tensor, this.isosurfaceDualMap.params] = tf.tidy(() => 
+            [this.isosurfaceOccupancyDualMap.tensor, this.isosurfaceOccupancyDualMap.params] = tf.tidy(() => 
             {
-                const tensor = TensorUtils.isosurfaceDualMap(this.intensityMap.tensor, threshold, subDivision)
+                const tensor = TensorUtils.isosurfaceOccupancyDualMap(this.intensityMap.tensor, threshold, subDivision)
                 const params = {}
                 params.threshold = threshold
                 params.subDivision = subDivision
@@ -376,7 +378,7 @@ export default class VolumeProcessor
             })
         })
 
-        console.log('isosurfaceDualMap', this.isosurfaceDualMap.params, this.isosurfaceDualMap.tensor.dataSync())
+        console.log('isosurfaceOccupancyDualMap', this.isosurfaceOccupancyDualMap.params, this.isosurfaceOccupancyDualMap.tensor.dataSync())
     }
 
     async computeIsosurfaceDistanceDualMap(threshold = 0, subDivision = 2, maxIters = 255)
@@ -412,6 +414,32 @@ export default class VolumeProcessor
         console.log('isosurfaceDistanceDualMap', this.isosurfaceDistanceDualMap.params, this.isosurfaceDistanceDualMap.tensor.dataSync())
     }
 
+    async computeIsosurfaceBoundingBoxDualMap(threshold = 0)
+    {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeIsosurfaceBoundingBoxDualMap: intensityMap is not computed`)
+        }
+
+        timeit('computeIsosurfaceBoundingBoxDualMap', () =>
+        {
+            this.isosurfaceBoundingBoxDualMap.params = tf.tidy(() =>
+            {
+                const boundingBox = TensorUtils.isosurfaceBoundingBoxDualMap(this.intensityMap.tensor, threshold)
+                const params = {}
+                params.threshold = threshold
+                params.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
+                params.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
+                params.minPosition = new THREE.Vector3().fromArray(boundingBox.minCoords).subScalar(0.5).multiply(this.volume.params.spacing)
+                params.maxPosition = new THREE.Vector3().fromArray(boundingBox.maxCoords).addScalar(0.5).multiply(this.volume.params.spacing)
+                
+                return params
+            })          
+        })
+
+        // console.log('isosurfaceBoundingBoxDualMap', this.isosurfaceBoundingBoxDualMap.params)
+    }
+    
 
     async computeExtremaMap(subDivision = 4)
     {
