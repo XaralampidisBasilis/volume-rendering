@@ -1,9 +1,6 @@
 #ifndef IS_CUBIC_SOLVABLE
 #define IS_CUBIC_SOLVABLE
 
-#ifndef MICRO_TOLERANCE
-#define MICRO_TOLERANCE 1e-6
-#endif
 #ifndef QUADRATIC_SOLVER
 #include "./quadratic_solver"
 #endif
@@ -38,21 +35,21 @@ bool is_cubic_solvable(in vec4 coeffs, in float value, in float start, in float 
     );
     
     // check if the extrema are within the interval and evaluate the cubic at those points
-    bvec2 is_inside = greaterThan(inside_open(start, end, quadratic_roots), vec2(MICRO_TOLERANCE));
+    bvec2 is_inside = greaterThan(inside_open(start, end, quadratic_roots), vec2(0.5));
 
     // check solution based on intermediate value theorem
-    bool is_solvable = (boundary_values.x * boundary_values.y <= MICRO_TOLERANCE);
+    bool is_solvable = (boundary_values.x * boundary_values.y <= 0.0);
 
     // check solution based on the first extrema value inside the interval
     is_solvable = is_solvable || 
 
-        (is_inside.x && ((extrema_values.x * boundary_values.x < MICRO_TOLERANCE) ||
-                         (extrema_values.x * boundary_values.y < MICRO_TOLERANCE) || 
-                         (abs(extrema_values.x) < MICRO_TOLERANCE))) ||
+        (is_inside.x && ((extrema_values.x * boundary_values.x < 0.0) ||
+                         (extrema_values.x * boundary_values.y < 0.0) || 
+                         (abs(extrema_values.x) < 0.0))) ||
 
-        (is_inside.y && ((extrema_values.y * boundary_values.x < MICRO_TOLERANCE) ||
-                         (extrema_values.y * boundary_values.y < MICRO_TOLERANCE) || 
-                         (abs(extrema_values.y) < MICRO_TOLERANCE))); 
+        (is_inside.y && ((extrema_values.y * boundary_values.x < 0.0) ||
+                         (extrema_values.y * boundary_values.y < 0.0) || 
+                         (abs(extrema_values.y) < 0.0))); 
 
     // return result
     return is_solvable;

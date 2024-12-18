@@ -3,6 +3,10 @@
 vec3 bbox_min_position = u_volume.min_position;
 vec3 bbox_max_position = u_volume.max_position;
 
+// shrink volume bounding box by a small amount to avoid numerical instabilities in the boundary
+bbox_min_position += u_volume.spacing * MILLI_TOLERANCE;
+bbox_max_position -= u_volume.spacing * MILLI_TOLERANCE;
+
 // make sure volume bounding box is not bigger than volume box
 bbox_min_position = max(bbox_min_position, box.min_position);
 bbox_max_position = min(bbox_max_position, box.max_position);

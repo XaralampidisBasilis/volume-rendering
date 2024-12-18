@@ -1,13 +1,12 @@
 
 // Compute block min max position in model space  
-block.min_position = (vec3(block.coords) + 0) * u_distmap.spacing;
-block.max_position = (vec3(block.coords) + 1) * u_distmap.spacing;
+block.min_position = vec3(block.coords + 0) * u_distmap.spacing - u_volume.spacing * 0.5;
+block.max_position = vec3(block.coords + 1) * u_distmap.spacing - u_volume.spacing * 0.5;  
 
-// Increase block boundary by a voxel
-block.min_position -= u_volume.spacing;
-block.max_position += u_volume.spacing;
-
-// intersect ray with block to find end distance and position
+// move to the end of the occupied block
 ray.end_distance = intersect_box_max(block.min_position, block.max_position, camera.position, ray.step_direction);
+ray.end_distance += u_volume.spacing_length * 0.5; // safeguard for numerical instabilities
+
+// compute end position
 ray.end_distance = min(ray.end_distance, box.exit_distance);
 ray.end_position = camera.position + ray.step_direction * ray.end_distance; 

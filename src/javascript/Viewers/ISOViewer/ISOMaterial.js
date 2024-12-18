@@ -46,7 +46,7 @@ export default function()
 
         u_rendering: new THREE.Uniform
         ({
-            threshold_value  : 0.3,
+            threshold_value  : 0.53,
             min_step_scaling : 0.1,
             max_step_scaling : 2.0,
             max_step_count   : 1000,
