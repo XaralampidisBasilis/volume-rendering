@@ -45,7 +45,7 @@ export default class MIPViewer extends EventEmitter
         await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
         await this.processor.quantizeTaylorMap()
         await this.processor.quantizeIntensityMap()
-        await this.processor.computeExtremaMap(uExtremap.sub_division)
+        await this.processor.computeExtremaDualMap(uExtremap.sub_division)
     }
 
     async updateExtremaMap()
@@ -53,21 +53,21 @@ export default class MIPViewer extends EventEmitter
         const uExtremap = this.material.uniforms.u_extremap.value
         const uTextures = this.material.uniforms.u_textures.value
 
-        await this.processor.computeExtremaMap(uExtremap.sub_division)
+        await this.processor.computeExtremaDualMap(uExtremap.sub_division)
         
-        const distmapParams =  this.processor.extremaMap.params
-        uExtremap.sub_division = distmapParams.sub_division
-        uExtremap.dimensions.copy(distmapParams.dimensions)
-        uExtremap.spacing.copy(distmapParams.spacing)
-        uExtremap.size.copy(distmapParams.size)
-        uExtremap.inv_dimensions.copy(distmapParams.invDimensions)
-        uExtremap.inv_spacing.copy(distmapParams.invSpacing)
-        uExtremap.inv_size.copy(distmapParams.invSize)
+        const extremaParams =  this.processor.extremaDualMap.params
+        uExtremap.sub_division = extremaParams.sub_division
+        uExtremap.dimensions.copy(extremaParams.dimensions)
+        uExtremap.spacing.copy(extremaParams.spacing)
+        uExtremap.size.copy(extremaParams.size)
+        uExtremap.inv_dimensions.copy(extremaParams.invDimensions)
+        uExtremap.inv_spacing.copy(extremaParams.invSpacing)
+        uExtremap.inv_size.copy(extremaParams.invSize)
 
         uTextures.extrema_map.dispose()
-        uTextures.extrema_map = this.processor.getTexture('extremaMap', THREE.RGFormat, THREE.UnsignedByteType)
+        uTextures.extrema_map = this.processor.getTexture('extremaDualMap', THREE.RGFormat, THREE.UnsignedByteType)
         uTextures.extrema_map.needsUpdate = true
-        this.processor.extremaMap.tensor.dispose()
+        this.processor.extremaDualMap.tensor.dispose()
 
         this.logMemory('updateExtremaMap')
     }
@@ -87,8 +87,8 @@ export default class MIPViewer extends EventEmitter
         this.processor.taylorMap.tensor.dispose()
 
         // extrema_map
-        this.textures.extrema_map = this.processor.getTexture('extremaMap', THREE.RGFormat, THREE.UnsignedByteType)
-        this.processor.extremaMap.tensor.dispose()
+        this.textures.extrema_map = this.processor.getTexture('extremaDualMap', THREE.RGFormat, THREE.UnsignedByteType)
+        this.processor.extremaDualMap.tensor.dispose()
 
         // color_maps
         this.textures.color_maps = this.resources.items.colormaps                      
@@ -115,7 +115,7 @@ export default class MIPViewer extends EventEmitter
         // parameters
         const volumeParams = this.processor.volume.params
         const taylormapParams = this.processor.taylorMap.params
-        const distmapParams =  this.processor.extremaMap.params
+        const extremaParams =  this.processor.extremaDualMap.params
 
         // uniforms
         const uVolume = this.material.uniforms.u_volume.value
@@ -138,13 +138,13 @@ export default class MIPViewer extends EventEmitter
         uVolume.max_gradient_length = Math.max(uVolume.max_gradient.length(), uVolume.min_gradient.length())
 
         // extrema_map
-        uExtremap.sub_division = distmapParams.sub_division
-        uExtremap.dimensions.copy(distmapParams.dimensions)
-        uExtremap.spacing.copy(distmapParams.spacing)
-        uExtremap.size.copy(distmapParams.size)
-        uExtremap.inv_dimensions.copy(distmapParams.invDimensions)
-        uExtremap.inv_spacing.copy(distmapParams.invSpacing)
-        uExtremap.inv_size.copy(distmapParams.invSize)
+        uExtremap.sub_division = extremaParams.sub_division
+        uExtremap.dimensions.copy(extremaParams.dimensions)
+        uExtremap.spacing.copy(extremaParams.spacing)
+        uExtremap.size.copy(extremaParams.size)
+        uExtremap.inv_dimensions.copy(extremaParams.invDimensions)
+        uExtremap.inv_spacing.copy(extremaParams.invSpacing)
+        uExtremap.inv_size.copy(extremaParams.invSize)
 
         // textures
         uTextures.taylor_map = this.textures.taylor_map

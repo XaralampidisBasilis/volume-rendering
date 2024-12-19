@@ -78,6 +78,7 @@ export default class MIPGui
         const defines = this.viewer.material.defines
         const objects = { 
             min_value                  : uRendering.min_value,
+            sub_division               : uExtremap.sub_division,
             INTERSECT_BVOL_ENABLED     : Boolean(defines.INTERSECT_BVOL_ENABLED),
             REFINE_INTERSECTION_ENABLED: Boolean(defines.REFINE_INTERSECTION_ENABLED),
             DITHERING_ENABLED          : Boolean(defines.DITHERING_ENABLED),
@@ -90,7 +91,7 @@ export default class MIPGui
             maxStepScale       : folder.add(uRendering, 'max_step_scaling').min(0.001).max(5).step(0.001),
             maxStepCount       : folder.add(uRendering, 'max_step_count').min(0).max(1000).step(1),
             maxSkipCount       : folder.add(uRendering, 'max_skip_count').min(0).max(200).step(1),
-            subDivision        : folder.add(uExtremap, 'sub_division').min(2).max(16).step(1).onFinishChange((value) => { uExtremap.sub_division = value, this.viewer.updateExtremaMap() }),
+            subDivision        : folder.add(objects, 'sub_division').min(2).max(16).step(1).onFinishChange((value) => { uExtremap.sub_division = value, this.viewer.updateExtremaMap() }),
             enableIntersectBvol: folder.add(objects, 'INTERSECT_BVOL_ENABLED').name('enable_intersect_bvol').onFinishChange((value) => { defines.INTERSECT_BVOL_ENABLED = Number(value), material.needsUpdate = true }),
             enableRefineInter  : folder.add(objects, 'REFINE_INTERSECTION_ENABLED').name('enable_refine_position').onFinishChange((value) => { defines.REFINE_INTERSECTION_ENABLED = Number(value), material.needsUpdate = true }),
             enableSkipping     : folder.add(objects, 'SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),

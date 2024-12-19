@@ -7,7 +7,7 @@
 
 // Compute ray extrema 
 #if INTERSECT_BVOL_ENABLED == 1
-#include "./modules/compute_ray_bvol_intersection"
+#include "./modules/compute_ray_bvol_intersection_2"
 #endif
 
 // Compute ray step distance

@@ -6,6 +6,7 @@ struct Ray
     bool  discarded;            // flag indicating if the ray has been discarded
 
     vec3  step_direction;       // direction vector for each step along the ray
+    vec3  texture_direction;   
     float step_distance;        // fixed step distance for each ray 
     float rand_distance;        // random distance for dithering
     float min_step_distance;    // minimum step distance for adaptive stepping
@@ -30,6 +31,7 @@ Ray set_ray()
     Ray ray;
     ray.discarded         = false;
     ray.step_direction    = normalize(v_ray_direction);
+    ray.texture_direction = normalize(v_ray_direction) * u_volume.inv_size;
     ray.step_distance     = 0.0;
     ray.rand_distance     = 0.0;
     ray.start_position    = vec3(0.0);

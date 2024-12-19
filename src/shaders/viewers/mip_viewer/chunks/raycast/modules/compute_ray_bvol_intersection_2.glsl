@@ -17,7 +17,7 @@ for (int count = 0; count < MAX_BLOCK_SKIP_COUNT; count++, block.skip_count++)
 // Compute ray start
 #include "./compute_ray_bvol_intersection_2/set_ray_start_block"
 
-for (int count = block.skip_count; count < MAX_BLOCK_SKIP_COUNT; count++, block.skip_count++) 
+for (int count = 0; count < MAX_BLOCK_SKIP_COUNT; count++, block.skip_count++) 
 {
     #include "./compute_ray_bvol_intersection_2/update_ray_block"
 
@@ -38,7 +38,7 @@ for (int count = block.skip_count; count < MAX_BLOCK_SKIP_COUNT; count++, block.
 // Compute ray end
 #include "./compute_ray_bvol_intersection_2/set_ray_end_block"
 
-for (int count = block.skip_count; count < MAX_BLOCK_SKIP_COUNT; count++, block.skip_count++) 
+for (int count = 0; count < MAX_BLOCK_SKIP_COUNT; count++, block.skip_count++) 
 {
     #include "./compute_ray_bvol_intersection_2/update_ray_block"
 

@@ -50,6 +50,9 @@ export default class VolumeProcessor
         this.maximaMap                    = { params: null, tensor: null, texture: null}
         this.extremaMap                   = { params: null, tensor: null, texture: null}
         this.extremaDistanceMap           = { params: null, tensor: null, texture: null}
+        this.minimaDualMap                = { params: null, tensor: null, texture: null}
+        this.maximaDualMap                = { params: null, tensor: null, texture: null}
+        this.extremaDualMap               = { params: null, tensor: null, texture: null}
     }
 
     setVolumeParameters()
@@ -69,7 +72,7 @@ export default class VolumeProcessor
         }
     }
 
-    // compute functions
+    // Basic Maps
 
     async computeIntensityMap()
     {
@@ -134,6 +137,8 @@ export default class VolumeProcessor
 
         // console.log('taylorMap', this.taylorMap.params, this.taylorMap.tensor.dataSync())s
     }
+
+    // Occupancy Maps
 
     async computeOccupancyMap(threshold = 0, subDivision = 4)
     {
@@ -257,6 +262,8 @@ export default class VolumeProcessor
         // console.log('occupancyBoundingBox', this.occupancyBoundingBox.params)
     }
 
+    // Isosurface Maps
+
     async computeIsosurfaceMap(threshold = 0, subDivision = 4)
     {
         if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
@@ -348,6 +355,7 @@ export default class VolumeProcessor
         // console.log('isosurfaceMapBoundingBox', this.isosurfaceMapBoundingBox.params)
     }
 
+    // Isosurface Dual Maps
 
     async computeIsosurfaceOccupancyDualMap(threshold = 0, subDivision = 4)
     {
@@ -440,6 +448,7 @@ export default class VolumeProcessor
         // console.log('isosurfaceBoundingBoxDualMap', this.isosurfaceBoundingBoxDualMap.params)
     }
     
+    // Extrema Maps
 
     async computeExtremaMap(subDivision = 4)
     {
@@ -502,6 +511,101 @@ export default class VolumeProcessor
 
         // console.log('extremaDistanceMap', this.extremaDistanceMap.params, this.extremaDistanceMap.tensor.dataSync())
     }
+
+    // Extrema Dual Maps
+
+    async computeMinimaDualMap(subDivision = 4)
+    {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeMinimaDualMap: intensityMap is not computed`)
+        }
+
+        timeit('computeMinimaDualMap', () =>
+        {
+            [this.minimaDualMap.tensor, this.minimaDualMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.minimaDualMap(this.intensityMap.tensor, subDivision)
+                const params = {}
+                params.subDivision = subDivision
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.shape = tensor.shape
+                params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
+                params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
+                params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
+                
+                return [tensor, params]
+            })            
+        })
+
+        // console.log('minimaDualMap', this.minimaDualMap.params, this.minimaDualMap.tensor.dataSync())
+    }
+
+    async computeMaximaDualMap(subDivision = 4)
+    {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeMaximaDualMap: intensityMap is not computed`)
+        }
+
+        timeit('computeMaximaDualMap', () =>
+        {
+            [this.maximaDualMap.tensor, this.maximaDualMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.maximaDualMap(this.intensityMap.tensor, subDivision)
+                const params = {}
+                params.subDivision = subDivision
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.shape = tensor.shape
+                params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
+                params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
+                params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
+                
+                return [tensor, params]
+            })            
+        })
+
+        // console.log('maximaDualMap', this.maximaDualMap.params, this.maximaDualMap.tensor.dataSync())
+    }
+
+    async computeExtremaDualMap(subDivision = 4)
+    {
+        if (!(this.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeExtremaDualMap: intensityMap is not computed`)
+        }
+
+        timeit('computeExtremaDualMap', () =>
+        {
+            [this.extremaDualMap.tensor, this.extremaDualMap.params] = tf.tidy(() =>
+            {
+                const tensor = TensorUtils.extremaDualMap(this.intensityMap.tensor, subDivision)
+                const params = {}
+                params.subDivision = subDivision
+                params.dimensions = new THREE.Vector3().fromArray(tensor.shape.slice(0, 3).toReversed())
+                params.spacing = new THREE.Vector3().copy(this.volume.params.spacing).multiplyScalar(subDivision)
+                params.size = new THREE.Vector3().copy(params.dimensions).multiply(params.spacing)
+                params.numBlocks = params.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+                params.shape = tensor.shape
+                params.invDimensions = new THREE.Vector3().fromArray(params.dimensions.toArray().map(x => 1/x))
+                params.invSpacing = new THREE.Vector3().fromArray(params.spacing.toArray().map(x => 1/x))
+                params.invSize = new THREE.Vector3().fromArray(params.size.toArray().map(x => 1/x))
+                
+                return [tensor, params]
+            })            
+        })
+
+        // console.log('extremaDualMap', this.extremaDualMap.params, this.extremaDualMap.tensor.dataSync())
+    }
+
+
+    // Precompute Intensity
 
     async normalizeIntensityMap()
     {
@@ -581,6 +685,8 @@ export default class VolumeProcessor
             // console.log('smoothedIntensityMap', this.intensityMap.params, this.intensityMap.tensor.dataSync())
         })
     }
+
+    // Quantization
 
     async quantizeIntensityMap()
     {
