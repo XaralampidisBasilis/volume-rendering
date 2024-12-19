@@ -19,7 +19,7 @@ export default class World extends EventEmitter
         this.resources.on('ready', () =>
         {
             // Wait for viewer
-            this.viewer = new MIPViewer()
+            this.viewer = new ISOViewer()
             this.viewer.on('ready', () => 
             {
                 this.camera.instance.position.copy(this.viewer.parameters.volume.size)

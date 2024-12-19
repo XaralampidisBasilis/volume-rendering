@@ -58,10 +58,10 @@ vec2 quadratic_solver(in vec3 coeffs, in float value)
     
 }
 
-vec2 quadratic_solver(in vec3 coeffs, in float value, in float flag)
+vec2 quadratic_solver(in vec3 coeffs, in float value, in float default_root)
 {
     // set default roots
-    vec2 default_roots = vec2(flag);
+    vec2 default_roots = vec2(default_root);
 
     // normalize equation coeffs.z * t^2 + coeffs.y * t + (coeffs.x - value) = 0
     coeffs.x -= value;

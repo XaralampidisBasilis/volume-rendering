@@ -24,4 +24,4 @@ cell.coeffs = sample_matrix * cell.values;
 // check intersection
 trace.intersected = is_cubic_solvable(cell.coeffs, u_rendering.threshold_value, 0.0, 1.0, cell.values.x, cell.values.w);
 
-
+debug.variable2 = vec4(vec3(abs(coeffs.w) < 0.1), 1.0);

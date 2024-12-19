@@ -3,6 +3,8 @@
         "aabb",
         "aabbdim",
         "alligned",
+        "argmax",
+        "argmin",
         "backstep",
         "bblock",
         "bbox",
