@@ -1065,7 +1065,7 @@ export function isosurfaceOccupancyDualMap(tensor4d, threshold = 0, subDivision 
         isosurfaceMapTemp.dispose()
 
         return isosurfaceMap
-    });
+    })
 }
 
 export function isosurfaceDistanceDualMap(tensor, threshold, subDivisions = 2, maxIters = 255) 
@@ -1210,40 +1210,6 @@ export function maximaMap(tensor, subDivision)
     })
 }
 
-export function minimaDualMap(tensor, subDivision)
-{
-    return tf.tidy(() =>
-    {
-        const tensorPadded = tf.mirrorPad(tensor, [[1, 0], [1, 0], [1, 0], [0, 0]], 'symmetric')
-        const minima = tf.minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
-        tensorPadded.dispose()
-      
-        if(subDivision == 1) return minima
-        const subDivisions = [subDivision, subDivision, subDivision]
-        const minimaMap = tf.maxPool3d(minima, subDivisions, subDivisions, 'same')
-        minima.dispose()
-    
-        return minimaMap
-    })
-}
-
-export function maximaDualMap(tensor, subDivision)
-{
-    return tf.tidy(() =>
-    {
-        const tensorPadded = tf.mirrorPad(tensor, [[1, 0], [1, 0], [1, 0], [0, 0]], 'symmetric')
-        const maxima = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'same')
-        tensorPadded.dispose()
-      
-        if(subDivision == 1) return maxima
-        const subDivisions = [subDivision, subDivision, subDivision]
-        const maximaMap = tf.maxPool3d(maxima, subDivisions, subDivisions, 'same')
-        maxima.dispose()
-    
-        return maximaMap
-    })
-}
-
 /**
  * Computes the extrema map for a given tensor based on the method described
  * in the paper "Efficient ray casting of volumetric images using distance maps for empty space skipping".
@@ -1256,10 +1222,10 @@ export function extremaMap(tensor, subDivision)
 {
     return tf.tidy(() =>
     {
-        const minimaMap = minimaMap(tensor, subDivision)
-        const maximaMap = maximaMap(tensor, subDivision)
-        const extremaMap = tf.concat([minimaMap, maximaMap], 3)            
-        return extremaMap
+        const minimaMinimap = minimaMap(tensor, subDivision)
+        const maximaMinimap = maximaMap(tensor, subDivision)
+        const extremaMinimap = tf.concat([minimaMinimap, maximaMinimap], 3)            
+        return extremaMinimap
     })
 }
 
@@ -1299,5 +1265,84 @@ export function extremaDistanceMap(tensor, division, maxDistance)
         maximaMap.dispose()
     
         return distanceMap
+    })
+}
+
+// Extrema Dual Maps
+
+export function minimaDualMap(tensor4d, subDivision)
+{
+    return tf.tidy(() =>
+    {
+        // Symmetric padding to compute dual map
+        const tensorPadded = tf.mirrorPad(tensor4d, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
+
+        // Min pooling for a dual cell
+        const minimaDualMap = minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
+        tensorPadded.dispose()
+      
+        // return for no subdivision
+        if(subDivision == 1) return minimaDualMap
+
+        // Calculate necessary padding for valid subdivisions
+        const padAmounts = minimaDualMap.shape.map((dim, i) => {
+            const paddedDim = (i < 3) ? Math.ceil(dim / subDivision) * subDivision : dim // Only pad spatial dimensions
+            return [0, paddedDim - dim]
+        })
+    
+        // Apply padding
+        const minimaDualMapPadded = tf.pad(minimaDualMap, padAmounts)
+        minimaDualMap.dispose()
+
+        // Apply max pooling with valid padding and subdivision
+        const subDivisions = [subDivision, subDivision, subDivision]
+        const minimaDualMinimap = tf.maxPool3d(minimaDualMapPadded, subDivisions, subDivisions, 'valid')
+        minimaDualMapPadded.dispose()
+
+        return minimaDualMinimap
+    })
+}
+
+export function maximaDualMap(tensor4d, subDivision)
+{
+    return tf.tidy(() =>
+    {
+        // Symmetric padding to compute dual map
+        const tensorPadded = tf.mirrorPad(tensor4d, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
+
+        // Min pooling for a dual cell
+        const maximaDualMap = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
+        tensorPadded.dispose()
+      
+        // return for no subdivision
+        if(subDivision == 1) return maximaDualMap
+
+        // Calculate necessary padding for valid subdivisions
+        const padAmounts = maximaDualMap.shape.map((dim, i) => {
+            const paddedDim = (i < 3) ? Math.ceil(dim / subDivision) * subDivision : dim // Only pad spatial dimensions
+            return [0, paddedDim - dim]
+        })
+    
+        // Apply padding
+        const maximaDualMapPadded = tf.pad(maximaDualMap, padAmounts)
+        maximaDualMap.dispose()
+
+        // Apply max pooling with valid padding and subdivision
+        const subDivisions = [subDivision, subDivision, subDivision]
+        const maximaDualMinimap = tf.maxPool3d(maximaDualMapPadded, subDivisions, subDivisions, 'valid')
+        maximaDualMapPadded.dispose()
+
+        return maximaDualMinimap
+    })
+}
+
+export function extremaDualMap(tensor4d, subDivision)
+{
+    return tf.tidy(() =>
+    {
+        const minimaDualMinimap = minimaDualMap(tensor4d, subDivision)
+        const maximaDualMinimap = maximaDualMap(tensor4d, subDivision)
+        const extremaDualMinimap = tf.concat([minimaDualMinimap, maximaDualMinimap], 3)            
+        return extremaDualMinimap
     })
 }

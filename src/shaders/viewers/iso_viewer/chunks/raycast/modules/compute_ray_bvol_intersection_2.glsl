@@ -1,17 +1,17 @@
 
 // Compute ray entry with bounding volume
-#include "./compute_ray_bvol_intersection_2/set_block_ray_start
+#include "./compute_ray_bvol_intersection_2/set_ray_start_block"
 
 for (int count = 0; count < u_rendering.max_skip_count; count++, block.skip_count++) 
 {
-    #include "./compute_ray_bvol_intersection_2/update_block
+    #include "./compute_ray_bvol_intersection_2/update_ray_block"
     
     if (block.occupied) 
     {
         break;
     }   
 
-    #include "./compute_ray_bvol_intersection_2/update_ray_start
+    #include "./compute_ray_bvol_intersection_2/update_ray_start"
     
     if (ray.start_distance > ray.end_distance) 
     {
@@ -26,18 +26,18 @@ if (block.occupied)
 
 
 // Compute ray exit with bounding volume
-#include "./compute_ray_bvol_intersection_2/set_block_ray_end
+#include "./compute_ray_bvol_intersection_2/set_ray_end_block"
 
 for (int count = 0; count < u_rendering.max_skip_count; count++, block.skip_count++) 
 {
-    #include "./compute_ray_bvol_intersection_2/update_block
+    #include "./compute_ray_bvol_intersection_2/update_ray_block"
 
     if (block.occupied) 
     {
         break;
     }   
 
-    #include "./compute_ray_bvol_intersection_2/update_ray_end
+    #include "./compute_ray_bvol_intersection_2/update_ray_end"
     
     if (ray.start_distance > ray.end_distance) 
     {

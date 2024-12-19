@@ -1,8 +1,7 @@
 
 #if SKIPPING_ENABLED == 1
-// #include "./modules/compute_march_skip
-#include "./compute_march_analytic_skip/compute_march_analytic_skip"
+#include "./march_analytic_skipping/compute_march_analytic_skipping"
 #else
-#include "./compute_march_analytic/compute_march_analytic"
+#include "./march_analytic/compute_march_analytic"
 #endif
 
