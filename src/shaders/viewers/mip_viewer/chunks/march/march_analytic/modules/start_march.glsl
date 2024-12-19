@@ -1,5 +1,4 @@
 
-
 // start sampling constants
 const vec4 sample_distances = vec4(0.0, 1.0/3.0, 2.0/3.0, 1.0);
 const mat4 sample_matrix = mat4(
@@ -19,7 +18,6 @@ cell.values.w = texture(u_textures.taylor_map, camera.texture_position + ray.tex
 // start trace
 trace.distance = ray.start_distance;
 trace.position = ray.start_position;
-proj_trace = trace;
 
 // start voxel
-proj_voxel.value = ray.min_value;
+voxel.value = ray.min_value;

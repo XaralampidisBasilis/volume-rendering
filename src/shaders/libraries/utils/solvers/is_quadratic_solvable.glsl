@@ -12,7 +12,6 @@
 #endif
 
 // compute quadratic derivative factors
-const vec2 quadratic_derivative_factors = vec2(1.0, 2.0);
 
 bool is_quadratic_solvable(in vec3 coeffs, in float value, in float start, in float end)
 {
@@ -27,7 +26,7 @@ bool is_quadratic_solvable(in vec3 coeffs, in float value, in float start, in fl
     );
 
     // compute the derivative of quadratic and solve for the extrema values
-    vec2 linear_coeffs = coeffs.yz * quadratic_derivative_factors;
+    vec2 linear_coeffs = coeffs.yz * vec2(1.0, 2.0);
     float linear_root = linear_solver(linear_coeffs, 0.0, start);
 
     // compute the extrema value

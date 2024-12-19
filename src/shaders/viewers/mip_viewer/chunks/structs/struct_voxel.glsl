@@ -3,6 +3,7 @@
 
 struct Voxel 
 {
+    bool  saturated;
     ivec3 coords;
     vec3  position;
     vec3  min_position;
@@ -15,6 +16,7 @@ struct Voxel
 Voxel set_voxel()
 {
     Voxel voxel;
+    voxel.saturated      = false;
     voxel.coords         = ivec3(0);
     voxel.position       = vec3(0.0);
     voxel.min_position   = vec3(0.0);
@@ -23,11 +25,6 @@ Voxel set_voxel()
     voxel.gradient       = vec3(0.0);
     voxel.value          = 0.0;
     return voxel;
-}
-void discard_voxel(inout Voxel voxel)
-{
-    voxel.gradient       = vec3(0.0);
-    voxel.value          = 0.0;
 }
 
 #endif // STRUCT_VOXEL

@@ -31,7 +31,7 @@ export default function()
 
         u_extremap : new THREE.Uniform
         ({
-            sub_division  : 3,
+            sub_division  : 8,
             dimensions    : new THREE.Vector3(),
             spacing       : new THREE.Vector3(),
             size          : new THREE.Vector3(),
@@ -75,7 +75,7 @@ export default function()
 
     const defines = 
     {           
-        INTERSECT_BVOL_ENABLED     : 0,
+        INTERSECT_BVOL_ENABLED     : 1,
         REFINE_INTERSECTION_ENABLED: 0,
         SKIPPING_ENABLED           : 0,
         DITHERING_ENABLED          : 0,

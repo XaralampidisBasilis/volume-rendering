@@ -7,7 +7,7 @@
 #include "./debug_box/debug_box_max_exit_distance"    
 #include "./debug_box/debug_box_max_span_distance"    
 
-switch (u_debugging.option - debug.box_slot)
+switch (u_debugging.option - debug.slot_box)
 {
     case 1: fragColor = debug.box_entry_distance;     break;
     case 2: fragColor = debug.box_exit_distance;      break;

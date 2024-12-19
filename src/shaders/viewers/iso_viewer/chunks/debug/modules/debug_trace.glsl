@@ -14,7 +14,7 @@
 #include "./debug_trace/debug_trace_skipped_distance"   
 #include "./debug_trace/debug_trace_spanned_distance" 
 
-switch (u_debugging.option - debug.trace_slot)
+switch (u_debugging.option - debug.slot_trace)
 { 
     case  1: fragColor = debug.trace_intersected;         break;
     case  2: fragColor = debug.trace_terminated;          break;

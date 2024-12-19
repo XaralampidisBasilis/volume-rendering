@@ -6,7 +6,7 @@
 #include "./debug_block/debug_block_max_position"
 #include "./debug_block/debug_block_skip_count"        
            
-switch (u_debugging.option - debug.block_slot)
+switch (u_debugging.option - debug.slot_block)
 {
     case 1: fragColor = debug.block_value;        break;
     case 2: fragColor = debug.block_occupied;     break;

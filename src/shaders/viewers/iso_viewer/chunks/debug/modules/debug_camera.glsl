@@ -3,7 +3,7 @@
 #include "./debug_camera/debug_camera_far_distance"      
 #include "./debug_camera/debug_camera_near_distance"  
 
-switch (u_debugging.option - debug.camera_slot)
+switch (u_debugging.option - debug.slot_camera)
 {
     case 1: fragColor = debug.camera_position;      break;
     case 2: fragColor = debug.camera_direction;     break;

@@ -1,5 +1,5 @@
-#ifndef CUBIC_EXTREMA
-#define CUBIC_EXTREMA
+#ifndef CUBIC_MAXIMA
+#define CUBIC_MAXIMA
 
 #ifndef QUADRATIC_SOLVER
 #include "./quadratic_solver"
@@ -10,14 +10,11 @@
 #ifndef CUBIC_POWS
 #include "./cubic_pows"
 #endif
-#ifndef MMIN
-#include "../mmin"
-#endif
 #ifndef MMAX
 #include "../mmax"
 #endif
 
-void cubic_extrema(out vec2 extrema_values, in vec4 coeffs, in vec2 boundary_points)
+void cubic_maxima(out float maxima_value, in vec4 coeffs, in vec2 boundary_points)
 {
     // critical points and values
     vec4 critical_points;
@@ -42,11 +39,11 @@ void cubic_extrema(out vec2 extrema_values, in vec4 coeffs, in vec2 boundary_poi
     vec2 is_inside = inside_open(boundary_points.x, boundary_points.y, critical_points.yz);
     critical_values.yz = mix(critical_values.xw, critical_values.yz, is_inside);
 
-    // compute extrema values
-    extrema_values = vec2(mmin(critical_values), mmax(critical_values));
+    // compute maxima values
+    maxima_value = mmax(critical_values);
 }
 
-void cubic_extrema(out vec2 extrema_values, out vec2 extrema_points, in vec4 coeffs, in vec2 boundary_points)
+void cubic_maxima(out float maxima_value, out float maxima_point, in vec4 coeffs, in vec2 boundary_points)
 {
     // critical points and values
     vec4 critical_points;
@@ -71,19 +68,17 @@ void cubic_extrema(out vec2 extrema_values, out vec2 extrema_points, in vec4 coe
     vec2 is_inside = inside_open(boundary_points.x, boundary_points.y, critical_points.yz);
     critical_values.yz = mix(critical_values.xw, critical_values.yz, is_inside);
 
-    // compute extrema values
-    extrema_values = vec2(mmin(critical_values), mmax(critical_values));
+    // compute maxima value
+    maxima_value = mmax(critical_values);
 
-    // compute extrema masks
-    vec4 is_minima = vec4(equal(critical_values, vec4(extrema_values.x)));
-    vec4 is_maxima = vec4(equal(critical_values, vec4(extrema_values.y)));
+    // compute maxima masks
+    vec4 is_maxima = vec4(equal(critical_values, vec4(maxima_value)));
 
-    // compute extrema points
-    extrema_points.x = dot(is_minima, critical_points);
-    extrema_points.y = dot(is_maxima, critical_points);
+    // compute maxima point
+    maxima_point = dot(is_maxima, critical_points);
 }
 
-void cubic_extrema(out vec2 extrema_values, in vec4 coeffs, in vec2 boundary_points, in vec2 boundary_values)
+void cubic_maxima(out float maxima_value, in vec4 coeffs, in vec2 boundary_points, in vec2 boundary_values)
 {
     // critical points and values
     vec4 critical_points;
@@ -107,11 +102,11 @@ void cubic_extrema(out vec2 extrema_values, in vec4 coeffs, in vec2 boundary_poi
     vec2 is_inside = inside_open(boundary_points.x, boundary_points.y, critical_points.yz);
     critical_values.yz = mix(boundary_values, critical_values.yz, is_inside);
 
-    // compute extrema values
-    extrema_values = vec2(mmin(critical_values), mmax(critical_values));
+    // compute maxima value
+    maxima_value = mmax(critical_values);
 }
 
-void cubic_extrema(out vec2 extrema_values, out vec2 extrema_points, in vec4 coeffs, in vec2 boundary_points, in vec2 boundary_values)
+void cubic_maxima(out float maxima_value, out float maxima_point, in vec4 coeffs, in vec2 boundary_points, in vec2 boundary_values)
 {
     // critical points and values
     vec4 critical_points;
@@ -135,16 +130,14 @@ void cubic_extrema(out vec2 extrema_values, out vec2 extrema_points, in vec4 coe
     vec2 is_inside = inside_open(boundary_points.x, boundary_points.y, critical_points.yz);
     critical_values.yz = mix(boundary_values, critical_values.yz, is_inside);
 
-    // compute extrema values
-    extrema_values = vec2(mmin(critical_values), mmax(critical_values));
+    // compute maxima value
+    maxima_value = mmax(critical_values);
 
-    // compute extrema masks
-    vec4 is_minima = vec4(equal(critical_values, vec4(extrema_values.x)));
-    vec4 is_maxima = vec4(equal(critical_values, vec4(extrema_values.y)));
+    // compute maxima masks
+    vec4 is_maxima = vec4(equal(critical_values, vec4(maxima_value)));
 
-    // compute extrema points
-    extrema_points.x = dot(is_minima, critical_points);
-    extrema_points.y = dot(is_maxima, critical_points);
+    // compute maxima point
+    maxima_point = dot(is_maxima, critical_points);
 }
 
 #endif

@@ -11,7 +11,7 @@
  */
 
 // Map voxel value
-frag.mapped_value = map(u_colormap.thresholds.x, u_colormap.thresholds.y, proj_voxel.value);
+frag.mapped_value = map(u_colormap.thresholds.x, u_colormap.thresholds.y, voxel.value);
 
 // Posterize to discrete levels
 frag.mapped_value = posterize(frag.mapped_value, float(u_colormap.levels));

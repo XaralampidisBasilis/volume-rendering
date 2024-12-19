@@ -7,7 +7,7 @@
 #include "./debug_frag/debug_frag_mapped_value"        
 #include "./debug_frag/debug_frag_mapped_color"     
 
-switch (u_debugging.option - debug.frag_slot)
+switch (u_debugging.option - debug.slot_frag)
 {
     case 1: fragColor = debug.frag_depth;         break;
     case 2: fragColor = debug.frag_position;      break;

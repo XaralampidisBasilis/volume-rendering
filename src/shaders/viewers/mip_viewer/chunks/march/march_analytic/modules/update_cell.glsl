@@ -21,5 +21,5 @@ cell.values.w = texture(u_textures.taylor_map, camera.texture_position + ray.tex
 // compute coeffs
 cell.coeffs = sample_matrix * cell.values;
 
-// check intersection
-trace.intersected = is_cubic_solvable(cell.coeffs, u_rendering.threshold_value, 0.0, 1.0, cell.values.x, cell.values.w);
+// compute maxima
+cubic_maxima(cell.max_value, cell.coeffs, sample_distances.xw, cell.values.xw);

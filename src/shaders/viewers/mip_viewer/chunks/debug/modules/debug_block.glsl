@@ -4,7 +4,7 @@
 #include "./debug_block/debug_block_coords"             
 #include "./debug_block/debug_block_skip_count"         
            
-switch (u_debugging.option - debug.block_slot)
+switch (u_debugging.option - debug.slot_block)
 {
     case 1: fragColor = debug.block_min_value;  break;
     case 2: fragColor = debug.block_max_value;  break;

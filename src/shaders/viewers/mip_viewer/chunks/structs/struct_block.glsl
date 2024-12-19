@@ -20,7 +20,6 @@ Block set_block()
     Block block;
     block.min_value      = 0.0;
     block.max_value      = 0.0;
-    block.min_value      = 0.0;
     block.occupied       = false;
     block.coords         = ivec3(0);
     block.step_coords    = ivec3(0);

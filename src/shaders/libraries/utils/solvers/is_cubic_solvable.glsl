@@ -9,8 +9,6 @@
 #endif
 
 // compute cubic derivative factors
-const vec3 cubic_derivative_factors = vec3(1.0, 2.0, 3.0);
-
 bool is_cubic_solvable(in vec4 coeffs, in float value, in float start, in float end)
 {
     // normalize cubic equation coeffs.w * t^3 + coeffs.z * t^2 + coeffs.y * t + (coeffs.x - value) = 0
@@ -24,7 +22,7 @@ bool is_cubic_solvable(in vec4 coeffs, in float value, in float start, in float 
     );
 
     // compute the derivative of cubic and solve for the extrema values
-    vec3 quadratic_coeffs = coeffs.yzw * cubic_derivative_factors;
+    vec3 quadratic_coeffs = coeffs.yzw * vec3(1.0, 2.0, 3.0);
     vec2 quadratic_roots = quadratic_solver(quadratic_coeffs, 0.0, start);
 
     // compute the cubic at the extrema values
@@ -68,7 +66,7 @@ bool is_cubic_solvable(in vec4 coeffs, in float value, in float start, in float 
     );
 
     // compute the derivative of cubic and solve for the extrema values
-    vec3 quadratic_coeffs = coeffs.yzw * cubic_derivative_factors;
+    vec3 quadratic_coeffs = coeffs.yzw * vec3(1.0, 2.0, 3.0);
     vec2 quadratic_roots = quadratic_solver(quadratic_coeffs, 0.0, start);
 
     // compute the cubic at the extrema values

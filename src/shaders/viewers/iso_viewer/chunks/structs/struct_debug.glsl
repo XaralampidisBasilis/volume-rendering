@@ -3,7 +3,7 @@
 
 struct Debug 
 {
-    int  ray_slot;
+    int  slot_ray;
     vec4 ray_discarded;
     vec4 ray_step_direction;
     vec4 ray_step_distance;
@@ -16,7 +16,7 @@ struct Debug
     vec4 ray_max_step_count;
     vec4 ray_max_skip_count;
 
-    int  trace_slot;
+    int  slot_trace;
     vec4 trace_intersected;          
     vec4 trace_terminated;         
     vec4 trace_exhausted;          
@@ -33,7 +33,7 @@ struct Debug
     vec4 trace_skipped_distance;   
     vec4 trace_spanned_distance;   
 
-    int  voxel_slot;
+    int  slot_voxel;
     vec4 voxel_coords;           
     vec4 voxel_step_coords;           
     vec4 voxel_position;         
@@ -47,7 +47,7 @@ struct Debug
     vec4 voxel_error;            
     vec4 voxel_abs_error;   
 
-    int  cell_slot;
+    int  slot_cell;
     vec4 cell_coords;
     vec4 cell_step_coords;
     vec4 cell_min_position;
@@ -57,9 +57,8 @@ struct Debug
     vec4 cell_distances;
     vec4 cell_values;    
     vec4 cell_coeffs;    
-    vec4 cell_bounds;         
 
-    int  block_slot;
+    int  slot_block;
     vec4 block_value;        
     vec4 block_occupied;     
     vec4 block_coords;       
@@ -68,7 +67,7 @@ struct Debug
     vec4 block_max_position; 
     vec4 block_skip_count;   
 
-    int  frag_slot;
+    int  slot_frag;
     vec4 frag_depth;
     vec4 frag_position; 
     vec4 frag_normal_vector; 
@@ -87,7 +86,7 @@ struct Debug
     vec4 frag_shaded_color; 
     vec4 frag_shaded_luminance; 
 
-    int  box_slot;
+    int  slot_box;
     vec4 box_entry_distance;
     vec4 box_exit_distance;
     vec4 box_span_distance;
@@ -97,13 +96,13 @@ struct Debug
     vec4 box_max_exit_distance;
     vec4 box_max_span_distance;
 
-    int  camera_slot;
+    int  slot_camera;
     vec4 camera_position;
     vec4 camera_direction; 
     vec4 camera_far_distance; 
     vec4 camera_near_distance; 
 
-    int  variables_slot;
+    int  slot_variables;
     vec4 variable1;
     vec4 variable2;
     vec4 variable3;
@@ -163,7 +162,6 @@ Debug set_debug()
     debug.cell_distances           = vec4(vec3(0.0), 1.0);      
     debug.cell_values              = vec4(vec3(0.0), 1.0);       
     debug.cell_coeffs              = vec4(vec3(0.0), 1.0);       
-    debug.cell_bounds              = vec4(vec3(0.0), 1.0);          
 
     debug.block_value              = vec4(vec3(0.0), 1.0);
     debug.block_occupied           = vec4(vec3(0.0), 1.0);

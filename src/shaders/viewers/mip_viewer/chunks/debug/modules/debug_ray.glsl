@@ -14,7 +14,7 @@
 #include "./debug_ray/debug_ray_max_value"   
 #include "./debug_ray/debug_ray_range_value"   
 
-switch (u_debugging.option - debug.ray_slot)
+switch (u_debugging.option - debug.slot_ray)
 {
     case  1: fragColor = debug.ray_discarded;      break;
     case  2: fragColor = debug.ray_step_direction; break;

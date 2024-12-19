@@ -1,13 +1,13 @@
 
-debug.ray_slot       = 100;
-debug.trace_slot     = 200;
-debug.voxel_slot     = 300;
-debug.cell_slot      = 400;
-debug.block_slot     = 500;
-debug.frag_slot      = 600;
-debug.box_slot       = 700;
-debug.camera_slot    = 800;
-debug.variables_slot = 900;
+debug.slot_ray       = 100;
+debug.slot_trace     = 200;
+debug.slot_voxel     = 300;
+debug.slot_cell      = 400;
+debug.slot_block   = 500;
+debug.slot_frag      = 600;
+debug.slot_box       = 700;
+debug.slot_camera    = 800;
+debug.slot_variables = 900;
 
 #include "./modules/debug_ray" 
 #include "./modules/debug_trace"  

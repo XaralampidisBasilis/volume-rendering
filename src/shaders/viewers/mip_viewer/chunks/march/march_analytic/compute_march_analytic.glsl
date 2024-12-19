@@ -1,14 +1,14 @@
 #include "./modules/start_march"
 
-for (int count = 0; count < MAX_TRACE_STEP_COUNT; count++, trace.step_count++) 
+for (int count = 0; count < u_rendering.max_step_count; count++, trace.step_count++) 
 {
-    #include "./modules/update_voxel" 
-    #include "./modules/update_trace" 
+    #include "./modules/update_cell" 
 
-    if (trace.saturated || trace.terminated || trace.exhausted) 
+    #include "./modules/update_march" 
+
+    if (trace.terminated || trace.exhausted || voxel.saturated) 
     {
         break;
     }
 }   
 
-#include "./modules/end_march"

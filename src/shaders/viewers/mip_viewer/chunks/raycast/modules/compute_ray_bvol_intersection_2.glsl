@@ -34,6 +34,10 @@ for (int count = 0; count < MAX_BLOCK_SKIP_COUNT; count++, block.skip_count++)
     }
 }
 
+if (block.occupied) 
+{ 
+    #include "./compute_ray_bvol_intersection_2/refine_ray_start"
+}
 
 // Compute ray end
 #include "./compute_ray_bvol_intersection_2/set_ray_end_block"
@@ -55,6 +59,10 @@ for (int count = 0; count < MAX_BLOCK_SKIP_COUNT; count++, block.skip_count++)
     }
 }
 
+if (block.occupied) 
+{ 
+    #include "./compute_ray_bvol_intersection_2/refine_ray_end"
+}
 
 // Finish
 ray.range_value = ray.max_value - ray.min_value;

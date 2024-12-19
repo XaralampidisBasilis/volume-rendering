@@ -7,5 +7,4 @@ Voxel  voxel      = set_voxel();
 Cell   cell       = set_cell();
 Block  block      = set_block();
 Debug  debug      = set_debug();
-Trace  proj_trace = set_trace();
-Voxel  proj_voxel = set_voxel();
+Trace  prev_trace = set_trace();
