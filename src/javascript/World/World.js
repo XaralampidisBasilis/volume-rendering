@@ -1,6 +1,7 @@
 import Experience from '../Experience'
 import ISOViewer from '../Viewers/ISOViewer/ISOViewer'
 import MIPViewer from '../Viewers/MIPViewer/MIPViewer'
+import DEBUGViewer from '../Viewers/DEBUGViewer/DEBUGViewer'
 import EventEmitter from '../Utils/EventEmitter'
 
 export default class World extends EventEmitter

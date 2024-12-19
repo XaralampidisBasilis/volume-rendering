@@ -6,7 +6,6 @@
 #define MICRO_TOLERANCE 1e-6
 #endif
 
-
 vec2 quadratic_solver(in vec3 coeffs, in float value)
 {
     // set default roots

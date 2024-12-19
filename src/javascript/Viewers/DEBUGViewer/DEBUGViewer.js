@@ -3,10 +3,10 @@ import * as tf from '@tensorflow/tfjs'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
 import VolumeProcessor from '../../Utils/VolumeProcessor'
-import ISOMaterial from './ISOMaterial'
-import ISOGui from './ISOGui'
+import DEBUGMaterial from './DEBUGMaterial'
+import DEBUGGui from './DEBUGGui'
 
-export default class ISOViewer extends EventEmitter
+export default class DEBUGViewer extends EventEmitter
 {
     constructor()
     {
@@ -19,19 +19,19 @@ export default class ISOViewer extends EventEmitter
         this.camera = this.experience.camera
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
-        this.material = ISOMaterial()
-        this.gui = new ISOGui(this)
+        this.material = DEBUGMaterial()
+        this.gui = new DEBUGGui(this)
 
         this.processor = new VolumeProcessor(this.resources.items.volumeNifti)
         this.precompute().then(() => 
         {
-            this.setParameters()
-            this.setTextures()
-            this.setGeometry()
-            this.setMaterial()
-            this.setMesh()
-            this.logMemory('precompute')
-            this.trigger('ready')
+            // this.setParameters()
+            // this.setTextures()
+            // this.setGeometry()
+            // this.setMaterial()
+            // this.setMesh()
+            // this.logMemory('precompute')
+            // this.trigger('ready')
         })
     }
     
@@ -43,10 +43,10 @@ export default class ISOViewer extends EventEmitter
         await tf.ready()
         await this.processor.computeIntensityMap()
         await this.processor.normalizeIntensityMap()
-        await this.processor.computeGradientMap()
-        await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
-        await this.processor.quantizeTaylorMap()
-        await this.processor.computeIsosurfaceBoundingBoxDualMap(uRendering.threshold_value)
+        // await this.processor.computeGradientMap()
+        // await this.processor.computeTaylorMap().then(() => this.processor.gradientMap.tensor.dispose())
+        // await this.processor.quantizeTaylorMap()
+        // await this.processor.computeIsosurfaceBoundingBoxDualMap(uRendering.threshold_value)
         await this.processor.computeIsosurfaceDistanceDualMap(uRendering.threshold_value, uDistmap.sub_division, uDistmap.max_iterations)
     }
 
@@ -216,7 +216,7 @@ export default class ISOViewer extends EventEmitter
         this.mesh = null
         this.gui = null
 
-        console.log("ISOViewer destroyed")
+        console.log("DEBUGViewer destroyed")
     }
 
     logMemory(fun)

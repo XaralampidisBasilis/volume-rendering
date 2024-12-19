@@ -1,20 +1,19 @@
-
 #include "./modules/start_march"
 
-for (int count = 0; count < MAX_TRACE_STEP_COUNT; count++, trace.step_count++) 
+for (trace.step_count = 0; trace.step_count < MAX_TRACE_STEP_COUNT; trace.step_count++) 
 {
     #include "./modules/update_block
-
+    
     if (block.occupied) 
     {
-        #include "./modules/update_cell"
+        #include "./modules/update_voxel" 
 
         if (trace.intersected)
         {
             break;
         }
 
-        #include "./modules/update_march"
+        #include "./modules/update_trace" 
     }  
     else
     {
@@ -29,8 +28,7 @@ for (int count = 0; count < MAX_TRACE_STEP_COUNT; count++, trace.step_count++)
 
 if (block.occupied)
 {
-    #include "./modules/refine_march"
+    #include "./modules/refine_trace"
 }
 
 #include "./modules/end_march"
-

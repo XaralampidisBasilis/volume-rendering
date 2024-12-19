@@ -35,7 +35,7 @@ export default function()
         ({
             max_distance    : 0,
             max_iterations  : 100,
-            sub_division    : 3,
+            sub_division    : 1,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
             size            : new THREE.Vector3(),
