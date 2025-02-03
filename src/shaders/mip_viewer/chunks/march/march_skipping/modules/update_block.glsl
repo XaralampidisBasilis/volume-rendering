@@ -4,7 +4,7 @@ block.coords += block.coords_step;
 
 // Sample the distance map and compute if block is occupied
 block.max_intensity = texelFetch(u_textures.maxima_map, block.coords, 0).r;
-block.occupied = trace.intensity <= block.max_intensity;
+block.occupied = mip.intensity <= block.max_intensity;
 
 // Compute block min max position in model space  
 block.min_position = vec3(block.coords + 0) * u_maxima_map.spacing - u_intensity_map.spacing * 0.5;

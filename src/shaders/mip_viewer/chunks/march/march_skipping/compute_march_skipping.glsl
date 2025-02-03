@@ -34,23 +34,23 @@ for (int batch = 0; batch < MAX_BATCH_COUNT; batch++)
         // update current cell, take samples, and compute if there is intersection
         #include "./modules/update_cell"
 
-        if (cell.intersected || cell.terminated) 
+        // Update the trace and check termination conditions
+        #include "./modules/update_trace"
+
+        if (cell.terminated) 
         {
             break;
         }
     }   
 
-    // Update the trace and check termination conditions
-    #include "./modules/update_trace"
+    // termination condition
+    trace.terminated = trace.distance > ray.end_distance;
 
-    if (trace.intersected || trace.terminated) 
+    if (trace.terminated) 
     {
         break;
     }
 }   
-
-trace.exhausted = (trace.intersected || trace.terminated) ? false : true;
-// If batch marching is exhausted continue linearly?
 
 // terminate march, compute intersection and gradient
 #include "./modules/end_march"

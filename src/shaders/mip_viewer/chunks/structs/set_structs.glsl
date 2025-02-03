@@ -2,6 +2,7 @@ Camera camera = set_camera();
 Box    box    = set_box();
 Ray    ray    = set_ray();
 Trace  trace  = set_trace();
+Trace  mip    = set_trace();
 Cell   cell   = set_cell();
 Block  block  = set_block();
 Frag   frag   = set_frag();

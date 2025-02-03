@@ -28,19 +28,15 @@ cell.sample_intensities.w = texture(u_textures.intensity_map, camera.uvw + ray.u
 // from the sampled intensities we can compute the trilinear interpolation cubic polynomial coefficients
 cell.intensity_coeffs = inv_vander_mat4 * cell.sample_intensities;
 
-// given the polynomial we can compute if we intersect the isosurface inside the cell
+// given the polynomial compute the max intensity along the ray inside the cell
 cell.terminated = cell.exit_distance > block.exit_distance;
-cell.intersected = is_cubic_solvable
+cubic_maxima
 (
+    trace.intensity, 
     cell.intensity_coeffs, 
-    u_rendering.intensity, 
-    0.0, 
-    1.0, 
-    cell.sample_intensities.x, 
-    cell.sample_intensities.w
+    sample_distances.xw, 
+    cell.sample_intensities.xw
 );
-
-cubic_maxima(cell.max_value, cell.intensity_coeffs, sample_distances.xw, cell.sample_intensities.xw);
 
 // Update stats
 #if STATS_ENABLED == 1
