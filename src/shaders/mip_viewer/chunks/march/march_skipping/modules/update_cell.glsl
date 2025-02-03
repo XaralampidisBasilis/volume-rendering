@@ -40,6 +40,8 @@ cell.intersected = is_cubic_solvable
     cell.sample_intensities.w
 );
 
+cubic_maxima(cell.max_value, cell.intensity_coeffs, sample_distances.xw, cell.sample_intensities.xw);
+
 // Update stats
 #if STATS_ENABLED == 1
 stats.num_fetches += 3;

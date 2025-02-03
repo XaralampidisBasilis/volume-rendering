@@ -5,6 +5,8 @@
 for (int batch = 0; batch < MAX_BATCH_COUNT; batch++) 
 {
     // Skip empty space using the precomputed chebyshev distance map 
+    #include "./modules/start_block"
+
     for (int count = 0; count < MAX_BLOCK_SUB_COUNT; count++) 
     {
         // update block based on current trace

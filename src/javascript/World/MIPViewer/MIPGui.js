@@ -63,7 +63,6 @@ export default class MIPGui
         this.addControllersRendering() 
         this.addControllersColormap() 
         this.addControllersShading() 
-        this.addControllersLighting() 
         this.addControllersDebugging() 
         
         // this.setBindings()  
@@ -106,6 +105,16 @@ export default class MIPGui
             flip        : folder.add(objects, 'flip').onChange(() => this.flipColormap())
         }
 
+    }
+
+    addControllersShading() 
+    {
+        const folder = this.subfolders.shading
+        const uniforms = this.viewer.material.uniforms.u_shading.value
+
+        this.controllers.shading = 
+        {
+        }
     }
     
     addControllersDebugging()

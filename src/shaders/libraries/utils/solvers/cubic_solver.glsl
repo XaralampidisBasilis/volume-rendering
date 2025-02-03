@@ -228,6 +228,115 @@ vec3 cubic_solver(in vec4 coeffs, in float value, in float flag)
     }
 }
 
+// STRICTLY CUBIC SOLVERS
+vec3 _cubic_solver(in vec4 coeffs, in float value)
+{
+    // set default root
+    vec3 default_roots = vec3(- 1.0);
+
+    // normalize equation coeffs.w * t^3 + coeffs.z * t^2 + coeffs.y * t + (coeffs.x - value) = 0
+    coeffs.x -= value;
+
+    // normalize coefficients
+    vec3 cubic_coeffs = coeffs.xyz / coeffs.w;
+    cubic_coeffs.yz /= 3.0;
+
+    // compute hessian coefficients eq(0.4)
+    vec3 hessian_coeffs = vec3
+    (
+        cubic_coeffs.y - cubic_coeffs.z * cubic_coeffs.z,                          // δ1 = coeffs.w * coeffs.y - coeffs.z^2
+        cubic_coeffs.x - cubic_coeffs.y * cubic_coeffs.z,                          // δ2 = coeffs.w * coeffs.x - coeffs.y * coeffs.z
+        dot(vec2(cubic_coeffs.z, -cubic_coeffs.y), cubic_coeffs.xy)    // δ3 = coeffs.z * coeffs.x - coeffs.y * coeffs.x
+    );
+
+    // compute cubic discriminant eq(0.7)
+    float cubic_discriminant = dot(vec2(4.0 * hessian_coeffs.x, -hessian_coeffs.y), hessian_coeffs.zy); // Δ = δ1 * δ3 - δ2^2
+    float sqrt_cubic_discriminant = sqrt(abs(cubic_discriminant));
+
+    // compute depressed cubic eq(0.16), coefficients depressed[0] + depressed[1] * x + x^3
+    vec2 depressed_cubic_coeffs = vec2(hessian_coeffs.y - 2.0 * cubic_coeffs.z * hessian_coeffs.x, hessian_coeffs.x);
+    
+    // compute cubic roots using complex number formula eq(0.14)  
+    float theta = atan(sqrt_cubic_discriminant, -depressed_cubic_coeffs.x) / 3.0;
+    vec2 cubic_root = vec2(cos(theta), sin(theta));
+
+    // compute real root using cubic root formula for one real and two complex roots eq(0.15)
+    vec3 cubic_roots12 = vec3
+    (
+          cbrt((-depressed_cubic_coeffs.x + sqrt_cubic_discriminant) * 0.5) 
+        + cbrt((-depressed_cubic_coeffs.x - sqrt_cubic_discriminant) * 0.5)
+        - cubic_coeffs.z
+    );
+   
+    // compute three roots via rotation, applying complex root formula eq(0.14)
+    vec3 cubic_roots3 = vec3
+    (
+        cubic_root.x,                                 // First root
+        dot(vec2(-0.5, -0.5 * SQRT_3), cubic_root),   // Second root (rotated by 120 degrees)
+        dot(vec2(-0.5,  0.5 * SQRT_3), cubic_root)    // Third root (rotated by -120 degrees)
+    );
+
+    // revert transformation and sort the three real roots eq(0.2) and eq(0.16)
+    cubic_roots3 = - cubic_coeffs.z + 2.0 * cubic_roots3 * sqrt(max(0.0, -depressed_cubic_coeffs.y)); 
+
+    // cubic solutions
+    return (cubic_discriminant < 0.0) ? cubic_roots12 : cubic_roots3;
+}
+
+vec3 _cubic_solver(in vec4 coeffs, in float value, in float flag)
+{
+    // set default root
+    vec3 default_roots = vec3(- flag);
+
+    // normalize equation coeffs.w * t^3 + coeffs.z * t^2 + coeffs.y * t + (coeffs.x - value) = 0
+    coeffs.x -= value;
+
+    // normalize coefficients
+    vec3 cubic_coeffs = coeffs.xyz / coeffs.w;
+    cubic_coeffs.yz /= 3.0;
+
+    // compute hessian coefficients eq(0.4)
+    vec3 hessian_coeffs = vec3
+    (
+        cubic_coeffs.y - cubic_coeffs.z * cubic_coeffs.z,                          // δ1 = coeffs.w * coeffs.y - coeffs.z^2
+        cubic_coeffs.x - cubic_coeffs.y * cubic_coeffs.z,                          // δ2 = coeffs.w * coeffs.x - coeffs.y * coeffs.z
+        dot(vec2(cubic_coeffs.z, -cubic_coeffs.y), cubic_coeffs.xy)    // δ3 = coeffs.z * coeffs.x - coeffs.y * coeffs.x
+    );
+
+    // compute cubic discriminant eq(0.7)
+    float cubic_discriminant = dot(vec2(4.0 * hessian_coeffs.x, -hessian_coeffs.y), hessian_coeffs.zy); // Δ = δ1 * δ3 - δ2^2
+    float sqrt_cubic_discriminant = sqrt(abs(cubic_discriminant));
+
+    // compute depressed cubic eq(0.16), coefficients depressed[0] + depressed[1] * x + x^3
+    vec2 depressed_cubic_coeffs = vec2(hessian_coeffs.y - 2.0 * cubic_coeffs.z * hessian_coeffs.x, hessian_coeffs.x);
+    
+    // compute cubic roots using complex number formula eq(0.14)  
+    float theta = atan(sqrt_cubic_discriminant, -depressed_cubic_coeffs.x) / 3.0;
+    vec2 cubic_root = vec2(cos(theta), sin(theta));
+
+    // compute real root using cubic root formula for one real and two complex roots eq(0.15)
+    vec3 cubic_roots12 = vec3
+    (
+          cbrt((-depressed_cubic_coeffs.x + sqrt_cubic_discriminant) * 0.5) 
+        + cbrt((-depressed_cubic_coeffs.x - sqrt_cubic_discriminant) * 0.5)
+        - cubic_coeffs.z
+    );
+   
+    // compute three roots via rotation, applying complex root formula eq(0.14)
+    vec3 cubic_roots3 = vec3
+    (
+        cubic_root.x,                                 // First root
+        dot(vec2(-0.5, -0.5 * SQRT_3), cubic_root),   // Second root (rotated by 120 degrees)
+        dot(vec2(-0.5,  0.5 * SQRT_3), cubic_root)    // Third root (rotated by -120 degrees)
+    );
+
+    // revert transformation and sort the three real roots eq(0.2) and eq(0.16)
+    cubic_roots3 = - cubic_coeffs.z + 2.0 * cubic_roots3 * sqrt(max(0.0, -depressed_cubic_coeffs.y)); 
+
+    // cubic solutions
+    return (cubic_discriminant < 0.0) ? cubic_roots12 : cubic_roots3;
+}
+
 #endif
 
 

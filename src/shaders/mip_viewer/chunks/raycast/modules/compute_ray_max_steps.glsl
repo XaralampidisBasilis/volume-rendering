@@ -6,5 +6,5 @@ ivec3 span_coords = abs(end_coords - start_coords);
 ray.max_cell_count = sum(span_coords) - 2;
 ray.max_cell_count = mmin(ray.max_cell_count, u_rendering.max_cell_count, MAX_CELL_COUNT);
 
-ray.max_block_count = sum(span_coords / u_distance_map.sub_division) - 2;
+ray.max_block_count = sum(span_coords / u_maxima_map.sub_division) - 2;
 ray.max_block_count = mmin(ray.max_block_count, u_rendering.max_block_count, MAX_BLOCK_COUNT);

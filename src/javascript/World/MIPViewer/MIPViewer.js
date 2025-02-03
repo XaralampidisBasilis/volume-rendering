@@ -32,7 +32,7 @@ export default class MIPViewer extends EventEmitter
     {
         const uMaximaMap = this.material.uniforms.u_maxima_map.value
         await this.processor.computeIntensityMap()
-        await this.processor.computeMaximaMap(uMaximaMap.subDivision)
+        await this.processor.computeMaximaMap(uMaximaMap.sub_division)
     }
 
     setViewer()
@@ -138,11 +138,11 @@ export default class MIPViewer extends EventEmitter
         uMaximaMap.inv_size.copy(maximaMap.parameters.invSize)
 
         // Update Defines
-        defines.MAX_CELL_COUNT = boundingBox.parameters.maxCellCount
-        defines.MAX_BLOCK_COUNT = boundingBox.parameters.maxBlockCount
-        defines.MAX_CELL_SUB_COUNT = 3 * maximaMap.parameters.subDivision - 2
-        defines.MAX_BATCH_COUNT = Math.ceil(defines.MAX_CELL_COUNT / defines.MAX_CELL_SUB_COUNT)
-        defines.MAX_BLOCK_SUB_COUNT = Math.ceil(defines.MAX_BLOCK_COUNT / defines.MAX_BATCH_COUNT)
+        // defines.MAX_CELL_COUNT = boundingBox.parameters.maxCellCount
+        // defines.MAX_BLOCK_COUNT = boundingBox.parameters.maxBlockCount
+        // defines.MAX_CELL_SUB_COUNT = 3 * maximaMap.parameters.subDivision - 2
+        // defines.MAX_BATCH_COUNT = Math.ceil(defines.MAX_CELL_COUNT / defines.MAX_CELL_SUB_COUNT)
+        // defines.MAX_BLOCK_SUB_COUNT = Math.ceil(defines.MAX_BLOCK_COUNT / defines.MAX_BATCH_COUNT)
     }
 
     setMesh()

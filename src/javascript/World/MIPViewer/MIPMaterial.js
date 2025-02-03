@@ -58,6 +58,7 @@ export default function()
 
         u_shading: new THREE.Uniform
         ({
+            depth_focus : 0,
         }),
 
         u_debugging: new THREE.Uniform

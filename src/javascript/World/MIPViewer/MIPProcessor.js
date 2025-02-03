@@ -111,7 +111,7 @@ export default class MIPProcessor extends EventEmitter
             this.computes.intensityMap.parameters = {...this.volume.parameters}
         })
 
-        // console.log(this.computes.intensityMap.parameters, /*this.computes.intensityMap.tensor.dataSync()*/)
+        console.log(this.computes.intensityMap.parameters, this.computes.intensityMap.tensor.dataSync())
     }
 
     async computeMaximaMap(subDivision)
@@ -146,7 +146,7 @@ export default class MIPProcessor extends EventEmitter
             this.computes.maximaMap.parameters = parameters
         })
 
-        // console.log(this.computes.maximaMap.parameters, /*this.computes.maximaMap.tensor.dataSync()*/)
+        console.log(this.computes.maximaMap.parameters, this.computes.maximaMap.tensor.dataSync())
     }
     
     // Helpers
