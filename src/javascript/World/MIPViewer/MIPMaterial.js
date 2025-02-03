@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { colormapLocations } from '../../../../static/textures/colormaps/colormaps.js'
-import vertexShader from '../../../shaders/iso_viewer/vertex.glsl'
-import fragmentShader from '../../../shaders/iso_viewer/fragment.glsl'
+import vertexShader from '../../../shaders/mip_viewer/vertex.glsl'
+import fragmentShader from '../../../shaders/mip_viewer/fragment.glsl'
 
 export default function()
 {
@@ -9,10 +9,9 @@ export default function()
     {
         u_textures: new THREE.Uniform
         ({
-            intensity_map : null,
-            occupancy_map : null,
-            distance_map  : null,
-            color_maps    : null,
+            intensity_map  : null,
+            maxima_map     : null,
+            color_maps     : null,
         }),
 
         u_intensity_map : new THREE.Uniform
@@ -25,16 +24,12 @@ export default function()
             inv_dimensions        : new THREE.Vector3(),
             inv_spacing           : new THREE.Vector3(),
             inv_size              : new THREE.Vector3(),
-            min_position          : new THREE.Vector3(),
-            max_position          : new THREE.Vector3(),
             min_intensity         : 0.0,
             max_intensity         : 0.0,
         }),
 
-        u_distance_map : new THREE.Uniform
+        u_maxima_map : new THREE.Uniform
         ({
-            max_distance    : 0,
-            max_iterations  : 50,
             sub_division    : 4,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
@@ -56,7 +51,6 @@ export default function()
         
         u_rendering: new THREE.Uniform
         ({
-            intensity   : 0.53,
             max_count       : 0,
             max_cell_count  : 0,
             max_block_count : 0,
@@ -64,21 +58,6 @@ export default function()
 
         u_shading: new THREE.Uniform
         ({
-            ambient_reflectance  : 0.2,
-            diffuse_reflectance  : 1.0,
-            specular_reflectance : 1.0,
-            shininess            : 40.0,
-            edge_contrast        : 0.0,
-        }),
-        
-        u_lighting: new THREE.Uniform
-        ({
-            intensity          : 1.0,                         // overall light intensity
-            shadows            : 0.0,                         // threshold for shadow casting
-            ambient_color      : new THREE.Color(0xffffff),   // ambient light color
-            diffuse_color      : new THREE.Color(0xffffff),   // diffuse light color
-            specular_color     : new THREE.Color(0xffffff),   // specular light color
-            position_offset    : new THREE.Vector3(),         // offset position for light source
         }),
 
         u_debugging: new THREE.Uniform
@@ -109,7 +88,7 @@ export default function()
     const material = new THREE.ShaderMaterial
     ({    
         side: THREE.BackSide,
-        transparent: false,
+        transparent: true,
         depthTest: true,
         depthWrite: true,
 

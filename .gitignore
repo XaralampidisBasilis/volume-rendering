@@ -1,3 +1,5 @@
 node_modules/
 static/deprecated/
 shaders/libraries/lygia
+static/nifti/cardiac/ct_train_1001_image.nii.gz
+static/nifti/cardiac/ct_train_1001_label.nii.gz

@@ -2,7 +2,7 @@
 import { colormapLocations } from '../../../../static/textures/colormaps/colormaps'
 // import { throttleByCalls, throttleByDelay } from '../../Utils/Throttle'
 
-export default class ISOGui
+export default class MIPGui
 {
     constructor(viewer)
     {
@@ -21,7 +21,7 @@ export default class ISOGui
     addFolders()
     {
         this.folders = {}
-        this.folders.viewer = this.debug.ui.addFolder('ISOViewer').open()
+        this.folders.viewer = this.debug.ui.addFolder('MIPViewer').open()
     }
 
     addSubfolders()
@@ -29,8 +29,6 @@ export default class ISOGui
         this.subfolders          = {}
         this.subfolders.rendering = this.folders.viewer.addFolder('rendering').close()
         this.subfolders.colormap = this.folders.viewer.addFolder('colormap').close()
-        this.subfolders.shading  = this.folders.viewer.addFolder('shading').close()
-        this.subfolders.lighting = this.folders.viewer.addFolder('lighting').close()
         this.subfolders.debugging = this.folders.viewer.addFolder('debugging').close()
 
         this.addToggles()            
@@ -77,17 +75,14 @@ export default class ISOGui
         const material = this.viewer.material
         const defines = this.viewer.material.defines
         const uRendering = this.viewer.material.uniforms.u_rendering.value
-        const uDistanceMap = this.viewer.material.uniforms.u_distance_map.value
         const objects = 
         { 
-            intensity              : uRendering.intensity,
             INTERSECT_BBOX_ENABLED     : Boolean(defines.INTERSECT_BBOX_ENABLED),
             SKIPPING_ENABLED           : Boolean(defines.SKIPPING_ENABLED),
         }
     
         this.controllers.rendering = 
         {
-            isoIntensity       : folder.add(objects, 'intensity').min(0).max(1).step(0.0001).onFinishChange((value) => { uRendering.intensity = value, this.viewer.update() }),
             maxCount           : folder.add(uRendering, 'max_count').min(0).max(1000).step(1),
             maxCellCount       : folder.add(uRendering, 'max_cell_count').min(0).max(1000).step(1),
             maxBlockCount      : folder.add(uRendering, 'max_block_count').min(0).max(200).step(1),
@@ -111,39 +106,6 @@ export default class ISOGui
             flip        : folder.add(objects, 'flip').onChange(() => this.flipColormap())
         }
 
-    }
-    
-    addControllersShading() 
-    {
-        const folder = this.subfolders.shading
-        const uniforms = this.viewer.material.uniforms.u_shading.value
-
-        this.controllers.shading = 
-        {
-            ambientReflectance : folder.add(uniforms, 'ambient_reflectance').min(0).max(1).step(0.001),
-            diffuseReflectance : folder.add(uniforms, 'diffuse_reflectance').min(0).max(1).step(0.001),
-            specularReflectance: folder.add(uniforms, 'specular_reflectance').min(0).max(1).step(0.001),
-            shininess          : folder.add(uniforms, 'shininess').min(0).max(40.0).step(0.2),
-            edgeContrast       : folder.add(uniforms, 'edge_contrast').min(0).max(1).step(0.001),
-        }
-    }
-
-    addControllersLighting() 
-    {
-        const folder = this.subfolders.lighting
-        const uniforms = this.viewer.material.uniforms.u_lighting.value
-
-        this.controllers.lighting = 
-        {
-            intensity        : folder.add(uniforms, 'intensity').min(0).max(2.0).step(0.001),
-            shadows          : folder.add(uniforms, 'shadows').min(0).max(1.0).step(0.001),
-            ambient_color    : folder.addColor(uniforms, 'ambient_color'),
-            diffuse_color    : folder.addColor(uniforms, 'diffuse_color'),
-            specular_color   : folder.addColor(uniforms, 'specular_color'),
-            positionX        : folder.add(uniforms.position_offset, 'x').min(-5).max(5).step(0.01).name('position_x'),
-            positionY        : folder.add(uniforms.position_offset, 'y').min(-5).max(5).step(0.01).name('position_y'),
-            positionZ        : folder.add(uniforms.position_offset, 'z').min(-5).max(5).step(0.01).name('position_z'),
-        }
     }
     
     addControllersDebugging()
