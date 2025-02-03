@@ -1,6 +1,6 @@
 
 // Map voxel value
-frag.mapped_intensity = map(u_color_map.thresholds.x, u_color_map.thresholds.y, trace.intensity);
+frag.mapped_intensity = map(u_color_map.thresholds.x, u_color_map.thresholds.y, mip.intensity);
 
 // Posterize to discrete levels
 frag.mapped_intensity = posterize(frag.mapped_intensity, float(u_color_map.levels));

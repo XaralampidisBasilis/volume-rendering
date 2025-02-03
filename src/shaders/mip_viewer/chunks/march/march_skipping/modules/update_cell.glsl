@@ -34,7 +34,7 @@ cubic_maxima
 (
     trace.intensity, 
     cell.intensity_coeffs, 
-    sample_distances.xw, 
+    weights_vec4.xw, 
     cell.sample_intensities.xw
 );
 

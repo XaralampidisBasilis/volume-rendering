@@ -52,5 +52,4 @@ for (int batch = 0; batch < MAX_BATCH_COUNT; batch++)
     }
 }   
 
-// terminate march, compute intersection and gradient
-#include "./modules/end_march"
+#include "./modules/compute_gradients"

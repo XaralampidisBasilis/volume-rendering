@@ -17,7 +17,7 @@ struct Block
 Block set_block()
 {
     Block block;
-    block.max_intensity  = 0;
+    block.max_intensity  = 0.0;
     block.occupied       = false;
     block.coords         = ivec3(0);
     block.coords_step    = ivec3(0);
