@@ -37,15 +37,13 @@ for (int batch = 0; batch < MAX_BATCH_COUNT; batch++)
         // Update the trace and check termination conditions
         #include "./modules/update_trace"
 
-        if (cell.terminated) 
+        if (cell.terminated || cell.saturated) 
         {
             break;
         }
     }   
 
     // termination condition
-    trace.terminated = trace.distance > ray.end_distance;
-
     if (trace.terminated) 
     {
         break;

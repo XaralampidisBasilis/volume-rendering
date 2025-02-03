@@ -30,11 +30,11 @@ export default function()
 
         u_maxima_map : new THREE.Uniform
         ({
-            sub_division    : 4,
+            sub_division    : 8,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
             size            : new THREE.Vector3(),
-            inv_sub_division: 0.25,
+            inv_sub_division: 1/8,
             inv_dimensions  : new THREE.Vector3(),
             inv_spacing     : new THREE.Vector3(),
             inv_size        : new THREE.Vector3(),
@@ -43,10 +43,10 @@ export default function()
         u_color_map: new THREE.Uniform
         ({
             levels      : 255,
-            name        : 'cet_d9',
+            name        : 'viridis',
             thresholds  : new THREE.Vector2(0, 1),
-            start_coords: new THREE.Vector2(colormapLocations['cet_d9'].x_start, colormapLocations['cet_d9'].y),
-            end_coords  : new THREE.Vector2(colormapLocations['cet_d9'].x_end,   colormapLocations['cet_d9'].y),
+            start_coords: new THREE.Vector2(colormapLocations['viridis'].x_start, colormapLocations['viridis'].y),
+            end_coords  : new THREE.Vector2(colormapLocations['viridis'].x_end,   colormapLocations['viridis'].y),
         }),
         
         u_rendering: new THREE.Uniform

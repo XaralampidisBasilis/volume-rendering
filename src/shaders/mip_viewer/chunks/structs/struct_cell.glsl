@@ -5,6 +5,7 @@
 struct Cell 
 {
     bool  terminated;
+    bool  saturated;
     ivec3 coords;
     ivec3 coords_step;
     vec3  min_position;
@@ -20,6 +21,7 @@ Cell set_cell()
 {
     Cell cell;
     cell.terminated         = false;
+    cell.saturated          = false;
     cell.coords             = ivec3(0);
     cell.coords_step        = ivec3(0);
     cell.min_position       = vec3(0.0);

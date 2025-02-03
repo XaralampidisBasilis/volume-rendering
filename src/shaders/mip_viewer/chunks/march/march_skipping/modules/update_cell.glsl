@@ -29,7 +29,6 @@ cell.sample_intensities.w = texture(u_textures.intensity_map, camera.uvw + ray.u
 cell.intensity_coeffs = inv_vander_mat4 * cell.sample_intensities;
 
 // given the polynomial compute the max intensity along the ray inside the cell
-cell.terminated = cell.exit_distance > block.exit_distance;
 cubic_maxima
 (
     trace.intensity, 
@@ -37,6 +36,10 @@ cubic_maxima
     weights_vec4.xw, 
     cell.sample_intensities.xw
 );
+
+// termination conditions
+cell.terminated = cell.exit_distance > block.exit_distance;
+cell.saturated  = block.max_intensity - trace.intensity < MICRO_TOLERANCE;
 
 // Update stats
 #if STATS_ENABLED == 1

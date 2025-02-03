@@ -32,8 +32,9 @@ export default class MIPProcessor extends EventEmitter
     {
         this.computes = 
         {
-            intensityMap: { parameters: null, tensor: null},
-            maximaMap   : { parameters: null, tensor: null},
+            intensityMap : { parameters: null, tensor: null},
+            maximaMap    : { parameters: null, tensor: null},
+            extremaMap   : { parameters: null, tensor: null},
         }
 
     }
@@ -107,11 +108,15 @@ export default class MIPProcessor extends EventEmitter
 
         timeit('computeIntensityMap', () =>
         {
-            this.computes.intensityMap.tensor = tf.tensor4d(this.volume.data, this.volume.parameters.shape,'float32')                
-            this.computes.intensityMap.parameters = {...this.volume.parameters}
+            const intensityMap = tf.tensor4d(this.volume.data, this.volume.parameters.shape,'float32')        
+            const parameters = {...this.volume.parameters}
+            parameters.maxCellCount = parameters.dimensions.clone().addScalar(1).toArray().reduce((intersections, cells) => intersections + cells, -2)
+
+            this.computes.intensityMap.tensor = intensityMap
+            this.computes.intensityMap.parameters = parameters
         })
 
-        console.log(this.computes.intensityMap.parameters, this.computes.intensityMap.tensor.dataSync())
+        // console.log(this.computes.intensityMap.parameters, this.computes.intensityMap.tensor.dataSync())
     }
 
     async computeMaximaMap(subDivision)
@@ -141,13 +146,51 @@ export default class MIPProcessor extends EventEmitter
             parameters.invDimensions = new THREE.Vector3().fromArray(parameters.dimensions.toArray().map(x => 1/x))
             parameters.invSpacing = new THREE.Vector3().fromArray(parameters.spacing.toArray().map(x => 1/x))
             parameters.invSize = new THREE.Vector3().fromArray(parameters.size.toArray().map(x => 1/x))
+            parameters.maxBlockCount = parameters.dimensions.toArray().reduce((intersections, blocks) => intersections + blocks, -2)
 
             this.computes.maximaMap.tensor = maximaMap
             this.computes.maximaMap.parameters = parameters
         })
 
-        console.log(this.computes.maximaMap.parameters, this.computes.maximaMap.tensor.dataSync())
+        // console.log(this.computes.maximaMap.parameters, this.computes.maximaMap.tensor.dataSync())
     }
+
+    async computeExtremaMap(subDivision)
+    {
+        if (!(this.computes.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`computeExtremaMap: intensityMap is not computed`)
+        }
+
+        if (this.computes.extremaMap.tensor instanceof tf.Tensor) 
+        {
+            tf.dispose(this.computes.extremaMap.tensor)
+        }
+
+        timeit('computeExtremaMap', () =>
+        {
+            const extremaMap = this._computeExtremaMap(this.computes.intensityMap.tensor, subDivision)
+            const parameters = {}
+
+            parameters.shape = extremaMap.shape
+            parameters.subDivision = subDivision
+            parameters.invSubDivision = 1/subDivision
+            parameters.dimensions = new THREE.Vector3().fromArray(extremaMap.shape.slice(0, 3).toReversed())
+            parameters.spacing = new THREE.Vector3().copy(this.volume.parameters.spacing).multiplyScalar(subDivision)
+            parameters.size = new THREE.Vector3().copy(parameters.dimensions).multiply(parameters.spacing)
+            parameters.numBlocks = parameters.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+            parameters.invDimensions = new THREE.Vector3().fromArray(parameters.dimensions.toArray().map(x => 1/x))
+            parameters.invSpacing = new THREE.Vector3().fromArray(parameters.spacing.toArray().map(x => 1/x))
+            parameters.invSize = new THREE.Vector3().fromArray(parameters.size.toArray().map(x => 1/x))
+            parameters.maxBlockCount = parameters.dimensions.toArray().reduce((intersections, blocks) => intersections + blocks, -2)
+
+            this.computes.extremaMap.tensor = extremaMap
+            this.computes.extremaMap.parameters = parameters
+        })
+
+        // console.log(this.computes.extremaMap.parameters, this.computes.extremaMap.tensor.dataSync())
+    }
+    
     
     // Helpers
     

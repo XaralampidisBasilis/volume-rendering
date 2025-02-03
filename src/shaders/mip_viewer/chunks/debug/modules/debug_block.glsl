@@ -3,8 +3,7 @@
 // COMPUTE DEBUG 
 
 // cheby distance
-float debug_block_cheby_distance = float(block.cheby_distance) / float(u_distance_map.max_distance);
-debug.block_cheby_distance = vec4(vec3(debug_block_cheby_distance), 1.0);
+debug.block_max_intensity = vec4(vec3(block.max_intensity), 1.0);
 
 // occupied
 debug.block_occupied = vec4(vec3(block.occupied), 1.0);
