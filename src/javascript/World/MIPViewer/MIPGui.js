@@ -166,10 +166,10 @@ export default class MIPGui
                 cell_sample_intensities : 411,
                 cell_intensity_coeffs   : 412,
 
-                block_cheby_distance    : 501,
+                block_max_intensity     : 501,
                 block_occupied          : 502,
                 block_coords            : 503,
-                block_step_coords       : 504,
+                block_coords_step       : 504,
                 block_min_position      : 505,
                 block_max_position      : 506,
 

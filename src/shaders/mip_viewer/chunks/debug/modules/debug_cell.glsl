@@ -8,11 +8,11 @@ vec4 debug_cell_terminated = vec4(vec3(cell.terminated), 1.0);
 vec4 debug_cell_saturated = vec4(vec3(cell.saturated), 1.0);
 
 // coords
-vec4 debug_cell_coords = vec4(vec3(0.0), 1.0) 
+vec4 debug_cell_coords = vec4(vec3(0.0), 1.0);
 debug_cell_coords.xyz = vec3(cell.coords) * u_intensity_map.inv_dimensions;
 
 // coords step
-vec4 debug_cell_coords = vec4(vec3(0.0), 1.0); 
+vec4 debug_cell_coords_step = vec4(vec3(0.0), 1.0); 
 debug_cell_coords_step.xyz = vec3(cell.coords_step) * 0.5 + 0.5;
 
 // entry distance
@@ -40,7 +40,7 @@ vec4 debug_cell_sample_distances = vec4(vec3(0.0), 1.0);
 debug_cell_sample_distances.xyz = map(cell.entry_distance, cell.exit_distance, cell.sample_distances.xyz);
 
 // sample intensities
-vec4 debug_cell_sample_intensities = vec4(vec3(0.0), 1.0)
+vec4 debug_cell_sample_intensities = vec4(vec3(0.0), 1.0);
 debug_cell_sample_intensities.xyz = vec3(cell.sample_intensities.xyz);
 
 // intensity coefficients

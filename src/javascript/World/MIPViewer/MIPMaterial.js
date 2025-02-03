@@ -30,11 +30,11 @@ export default function()
 
         u_maxima_map : new THREE.Uniform
         ({
-            sub_division    : 8,
+            sub_division    : 4,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
             size            : new THREE.Vector3(),
-            inv_sub_division: 1/8,
+            inv_sub_division: 1/4,
             inv_dimensions  : new THREE.Vector3(),
             inv_spacing     : new THREE.Vector3(),
             inv_size        : new THREE.Vector3(),

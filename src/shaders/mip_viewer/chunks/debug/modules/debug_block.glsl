@@ -2,39 +2,40 @@
 
 // COMPUTE DEBUG 
 
-// cheby distance
-debug.block_max_intensity = vec4(vec3(block.max_intensity), 1.0);
+// max intensity
+vec4 debug_block_max_intensity = vec4(vec3(0.0), 1.0);
+debug_block_max_intensity.xyz = vec3(block.max_intensity);
 
 // occupied
-debug.block_occupied = vec4(vec3(block.occupied), 1.0);
+vec4 debug_block_occupied = vec4(vec3(0.0), 1.0);
+debug_block_occupied.xyz = vec3(block.occupied);
 
 // coords
-vec3 debug_block_coords = vec3(block.coords) / vec3(u_distance_map.dimensions - 1);
-debug.block_coords = vec4(debug_block_coords, 1.0);
+vec4 debug_block_coords = vec4(vec3(0.0), 1.0);
+debug_block_coords.xyz = vec3(block.coords) / vec3(u_maxima_map.dimensions - 1);
 
 // coords step
-vec3 debug_block_coords_step = (vec3(block.coords_step) / float(u_distance_map.max_distance)) * 0.5 + 0.5;
-debug.block_coords_step  = vec4(debug_block_coords_step, 1.0);
+vec4 debug_block_coords_step = vec4(vec3(0.0), 1.0);
+debug_block_coords_step.xyz = vec3(block.coords_step) * 0.5 + 0.5;
 
 // min position
-vec3 debug_block_min_position = map(box.min_position, box.max_position, block.min_position);
-debug.block_min_position = vec4(debug_block_min_position, 1.0);
+vec4 debug_block_min_position = vec4(vec3(0.0), 1.0);
+debug_block_min_position.xyz = map(box.min_position, box.max_position, block.min_position);
 
 // max position
-vec3 debug_block_max_position = map(box.min_position, box.max_position, block.max_position);
-debug.block_max_position = vec4(debug_block_max_position, 1.0);
-    
-           
+vec4 debug_block_max_position = vec4(vec3(0.0), 1.0);
+debug_block_max_position.xyz = map(box.min_position, box.max_position, block.max_position);
+
 // PRINT DEBUG
 
 switch (u_debugging.option - debug.slot_block)
 {
-    case 1: fragColor = debug.block_cheby_distance; break;
-    case 2: fragColor = debug.block_occupied;       break;
-    case 3: fragColor = debug.block_coords;         break;
-    case 4: fragColor = debug.block_coords_step;    break;
-    case 5: fragColor = debug.block_min_position;   break;
-    case 6: fragColor = debug.block_max_position;   break;
+    case 1: fragColor = debug_block_max_intensity;  break;
+    case 2: fragColor = debug_block_occupied;       break;
+    case 3: fragColor = debug_block_coords;         break;
+    case 4: fragColor = debug_block_coords_step;    break;
+    case 5: fragColor = debug_block_min_position;   break;
+    case 6: fragColor = debug_block_max_position;   break;
 }
 
   

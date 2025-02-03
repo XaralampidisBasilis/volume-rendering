@@ -5,8 +5,6 @@
 for (int batch = 0; batch < MAX_BATCH_COUNT; batch++) 
 {
     // Skip empty space using the precomputed chebyshev distance map 
-    #include "./modules/start_block"
-
     for (int count = 0; count < MAX_BLOCK_SUB_COUNT; count++) 
     {
         // update block based on current trace
@@ -16,15 +14,13 @@ for (int batch = 0; batch < MAX_BATCH_COUNT; batch++)
         {
             break;
         }  
-        
+
         // update trace to skip the current block
         #include "./modules/skip_block"
-
-        if (trace.terminated) 
-        {
-            break;
-        } 
     }
+
+    block.coords_step += block.occupied ? 0 : 1;
+
 
     // March analytically the volume cells inside an occupied block
     #include "./modules/start_cell"
@@ -44,6 +40,8 @@ for (int batch = 0; batch < MAX_BATCH_COUNT; batch++)
     }   
 
     // termination condition
+    trace.terminated = trace.distance > ray.end_distance;
+
     if (trace.terminated) 
     {
         break;
