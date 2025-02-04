@@ -24,15 +24,17 @@ export default class MIPViewer extends EventEmitter
         this.processor = new MIPProcessor(this.resources.items.volumeNifti)
         this.processor.on('ready', () =>
         {
-            this.computeMaps().then(() => this.setViewer())
+            this.generateMaps().then(() => this.setViewer())
         })
     }
     
-    async computeMaps()
+    async generateMaps()
     {
         const uMaximaMap = this.material.uniforms.u_maxima_map.value
-        await this.processor.computeIntensityMap()
-        await this.processor.computeMaximaMap(uMaximaMap.sub_division)
+        await this.processor.generateIntensityMap()
+        await this.processor.generateMaximaMap(uMaximaMap.sub_division)
+        await this.processor.generateDistanceMap(50)
+        console.log('finished generateMaps')
     }
 
     setViewer()
@@ -148,7 +150,7 @@ export default class MIPViewer extends EventEmitter
     setMesh()
     {   
         this.mesh = new THREE.Mesh(this.geometry, this.material)
-        this.mesh.position.copy(this.parameters.volume.size).multiplyScalar(-0.5)
+        this.mesh.position.copy(this.parameters.volume.size).divideScalar(-2)
         this.scene.add(this.mesh)
     }
 

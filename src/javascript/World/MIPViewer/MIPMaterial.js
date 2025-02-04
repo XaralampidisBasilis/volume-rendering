@@ -42,7 +42,7 @@ export default function()
 
         u_color_map: new THREE.Uniform
         ({
-            levels      : 255,
+            levels      : 50,
             name        : 'viridis',
             thresholds  : new THREE.Vector2(0, 1),
             start_coords: new THREE.Vector2(colormapLocations['viridis'].x_start, colormapLocations['viridis'].y),
