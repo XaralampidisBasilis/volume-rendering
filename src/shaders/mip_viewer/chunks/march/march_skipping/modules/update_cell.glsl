@@ -6,14 +6,7 @@ cell.max_position = (vec3(cell.coords) + 0.5) * u_intensity_map.spacing;
 
 // compute cell ray intersection to find entry and exit distances, 
 cell.entry_distance = cell.exit_distance;
-cell.exit_distance = intersect_box_max
-(
-    cell.min_position, 
-    cell.max_position, 
-    camera.position, 
-    ray.direction, 
-    cell.coords_step
-);
+cell.exit_distance = intersect_box_max(cell.min_position, cell.max_position, camera.position, ray.direction, cell.coords_step);
 
 // given the entry and exit compute the sampling distances inside the cell
 cell.sample_distances.x = cell.sample_distances.w;
@@ -29,17 +22,18 @@ cell.sample_intensities.w = texture(u_textures.intensity_map, camera.uvw + ray.u
 cell.intensity_coeffs = inv_vander_mat4 * cell.sample_intensities;
 
 // given the polynomial compute the max intensity along the ray inside the cell
-cubic_maxima
-(
-    trace.intensity, 
-    cell.intensity_coeffs, 
-    weights_vec4.xw, 
-    cell.sample_intensities.xw
-);
+float mip_intensity;
+cubic_maxima(mip_intensity, cell.intensity_coeffs, weights_vec4.xw, cell.sample_intensities.xw);
 
 // termination conditions
-cell.terminated = cell.exit_distance > block.exit_distance;
-cell.saturated  = block.max_intensity - trace.intensity < MICRO_TOLERANCE;
+cell.terminated = abs(block.exit_distance - cell.exit_distance) < MILLI_TOLERANCE;
+cell.saturated = abs(block.max_intensity - mip_intensity) < MILLI_TOLERANCE;
+
+// update mip 
+if (mip.intensity < mip_intensity)
+{
+   mip.intensity = mip_intensity;
+}
 
 // Update stats
 #if STATS_ENABLED == 1

@@ -5,6 +5,7 @@
 struct Trace 
 {
     bool  terminated;           // flag indicating if the trace has reached out of u_intensity_map bounds
+    bool  exhausted;
     bool  saturated;            // flag indicating if the trace has reached the max step count
 
     ivec3 coords;
@@ -21,6 +22,7 @@ Trace set_trace()
 {
     Trace trace;
     trace.terminated       = false;
+    trace.exhausted        = false;
     trace.saturated        = false;
     trace.coords           = ivec3(0.0);
     trace.position         = vec3(0.0);

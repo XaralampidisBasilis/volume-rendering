@@ -3,28 +3,28 @@
 // COMPUTE DEBUG 
 
 // max intensity
-vec4 debug_block_max_intensity = vec4(vec3(0.0), 1.0);
-debug_block_max_intensity.xyz = vec3(block.max_intensity);
+vec4 debug_block_max_intensity = to_color(block.max_intensity);
 
 // occupied
-vec4 debug_block_occupied = vec4(vec3(0.0), 1.0);
-debug_block_occupied.xyz = vec3(block.occupied);
+vec4 debug_block_occupied = to_color(block.occupied);
 
 // coords
-vec4 debug_block_coords = vec4(vec3(0.0), 1.0);
-debug_block_coords.xyz = vec3(block.coords) / vec3(u_maxima_map.dimensions - 1);
+vec4 debug_block_coords = to_color(vec3(block.coords) / vec3(u_maxima_map.dimensions - 1));
 
 // coords step
-vec4 debug_block_coords_step = vec4(vec3(0.0), 1.0);
-debug_block_coords_step.xyz = vec3(block.coords_step) * 0.5 + 0.5;
+vec4 debug_block_coords_step = to_color(vec3(block.coords_step) * 0.5 + 0.5);
 
 // min position
-vec4 debug_block_min_position = vec4(vec3(0.0), 1.0);
-debug_block_min_position.xyz = map(box.min_position, box.max_position, block.min_position);
+vec4 debug_block_min_position = to_color(map(box.min_position, box.max_position, block.min_position));
 
 // max position
-vec4 debug_block_max_position = vec4(vec3(0.0), 1.0);
-debug_block_max_position.xyz = map(box.min_position, box.max_position, block.max_position);
+vec4 debug_block_max_position = to_color(map(box.min_position, box.max_position, block.max_position));
+
+// entry distance
+vec4 debug_block_entry_distance = to_color(map(box.min_entry_distance, box.max_exit_distance, block.entry_distance));
+
+// exit distance
+vec4 debug_block_exit_distance = to_color(map(box.min_entry_distance, box.max_exit_distance, block.exit_distance));
 
 // PRINT DEBUG
 
@@ -36,6 +36,8 @@ switch (u_debugging.option - debug.slot_block)
     case 4: fragColor = debug_block_coords_step;    break;
     case 5: fragColor = debug_block_min_position;   break;
     case 6: fragColor = debug_block_max_position;   break;
+    case 7: fragColor = debug_block_entry_distance; break;
+    case 8: fragColor = debug_block_exit_distance;  break;
 }
 
   

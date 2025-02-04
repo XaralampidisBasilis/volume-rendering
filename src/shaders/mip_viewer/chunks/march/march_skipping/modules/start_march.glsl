@@ -1,13 +1,10 @@
 
-// initialize trace and mip from ray start distance
+// Start trace and mip from ray
 trace.distance = ray.start_distance;
-trace.position = camera.position + ray.direction * trace.distance;
+trace.position = ray.start_position;
 mip = trace;
 
-// initialize cell from trace position
-cell.coords = ivec3(trace.position * u_intensity_map.inv_spacing + 0.5);
-cell.coords_step = ivec3(0);
-
-// initialize block from trace position
+// Start block from trace
 block.coords = ivec3((trace.position + u_intensity_map.spacing * 0.5) * u_maxima_map.inv_spacing);
 block.coords_step = ivec3(0);
+block.exit_distance = trace.distance;
