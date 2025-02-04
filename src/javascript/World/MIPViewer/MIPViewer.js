@@ -33,14 +33,17 @@ export default class MIPViewer extends EventEmitter
         const uMaximaMap = this.material.uniforms.u_maxima_map.value
         await this.processor.generateIntensityMap()
         await this.processor.generateMaximaMap(uMaximaMap.sub_division)
+        tf.dispose(this.processor.computes.intensityMap.tensor) 
+        await tf.nextFrame()
         await this.processor.generateDistanceMap(50)
+        await tf.nextFrame()
         console.log('finished generateMaps')
     }
 
-    setViewer()
+    async setViewer()
     {
         this.setParameters()
-        this.setTextures()
+        await this.setTextures()
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
@@ -53,43 +56,57 @@ export default class MIPViewer extends EventEmitter
         this.parameters.volume = { ...this.processor.volume.parameters}
     }
 
-    setTextures()
+    async setTextures()
     {
         this.textures = {}
 
-        // color maps
+        // Color maps
         this.textures.colorMaps = this.resources.items.colormaps                      
         this.textures.colorMaps.colorSpace = THREE.SRGBColorSpace
         this.textures.colorMaps.minFilter = THREE.LinearFilter
         this.textures.colorMaps.magFilter = THREE.LinearFilter         
         this.textures.colorMaps.generateMipmaps = false
         this.textures.colorMaps.needsUpdate = true 
-        
-        // distance map
+
+        // Distance map (async loading)
+        this.textures.distanceMap = new THREE.Data3DTexture(
+            await this.processor.computes.distanceMap.tensor.data(), 
+            ...this.processor.computes.distanceMap.parameters.dimensions)
+        this.textures.distanceMap.format = THREE.RedFormat
+        this.textures.distanceMap.type = THREE.UnsignedByteType
+        this.textures.distanceMap.minFilter = THREE.NearestFilter
+        this.textures.distanceMap.magFilter = THREE.NearestFilter
+        this.textures.distanceMap.computeMipmaps = false
+        this.textures.distanceMap.needsUpdate = true
+        await tf.nextFrame()
+        tf.dispose(this.processor.computes.distanceMap.tensor)  
+        await tf.nextFrame()
+
+        // Maxima map (async loading)
         this.textures.maximaMap = new THREE.Data3DTexture(
-            this.processor.computes.maximaMap.tensor.dataSync(), 
-            ...this.processor.computes.maximaMap.parameters.dimensions
-        )
+            await this.processor.computes.maximaMap.tensor.data(), 
+            ...this.processor.computes.maximaMap.parameters.dimensions)
         this.textures.maximaMap.format = THREE.RedFormat
         this.textures.maximaMap.type = THREE.FloatType
         this.textures.maximaMap.minFilter = THREE.NearestFilter
         this.textures.maximaMap.magFilter = THREE.NearestFilter
         this.textures.maximaMap.computeMipmaps = false
         this.textures.maximaMap.needsUpdate = true
-        tf.dispose(this.processor.computes.maximaMap.tensor)
-
-        // intensity map
+        await tf.nextFrame()
+        tf.dispose(this.processor.computes.maximaMap.tensor) 
+        await tf.nextFrame()
+            
+        // Intensity map (async loading)
         this.textures.intensityMap = new THREE.Data3DTexture(
-            this.processor.computes.intensityMap.tensor.dataSync(), 
-            ...this.processor.computes.intensityMap.parameters.dimensions
-        )
+            this.processor.volume.data, 
+            ...this.processor.computes.intensityMap.parameters.dimensions)
         this.textures.intensityMap.format = THREE.RedFormat
         this.textures.intensityMap.type = THREE.FloatType
         this.textures.intensityMap.minFilter = THREE.LinearFilter
         this.textures.intensityMap.magFilter = THREE.LinearFilter
         this.textures.intensityMap.computeMipmaps = false
         this.textures.intensityMap.needsUpdate = true
-        tf.dispose(this.processor.computes.intensityMap.tensor)
+        await tf.nextFrame()
     }
   
     setGeometry()

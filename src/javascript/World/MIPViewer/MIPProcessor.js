@@ -22,7 +22,7 @@ export default class MIPProcessor extends EventEmitter
 
     async setTensorflow()
     {
-        tf.enableProdMode()
+        // tf.enableProdMode()
         await tf.setBackend('webgl')
         await tf.ready()
         this.trigger('ready')
@@ -203,12 +203,12 @@ export default class MIPProcessor extends EventEmitter
     
     // Helpers
     
-    async computeMinimaMap(tensor4d, subDivision)
+    async computeMinimaMap(intensityMap, subDivision)
     {
         return tf.tidy(() =>
         {
             // Symmetric padding to compute dual map
-            const tensorPadded = tf.mirrorPad(tensor4d, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
+            const tensorPadded = tf.mirrorPad(intensityMap, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
     
             // Min pooling for a dual cell
             const minimaMap = minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
@@ -233,10 +233,10 @@ export default class MIPProcessor extends EventEmitter
         })
     }
 
-    async computeMaximaMap(tensor4d, subDivision)
+    async computeMaximaMap(intensityMap, subDivision)
     {
         // Symmetric padding to compute dual map
-        const tensorPadded = tf.mirrorPad(tensor4d, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
+        const tensorPadded = tf.mirrorPad(intensityMap, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
 
         // Min pooling for a dual cell
         const maximaMap = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
@@ -265,15 +265,15 @@ export default class MIPProcessor extends EventEmitter
         
     }
 
-    async computeExtremaMap(tensor4d, subDivision)
+    async computeExtremaMap(intensityMap, subDivision)
     {
         return tf.tidy(() =>
         {
             // Symmetric padding to compute dual map
-            const tensorPadded = tf.mirrorPad(tensor4d, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
+            const tensorPadded = tf.mirrorPad(intensityMap, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
     
             // Min/Max pooling for dual voxel
-            const minima = this._minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
+            const minima = this.minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
             const maxima = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
             tf.dispose(tensorPadded)
     
@@ -294,7 +294,7 @@ export default class MIPProcessor extends EventEmitter
             tf.dispose(maxima)
     
             // Apply min pooling with valid padding and subdivision
-            const minimaMap = this._minPool3d(minimaPadded, subDivisions, subDivisions, 'valid')
+            const minimaMap = this.minPool3d(minimaPadded, subDivisions, subDivisions, 'valid')
             tf.dispose(minimaPadded)
 
             // Apply max pooling with valid padding and subdivision
@@ -325,7 +325,7 @@ export default class MIPProcessor extends EventEmitter
             const updateDistance = tf.greaterEqual(maximaMap, diffusionNext)
 
             // Update distance map
-            const distanceMapTemp = this._mix(distanceMap, scalarDistance, updateDistance)
+            const distanceMapTemp = this.mix(distanceMap, scalarDistance, updateDistance)
             tf.dispose([distanceMap, updateDistance, scalarDistance])
             distanceMap = distanceMapTemp
 
@@ -349,7 +349,7 @@ export default class MIPProcessor extends EventEmitter
         return distanceMap
     }
     
-    _minPool3d(tensor4d, filterSize, strides, pad)
+    minPool3d(tensor4d, filterSize, strides, pad)
     {
         const scalarNegativeOne = tf.scalar(-1, 'float32')
         const negative = tensor4d.mul(scalarNegativeOne)
@@ -360,38 +360,13 @@ export default class MIPProcessor extends EventEmitter
         return tensorMinPool
     } 
 
-    _mix(A, B, T)
+    mix(tensorA, tensorB, tensorT)
     {
-        const D = B.sub(A)
-        const TD = D.mul(T)
+        const D = tensorB.sub(tensorA)
+        const TD = D.mul(tensorT)
         tf.dispose(D)
-        const M = A.add(TD)
+        const M = tensorA.add(TD)
         tf.dispose(TD)
         return M
     }
-
-    _quantize(tensor4d) 
-    {
-        return tf.tidy(() => 
-        {
-            // Tensor must be normalized in [0, 1]
-            // Scale to the specified quantization levels
-            const scaled = tensor4d.mul(tf.scalar(255))
-            tf.dispose(tensor4d)
-    
-            // Clip values to the range [0, levels]
-            const clipped = scaled.clipByValue(0, 255)
-            tf.dispose(scaled)
-    
-            // Round and cast to integer type
-            const rounded = clipped.round()
-            tf.dispose(clipped)
-            const quantized = rounded.cast('int32')
-            tf.dispose(rounded)
-    
-            // Return the quantized tensor
-            return quantized
-        })
-    }
-
 }
