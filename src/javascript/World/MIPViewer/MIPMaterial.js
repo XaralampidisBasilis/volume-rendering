@@ -40,6 +40,18 @@ export default function()
             inv_size        : new THREE.Vector3(),
         }),
 
+        u_distance_map : new THREE.Uniform
+        ({
+            sub_division    : 2,
+            dimensions      : new THREE.Vector3(),
+            spacing         : new THREE.Vector3(),
+            size            : new THREE.Vector3(),
+            inv_sub_division: 1/2,
+            inv_dimensions  : new THREE.Vector3(),
+            inv_spacing     : new THREE.Vector3(),
+            inv_size        : new THREE.Vector3(),
+        }),
+
         u_color_map: new THREE.Uniform
         ({
             levels      : 50,

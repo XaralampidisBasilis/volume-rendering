@@ -33,17 +33,14 @@ export default class MIPViewer extends EventEmitter
         const uMaximaMap = this.material.uniforms.u_maxima_map.value
         await this.processor.generateIntensityMap()
         await this.processor.generateMaximaMap(uMaximaMap.sub_division)
-        tf.dispose(this.processor.computes.intensityMap.tensor) 
-        await tf.nextFrame()
         await this.processor.generateDistanceMap(50)
-        await tf.nextFrame()
         console.log('finished generateMaps')
     }
 
     async setViewer()
     {
         this.setParameters()
-        await this.setTextures()
+        this.setTextures()
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
@@ -56,7 +53,7 @@ export default class MIPViewer extends EventEmitter
         this.parameters.volume = { ...this.processor.volume.parameters}
     }
 
-    async setTextures()
+    setTextures()
     {
         this.textures = {}
 
@@ -68,9 +65,9 @@ export default class MIPViewer extends EventEmitter
         this.textures.colorMaps.generateMipmaps = false
         this.textures.colorMaps.needsUpdate = true 
 
-        // Distance map (async loading)
+        // Distance map 
         this.textures.distanceMap = new THREE.Data3DTexture(
-            await this.processor.computes.distanceMap.tensor.data(), 
+            this.processor.computes.distanceMap.tensor.dataSync(), 
             ...this.processor.computes.distanceMap.parameters.dimensions)
         this.textures.distanceMap.format = THREE.RedFormat
         this.textures.distanceMap.type = THREE.UnsignedByteType
@@ -78,13 +75,11 @@ export default class MIPViewer extends EventEmitter
         this.textures.distanceMap.magFilter = THREE.NearestFilter
         this.textures.distanceMap.computeMipmaps = false
         this.textures.distanceMap.needsUpdate = true
-        await tf.nextFrame()
         tf.dispose(this.processor.computes.distanceMap.tensor)  
-        await tf.nextFrame()
 
-        // Maxima map (async loading)
+        // Maxima map
         this.textures.maximaMap = new THREE.Data3DTexture(
-            await this.processor.computes.maximaMap.tensor.data(), 
+            this.processor.computes.maximaMap.tensor.dataSync(), 
             ...this.processor.computes.maximaMap.parameters.dimensions)
         this.textures.maximaMap.format = THREE.RedFormat
         this.textures.maximaMap.type = THREE.FloatType
@@ -92,11 +87,9 @@ export default class MIPViewer extends EventEmitter
         this.textures.maximaMap.magFilter = THREE.NearestFilter
         this.textures.maximaMap.computeMipmaps = false
         this.textures.maximaMap.needsUpdate = true
-        await tf.nextFrame()
         tf.dispose(this.processor.computes.maximaMap.tensor) 
-        await tf.nextFrame()
             
-        // Intensity map (async loading)
+        // Intensity map 
         this.textures.intensityMap = new THREE.Data3DTexture(
             this.processor.volume.data, 
             ...this.processor.computes.intensityMap.parameters.dimensions)
@@ -106,7 +99,7 @@ export default class MIPViewer extends EventEmitter
         this.textures.intensityMap.magFilter = THREE.LinearFilter
         this.textures.intensityMap.computeMipmaps = false
         this.textures.intensityMap.needsUpdate = true
-        await tf.nextFrame()
+        tf.dispose(this.processor.computes.intensityMap.tensor)  
     }
   
     setGeometry()

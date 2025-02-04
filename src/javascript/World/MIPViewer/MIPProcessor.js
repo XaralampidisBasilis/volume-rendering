@@ -102,7 +102,6 @@ export default class MIPProcessor extends EventEmitter
 
     async generateIntensityMap()
     {
-     
         const intensityMap = tf.tensor4d(this.volume.data, this.volume.parameters.shape,'float32')        
         const parameters = {...this.volume.parameters}
         
@@ -111,7 +110,8 @@ export default class MIPProcessor extends EventEmitter
         this.computes.intensityMap.tensor = intensityMap
         this.computes.intensityMap.parameters = parameters
 
-        // console.log(this.computes.intensityMap.parameters, this.computes.intensityMap.tensor.dataSync())
+        // console.log(this.computes.intensityMap.parameters)
+        // console.log(this.computes.intensityMap.tensor.dataSync())
     }
 
     async generateMaximaMap(subDivision)
@@ -139,8 +139,8 @@ export default class MIPProcessor extends EventEmitter
         this.computes.maximaMap.tensor = maximaMap
         this.computes.maximaMap.parameters = parameters
     
-
-        // console.log(this.computes.maximaMap.parameters, this.computes.maximaMap.tensor.dataSync())
+        // console.log(this.computes.maximaMap.parameters)
+        // console.log(this.computes.maximaMap.tensor.dataSync())    
     }
 
     async generateExtremaMap(subDivision)
@@ -176,7 +176,8 @@ export default class MIPProcessor extends EventEmitter
             this.computes.extremaMap.parameters = parameters
         })
 
-        // console.log(this.computes.extremaMap.parameters, this.computes.extremaMap.tensor.dataSync())
+        // console.log(this.computes.extremaMap.parameters)
+        // console.log(this.computes.extremaMap.tensor.dataSync())    
     }
     
     async generateDistanceMap(maxIters)
@@ -198,7 +199,8 @@ export default class MIPProcessor extends EventEmitter
         this.computes.distanceMap.tensor = distanceMap
         this.computes.distanceMap.parameters = parameters
         
-        // console.log(this.computes.distanceMap.parameters, this.computes.distanceMap.tensor.dataSync())
+        console.log(this.computes.distanceMap.parameters)
+        // console.log(this.computes.distanceMap.tensor.dataSync())    
     }
     
     // Helpers
