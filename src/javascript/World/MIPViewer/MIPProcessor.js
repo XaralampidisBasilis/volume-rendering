@@ -267,56 +267,53 @@ export default class MIPProcessor extends EventEmitter
 
     async computeDistanceMap(occupancyMap, maxIters) 
     {
-        // Initialize previous/next diffusion
-        let diffusionPrev = tf.zeros(occupancyMap.shape, 'bool')
-        let diffusionNext = tf.clone(occupancyMap)
-
-        // Initialize distance map 
-        let distanceMap = tf.zeros(occupancyMap.shape, 'int32')
+        // Initialize distance map and previous/next diffusion
+        let distanceMap   = tf.variable(tf.zeros(occupancyMap.shape, 'int32'), true)
+        let diffusionPrev = tf.variable(tf.zeros(occupancyMap.shape, 'bool'), true)
+        let diffusionNext = tf.variable(tf.clone(occupancyMap), true)
 
         for (let i = 0; i <= maxIters; i++) 
         {
-            const scalarIter = tf.scalar(i, 'int32')
-
             // Compute distance update
+            const scalarIter = tf.scalar(i, 'int32')
             const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
             const distanceUpdate = diffusionUpdate.mul(scalarIter)
-            tf.dispose([diffusionUpdate, scalarIter])
 
             // Update distance map
-            const distanceMapTemp = distanceMap.add(distanceUpdate)
-            tf.dispose([distanceMap, distanceUpdate])
-            distanceMap = distanceMapTemp
+            const distanceMapUpdate = distanceMap.add(distanceUpdate)
+            distanceMap.assign(distanceMapUpdate)
 
-            // Update previous diffusion 
-            tf.dispose(diffusionPrev)
-            diffusionPrev = diffusionNext.clone()
+            // Update previous diffusion state
+            diffusionPrev.assign(diffusionNext)
 
             // Compute next diffusion with max pooling
-            tf.dispose(diffusionNext)
-            diffusionNext = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
+            const diffusionNextUpdate = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
+            diffusionNext.assign(diffusionNextUpdate)
 
             // Await for garbage disposal
+            tf.dispose([diffusionNextUpdate, distanceMapUpdate, distanceUpdate, diffusionUpdate, scalarIter])
             await tf.nextFrame()
+
+            console.log(tf.memory().numTensors)
         }
 
         // Compute final distance update
         const scalarMax = tf.scalar(maxIters, 'int32')
         const diffusionUpdate = tf.logicalNot(diffusionPrev)
         const distanceUpdate = diffusionUpdate.mul(scalarMax)
-        tf.dispose([diffusionNext, diffusionPrev, diffusionUpdate, scalarMax])
-        await tf.nextFrame()
 
         // Update final distance map
-        const distanceMapTemp = distanceMap.add(distanceUpdate)
-        tf.dispose([distanceMap, distanceUpdate])
-        distanceMap = distanceMapTemp
+        distanceMap = distanceMap.add(distanceUpdate)
+
+        // Cleanup
+        tf.disposeVariables()
+        tf.dispose([distanceUpdate, diffusionUpdate, scalarMax])
         await tf.nextFrame()
+        console.log(tf.memory().numTensors)
 
         // Return the final distance map
         return distanceMap
     }
-
     
     async computeMaximaDistanceMap(maximaMap, maxIterations) 
     {
