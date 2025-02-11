@@ -85,6 +85,7 @@ export default function()
     const defines = 
     {           
         INTERSECT_BBOX_ENABLED : 1,
+        PRE_MARCHING_ENABLED   : 1,
         SKIPPING_ENABLED       : 1,
 
         STATS_ENABLED          : 1,

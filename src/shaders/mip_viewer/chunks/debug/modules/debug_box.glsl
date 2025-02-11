@@ -28,7 +28,7 @@ vec4 debug_box_max_span_distance = to_color(map(0.0, camera.far_distance - camer
 
 // PRINT DEBUG
 
-switch (u_debugging.option - debug.slot_box)
+switch (u_debugging.option - debug_slot_box)
 {
     case 1: fragColor = debug_box_entry_distance;     break;
     case 2: fragColor = debug_box_exit_distance;      break;

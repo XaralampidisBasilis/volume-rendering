@@ -312,13 +312,13 @@ export default class MIPProcessor extends EventEmitter
     async computeDistanceMap(tensor4d, maxIterations) 
     {
         // Initialize distance map and previous/next diffusion
+        let diffusionMap = tf.tidy(() => tf.variable(tf.clone(tensor4d), true))
         let distanceMap  = tf.tidy(() => tf.variable(tf.zeros(tensor4d.shape, 'int32'), true))
-        let diffusionMap = tf.tidy(() => tf.variable(tf.maxPool3d(tensor4d, [3, 3, 3], [1, 1, 1], 'same'), true))
 
         // Cap max iterations
         maxIterations = Math.min(maxIterations, 256)
 
-        for (let i = 1; i < maxIterations; i++) 
+        for (let i = 0; i < maxIterations; i++) 
         {
             tf.tidy(() => 
             {

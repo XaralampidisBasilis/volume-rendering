@@ -17,7 +17,7 @@ vec4 debug_frag_mapped_color = to_color(frag.mapped_color.rgb);
 
 // PRINT DEBUG
 
-switch (u_debugging.option - debug.slot_frag)
+switch (u_debugging.option - debug_slot_frag)
 {
     case 1: fragColor = debug_frag_depth;            break;
     case 2: fragColor = debug_frag_position;         break;

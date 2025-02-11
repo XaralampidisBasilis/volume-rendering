@@ -33,7 +33,7 @@ vec4 debug_trace_gradient_length = to_color(map(0.0, mmax(u_intensity_map.inv_sp
 
 // PRINT DEBUG
 
-switch (u_debugging.option - debug.slot_trace)
+switch (u_debugging.option - debug_slot_trace)
 { 
     case  1: fragColor = debug_trace_terminated;      break;
     case  2: fragColor = debug_trace_exhausted;       break;

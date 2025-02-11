@@ -33,7 +33,7 @@ vec4 debug_ray_max_block_count = to_color(float(ray.max_block_count) / float(u_r
 
 // PRINT DEBUG
 
-switch (u_debugging.option - debug.slot_ray)
+switch (u_debugging.option - debug_slot_ray)
 {
     case  1: fragColor = debug_ray_discarded;       break;
     case  2: fragColor = debug_ray_direction;       break;

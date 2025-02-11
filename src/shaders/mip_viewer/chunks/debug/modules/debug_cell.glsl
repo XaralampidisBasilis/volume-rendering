@@ -39,7 +39,7 @@ vec4 debug_cell_intensity_coeffs = to_color(cell.intensity_coeffs.xyz/cell.inten
 
 // PRINT DEBUG
 
-switch (u_debugging.option - debug.slot_cell)
+switch (u_debugging.option - debug_slot_cell)
 { 
     case  1: fragColor = debug_cell_terminated;         break;
     case  2: fragColor = debug_cell_saturated;          break;

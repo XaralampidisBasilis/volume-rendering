@@ -16,7 +16,7 @@ vec4 debug_camera_far_distance = to_color(camera.far_distance);
 
 // PRINT DEBUG
 
-switch (u_debugging.option - debug.slot_camera)
+switch (u_debugging.option - debug_slot_camera)
 {
     case 1: fragColor = debug_camera_position;      break;
     case 2: fragColor = debug_camera_direction;     break;
