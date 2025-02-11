@@ -10,6 +10,7 @@ export default function()
         u_textures: new THREE.Uniform
         ({
             intensity_map       : null,
+            color_maps          : null,
             minima_distance_map : null,
             maxima_distance_map : null,
         }),
@@ -28,10 +29,24 @@ export default function()
             max_intensity         : 0.0,
         }),
 
+        u_lowres_maps : new THREE.Uniform
+        ({
+            sub_division    : 4,
+            inv_sub_division: 1/4,
+            max_iterations  : 256,
+            dimensions      : new THREE.Vector3(),
+            spacing         : new THREE.Vector3(),
+            size            : new THREE.Vector3(),
+            inv_dimensions  : new THREE.Vector3(),
+            inv_spacing     : new THREE.Vector3(),
+            inv_size        : new THREE.Vector3(),
+        }),
+
         u_minima_distance_map : new THREE.Uniform
         ({
-            sub_division    : 2,
-            inv_sub_division: 1/2,
+            sub_division    : 8,
+            inv_sub_division: 1/8,
+            max_iterations  : 100,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
             size            : new THREE.Vector3(),
@@ -44,6 +59,7 @@ export default function()
         ({
             sub_division    : 2,
             inv_sub_division: 1/2,
+            max_iterations  : 100,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
             size            : new THREE.Vector3(),

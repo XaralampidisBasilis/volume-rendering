@@ -30,11 +30,11 @@ export default class MIPViewer extends EventEmitter
     
     async generateMaps()
     {
-        const u_minima_distance_map = this.material.uniforms.u_maxima_distance_map.value
+        const u_minima_distance_map = this.material.uniforms.u_minima_distance_map.value
         const u_maxima_distance_map = this.material.uniforms.u_maxima_distance_map.value
         await this.processor.generateIntensityMap()
-        await this.processor.generateMinimaDistanceMap(u_minima_distance_map.sub_division, 256)
-        await this.processor.generateMaximaDistanceMap(u_maxima_distance_map.sub_division, 256)
+        await this.processor.generateMinimaDistanceMap(u_minima_distance_map.sub_division, u_minima_distance_map.max_iterations)
+        await this.processor.generateMaximaDistanceMap(u_maxima_distance_map.sub_division, u_maxima_distance_map.max_iterations)
         console.log('finished generateMaps')
     }
 
@@ -68,7 +68,7 @@ export default class MIPViewer extends EventEmitter
 
         // Minima distance map
         this.textures.minimaDistanceMap = new THREE.Data3DTexture(
-            this.processor.computes.minimaDistanceMap.tensor.dataSync(), 
+            new Uint8ClampedArray(this.processor.computes.minimaDistanceMap.tensor.dataSync()), 
             ...this.processor.computes.minimaDistanceMap.parameters.dimensions)
         this.textures.minimaDistanceMap.format = THREE.RGFormat
         this.textures.minimaDistanceMap.type = THREE.UnsignedByteType
@@ -80,7 +80,7 @@ export default class MIPViewer extends EventEmitter
             
         // Maxima distance map
         this.textures.maximaDistanceMap = new THREE.Data3DTexture(
-            this.processor.computes.maximaDistanceMap.tensor.dataSync(), 
+            new Uint8ClampedArray(this.processor.computes.maximaDistanceMap.tensor.dataSync()), 
             ...this.processor.computes.maximaDistanceMap.parameters.dimensions)
         this.textures.maximaDistanceMap.format = THREE.RGFormat
         this.textures.maximaDistanceMap.type = THREE.UnsignedByteType
@@ -121,7 +121,7 @@ export default class MIPViewer extends EventEmitter
         // Uniforms/Defines
         const u_textures = this.material.uniforms.u_textures.value
         const u_intensity_map = this.material.uniforms.u_intensity_map.value
-        const u_minima_distance_map = this.material.uniforms.u_maxima_distance_map.value
+        const u_minima_distance_map = this.material.uniforms.u_minima_distance_map.value
         const u_maxima_distance_map = this.material.uniforms.u_maxima_distance_map.value
         const defines = this.material.defines
 
@@ -162,7 +162,7 @@ export default class MIPViewer extends EventEmitter
 
         // Update Defines
         defines.MAX_CELL_COUNT = intensityMap.parameters.maxCellCount
-        defines.MAX_BLOCK_COUNT = maximaDistanceMap.parameters.maxBlockCount
+        defines.MAX_BLOCK_COUNT = minimaDistanceMap.parameters.maxBlockCount
         defines.MAX_CELL_SUB_COUNT = 3 * maximaDistanceMap.parameters.subDivision - 2
         defines.MAX_BATCH_COUNT = Math.ceil(defines.MAX_CELL_COUNT / defines.MAX_CELL_SUB_COUNT)
         defines.MAX_BLOCK_SUB_COUNT = Math.ceil(defines.MAX_BLOCK_COUNT / defines.MAX_BATCH_COUNT)

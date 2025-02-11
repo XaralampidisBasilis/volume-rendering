@@ -2,6 +2,7 @@
 // Set block from ray start
 block.exit_distance = ray.start_distance;
 block.exit_position = ray.start_position;
+mip.intensity = 0.0;
 
 for (int i = 0; i < MAX_BLOCK_COUNT; i++) 
 {
@@ -11,6 +12,7 @@ for (int i = 0; i < MAX_BLOCK_COUNT; i++)
     // Compute chebysev distance to next block
     vec2 block_data = texelFetch(u_textures.minima_distance_map, block.coords, 0).rg;
     block.cheby_distance = int(round(block_data.g * 255.0));
+    block.min_intensity = block_data.r;
 
     // Compute block bounding box coords
     block.min_coords = block.coords - block.cheby_distance;
@@ -32,7 +34,7 @@ for (int i = 0; i < MAX_BLOCK_COUNT; i++)
     block.terminated = block.exit_distance > ray.end_distance;
 
     // Update maximum intensity projection
-    mip.intensity = max(block_data.r, mip.intensity);
+    mip.intensity = max(mip.intensity, block.min_intensity);
 
     // Update stats
     #if STATS_ENABLED == 1

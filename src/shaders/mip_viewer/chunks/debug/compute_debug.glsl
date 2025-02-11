@@ -1,6 +1,7 @@
 
 int debug_slot_ray       = 100;
 int debug_slot_trace     = 200;
+int debug_slot_mip       = 1000;
 int debug_slot_stats     = 300;
 int debug_slot_cell      = 400;
 int debug_slot_block     = 500;
@@ -11,6 +12,7 @@ int debug_slot_variables = 900;
 
 #include "./modules/debug_ray" 
 #include "./modules/debug_trace"  
+#include "./modules/debug_mip"  
 #include "./modules/debug_cell"  
 #include "./modules/debug_block"  
 #include "./modules/debug_frag"               

@@ -13,9 +13,9 @@ in mat4  v_projection_model_view_matrix;
 
 out vec4 fragColor;
 
+#include "./chunks/utils/utils"
 #include "./chunks/uniforms/uniforms"
 #include "./chunks/structs/structs"
-#include "./chunks/utils/utils"
 #include "./chunks/consts/consts"
 
 void main() 
