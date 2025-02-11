@@ -33,7 +33,7 @@ for (int i = 0; i < MAX_BLOCK_COUNT; i++)
     // Compute termination condition
     block.terminated = block.exit_distance > ray.end_distance;
 
-    // Update maximum intensity projection
+    // Update maximum intensity projection with block min intensity as lower bound
     mip.intensity = max(mip.intensity, block.min_intensity);
 
     // Update stats
