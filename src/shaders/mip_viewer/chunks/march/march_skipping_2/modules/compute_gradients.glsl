@@ -9,15 +9,12 @@
  * @return vec4: Gradient vector at the given position as rgb and smoothed sample as alpha
  */
 
-// Compute uvw position
-mip.uvw = mip.position * u_intensity_map.inv_size; 
-
 // Sample neighbors
 float intensities[8];
 for (int i = 0; i < 8; i++)
 {
-    vec3 uvw_offset = mip.uvw + u_intensity_map.inv_dimensions * center_offsets[i];
-    intensities[i] = texture(u_textures.intensity_map, uvw_offset).r;
+    vec3 sample_uvw = trace.uvw + u_intensity_map.inv_dimensions * center_offsets[i];
+    intensities[i] = texture(u_textures.intensity_map, sample_uvw).r;
 }
 
 // Precompute summed groups of intensities for better clarity
@@ -34,7 +31,7 @@ vec3 backward_intensity = vec3(
 );
 
 // Compute gradient
-mip.gradient = (forward_intensity - backward_intensity) / (u_intensity_map.spacing * 4.0);
+trace.gradient = (forward_intensity - backward_intensity) / (u_intensity_map.spacing * 4.0);
 
 // Update stats
 #if STATS_ENABLED == 1

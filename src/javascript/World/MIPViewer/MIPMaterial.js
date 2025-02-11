@@ -44,8 +44,8 @@ export default function()
 
         u_minima_distance_map : new THREE.Uniform
         ({
-            sub_division    : 8,
-            inv_sub_division: 1/8,
+            sub_division    : 4,
+            inv_sub_division: 1/4,
             max_iterations  : 100,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
@@ -57,8 +57,8 @@ export default function()
 
         u_maxima_distance_map : new THREE.Uniform
         ({
-            sub_division    : 2,
-            inv_sub_division: 1/2,
+            sub_division    : 4,
+            inv_sub_division: 1/4,
             max_iterations  : 100,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),

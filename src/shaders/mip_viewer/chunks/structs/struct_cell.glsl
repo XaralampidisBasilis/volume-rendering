@@ -12,6 +12,8 @@ struct Cell
     vec3  max_position;
     float entry_distance;
     float exit_distance;
+    vec3  entry_position;
+    vec3  exit_position;
     vec4  sample_intensities;    
     vec4  sample_distances;
     vec4  intensity_coeffs;    
@@ -28,6 +30,8 @@ Cell set_cell()
     cell.max_position       = vec3(0.0);
     cell.entry_distance     = 0.0;
     cell.exit_distance      = 0.0;
+    cell.entry_position     = vec3(0.0);
+    cell.exit_position      = vec3(0.0);
     cell.sample_intensities = vec4(0.0);
     cell.sample_distances   = vec4(0.0);
     cell.intensity_coeffs   = vec4(0.0);

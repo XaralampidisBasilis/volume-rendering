@@ -143,29 +143,6 @@ export default class MIPProcessor extends EventEmitter
         // console.log(this.computes.maximaMap.parameters)
         // console.log(this.computes.maximaMap.tensor.dataSync())    
     }
-    
-    async generateDistanceMap(maxIters)
-    {
-        if (!(this.computes.maximaMap.tensor instanceof tf.Tensor)) 
-        {
-            throw new Error(`computeDistanceMap: maximaMap is not computed`)
-        }
-
-        const distanceMap = await this.computeDistanceMap(this.computes.maximaMap.tensor, maxIters)
-        const parameters = {...this.computes.maximaMap.parameters}
-        const maxDistance = distanceMap.max()
-        const meanDistance = distanceMap.mean()
-
-        parameters.maxDistance = maxDistance.arraySync()  
-        parameters.meanDistance = meanDistance.arraySync()  
-        tf.dispose([maxDistance, meanDistance])
-        
-        this.computes.distanceMap.tensor = distanceMap
-        this.computes.distanceMap.parameters = parameters
-        
-        console.log(this.computes.distanceMap.parameters)
-        // console.log(this.computes.distanceMap.tensor.dataSync())    
-    }
 
     async generateMinimaDistanceMap(subDivision, maxIterations)
     {
@@ -176,11 +153,7 @@ export default class MIPProcessor extends EventEmitter
             throw new Error(`generateMinimaDistanceMap: intensityMap is not computed`)
         }
         
-        const minimaMap = await this.computeMaximaMap(this.computes.intensityMap.tensor, subDivision)
-        const distanceMap = await this.computeDistanceMap(minimaMap, maxIterations)
-        const minimaDistanceMap = tf.concat([minimaMap, distanceMap], 3)
-        const maxDistance = distanceMap.max()
-        const meanDistance = distanceMap.mean()
+        const minimaDistanceMap = await this.computeMinimaDistanceMap(this.computes.intensityMap.tensor, subDivision, maxIterations)
 
         const parameters = {}
         parameters.shape = minimaDistanceMap.shape
@@ -194,10 +167,7 @@ export default class MIPProcessor extends EventEmitter
         parameters.invSpacing = new THREE.Vector3().fromArray(parameters.spacing.toArray().map(x => 1/x))
         parameters.invSize = new THREE.Vector3().fromArray(parameters.size.toArray().map(x => 1/x))
         parameters.maxBlockCount = parameters.dimensions.toArray().reduce((intersections, blocks) => intersections + blocks, -2)
-        parameters.meanDistance = meanDistance.arraySync()
-        parameters.maxDistance = maxDistance.arraySync()
         parameters.maxIterations = maxIterations
-        tf.dispose([minimaMap, distanceMap, maxDistance, meanDistance])
 
         this.computes.minimaDistanceMap.tensor = minimaDistanceMap
         this.computes.minimaDistanceMap.parameters = parameters
@@ -216,12 +186,8 @@ export default class MIPProcessor extends EventEmitter
             throw new Error(`generateMaximaDistanceMap: intensityMap is not computed`)
         }
      
-        const maximaMap = await this.computeMaximaMap(this.computes.intensityMap.tensor, subDivision)
-        const distanceMap = await this.computeDistanceMap(maximaMap, maxIterations)
-        const maximaDistanceMap = tf.concat([maximaMap, distanceMap], 3)
-        const maxDistance = distanceMap.max()
-        const meanDistance = distanceMap.mean()
-
+        const maximaDistanceMap = await this.computeMaximaDistanceMap(this.computes.intensityMap.tensor, subDivision, maxIterations)
+     
         const parameters = {}
         parameters.shape = maximaDistanceMap.shape
         parameters.subDivision = subDivision
@@ -234,10 +200,7 @@ export default class MIPProcessor extends EventEmitter
         parameters.invSpacing = new THREE.Vector3().fromArray(parameters.spacing.toArray().map(x => 1/x))
         parameters.invSize = new THREE.Vector3().fromArray(parameters.size.toArray().map(x => 1/x))
         parameters.maxBlockCount = parameters.dimensions.toArray().reduce((intersections, blocks) => intersections + blocks, -2)
-        parameters.meanDistance = meanDistance.arraySync()
-        parameters.maxDistance = maxDistance.arraySync()
         parameters.maxIterations = maxIterations
-        tf.dispose([maximaMap, distanceMap, maxDistance, meanDistance])
 
         this.computes.maximaDistanceMap.tensor = maximaDistanceMap
         this.computes.maximaDistanceMap.parameters = parameters
@@ -267,6 +230,58 @@ export default class MIPProcessor extends EventEmitter
         const padded = tf.pad(intensityMap, padding)
 
         // Max pooling for upper bound detection
+        const minimaMap = this.minPool3d(padded, divisions, strides, 'valid')
+        tf.dispose(padded)
+        await tf.nextFrame()
+
+        return minimaMap
+    }
+
+    async computeMaximaMap(intensityMap, division) 
+    {
+        // Scalars for threshold and output scaling
+        const strides = [division, division, division]
+        const divisions = strides.map(x => x + 1)
+
+        // Calculate necessary padding for valid subdivisions and boundary handling
+        const divisible = intensityMap.shape
+            .map((dimension, i) => Math.ceil((dimension - divisions[i]) / strides[i]) + 1)
+            .map((dimension, i) => dimension * strides[i] + divisions[i])
+        const padding = intensityMap.shape.map((dimension, i) => [1, divisible[i] - dimension - 1])
+        padding[3] = [0, 0]
+
+        // Symmetric padding to handle boundaries by adding zeros
+        // const padded = tf.mirrorPad(intensityMap, padZ`ding, 'symmetric')
+        const padded = tf.pad(intensityMap, padding)
+
+        // Max pooling for upper bound detection
+        const maximaMap = tf.maxPool3d(padded, divisions, strides, 'valid')
+        tf.dispose(padded)
+        await tf.nextFrame()
+
+        return maximaMap
+    }
+
+    async computeMinimaDistanceMap(intensityMap, division, maxIterations)
+    {
+        // MAXIMA MAP
+
+        // Scalars for threshold and output scaling
+        const strides = [division, division, division]
+        const divisions = strides.map(x => x + 1)
+
+        // Calculate necessary padding for valid subdivisions and boundary handling
+        const divisible = intensityMap.shape
+            .map((dimension, i) => Math.ceil((dimension - divisions[i]) / strides[i]) + 1)
+            .map((dimension, i) => dimension * strides[i] + divisions[i])
+        const padding = intensityMap.shape.map((dimension, i) => [1, divisible[i] - dimension - 1])
+        padding[3] = [0, 0]
+
+        // Symmetric padding to handle boundaries by adding zeros
+        // const padded = tf.mirrorPad(intensityMap, padZ`ding, 'symmetric')
+        const padded = tf.pad(intensityMap, padding)
+
+        // Max pooling for upper bound detection
         const minPool = this.minPool3d(padded, divisions, strides, 'valid')
         tf.dispose(padded)
         await tf.nextFrame()
@@ -276,11 +291,55 @@ export default class MIPProcessor extends EventEmitter
         const minimaMap = tf.tidy(() => minPool.mul(scalar255).clipByValue(0, 255).floor().cast('int32'))
         tf.dispose(minPool, scalar255)
 
-        return minimaMap
+
+        // DISTANCE MAP
+
+        // Initialize distance map and previous/next diffusion
+        let diffusionMap = tf.tidy(() => tf.variable(tf.clone(minimaMap), true))
+        let distanceMap  = tf.tidy(() => tf.variable(tf.zeros(minimaMap.shape, 'int32'), true))
+
+        // Cap max iterations
+        maxIterations = Math.min(maxIterations, 256)
+
+        for (let i = 0; i < maxIterations; i++) 
+        {
+            tf.tidy(() => 
+            {
+                // Compute distance update
+                const distance = tf.scalar(i, 'int32')
+                const update = tf.greaterEqual(minimaMap, diffusionMap)
+
+                // Update distance map
+                distanceMap.assign(this.mix(distanceMap, distance, update))
+
+                // Compute diffusion map with max pooling
+                diffusionMap.assign(tf.maxPool3d(diffusionMap, [3, 3, 3], [1, 1, 1], 'same'))
+            })
+
+            // Allow for garbage collection and prevent blocking
+            await tf.nextFrame()
+        }
+        
+        // Convert variable to tensor
+        distanceMap = distanceMap.clone()
+
+        // Cleanup
+        tf.disposeVariables()
+        await tf.nextFrame()
+
+        
+        // COMBINE RESULTS
+
+        const minimaDistanceMap = tf.concat([minimaMap, distanceMap], 3)
+        tf.dispose([minimaMap, distanceMap])
+
+        return minimaDistanceMap
     }
 
-    async computeMaximaMap(intensityMap, division) 
+    async computeMaximaDistanceMap(intensityMap, division, maxIterations)
     {
+        // MAXIMA MAP
+
         // Scalars for threshold and output scaling
         const strides = [division, division, division]
         const divisions = strides.map(x => x + 1)
@@ -306,14 +365,12 @@ export default class MIPProcessor extends EventEmitter
         const maximaMap = tf.tidy(() => maxPool.mul(scalar255).clipByValue(0, 255).ceil().cast('int32'))
         tf.dispose(maxPool, scalar255)
 
-        return maximaMap
-    }
 
-    async computeDistanceMap(tensor4d, maxIterations) 
-    {
+        // DISTANCE MAP
+
         // Initialize distance map and previous/next diffusion
-        let diffusionMap = tf.tidy(() => tf.variable(tf.clone(tensor4d), true))
-        let distanceMap  = tf.tidy(() => tf.variable(tf.zeros(tensor4d.shape, 'int32'), true))
+        let diffusionMap = tf.tidy(() => tf.variable(tf.clone(maximaMap), true))
+        let distanceMap  = tf.tidy(() => tf.variable(tf.zeros(maximaMap.shape, 'int32'), true))
 
         // Cap max iterations
         maxIterations = Math.min(maxIterations, 256)
@@ -324,7 +381,7 @@ export default class MIPProcessor extends EventEmitter
             {
                 // Compute distance update
                 const distance = tf.scalar(i, 'int32')
-                const update = tf.greaterEqual(tensor4d, diffusionMap)
+                const update = tf.greaterEqual(maximaMap, diffusionMap)
 
                 // Update distance map
                 distanceMap.assign(this.mix(distanceMap, distance, update))
@@ -344,8 +401,13 @@ export default class MIPProcessor extends EventEmitter
         tf.disposeVariables()
         await tf.nextFrame()
 
-        // Return the final distance map
-        return distanceMap
+        
+        // COMBINE RESULTS
+
+        const maximaDistanceMap = tf.concat([maximaMap, distanceMap], 3)
+        tf.dispose([maximaMap, distanceMap])
+
+        return maximaDistanceMap
     }
     
     minPool3d(tensor4d, filterSize, strides, pad)

@@ -6,7 +6,7 @@ struct Ray
     bool  discarded;  // flag indicating if the ray has been discarded
 
     vec3  direction;      // direction vector for each step along the ray
-    vec3  uvw_direction;   
+    vec3  direction_uvw;   
     float step_distance;  // fixed step distance for each ray 
 
     vec3  start_position;  // starting position of the current ray in 3d model coordinates for ray march
@@ -24,7 +24,7 @@ Ray set_ray()
     Ray ray;
     ray.discarded       = false;
     ray.direction       = normalize(v_ray_direction);
-    ray.uvw_direction   = normalize(v_ray_direction) * u_intensity_map.inv_size;
+    ray.direction_uvw   = normalize(v_ray_direction) * u_intensity_map.inv_size;
     ray.step_distance   = 0.0;
     ray.start_position  = vec3(0.0);
     ray.end_position    = vec3(0.0);
