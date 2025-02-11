@@ -204,116 +204,123 @@ export default class MIPProcessor extends EventEmitter
     }
     
     // Helpers
-    
-    async computeMinimaMap(intensityMap, subDivision)
-    {
-        return tf.tidy(() =>
-        {
-            // Symmetric padding to compute dual map
-            const tensorPadded = tf.mirrorPad(intensityMap, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
-    
-            // Min pooling for a dual cell
-            const minimaMap = minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
-            tensorPadded.dispose()
-    
-            // Calculate necessary padding for valid subdivisions
-            const padAmounts = minimaMap.shape.map((dim, i) => {
-                const paddedDim = (i < 3) ? Math.ceil(dim / subDivision) * subDivision : dim // Only pad spatial dimensions
-                return [0, paddedDim - dim]
-            })
-        
-            // Apply padding
-            const minimaMapPadded = tf.pad(minimaMap, padAmounts)
-            minimaMap.dispose()
-    
-            // Apply max pooling with valid padding and subdivision
-            const subDivisions = [subDivision, subDivision, subDivision]
-            const minimaMinimap = minPool3d(minimaMapPadded, subDivisions, subDivisions, 'valid')
-            minimaMapPadded.dispose()
-    
-            return minimaMinimap
-        })
-    }
 
-    async computeMaximaMap(intensityMap, subDivision)
+    async computeMinimaMap(intensityMap, division) 
     {
-        // Symmetric padding to compute dual map
-        const tensorPadded = tf.mirrorPad(intensityMap, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
+        // Scalars for threshold and output scaling
+        const strides = [division, division, division]
+        const divisions = strides.map(x => x + 1)
 
-        // Min pooling for a dual cell
-        const maximaMap = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
-        tf.dispose(tensorPadded)
-        await tf.nextFrame()
-        
-        // Calculate necessary padding for valid subdivisions
-        const padAmounts = maximaMap.shape.map((dim, i) => 
-        {
-            const paddedDim = (i < 3) ? subDivision * Math.ceil(dim / subDivision) : dim // Only pad spatial dimensions
-            return [0, paddedDim - dim]
-        })
-    
-        // Apply padding
-        const maximaMapPadded = tf.pad(maximaMap, padAmounts)
-        tf.dispose(maximaMap)
-        await tf.nextFrame()
-        
-        // Apply max pooling with valid padding and subdivision
-        const subDivisions = [subDivision, subDivision, subDivision]
-        const maximaMinimap = tf.maxPool3d(maximaMapPadded, subDivisions, subDivisions, 'valid')
-        tf.dispose(maximaMapPadded)
+        // Calculate necessary padding for valid subdivisions and boundary handling
+        const divisible = intensityMap.shape
+            .map((dimension, i) => Math.ceil((dimension - divisions[i]) / strides[i]) + 1)
+            .map((dimension, i) => dimension * strides[i] + divisions[i])
+        const padding = intensityMap.shape.map((dimension, i) => [1, divisible[i] - dimension - 1])
+        padding[3] = [0, 0]
+
+        // Symmetric padding to handle boundaries by adding zeros
+        // const padded = tf.mirrorPad(intensityMap, padZ`ding, 'symmetric')
+        const padded = tf.pad(intensityMap, padding)
+
+        // Max pooling for upper bound detection
+        const minPool = this.minPool3d(padded, divisions, strides, 'valid')
+        tf.dispose(padded)
         await tf.nextFrame()
 
-        return maximaMinimap
-        
+        // Tensor must be normalized in [0, 1]
+        const scalar255 = tf.scalar(255)
+        const minimaMap = tf.tidy(() => minPool.mul(scalar255).clipByValue(0, 255).floor().cast('int32'))
+        tf.dispose(minPool, scalar255)
+
+        return minimaMap
     }
 
-    async computeExtremaMap(intensityMap, subDivision)
+    async computeMaximaMap(intensityMap, division) 
     {
-        return tf.tidy(() =>
+        // Scalars for threshold and output scaling
+        const strides = [division, division, division]
+        const divisions = strides.map(x => x + 1)
+
+        // Calculate necessary padding for valid subdivisions and boundary handling
+        const divisible = intensityMap.shape
+            .map((dimension, i) => Math.ceil((dimension - divisions[i]) / strides[i]) + 1)
+            .map((dimension, i) => dimension * strides[i] + divisions[i])
+        const padding = intensityMap.shape.map((dimension, i) => [1, divisible[i] - dimension - 1])
+        padding[3] = [0, 0]
+
+        // Symmetric padding to handle boundaries by adding zeros
+        // const padded = tf.mirrorPad(intensityMap, padZ`ding, 'symmetric')
+        const padded = tf.pad(intensityMap, padding)
+
+        // Max pooling for upper bound detection
+        const maxPool = tf.maxPool3d(padded, divisions, strides, 'valid')
+        tf.dispose(padded)
+        await tf.nextFrame()
+
+        // Tensor must be normalized in [0, 1]
+        const scalar255 = tf.scalar(255)
+        const maximaMap = tf.tidy(() => maxPool.mul(scalar255).clipByValue(0, 255).ceil().cast('int32'))
+        tf.dispose(maxPool, scalar255)
+
+        return maximaMap
+    }
+
+    async computeDistanceMap(occupancyMap, maxIters) 
+    {
+        // Initialize previous/next diffusion
+        let diffusionPrev = tf.zeros(occupancyMap.shape, 'bool')
+        let diffusionNext = tf.clone(occupancyMap)
+
+        // Initialize distance map 
+        let distanceMap = tf.zeros(occupancyMap.shape, 'int32')
+
+        for (let i = 0; i <= maxIters; i++) 
         {
-            // Symmetric padding to compute dual map
-            const tensorPadded = tf.mirrorPad(intensityMap, [[1, 1], [1, 1], [1, 1], [0, 0]], 'symmetric')
-    
-            // Min/Max pooling for dual voxel
-            const minima = this.minPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
-            const maxima = tf.maxPool3d(tensorPadded, [2, 2, 2], [1, 1, 1], 'valid')
-            tf.dispose(tensorPadded)
-    
-            // Calculate necessary padding for valid subdivisions
-            const subDivisions = [subDivision, subDivision, subDivision]
-            const padAmounts = minima.shape.map((dim, i) => 
-            {
-                const paddedDim = (i < 3) ? subDivision * Math.ceil(dim / subDivision) : dim // Only pad spatial dimensions
-                return [0, paddedDim - dim]
-            })
-        
-            // Apply padding
-            const minimaPadded = tf.pad(minima, padAmounts)
-            tf.dispose(minima)
+            const scalarIter = tf.scalar(i, 'int32')
 
-            // Apply padding
-            const maximaPadded = tf.pad(maxima, padAmounts)
-            tf.dispose(maxima)
-    
-            // Apply min pooling with valid padding and subdivision
-            const minimaMap = this.minPool3d(minimaPadded, subDivisions, subDivisions, 'valid')
-            tf.dispose(minimaPadded)
+            // Compute distance update
+            const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
+            const distanceUpdate = diffusionUpdate.mul(scalarIter)
+            tf.dispose([diffusionUpdate, scalarIter])
 
-            // Apply max pooling with valid padding and subdivision
-            const maximaMap = maxPool3d(maximaPadded, subDivisions, subDivisions, 'valid')
-            tf.dispose(maximaPadded)
+            // Update distance map
+            const distanceMapTemp = distanceMap.add(distanceUpdate)
+            tf.dispose([distanceMap, distanceUpdate])
+            distanceMap = distanceMapTemp
 
-            // combine min max maps
-            const extremaMap = tf.concat([minimaMap, maximaMap], 3)            
-            tf.dispose([minimaMap, maximaMap])
-    
-            return extremaMap
-        })
+            // Update previous diffusion 
+            tf.dispose(diffusionPrev)
+            diffusionPrev = diffusionNext.clone()
+
+            // Compute next diffusion with max pooling
+            tf.dispose(diffusionNext)
+            diffusionNext = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
+
+            // Await for garbage disposal
+            await tf.nextFrame()
+        }
+
+        // Compute final distance update
+        const scalarMax = tf.scalar(maxIters, 'int32')
+        const diffusionUpdate = tf.logicalNot(diffusionPrev)
+        const distanceUpdate = diffusionUpdate.mul(scalarMax)
+        tf.dispose([diffusionNext, diffusionPrev, diffusionUpdate, scalarMax])
+        await tf.nextFrame()
+
+        // Update final distance map
+        const distanceMapTemp = distanceMap.add(distanceUpdate)
+        tf.dispose([distanceMap, distanceUpdate])
+        distanceMap = distanceMapTemp
+        await tf.nextFrame()
+
+        // Return the final distance map
+        return distanceMap
     }
 
-    async computeDistanceMap(maximaMap, maxIterations) 
+    
+    async computeMaximaDistanceMap(maximaMap, maxIterations) 
     {
-        // Initialize next/previous diffusion
+        // Initialize variables
         let diffusionPrev = maximaMap.clone()
         let diffusionNext = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
 
@@ -371,4 +378,5 @@ export default class MIPProcessor extends EventEmitter
         tf.dispose(TD)
         return M
     }
+
 }

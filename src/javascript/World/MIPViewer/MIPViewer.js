@@ -32,6 +32,7 @@ export default class MIPViewer extends EventEmitter
     {
         const uMaximaMap = this.material.uniforms.u_maxima_map.value
         await this.processor.generateIntensityMap()
+        await this.processor.checkMaximaMap(this.processor.computes.intensityMap.tensor, uMaximaMap.sub_division)
         await this.processor.generateMaximaMap(uMaximaMap.sub_division)
         await this.processor.generateDistanceMap(50)
         console.log('finished generateMaps')
