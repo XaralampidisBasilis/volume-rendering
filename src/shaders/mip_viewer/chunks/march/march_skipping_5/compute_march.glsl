@@ -3,7 +3,7 @@
 
 #include "./modules/start_block"
 
-for (int n = 0; n < MAX_BLOCK_COUNT; n++) 
+for (int n = 0; n < u_rendering.max_block_count; n++) 
 {
     #include "./modules/update_block"
 
@@ -22,10 +22,12 @@ for (int n = 0; n < MAX_BLOCK_COUNT; n++)
         continue;
     }  
 
+    #include "./modules/start_trace"
+
     for (int i = 0; i < u_rendering.max_cell_count; i++) 
     {
         // Compute trace position
-        trace.distance += ray.step_distance * (0.5 + random(trace.uvw));
+        trace.distance += trace.distance_step * (1.0 + random(trace.uvw));
         trace.position = camera.position + ray.direction * trace.distance;
         trace.uvw = trace.position * u_intensity_map.inv_size;
 
@@ -44,4 +46,4 @@ for (int n = 0; n < MAX_BLOCK_COUNT; n++)
 
 
 // terminate march, compute intersection and gradient
-trace.terminated = trace.distance > block.exit_distance;
+#include "./modules/end_march"

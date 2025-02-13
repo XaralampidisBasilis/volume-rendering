@@ -144,98 +144,29 @@ export default class MIPProcessor extends EventEmitter
         // console.log(this.computes.maximaMap.tensor.dataSync())    
     }
 
-    async generateMinimaDistanceMap(subDivision, maxIterations)
+    async generateDistanceMap(maxIterations)
     {
-        console.time('generateMinimaDistanceMap')
-
-        if (!(this.computes.intensityMap.tensor instanceof tf.Tensor)) 
+        if (!(this.computes.maximaMap.tensor instanceof tf.Tensor)) 
         {
-            throw new Error(`generateMinimaDistanceMap: intensityMap is not computed`)
+            throw new Error(`computeDistanceMap: maximaMap is not computed`)
         }
+
+        const distanceMap = await this.computeDistanceMap(this.computes.maximaMap.tensor, maxIterations)
+        const parameters = {...this.computes.maximaMap.parameters}
+        const maxDistance = distanceMap.max()
+        const meanDistance = distanceMap.mean()
+        parameters.maxDistance = maxDistance.arraySync()  
+        parameters.meanDistance = meanDistance.arraySync()  
+        tf.dispose([maxDistance, meanDistance])
+
+        this.computes.distanceMap.tensor = distanceMap
+        this.computes.distanceMap.parameters = parameters
         
-        const minimaDistanceMap = await this.computeMinimaDistanceMap(this.computes.intensityMap.tensor, subDivision, maxIterations)
-
-        const parameters = {}
-        parameters.shape = minimaDistanceMap.shape
-        parameters.subDivision = subDivision
-        parameters.invSubDivision = 1/subDivision
-        parameters.dimensions = new THREE.Vector3().fromArray(minimaDistanceMap.shape.slice(0, 3).toReversed())
-        parameters.spacing = new THREE.Vector3().copy(this.volume.parameters.spacing).multiplyScalar(subDivision)
-        parameters.size = new THREE.Vector3().copy(parameters.dimensions).multiply(parameters.spacing)
-        parameters.numBlocks = parameters.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-        parameters.invDimensions = new THREE.Vector3().fromArray(parameters.dimensions.toArray().map(x => 1/x))
-        parameters.invSpacing = new THREE.Vector3().fromArray(parameters.spacing.toArray().map(x => 1/x))
-        parameters.invSize = new THREE.Vector3().fromArray(parameters.size.toArray().map(x => 1/x))
-        parameters.maxBlockCount = parameters.dimensions.toArray().reduce((intersections, blocks) => intersections + blocks, -2)
-        parameters.maxIterations = maxIterations
-
-        this.computes.minimaDistanceMap.tensor = minimaDistanceMap
-        this.computes.minimaDistanceMap.parameters = parameters
-    
-        console.log(this.computes.minimaDistanceMap.parameters)
-        // console.log(this.computes.minimaDistanceMap.tensor.dataSync()) 
-        console.timeEnd('generateMinimaDistanceMap')   
-    }
-
-    async generateMaximaDistanceMap(subDivision, maxIterations)
-    {
-        console.time('generateMaximaDistanceMap')
-
-        if (!(this.computes.intensityMap.tensor instanceof tf.Tensor)) 
-        {
-            throw new Error(`generateMaximaDistanceMap: intensityMap is not computed`)
-        }
-     
-        const maximaDistanceMap = await this.computeMaximaDistanceMap(this.computes.intensityMap.tensor, subDivision, maxIterations)
-     
-        const parameters = {}
-        parameters.shape = maximaDistanceMap.shape
-        parameters.subDivision = subDivision
-        parameters.invSubDivision = 1/subDivision
-        parameters.dimensions = new THREE.Vector3().fromArray(maximaDistanceMap.shape.slice(0, 3).toReversed())
-        parameters.spacing = new THREE.Vector3().copy(this.volume.parameters.spacing).multiplyScalar(subDivision)
-        parameters.size = new THREE.Vector3().copy(parameters.dimensions).multiply(parameters.spacing)
-        parameters.numBlocks = parameters.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
-        parameters.invDimensions = new THREE.Vector3().fromArray(parameters.dimensions.toArray().map(x => 1/x))
-        parameters.invSpacing = new THREE.Vector3().fromArray(parameters.spacing.toArray().map(x => 1/x))
-        parameters.invSize = new THREE.Vector3().fromArray(parameters.size.toArray().map(x => 1/x))
-        parameters.maxBlockCount = parameters.dimensions.toArray().reduce((intersections, blocks) => intersections + blocks, -2)
-        parameters.maxIterations = maxIterations
-
-        this.computes.maximaDistanceMap.tensor = maximaDistanceMap
-        this.computes.maximaDistanceMap.parameters = parameters
-    
-        console.log(this.computes.maximaDistanceMap.parameters)
-        // console.log(this.computes.maximaDistanceMap.tensor.dataSync()) 
-        console.timeEnd('generateMaximaDistanceMap')   
+        console.log(this.computes.distanceMap.parameters)
+        // console.log(this.computes.distanceMap.tensor.dataSync())    
     }
     
     // Helpers
-
-    async computeMinimaMap(intensityMap, division) 
-    {
-        // Scalars for threshold and output scaling
-        const strides = [division, division, division]
-        const divisions = strides.map(x => x + 1)
-
-        // Calculate necessary padding for valid subdivisions and boundary handling
-        const divisible = intensityMap.shape
-            .map((dimension, i) => Math.ceil((dimension - divisions[i]) / strides[i]) + 1)
-            .map((dimension, i) => dimension * strides[i] + divisions[i])
-        const padding = intensityMap.shape.map((dimension, i) => [1, divisible[i] - dimension - 1])
-        padding[3] = [0, 0]
-
-        // Symmetric padding to handle boundaries by adding zeros
-        // const padded = tf.mirrorPad(intensityMap, padZ`ding, 'symmetric')
-        const padded = tf.pad(intensityMap, padding)
-
-        // Max pooling for upper bound detection
-        const minimaMap = this.minPool3d(padded, divisions, strides, 'valid')
-        tf.dispose(padded)
-        await tf.nextFrame()
-
-        return minimaMap
-    }
 
     async computeMaximaMap(intensityMap, division) 
     {
@@ -262,112 +193,8 @@ export default class MIPProcessor extends EventEmitter
         return maximaMap
     }
 
-    async computeMinimaDistanceMap(intensityMap, division, maxIterations)
+    async computeDistanceMap(maximaMap, maxIterations)
     {
-        // MAXIMA MAP
-
-        // Scalars for threshold and output scaling
-        const strides = [division, division, division]
-        const divisions = strides.map(x => x + 1)
-
-        // Calculate necessary padding for valid subdivisions and boundary handling
-        const divisible = intensityMap.shape
-            .map((dimension, i) => Math.ceil((dimension - divisions[i]) / strides[i]) + 1)
-            .map((dimension, i) => dimension * strides[i] + divisions[i])
-        const padding = intensityMap.shape.map((dimension, i) => [1, divisible[i] - dimension - 1])
-        padding[3] = [0, 0]
-
-        // Symmetric padding to handle boundaries by adding zeros
-        // const padded = tf.mirrorPad(intensityMap, padZ`ding, 'symmetric')
-        const padded = tf.pad(intensityMap, padding)
-
-        // Max pooling for upper bound detection
-        const minPool = this.minPool3d(padded, divisions, strides, 'valid')
-        tf.dispose(padded)
-        await tf.nextFrame()
-
-        // Tensor must be normalized in [0, 1]
-        const scalar255 = tf.scalar(255)
-        const minimaMap = tf.tidy(() => minPool.mul(scalar255).clipByValue(0, 255).floor().cast('int32'))
-        tf.dispose(minPool, scalar255)
-
-
-        // DISTANCE MAP
-
-        // Initialize distance map and previous/next diffusion
-        let diffusionMap = tf.tidy(() => tf.variable(tf.clone(minimaMap), true))
-        let distanceMap  = tf.tidy(() => tf.variable(tf.zeros(minimaMap.shape, 'int32'), true))
-
-        // Cap max iterations
-        maxIterations = Math.min(maxIterations, 256)
-
-        for (let i = 0; i < maxIterations; i++) 
-        {
-            tf.tidy(() => 
-            {
-                // Compute distance update
-                const distance = tf.scalar(i, 'int32')
-                const update = tf.greaterEqual(minimaMap, diffusionMap)
-
-                // Update distance map
-                distanceMap.assign(this.mix(distanceMap, distance, update))
-
-                // Compute diffusion map with max pooling
-                diffusionMap.assign(tf.maxPool3d(diffusionMap, [3, 3, 3], [1, 1, 1], 'same'))
-            })
-
-            // Allow for garbage collection and prevent blocking
-            await tf.nextFrame()
-        }
-        
-        // Convert variable to tensor
-        distanceMap = distanceMap.clone()
-
-        // Cleanup
-        tf.disposeVariables()
-        await tf.nextFrame()
-
-        
-        // COMBINE RESULTS
-
-        const minimaDistanceMap = tf.concat([minimaMap, distanceMap], 3)
-        tf.dispose([minimaMap, distanceMap])
-
-        return minimaDistanceMap
-    }
-
-    async computeMaximaDistanceMap(intensityMap, division, maxIterations)
-    {
-        // MAXIMA MAP
-
-        // Scalars for threshold and output scaling
-        const strides = [division, division, division]
-        const divisions = strides.map(x => x + 1)
-
-        // Calculate necessary padding for valid subdivisions and boundary handling
-        const divisible = intensityMap.shape
-            .map((dimension, i) => Math.ceil((dimension - divisions[i]) / strides[i]) + 1)
-            .map((dimension, i) => dimension * strides[i] + divisions[i])
-        const padding = intensityMap.shape.map((dimension, i) => [1, divisible[i] - dimension - 1])
-        padding[3] = [0, 0]
-
-        // Symmetric padding to handle boundaries by adding zeros
-        // const padded = tf.mirrorPad(intensityMap, padZ`ding, 'symmetric')
-        const padded = tf.pad(intensityMap, padding)
-
-        // Max pooling for upper bound detection
-        const maxPool = tf.maxPool3d(padded, divisions, strides, 'valid')
-        tf.dispose(padded)
-        await tf.nextFrame()
-
-        // Tensor must be normalized in [0, 1]
-        const scalar255 = tf.scalar(255)
-        const maximaMap = tf.tidy(() => maxPool.mul(scalar255).clipByValue(0, 255).ceil().cast('int32'))
-        tf.dispose(maxPool, scalar255)
-
-
-        // DISTANCE MAP
-
         // Initialize distance map and previous/next diffusion
         let diffusionMap = tf.tidy(() => tf.variable(tf.clone(maximaMap), true))
         let distanceMap  = tf.tidy(() => tf.variable(tf.zeros(maximaMap.shape, 'int32'), true))
@@ -401,14 +228,9 @@ export default class MIPProcessor extends EventEmitter
         tf.disposeVariables()
         await tf.nextFrame()
 
-        
-        // COMBINE RESULTS
-
-        const maximaDistanceMap = tf.concat([maximaMap, distanceMap], 3)
-        tf.dispose([maximaMap, distanceMap])
-
-        return maximaDistanceMap
+        return distanceMap
     }
+
     
     minPool3d(tensor4d, filterSize, strides, pad)
     {

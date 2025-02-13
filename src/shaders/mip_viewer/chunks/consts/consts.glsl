@@ -41,6 +41,6 @@ const mat4 inv_vander_mat4 = mat4
 );
 
 // For stats upper limits
-const int MAX_NUM_FETCHES = MAX_BATCH_COUNT * (MAX_BLOCK_SUB_COUNT + MAX_CELL_SUB_COUNT * 3 + 1) + 12;
-const int MAX_NUM_STEPS = MAX_BATCH_COUNT * (MAX_BLOCK_SUB_COUNT);
-const int MAX_NUM_SKIPS = MAX_BATCH_COUNT * (MAX_BLOCK_SUB_COUNT + MAX_CELL_SUB_COUNT);
+const int MAX_NUM_FETCHES = 100;
+const int MAX_NUM_STEPS   = 100;
+const int MAX_NUM_SKIPS   = 100;

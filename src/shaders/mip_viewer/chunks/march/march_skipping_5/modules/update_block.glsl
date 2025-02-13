@@ -3,8 +3,12 @@
 block.coords = ivec3((block.exit_position + u_intensity_map.spacing * 0.5) * u_distance_map.inv_spacing);
 
 // Sample the distance map and compute if block is occupied
-block.cheby_distance = int(round(texelFetch(u_textures.distance_map, block.coords, 0).r * 255.0));
 block.max_intensity = texelFetch(u_textures.maxima_map, block.coords, 0).r;
+block.occupied = mip.intensity < block.max_intensity;
+
+// Compute maxima chebysev distance
+block.cheby_distance = int(round(texelFetch(u_textures.distance_map, block.coords, 0).r * 255.0));
+block.cheby_distance *= int(!block.occupied);
 
 // Compute block bounding box coords
 block.min_coords = block.coords - block.cheby_distance;
@@ -23,7 +27,6 @@ block.entry_position = block.exit_position;
 block.exit_position = camera.position + ray.direction * block.exit_distance;
 
 // Compute termination condition
-block.occupied = mip.intensity < block.max_intensity;
 block.terminated = block.exit_distance > ray.end_distance;
 
 // Update stats

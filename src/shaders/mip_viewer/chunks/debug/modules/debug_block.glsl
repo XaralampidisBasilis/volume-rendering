@@ -15,7 +15,7 @@ vec4 debug_block_cheby_distance = to_color(float(block.cheby_distance) / 255.0);
 vec4 debug_block_occupied = to_color(block.occupied);
 
 // coords
-vec4 debug_block_coords = to_color(vec3(block.coords) / vec3(u_minima_distance_map.dimensions - 1));
+vec4 debug_block_coords = to_color(vec3(block.coords) / vec3(u_maxima_map.dimensions - 1));
 
 // coords step
 vec4 debug_block_coords_step = to_color(vec3(block.coords_step) * 0.5 + 0.5);

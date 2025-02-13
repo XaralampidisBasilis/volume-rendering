@@ -29,11 +29,11 @@ cell.intensity_coeffs = inv_vander_mat4 * cell.sample_intensities;
 // given the polynomial we can compute if we intersect the isosurface inside the cell
 cubic_maxima(trace.intensity, cell.intensity_coeffs, weights_vec4.xw, cell.sample_intensities.xw);
 
-// termination condition
-cell.terminated = cell.exit_distance > block.exit_distance; // REALLY IMPORTANT FOR OPTIMIZATION
-
 // update maximum intensity projection trace 
 mip.intensity = max(mip.intensity, trace.intensity);
+
+// termination condition
+cell.terminated = cell.exit_distance > block.exit_distance; // REALLY IMPORTANT FOR OPTIMIZATION
 
 // Update stats
 #if STATS_ENABLED == 1

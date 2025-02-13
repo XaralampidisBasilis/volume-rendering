@@ -30,11 +30,11 @@ export default class MIPViewer extends EventEmitter
     
     async generateMaps()
     {
-        const u_minima_distance_map = this.material.uniforms.u_minima_distance_map.value
-        const u_maxima_distance_map = this.material.uniforms.u_maxima_distance_map.value
+        const u_maxima_map = this.material.uniforms.u_maxima_map.value
+        const u_distance_map = this.material.uniforms.u_distance_map.value
         await this.processor.generateIntensityMap()
-        await this.processor.generateMinimaDistanceMap(u_minima_distance_map.sub_division, u_minima_distance_map.max_iterations)
-        await this.processor.generateMaximaDistanceMap(u_maxima_distance_map.sub_division, u_maxima_distance_map.max_iterations)
+        await this.processor.generateMaximaMap(u_maxima_map.sub_division)
+        await this.processor.generateDistanceMap(u_distance_map.max_iterations)
         console.log('finished generateMaps')
     }
 
@@ -66,30 +66,30 @@ export default class MIPViewer extends EventEmitter
         this.textures.colorMaps.generateMipmaps = false
         this.textures.colorMaps.needsUpdate = true 
 
-        // Minima distance map
-        this.textures.minimaDistanceMap = new THREE.Data3DTexture(
-            new Uint8ClampedArray(this.processor.computes.minimaDistanceMap.tensor.dataSync()), 
-            ...this.processor.computes.minimaDistanceMap.parameters.dimensions)
-        this.textures.minimaDistanceMap.format = THREE.RGFormat
-        this.textures.minimaDistanceMap.type = THREE.UnsignedByteType
-        this.textures.minimaDistanceMap.minFilter = THREE.NearestFilter
-        this.textures.minimaDistanceMap.magFilter = THREE.NearestFilter
-        this.textures.minimaDistanceMap.computeMipmaps = false
-        this.textures.minimaDistanceMap.needsUpdate = true
-        tf.dispose(this.processor.computes.minimaDistanceMap.tensor) 
-            
-        // Maxima distance map
-        this.textures.maximaDistanceMap = new THREE.Data3DTexture(
-            new Uint8ClampedArray(this.processor.computes.maximaDistanceMap.tensor.dataSync()), 
-            ...this.processor.computes.maximaDistanceMap.parameters.dimensions)
-        this.textures.maximaDistanceMap.format = THREE.RGFormat
-        this.textures.maximaDistanceMap.type = THREE.UnsignedByteType
-        this.textures.maximaDistanceMap.minFilter = THREE.NearestFilter
-        this.textures.maximaDistanceMap.magFilter = THREE.NearestFilter
-        this.textures.maximaDistanceMap.computeMipmaps = false
-        this.textures.maximaDistanceMap.needsUpdate = true
-        tf.dispose(this.processor.computes.maximaDistanceMap.tensor) 
-            
+        // Distance map
+        this.textures.distanceMap = new THREE.Data3DTexture(
+            new Uint8ClampedArray(this.processor.computes.distanceMap.tensor.dataSync()), 
+            ...this.processor.computes.distanceMap.parameters.dimensions)
+        this.textures.distanceMap.format = THREE.RedFormat
+        this.textures.distanceMap.type = THREE.UnsignedByteType
+        this.textures.distanceMap.minFilter = THREE.NearestFilter
+        this.textures.distanceMap.magFilter = THREE.NearestFilter
+        this.textures.distanceMap.computeMipmaps = false
+        this.textures.distanceMap.needsUpdate = true
+        tf.dispose(this.processor.computes.distanceMap.tensor) 
+
+        // Maxima map
+        this.textures.maximaMap = new THREE.Data3DTexture(
+            this.processor.computes.maximaMap.tensor.dataSync(), 
+            ...this.processor.computes.maximaMap.parameters.dimensions)
+        this.textures.maximaMap.format = THREE.RedFormat
+        this.textures.maximaMap.type = THREE.FloatType
+        this.textures.maximaMap.minFilter = THREE.NearestFilter
+        this.textures.maximaMap.magFilter = THREE.NearestFilter
+        this.textures.maximaMap.computeMipmaps = false
+        this.textures.maximaMap.needsUpdate = true
+        tf.dispose(this.processor.computes.maximaMap.tensor) 
+
         // Intensity map 
         this.textures.intensityMap = new THREE.Data3DTexture(
             this.processor.volume.data, 
@@ -115,20 +115,20 @@ export default class MIPViewer extends EventEmitter
     {        
         // Computes
         const intensityMap = this.processor.computes.intensityMap
-        const minimaDistanceMap =  this.processor.computes.minimaDistanceMap
-        const maximaDistanceMap =  this.processor.computes.maximaDistanceMap
+        const maximaMap =  this.processor.computes.maximaMap
+        const distanceMap =  this.processor.computes.distanceMap
 
         // Uniforms/Defines
         const u_textures = this.material.uniforms.u_textures.value
         const u_intensity_map = this.material.uniforms.u_intensity_map.value
-        const u_minima_distance_map = this.material.uniforms.u_minima_distance_map.value
-        const u_maxima_distance_map = this.material.uniforms.u_maxima_distance_map.value
+        const u_maxima_map = this.material.uniforms.u_maxima_map.value
+        const u_distance_map = this.material.uniforms.u_distance_map.value
         const defines = this.material.defines
 
         // Update Uniforms
         u_textures.color_maps = this.textures.colorMaps   
-        u_textures.minima_distance_map = this.textures.minimaDistanceMap
-        u_textures.maxima_distance_map = this.textures.maximaDistanceMap
+        u_textures.distance_map = this.textures.distanceMap
+        u_textures.maxima_map = this.textures.maximaMap
         u_textures.intensity_map = this.textures.intensityMap
         
         u_intensity_map.dimensions.copy(intensityMap.parameters.dimensions)
@@ -142,30 +142,28 @@ export default class MIPViewer extends EventEmitter
         u_intensity_map.inv_spacing.copy(intensityMap.parameters.invSpacing)
         u_intensity_map.inv_size.copy(intensityMap.parameters.invSize)
  
-        u_minima_distance_map.sub_division = minimaDistanceMap.parameters.subDivision
-        u_minima_distance_map.dimensions.copy(minimaDistanceMap.parameters.dimensions)
-        u_minima_distance_map.spacing.copy(minimaDistanceMap.parameters.spacing)
-        u_minima_distance_map.size.copy(minimaDistanceMap.parameters.size)
-        u_minima_distance_map.inv_sub_division = minimaDistanceMap.parameters.invSubDivision
-        u_minima_distance_map.inv_dimensions.copy(minimaDistanceMap.parameters.invDimensions)
-        u_minima_distance_map.inv_spacing.copy(minimaDistanceMap.parameters.invSpacing)
-        u_minima_distance_map.inv_size.copy(minimaDistanceMap.parameters.invSize)
+        u_maxima_map.sub_division = maximaMap.parameters.subDivision
+        u_maxima_map.dimensions.copy(maximaMap.parameters.dimensions)
+        u_maxima_map.spacing.copy(maximaMap.parameters.spacing)
+        u_maxima_map.size.copy(maximaMap.parameters.size)
+        u_maxima_map.inv_sub_division = maximaMap.parameters.invSubDivision
+        u_maxima_map.inv_dimensions.copy(maximaMap.parameters.invDimensions)
+        u_maxima_map.inv_spacing.copy(maximaMap.parameters.invSpacing)
+        u_maxima_map.inv_size.copy(maximaMap.parameters.invSize)
 
-        u_maxima_distance_map.sub_division = maximaDistanceMap.parameters.subDivision
-        u_maxima_distance_map.dimensions.copy(maximaDistanceMap.parameters.dimensions)
-        u_maxima_distance_map.spacing.copy(maximaDistanceMap.parameters.spacing)
-        u_maxima_distance_map.size.copy(maximaDistanceMap.parameters.size)
-        u_maxima_distance_map.inv_sub_division = maximaDistanceMap.parameters.invSubDivision
-        u_maxima_distance_map.inv_dimensions.copy(maximaDistanceMap.parameters.invDimensions)
-        u_maxima_distance_map.inv_spacing.copy(maximaDistanceMap.parameters.invSpacing)
-        u_maxima_distance_map.inv_size.copy(maximaDistanceMap.parameters.invSize)
+        u_distance_map.dimensions.copy(distanceMap.parameters.dimensions)
+        u_distance_map.spacing.copy(distanceMap.parameters.spacing)
+        u_distance_map.size.copy(distanceMap.parameters.size)
+        u_distance_map.inv_sub_division = distanceMap.parameters.invSubDivision
+        u_distance_map.inv_dimensions.copy(distanceMap.parameters.invDimensions)
+        u_distance_map.inv_spacing.copy(distanceMap.parameters.invSpacing)
+        u_distance_map.inv_size.copy(distanceMap.parameters.invSize)
+        u_distance_map.max_distance = distanceMap.parameters.maxDistance
 
         // Update Defines
         defines.MAX_CELL_COUNT = intensityMap.parameters.maxCellCount
-        defines.MAX_BLOCK_COUNT = minimaDistanceMap.parameters.maxBlockCount
-        defines.MAX_CELL_SUB_COUNT = 3 * maximaDistanceMap.parameters.subDivision - 2
-        defines.MAX_BATCH_COUNT = Math.ceil(defines.MAX_CELL_COUNT / defines.MAX_CELL_SUB_COUNT)
-        defines.MAX_BLOCK_SUB_COUNT = Math.ceil(defines.MAX_BLOCK_COUNT / defines.MAX_BATCH_COUNT)
+        defines.MAX_CELL_SUBCOUNT = 3 * maximaMap.parameters.subDivision - 2
+        defines.MAX_BLOCK_COUNT = maximaMap.parameters.maxBlockCount
     }
 
     setMesh()

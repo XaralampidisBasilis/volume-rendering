@@ -82,9 +82,9 @@ export default class MIPGui
     
         this.controllers.rendering = 
         {
-            maxCount           : folder.add(uRendering, 'max_count').min(0).max(1000).step(1),
-            maxCellCount       : folder.add(uRendering, 'max_cell_count').min(0).max(1000).step(1),
-            maxBlockCount      : folder.add(uRendering, 'max_block_count').min(0).max(200).step(1),
+            maxCount           : folder.add(uRendering, 'max_count').min(0).max(100).step(1),
+            maxCellCount       : folder.add(uRendering, 'max_cell_count').min(0).max(100).step(1),
+            maxBlockCount      : folder.add(uRendering, 'max_block_count').min(0).max(100).step(1),
             enableIntersectBbox: folder.add(objects, 'INTERSECT_BBOX_ENABLED').name('enable_intersect_bbox').onFinishChange((value) => { defines.INTERSECT_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
             enableSkipping     : folder.add(objects, 'SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
         }

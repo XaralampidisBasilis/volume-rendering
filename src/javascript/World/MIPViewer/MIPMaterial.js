@@ -9,10 +9,10 @@ export default function()
     {
         u_textures: new THREE.Uniform
         ({
-            intensity_map       : null,
-            color_maps          : null,
-            minima_distance_map : null,
-            maxima_distance_map : null,
+            intensity_map  : null,
+            color_maps     : null,
+            maxima_map     : null,
+            distance_map   : null,
         }),
 
         u_intensity_map : new THREE.Uniform
@@ -29,11 +29,10 @@ export default function()
             max_intensity         : 0.0,
         }),
 
-        u_lowres_maps : new THREE.Uniform
+        u_maxima_map : new THREE.Uniform
         ({
-            sub_division    : 4,
-            inv_sub_division: 1/4,
-            max_iterations  : 256,
+            sub_division    : 8,
+            inv_sub_division: 1/8,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
             size            : new THREE.Vector3(),
@@ -42,24 +41,10 @@ export default function()
             inv_size        : new THREE.Vector3(),
         }),
 
-        u_minima_distance_map : new THREE.Uniform
+        u_distance_map : new THREE.Uniform
         ({
-            sub_division    : 4,
-            inv_sub_division: 1/4,
             max_iterations  : 100,
-            dimensions      : new THREE.Vector3(),
-            spacing         : new THREE.Vector3(),
-            size            : new THREE.Vector3(),
-            inv_dimensions  : new THREE.Vector3(),
-            inv_spacing     : new THREE.Vector3(),
-            inv_size        : new THREE.Vector3(),
-        }),
-
-        u_maxima_distance_map : new THREE.Uniform
-        ({
-            sub_division    : 4,
-            inv_sub_division: 1/4,
-            max_iterations  : 100,
+            max_distance    : 100,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
             size            : new THREE.Vector3(),
@@ -108,11 +93,10 @@ export default function()
         DEBUG_ENABLED          : 1,
         DISCARDING_DISABLED    : 0,
 
-        MAX_CELL_COUNT         : 1000,
-        MAX_BLOCK_COUNT        : 1000,
-        MAX_CELL_SUB_COUNT     : 10,
-        MAX_BLOCK_SUB_COUNT    : 20,
-        MAX_BATCH_COUNT        : 100,
+        MAX_TRACE_COUNT        : 100,
+        MAX_CELL_COUNT         : 100,
+        MAX_CELL_SUBCOUNT      : 100,
+        MAX_BLOCK_COUNT        : 100,
     }
 
     const material = new THREE.ShaderMaterial

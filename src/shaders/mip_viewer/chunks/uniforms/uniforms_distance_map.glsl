@@ -1,9 +1,9 @@
-#ifndef UNIFORMS_MINIMA_DISTANCE_MAP
-#define UNIFORMS_MINIMA_DISTANCE_MAP
+#ifndef UNIFORMS_DISTANCE_MAP
+#define UNIFORMS_DISTANCE_MAP
 
-struct MinimaDistanceMap
+struct DistanceMap
 {
-    int   sub_division;
+    int   max_distance;
     ivec3 dimensions;    
     vec3  spacing;                  
     vec3  size;            
@@ -13,6 +13,6 @@ struct MinimaDistanceMap
     vec3  inv_size;              
 };
 
-uniform MinimaDistanceMap u_minima_distance_map;
+uniform DistanceMap u_distance_map;
 
 #endif 

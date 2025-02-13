@@ -1,7 +1,7 @@
-#ifndef UNIFORMS_MAXIMA_DISTANCE_MAP
-#define UNIFORMS_MAXIMA_DISTANCE_MAP
+#ifndef UNIFORMS_MAXIMA_MAP
+#define UNIFORMS_MAXIMA_MAP
 
-struct MaximaDistanceMap
+struct MaximaMap
 {
     int   sub_division;
     ivec3 dimensions;    
@@ -13,6 +13,6 @@ struct MaximaDistanceMap
     vec3  inv_size;              
 };
 
-uniform MaximaDistanceMap u_maxima_distance_map;
+uniform MaximaMap u_maxima_map;
 
 #endif 

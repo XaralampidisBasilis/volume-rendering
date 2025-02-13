@@ -12,6 +12,7 @@ struct Trace
     vec3  position;             // current position in 3d model coordinates
     vec3  uvw;                  // current position in 3d model coordinates
     float distance;             // current distance traveled from camera
+    float distance_step;
 
     vec3  gradient;             // gradient vector
     float intensity;            // sampled value at the current position
@@ -28,6 +29,7 @@ Trace set_trace()
     trace.position         = vec3(0.0);
     trace.uvw              = vec3(0.0);
     trace.distance         = 0.0;
+    trace.distance_step    = 0.0;
     trace.gradient         = vec3(0.0);
     trace.intensity        = 0.0;
     trace.error            = 0.0;
