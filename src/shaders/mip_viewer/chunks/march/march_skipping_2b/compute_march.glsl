@@ -26,10 +26,10 @@ for (int batch = 0; batch < u_rendering.max_count; batch++)
     {
         #include "./modules/update_cell"
 
-        // if (cell.terminated) 
-        // {
-        //     break;
-        // }
+        if (cell.terminated) 
+        {
+            break;
+        }
     }   
 
     // Termination condition
