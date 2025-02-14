@@ -1,7 +1,8 @@
 
 // Compute trace position
 trace.distance += trace.distance_step;
-trace.uvw = camera.uvw + ray.direction_uvw * trace.distance;
+trace.position = camera.position + ray.direction * trace.distance;
+trace.uvw = trace.position * u_intensity_map.inv_size;
 
 // Sample intensity map
 trace.intensity = texture(u_textures.intensity_map, trace.uvw).r;

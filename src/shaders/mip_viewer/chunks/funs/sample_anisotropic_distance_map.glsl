@@ -4,7 +4,7 @@ int sample_anisotropic_distance_map(ivec3 coords, int index)
     vec4 tex_sample = texelFetch(u_textures.anisotropic_distance_map, coords, 0);
     
     // Convert to unsigned integer format (0-255)
-    uvec4 tex_data = uvec4(tex_sample * 255.0);
+    uvec4 tex_data = uvec4(round(tex_sample * 255.0));
 
     // Each channel contains two 4-bit values
     // Determine the source channel (0: R, 1: G, 2: B, 3: A)

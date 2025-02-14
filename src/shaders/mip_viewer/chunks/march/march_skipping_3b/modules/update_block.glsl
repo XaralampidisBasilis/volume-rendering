@@ -7,8 +7,8 @@ block.max_intensity = texelFetch(u_textures.maxima_map, block.coords, 0).r;
 block.occupied = mip.intensity < block.max_intensity;
 
 // Compute maxima chebysev distance
-block.cheby_distance = int(round(texelFetch(u_textures.distance_map, block.coords, 0).r * 255.0));
-block.cheby_distance *= int(!block.occupied);
+block.cheby_distance = sample_distance_map(block.coords);
+block.cheby_distance = block.occupied ? 0 : block.cheby_distance;
 
 // Compute block bounding box coords
 block.min_coords = block.coords - block.cheby_distance;
@@ -27,7 +27,7 @@ block.entry_position = block.exit_position;
 block.exit_position = camera.position + ray.direction * block.exit_distance;
 
 // Compute termination condition
-block.terminated = block.exit_distance > ray.end_distance;
+block.terminated = block.exit_distance > ray.end_distance && ! block.occupied;
 
 // Update stats
 #if STATS_ENABLED == 1

@@ -19,10 +19,6 @@ block.max_intensity = texelFetch(u_textures.maxima_map, block.coords, 0).r;
 
 // Compute termination condition
 block.occupied = mip.intensity < block.max_intensity;
-block.terminated = block.exit_distance > ray.end_distance;
-
-// Update trace 
-trace.distance = block.entry_distance;
 
 // Update stats
 #if STATS_ENABLED == 1

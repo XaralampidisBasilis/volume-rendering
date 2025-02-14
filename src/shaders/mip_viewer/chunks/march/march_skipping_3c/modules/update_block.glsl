@@ -8,7 +8,7 @@ block.occupied = mip.intensity < block.max_intensity;
 
 // Compute maxima chebysev distance
 block.cheby_distance = sample_anisotropic_distance_map(block.coords, ray.octant);
-block.cheby_distance *= int(!block.occupied);
+block.cheby_distance = block.occupied ? 0 : block.cheby_distance;
 
 // Compute block bounding box coords
 block.min_coords = block.coords - block.cheby_distance;
@@ -27,7 +27,7 @@ block.entry_position = block.exit_position;
 block.exit_position = camera.position + ray.direction * block.exit_distance;
 
 // Compute termination condition
-block.terminated = block.exit_distance > ray.end_distance;
+block.terminated = block.exit_distance > ray.end_distance && ! block.occupied;
 
 // Update stats
 #if STATS_ENABLED == 1
