@@ -6,6 +6,7 @@ struct Textures
     sampler3D intensity_map;
     sampler3D maxima_map;
     sampler3D distance_map;
+    sampler3D anisotropic_distance_map;
     sampler2D color_maps;      
 };
 

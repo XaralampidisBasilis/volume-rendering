@@ -32,11 +32,10 @@ export default class MIPProcessor extends EventEmitter
     {
         this.computes = 
         {
-            intensityMap      : { parameters: null, tensor: null},
-            maximaMap         : { parameters: null, tensor: null},
-            distanceMap       : { parameters: null, tensor: null},
-            minimaDistanceMap : { parameters: null, tensor: null},
-            maximaDistanceMap : { parameters: null, tensor: null},
+            intensityMap          : { parameters: null, tensor: null},
+            maximaMap             : { parameters: null, tensor: null},
+            distanceMap           : { parameters: null, tensor: null},
+            anisotropicDistanceMap: { parameters: null, tensor: null},
         }
 
     }
@@ -119,7 +118,7 @@ export default class MIPProcessor extends EventEmitter
     {
         if (!(this.computes.intensityMap.tensor instanceof tf.Tensor)) 
         {
-            throw new Error(`computeMaximaMap: intensityMap is not computed`)
+            throw new Error(`generateMaximaMap: intensityMap is not computed`)
         }
      
         const maximaMap = await this.computeMaximaMap(this.computes.intensityMap.tensor, subDivision)
@@ -148,10 +147,11 @@ export default class MIPProcessor extends EventEmitter
     {
         if (!(this.computes.maximaMap.tensor instanceof tf.Tensor)) 
         {
-            throw new Error(`computeDistanceMap: maximaMap is not computed`)
+            throw new Error(`generateDistanceMap: maximaMap is not computed`)
         }
 
         const distanceMap = await this.computeDistanceMap(this.computes.maximaMap.tensor, maxIterations)
+        
         const parameters = {...this.computes.maximaMap.parameters}
         const maxDistance = distanceMap.max()
         const meanDistance = distanceMap.mean()
@@ -159,11 +159,31 @@ export default class MIPProcessor extends EventEmitter
         parameters.meanDistance = meanDistance.arraySync()  
         tf.dispose([maxDistance, meanDistance])
 
-        this.computes.distanceMap.tensor = distanceMap
+        this.computes.distanceMap.tensor = distanceMap  
         this.computes.distanceMap.parameters = parameters
         
         console.log(this.computes.distanceMap.parameters)
         // console.log(this.computes.distanceMap.tensor.dataSync())    
+    }
+
+    async generateAnisotropicDistanceMap()
+    {
+        if (!(this.computes.maximaMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`generateAnisotropicDistanceMap: maximaMap is not computed`)
+        }
+
+        console.time('generateAnisotropicDistanceMap')
+        const anisotropicDistanceMap = await this.computeAnisotropicDistanceMap(this.computes.maximaMap.tensor)
+        console.timeEnd('generateAnisotropicDistanceMap')
+
+        const parameters = {...this.computes.maximaMap.parameters}
+
+        this.computes.anisotropicDistanceMap.tensor = anisotropicDistanceMap  
+        this.computes.anisotropicDistanceMap.parameters = parameters
+        
+        console.log(this.computes.anisotropicDistanceMap.parameters)
+        console.log(this.computes.anisotropicDistanceMap.tensor.dataSync()) 
     }
     
     // Helpers
@@ -231,6 +251,95 @@ export default class MIPProcessor extends EventEmitter
         return distanceMap
     }
 
+    async computeOctantDistanceMap(maximaMap, maxIterations, index)
+    {
+        const reverse = (variable, index) =>
+        {
+            tf.tidy(() =>
+            {
+                switch (index)
+                {
+                    case 0:                                                             break // octant (+ + +)
+                    case 1: variable.assign(variable.reverse(2));                       break // octant (+ + -)
+                    case 2: variable.assign(variable.reverse(1));                       break // octant (+ - +)
+                    case 3: variable.assign(variable.reverse(2).reverse(1));            break // octant (+ - -)
+                    case 4: variable.assign(variable.reverse(0));                       break // octant (- + +)
+                    case 5: variable.assign(variable.reverse(0).reverse(2));            break // octant (- + -)
+                    case 6: variable.assign(variable.reverse(0).reverse(1));            break // octant (- - +)
+                    case 7: variable.assign(variable.reverse(0).reverse(1).reverse(2)); break // octant (- - -)
+                }
+            })
+        }
+
+        // Initialize distance map and previous/next diffusion
+        let diffusionMap = tf.tidy(() => tf.variable(tf.clone(maximaMap), true))
+        let distanceMap  = tf.tidy(() => tf.variable(tf.zeros(maximaMap.shape, 'int32'), true))
+
+        // Reflect the map to align with direction
+        reverse(diffusionMap, index)
+
+        for (let i = 0; i < maxIterations; i++) 
+        {
+            tf.tidy(() => 
+            {
+                // Compute distance update
+                const distance = tf.scalar(i, 'int32')
+                const update = tf.greaterEqual(maximaMap, diffusionMap)
+
+                // Update distance map
+                distanceMap.assign(this.mix(distanceMap, distance, update))
+
+                // Compute diffusion map with max pooling
+                diffusionMap.assign(tf.maxPool3d(diffusionMap, [2, 2, 2], [1, 1, 1], 'same'))
+            })
+
+            // Allow for garbage collection and prevent blocking
+            await tf.nextFrame()
+        }
+
+        // Reflect back the distance map
+        reverse(distanceMap, index)
+
+        // Convert variable to tensor
+        distanceMap = distanceMap.clone()
+
+        // Cleanup
+        tf.disposeVariables()
+        await tf.nextFrame()
+
+        console.log(distanceMap.mean().arraySync())
+
+        return distanceMap
+    }
+
+    async computeAnisotropicDistanceMap(maximaMap)
+    {
+        // Octant distance maps
+        const distanceMap0 = await this.computeOctantDistanceMap(maximaMap, 16, 0)
+        const distanceMap1 = await this.computeOctantDistanceMap(maximaMap, 16, 1)
+        const distanceMap2 = await this.computeOctantDistanceMap(maximaMap, 16, 2)
+        const distanceMap3 = await this.computeOctantDistanceMap(maximaMap, 16, 3)
+        const distanceMap4 = await this.computeOctantDistanceMap(maximaMap, 16, 4)
+        const distanceMap5 = await this.computeOctantDistanceMap(maximaMap, 16, 5)
+        const distanceMap6 = await this.computeOctantDistanceMap(maximaMap, 16, 6)
+        const distanceMap7 = await this.computeOctantDistanceMap(maximaMap, 16, 7)
+
+        // Bit packing
+        const distanceMap01 = tf.tidy(() => tf.add(distanceMap0, distanceMap1.mul(tf.scalar(16, 'int32'))))
+        const distanceMap23 = tf.tidy(() => tf.add(distanceMap2, distanceMap3.mul(tf.scalar(16, 'int32'))))
+        const distanceMap45 = tf.tidy(() => tf.add(distanceMap4, distanceMap5.mul(tf.scalar(16, 'int32'))))
+        const distanceMap67 = tf.tidy(() => tf.add(distanceMap6, distanceMap7.mul(tf.scalar(16, 'int32'))))
+
+        // Anisotropic distance map
+        const distanceMap = tf.concat([distanceMap01, distanceMap23, distanceMap45, distanceMap67], 3)
+
+        // Disposals
+        tf.dispose([distanceMap0, distanceMap1, distanceMap2, distanceMap3, distanceMap4, distanceMap5, distanceMap6, distanceMap7])
+        tf.dispose([distanceMap01, distanceMap23, distanceMap45, distanceMap67])
+
+        // Return map
+        return distanceMap
+    }
     
     minPool3d(tensor4d, filterSize, strides, pad)
     {

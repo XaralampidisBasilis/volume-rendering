@@ -25,7 +25,7 @@ for (int n = 0; n < u_rendering.max_block_count; n++)
     for (int i = 0; i < u_rendering.max_cell_count; i++) 
     {
         // Compute trace position
-        trace.distance += trace.distance_step * (1.0 + random(trace.uvw));
+        trace.distance += trace.distance_step;
         trace.position = camera.position + ray.direction * trace.distance;
         trace.uvw = trace.position * u_intensity_map.inv_size;
 
@@ -35,7 +35,7 @@ for (int n = 0; n < u_rendering.max_block_count; n++)
         // Update maximum intensity projection
         mip.intensity = max(mip.intensity, trace.intensity);
 
-        if (trace.distance > block.exit_distance) 
+        if (trace.distance > block.exit_distance || mip.intensity == block.max_intensity) 
         {
             break;
         } 

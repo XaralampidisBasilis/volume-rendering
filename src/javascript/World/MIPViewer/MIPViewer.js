@@ -35,6 +35,7 @@ export default class MIPViewer extends EventEmitter
         await this.processor.generateIntensityMap()
         await this.processor.generateMaximaMap(u_maxima_map.sub_division)
         await this.processor.generateDistanceMap(u_distance_map.max_iterations)
+        await this.processor.generateAnisotropicDistanceMap()
         console.log('finished generateMaps')
     }
 
@@ -65,6 +66,18 @@ export default class MIPViewer extends EventEmitter
         this.textures.colorMaps.magFilter = THREE.LinearFilter         
         this.textures.colorMaps.generateMipmaps = false
         this.textures.colorMaps.needsUpdate = true 
+
+        // Anisotropic distance map
+        this.textures.anisotropicDistanceMap = new THREE.Data3DTexture(
+            new Uint8ClampedArray(this.processor.computes.anisotropicDistanceMap.tensor.dataSync()), 
+            ...this.processor.computes.anisotropicDistanceMap.parameters.dimensions)
+        this.textures.anisotropicDistanceMap.format = THREE.RGBAFormat
+        this.textures.anisotropicDistanceMap.type = THREE.UnsignedByteType
+        this.textures.anisotropicDistanceMap.minFilter = THREE.NearestFilter
+        this.textures.anisotropicDistanceMap.magFilter = THREE.NearestFilter
+        this.textures.anisotropicDistanceMap.computeMipmaps = false
+        this.textures.anisotropicDistanceMap.needsUpdate = true
+        tf.dispose(this.processor.computes.anisotropicDistanceMap.tensor)
 
         // Distance map
         this.textures.distanceMap = new THREE.Data3DTexture(
@@ -126,10 +139,11 @@ export default class MIPViewer extends EventEmitter
         const defines = this.material.defines
 
         // Update Uniforms
-        u_textures.color_maps = this.textures.colorMaps   
-        u_textures.distance_map = this.textures.distanceMap
-        u_textures.maxima_map = this.textures.maximaMap
         u_textures.intensity_map = this.textures.intensityMap
+        u_textures.color_maps = this.textures.colorMaps   
+        u_textures.maxima_map = this.textures.maximaMap
+        u_textures.distance_map = this.textures.distanceMap
+        u_textures.anisotropic_distance_map = this.textures.anisotropicDistanceMap
         
         u_intensity_map.dimensions.copy(intensityMap.parameters.dimensions)
         u_intensity_map.spacing.copy(intensityMap.parameters.spacing)

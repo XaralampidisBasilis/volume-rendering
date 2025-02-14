@@ -1,6 +1,5 @@
 
-// compute lower bound before marching
-#include "./modules/compute_lower_bound"
+
 
 // start march at ray start
 #include "./modules/start_march"

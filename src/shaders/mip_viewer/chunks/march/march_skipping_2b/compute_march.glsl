@@ -1,6 +1,4 @@
 
-#include "./modules/compute_low_bound"
-
 // start march at ray start
 #include "./modules/start_march"
 

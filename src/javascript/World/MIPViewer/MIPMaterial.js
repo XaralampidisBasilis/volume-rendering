@@ -9,10 +9,11 @@ export default function()
     {
         u_textures: new THREE.Uniform
         ({
-            intensity_map  : null,
-            color_maps     : null,
-            maxima_map     : null,
-            distance_map   : null,
+            intensity_map           : null,
+            color_maps              : null,
+            maxima_map              : null,
+            distance_map            : null,
+            anisotropic_distance_map: null,
         }),
 
         u_intensity_map : new THREE.Uniform
@@ -31,8 +32,8 @@ export default function()
 
         u_maxima_map : new THREE.Uniform
         ({
-            sub_division    : 8,
-            inv_sub_division: 1/8,
+            sub_division    : 16,
+            inv_sub_division: 1/16,
             dimensions      : new THREE.Vector3(),
             spacing         : new THREE.Vector3(),
             size            : new THREE.Vector3(),

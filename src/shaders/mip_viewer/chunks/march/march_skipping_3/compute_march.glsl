@@ -1,9 +1,7 @@
 
-#include "./modules/compute_low_bound"
-
 #include "./modules/start_block"
 
-for (int n = 0; n < MAX_BLOCK_COUNT; n++) 
+for (int n = 0; n < u_rendering.max_block_count; n++) 
 {
     #include "./modules/update_block"
 
@@ -35,7 +33,7 @@ for (int n = 0; n < MAX_BLOCK_COUNT; n++)
         // Update maximum intensity projection
         mip.intensity = max(mip.intensity, trace.intensity);
 
-        if (trace.distance > block.exit_distance) 
+        if (trace.distance > block.exit_distance || mip.intensity == block.max_intensity) 
         {
             break;
         } 

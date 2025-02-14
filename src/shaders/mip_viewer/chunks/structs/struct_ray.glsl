@@ -5,6 +5,7 @@ struct Ray
 {
     bool  discarded;  // flag indicating if the ray has been discarded
 
+    int   octant;
     vec3  direction;      // direction vector for each step along the ray
     vec3  direction_uvw;   
     float step_distance;  // fixed step distance for each ray 
@@ -15,14 +16,15 @@ struct Ray
     float end_distance;    // ending distance along the current ray from origin for ray march
     float span_distance;   // total distance that can be covered by the current ray for ray march
 
-    int   max_cell_count;       // maximum number of steps allowed
-    int   max_block_count;       // maximum number of skips allowed
+    int   max_cell_count;  // maximum number of steps allowed
+    int   max_block_count; // maximum number of skips allowed
 };
 
 Ray set_ray()
 {
     Ray ray;
     ray.discarded       = false;
+    ray.octant          = get_octant_from_direction(v_ray_direction);
     ray.direction       = normalize(v_ray_direction);
     ray.direction_uvw   = normalize(v_ray_direction) * u_intensity_map.inv_size;
     ray.step_distance   = 0.0;
