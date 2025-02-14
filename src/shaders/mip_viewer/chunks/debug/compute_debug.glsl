@@ -1,4 +1,9 @@
 
+
+// #include "./modules/debug_block_march_a"
+// #include "./modules/debug_block_march_b"
+// #include "./modules/debug_block_march_c"
+
 int debug_slot_ray       = 100;
 int debug_slot_trace     = 200;
 int debug_slot_mip       = 1000;
@@ -20,4 +25,5 @@ int debug_slot_variables = 900;
 #include "./modules/debug_camera"          
 #include "./modules/debug_variables"               
 #include "./modules/debug_stats"  
+
 

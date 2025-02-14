@@ -3,6 +3,9 @@
 // discarded
 vec4 debug_ray_discarded = to_color(ray.discarded);
 
+// ray octant
+vec4 debug_ray_octant = to_color(sign(ray.direction) * 0.5 + 0.5);
+
 // ray direction
 vec4 debug_ray_direction = to_color(ray.direction * 0.5 + 0.5);
 
@@ -36,13 +39,14 @@ vec4 debug_ray_max_block_count = to_color(float(ray.max_block_count) / float(u_r
 switch (u_debugging.option - debug_slot_ray)
 {
     case  1: fragColor = debug_ray_discarded;       break;
-    case  2: fragColor = debug_ray_direction;       break;
-    case  3: fragColor = debug_ray_step_distance;   break;
-    case  4: fragColor = debug_ray_start_distance;  break;
-    case  5: fragColor = debug_ray_end_distance;    break;
-    case  6: fragColor = debug_ray_span_distance;   break;
-    case  7: fragColor = debug_ray_start_position;  break;
-    case  8: fragColor = debug_ray_end_position;    break;
-    case  9: fragColor = debug_ray_max_cell_count;  break;
-    case 10: fragColor = debug_ray_max_block_count; break;
+    case  2: fragColor = debug_ray_octant;          break;
+    case  3: fragColor = debug_ray_direction;       break;
+    case  4: fragColor = debug_ray_step_distance;   break;
+    case  5: fragColor = debug_ray_start_distance;  break;
+    case  6: fragColor = debug_ray_end_distance;    break;
+    case  7: fragColor = debug_ray_span_distance;   break;
+    case  8: fragColor = debug_ray_start_position;  break;
+    case  9: fragColor = debug_ray_end_position;    break;
+    case 10: fragColor = debug_ray_max_cell_count;  break;
+    case 11: fragColor = debug_ray_max_block_count; break;
 }

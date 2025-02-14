@@ -175,9 +175,13 @@ export default class MIPViewer extends EventEmitter
         u_distance_map.max_distance = distanceMap.parameters.maxDistance
 
         // Update Defines
+        defines.MAX_TRACE_COUNT = Math.ceil(intensityMap.parameters.sizeLength / Math.min(...intensityMap.parameters.spacing))
+        defines.MAX_TRACE_SUBCOUNT = Math.ceil(maximaMap.parameters.spacingLength / Math.min(...intensityMap.parameters.spacing))
         defines.MAX_CELL_COUNT = intensityMap.parameters.maxCellCount
         defines.MAX_CELL_SUBCOUNT = 3 * maximaMap.parameters.subDivision - 2
         defines.MAX_BLOCK_COUNT = maximaMap.parameters.maxBlockCount
+
+        console.log(defines)
     }
 
     setMesh()

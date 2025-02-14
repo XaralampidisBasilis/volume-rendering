@@ -12,7 +12,7 @@ for (int n = 0; n < u_rendering.max_block_count; n++)
 
     #include "./modules/start_trace"
 
-    for (int i = 0; i < MAX_CELL_SUBCOUNT; i++) 
+    for (int i = 0; i < MAX_TRACE_SUBCOUNT; i++) 
     {
         #include "./modules/update_trace"
 

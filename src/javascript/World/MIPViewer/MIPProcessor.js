@@ -37,7 +37,6 @@ export default class MIPProcessor extends EventEmitter
             distanceMap           : { parameters: null, tensor: null},
             anisotropicDistanceMap: { parameters: null, tensor: null},
         }
-
     }
 
     setVolume(volume)
@@ -130,10 +129,12 @@ export default class MIPProcessor extends EventEmitter
         parameters.dimensions = new THREE.Vector3().fromArray(maximaMap.shape.slice(0, 3).toReversed())
         parameters.spacing = new THREE.Vector3().copy(this.volume.parameters.spacing).multiplyScalar(subDivision)
         parameters.size = new THREE.Vector3().copy(parameters.dimensions).multiply(parameters.spacing)
-        parameters.numBlocks = parameters.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+        parameters.spacingLength = parameters.spacing.length()
+        parameters.sizeLength = parameters.size.length()
         parameters.invDimensions = new THREE.Vector3().fromArray(parameters.dimensions.toArray().map(x => 1/x))
         parameters.invSpacing = new THREE.Vector3().fromArray(parameters.spacing.toArray().map(x => 1/x))
         parameters.invSize = new THREE.Vector3().fromArray(parameters.size.toArray().map(x => 1/x))
+        parameters.numBlocks = parameters.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
         parameters.maxBlockCount = parameters.dimensions.toArray().reduce((intersections, blocks) => intersections + blocks, -2)
 
         this.computes.maximaMap.tensor = maximaMap
@@ -182,8 +183,8 @@ export default class MIPProcessor extends EventEmitter
         this.computes.anisotropicDistanceMap.tensor = anisotropicDistanceMap  
         this.computes.anisotropicDistanceMap.parameters = parameters
         
-        console.log(this.computes.anisotropicDistanceMap.parameters)
-        console.log(this.computes.anisotropicDistanceMap.tensor.dataSync()) 
+        // console.log(this.computes.anisotropicDistanceMap.parameters)
+        // console.log(this.computes.anisotropicDistanceMap.tensor.dataSync()) 
     }
     
     // Helpers
@@ -256,17 +257,17 @@ export default class MIPProcessor extends EventEmitter
         const reverse = (variable, index) =>
         {
             tf.tidy(() =>
-            {
+            {   
                 switch (index)
                 {
-                    case 0:                                                             break // octant (+ + +)
-                    case 1: variable.assign(variable.reverse(2));                       break // octant (+ + -)
-                    case 2: variable.assign(variable.reverse(1));                       break // octant (+ - +)
-                    case 3: variable.assign(variable.reverse(2).reverse(1));            break // octant (+ - -)
-                    case 4: variable.assign(variable.reverse(0));                       break // octant (- + +)
-                    case 5: variable.assign(variable.reverse(0).reverse(2));            break // octant (- + -)
-                    case 6: variable.assign(variable.reverse(0).reverse(1));            break // octant (- - +)
-                    case 7: variable.assign(variable.reverse(0).reverse(1).reverse(2)); break // octant (- - -)
+                    case 0: variable.assign(variable.reverse(0).reverse(1).reverse(2)); break // octant (- - -)
+                    case 1: variable.assign(variable.reverse(0).reverse(1));            break // octant (- - +)
+                    case 2: variable.assign(variable.reverse(0).reverse(2));            break // octant (- + -)
+                    case 3: variable.assign(variable.reverse(0));                       break // octant (- + +)
+                    case 4: variable.assign(variable.reverse(1).reverse(2));            break // octant (+ - -)
+                    case 5: variable.assign(variable.reverse(1));                       break // octant (+ - +)
+                    case 6: variable.assign(variable.reverse(2));                       break // octant (+ + -)
+                    case 7:                                                             break // octant (+ + +)
                 }
             })
         }
@@ -307,8 +308,6 @@ export default class MIPProcessor extends EventEmitter
         tf.disposeVariables()
         await tf.nextFrame()
 
-        console.log(distanceMap.mean().arraySync())
-
         return distanceMap
     }
 
@@ -323,6 +322,15 @@ export default class MIPProcessor extends EventEmitter
         const distanceMap5 = await this.computeOctantDistanceMap(maximaMap, 16, 5)
         const distanceMap6 = await this.computeOctantDistanceMap(maximaMap, 16, 6)
         const distanceMap7 = await this.computeOctantDistanceMap(maximaMap, 16, 7)
+
+        // const distanceMap0 = tf.fill(maximaMap.shape, 0, 'int32')
+        // const distanceMap1 = tf.fill(maximaMap.shape, 0, 'int32')
+        // const distanceMap2 = tf.fill(maximaMap.shape, 0, 'int32')
+        // const distanceMap3 = tf.fill(maximaMap.shape, 0, 'int32')
+        // const distanceMap4 = tf.fill(maximaMap.shape, 0, 'int32')
+        // const distanceMap5 = tf.fill(maximaMap.shape, 0, 'int32')
+        // const distanceMap6 = tf.fill(maximaMap.shape, 0, 'int32')
+        // const distanceMap7 = tf.fill(maximaMap.shape, 0, 'int32')
 
         // Bit packing
         const distanceMap01 = tf.tidy(() => tf.add(distanceMap0, distanceMap1.mul(tf.scalar(16, 'int32'))))

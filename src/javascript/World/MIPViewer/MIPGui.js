@@ -73,7 +73,7 @@ export default class MIPGui
         const folder = this.subfolders.rendering
         const material = this.viewer.material
         const defines = this.viewer.material.defines
-        const uRendering = this.viewer.material.uniforms.u_rendering.value
+        const uniforms = this.viewer.material.uniforms.u_rendering.value
         const objects = 
         { 
             INTERSECT_BBOX_ENABLED     : Boolean(defines.INTERSECT_BBOX_ENABLED),
@@ -82,9 +82,9 @@ export default class MIPGui
     
         this.controllers.rendering = 
         {
-            maxCount           : folder.add(uRendering, 'max_count').min(0).max(100).step(1),
-            maxCellCount       : folder.add(uRendering, 'max_cell_count').min(0).max(100).step(1),
-            maxBlockCount      : folder.add(uRendering, 'max_block_count').min(0).max(100).step(1),
+            maxCount           : folder.add(uniforms, 'max_count').min(0).max(200).step(1),
+            maxCellCount       : folder.add(uniforms, 'max_cell_count').min(0).max(200).step(1),
+            maxBlockCount      : folder.add(uniforms, 'max_block_count').min(0).max(200).step(1),
             enableIntersectBbox: folder.add(objects, 'INTERSECT_BBOX_ENABLED').name('enable_intersect_bbox').onFinishChange((value) => { defines.INTERSECT_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
             enableSkipping     : folder.add(objects, 'SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
         }
@@ -131,15 +131,16 @@ export default class MIPGui
                 default                 : 0,
 
                 ray_discarded           : 101,
-                ray_direction           : 102,
-                ray_step_distance       : 103,
-                ray_start_distance      : 104,
-                ray_end_distance        : 105,
-                ray_span_distance       : 106,
-                ray_start_position      : 107,
-                ray_end_position        : 108,
-                ray_max_cell_count      : 109,
-                ray_max_block_count     : 110,
+                ray_octant              : 102,
+                ray_direction           : 103,
+                ray_step_distance       : 104,
+                ray_start_distance      : 105,
+                ray_end_distance        : 106,
+                ray_span_distance       : 107,
+                ray_start_position      : 108,
+                ray_end_position        : 109,
+                ray_max_cell_count      : 110,
+                ray_max_block_count     : 111,
                  
                 trace_terminated        : 201,
                 trace_exhausted         : 202,
@@ -180,14 +181,15 @@ export default class MIPGui
                 block_max_intensity     : 502,
                 block_cheby_distance    : 503,
                 block_occupied          : 504,
-                block_coords            : 505,
-                block_coords_step       : 506,
-                block_min_position      : 507,
-                block_max_position      : 508,
-                block_entry_distance    : 509,
-                block_exit_distance     : 510,
-                block_entry_position    : 511,
-                block_exit_position     : 512,
+                block_terminated        : 505,
+                block_coords            : 506,
+                block_coords_step       : 507,
+                block_min_position      : 508,
+                block_max_position      : 509,
+                block_entry_distance    : 510,
+                block_exit_distance     : 511,
+                block_entry_position    : 512,
+                block_exit_position     : 513,
 
                 frag_depth              : 601,
                 frag_position           : 602,
@@ -218,6 +220,9 @@ export default class MIPGui
                 variable3               : 903,
             }),
 
+            traceCount: folder.add(uniforms, 'trace_count').min(0).max(1000).step(1),
+            cellCount : folder.add(uniforms, 'cell_count').min(0).max(1000).step(1),
+            blockCount: folder.add(uniforms, 'block_count').min(0).max(300).step(1),
             variable1 : folder.add(uniforms, 'variable1').min(-2).max(2).step(0.00000001),
             variable2 : folder.add(uniforms, 'variable2').min(0).max(256).step(0.00000001),
             variable3 : folder.add(uniforms, 'variable3').min(0).max(10).step(1),

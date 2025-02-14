@@ -77,10 +77,13 @@ export default function()
 
         u_debugging: new THREE.Uniform
         ({
-            option    : 0,
-            variable1 : 0,
-            variable2 : 0,
-            variable3 : 0,
+            option      : 0,
+            trace_count : 0,
+            cell_count  : 0,
+            block_count : 0,
+            variable1   : 0,
+            variable2   : 0,
+            variable3   : 0,
         }),
     }
 
