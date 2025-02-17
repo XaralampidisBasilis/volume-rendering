@@ -7,7 +7,7 @@ block.max_intensity = texelFetch(u_textures.maxima_map, block.coords, 0).r;
 block.occupied = mip.intensity < block.max_intensity;
 
 // Compute maxima chebysev distance
-block.cheby_distance = sample_anisotropic_distance_map(block.coords, ray.octant);
+block.cheby_distance = sample_anisotropic_distance_map(block.coords, ray.octant_index);
 block.cheby_distance = block.occupied ? 0 : block.cheby_distance;
 
 // Compute block bounding box coords

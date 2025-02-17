@@ -33,9 +33,10 @@ export default class MIPViewer extends EventEmitter
         const u_maxima_map = this.material.uniforms.u_maxima_map.value
         const u_distance_map = this.material.uniforms.u_distance_map.value
         await this.processor.generateIntensityMap()
+        await this.processor.generateMinimaMap(u_maxima_map.sub_division)
         await this.processor.generateMaximaMap(u_maxima_map.sub_division)
-        await this.processor.generateDistanceMap(u_distance_map.max_iterations)
-        await this.processor.generateAnisotropicDistanceMap()
+        // await this.processor.generateDistanceMap(u_distance_map.max_iterations)
+        // await this.processor.generateAnisotropicDistanceMap()
         console.log('finished generateMaps')
     }
 
@@ -181,7 +182,7 @@ export default class MIPViewer extends EventEmitter
         defines.MAX_CELL_SUBCOUNT = 3 * maximaMap.parameters.subDivision - 2
         defines.MAX_BLOCK_COUNT = maximaMap.parameters.maxBlockCount
 
-        console.log(defines)
+        // console.log(defines)
     }
 
     setMesh()

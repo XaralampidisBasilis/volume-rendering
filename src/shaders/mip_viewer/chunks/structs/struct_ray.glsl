@@ -5,7 +5,7 @@ struct Ray
 {
     bool  discarded;  // flag indicating if the ray has been discarded
 
-    int   octant;
+    int   octant_index;
     vec3  direction;      // direction vector for each step along the ray
     vec3  direction_uvw;   
     float step_distance;  // fixed step distance for each ray 
@@ -24,7 +24,7 @@ Ray set_ray()
 {
     Ray ray;
     ray.discarded       = false;
-    ray.octant          = get_octant_from_direction(v_ray_direction);
+    ray.octant_index    = get_octant_from_direction(v_ray_direction);
     ray.direction       = normalize(v_ray_direction);
     ray.direction_uvw   = normalize(v_ray_direction) * u_intensity_map.inv_size;
     ray.step_distance   = 0.0;

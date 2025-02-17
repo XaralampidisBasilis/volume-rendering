@@ -113,6 +113,37 @@ export default class MIPProcessor extends EventEmitter
         // console.log(this.computes.intensityMap.tensor.dataSync())
     }
 
+    async generateMinimaMap(subDivision)
+    {
+        if (!(this.computes.intensityMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`generateMinimaMap: intensityMap is not computed`)
+        }
+     
+        const minimaMap = await this.computeMinimaMap(this.computes.intensityMap.tensor, subDivision)
+        const parameters = {}
+
+        parameters.shape = minimaMap.shape
+        parameters.subDivision = subDivision
+        parameters.invSubDivision = 1/subDivision
+        parameters.dimensions = new THREE.Vector3().fromArray(minimaMap.shape.slice(0, 3).toReversed())
+        parameters.spacing = new THREE.Vector3().copy(this.volume.parameters.spacing).multiplyScalar(subDivision)
+        parameters.size = new THREE.Vector3().copy(parameters.dimensions).multiply(parameters.spacing)
+        parameters.spacingLength = parameters.spacing.length()
+        parameters.sizeLength = parameters.size.length()
+        parameters.invDimensions = new THREE.Vector3().fromArray(parameters.dimensions.toArray().map(x => 1/x))
+        parameters.invSpacing = new THREE.Vector3().fromArray(parameters.spacing.toArray().map(x => 1/x))
+        parameters.invSize = new THREE.Vector3().fromArray(parameters.size.toArray().map(x => 1/x))
+        parameters.numBlocks = parameters.dimensions.toArray().reduce((numBlocks, dimension) => numBlocks * dimension, 1)
+        parameters.maxBlockCount = parameters.dimensions.toArray().reduce((intersections, blocks) => intersections + blocks, -2)
+
+        this.computes.minimaMap.tensor = minimaMap
+        this.computes.minimaMap.parameters = parameters
+    
+        // console.log(this.computes.minimaMap.parameters)
+        // console.log(this.computes.minimaMap.tensor.dataSync())    
+    }
+
     async generateMaximaMap(subDivision)
     {
         if (!(this.computes.intensityMap.tensor instanceof tf.Tensor)) 
@@ -143,6 +174,27 @@ export default class MIPProcessor extends EventEmitter
         // console.log(this.computes.maximaMap.parameters)
         // console.log(this.computes.maximaMap.tensor.dataSync())    
     }
+    
+    async generateOccupancyMap()
+    {
+        if (!(this.computes.minimaMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`generateOccupancyMap: minimaMap is not computed`)
+        }
+        if (!(this.computes.maximaMap.tensor instanceof tf.Tensor)) 
+        {
+            throw new Error(`generateOccupancyMap: maximaMap is not computed`)
+        }
+
+        const occupancyMap = await this.computeOccupancyMap(this.computes.minimaMap.tensor, this.computes.maximaMap.tensor)
+        const parameters = {...this.computes.maximaMap.parameters}
+
+        this.computes.occupancyMap.tensor = occupancyMap  
+        this.computes.occupancyMap.parameters = parameters
+        
+        // console.log(this.computes.occupancyMap.parameters)
+        // console.log(this.computes.occupancyMap.tensor.dataSync())    
+    }
 
     async generateDistanceMap(maxIterations)
     {
@@ -163,7 +215,7 @@ export default class MIPProcessor extends EventEmitter
         this.computes.distanceMap.tensor = distanceMap  
         this.computes.distanceMap.parameters = parameters
         
-        console.log(this.computes.distanceMap.parameters)
+        // console.log(this.computes.distanceMap.parameters)
         // console.log(this.computes.distanceMap.tensor.dataSync())    
     }
 
@@ -189,6 +241,30 @@ export default class MIPProcessor extends EventEmitter
     
     // Helpers
 
+    async computeMinimaMap(intensityMap, division) 
+    {
+        // Scalars for threshold and output scaling
+        const strides = [division, division, division]
+        const divisions = strides.map(x => x + 1)
+
+        // Calculate necessary padding for valid subdivisions and boundary handling
+        const divisible = intensityMap.shape
+            .map((dimension, i) => Math.ceil((dimension - divisions[i]) / strides[i]) + 1)
+            .map((dimension, i) => dimension * strides[i] + divisions[i])
+        const padding = intensityMap.shape.map((dimension, i) => [1, divisible[i] - dimension - 1])
+        padding[3] = [0, 0]
+
+        // Symmetric padding to handle boundaries by adding zeros
+        const padded = tf.pad(intensityMap, padding)
+
+        // Max pooling for upper bound detection
+        const minimaMap = this.minPool3d(padded, divisions, strides, 'valid')
+        tf.dispose(padded)
+        await tf.nextFrame()
+
+        return minimaMap
+    }
+
     async computeMaximaMap(intensityMap, division) 
     {
         // Scalars for threshold and output scaling
@@ -203,7 +279,6 @@ export default class MIPProcessor extends EventEmitter
         padding[3] = [0, 0]
 
         // Symmetric padding to handle boundaries by adding zeros
-        // const padded = tf.mirrorPad(intensityMap, padZ`ding, 'symmetric')
         const padded = tf.pad(intensityMap, padding)
 
         // Max pooling for upper bound detection
@@ -212,6 +287,24 @@ export default class MIPProcessor extends EventEmitter
         await tf.nextFrame()
 
         return maximaMap
+    }
+
+    async computeOccupancyMap(minimaMap, maximaMap)
+    {        
+        const minimaMap0 = this.shift(minimaMap, [1, 0, 0, 0])
+        const minimaMap1 = this.shift(minimaMap, [0, 1, 0, 0])
+        const minimaMap2 = this.shift(minimaMap, [0, 0, 1, 0])
+        const minimaMap3 = this.shift(minimaMap, [-1, 0, 0, 0])
+        const minimaMap4 = this.shift(minimaMap, [0, -1, 0, 0])
+        const minimaMap5 = this.shift(minimaMap, [0, 0, -1, 0])
+
+        const neighborMinimaMap = tf.tidy(() => minimaMap0.minimum(minimaMap1).minimum(minimaMap2).minimum(minimaMap3).minimum(minimaMap4).minimum(minimaMap5))
+        tf.dispose([minimaMap0, minimaMap1, minimaMap2, minimaMap3, minimaMap4, minimaMap5])
+
+        const occupancyMap = maximaMap.greaterEqual(neighborMinimaMap)
+        tf.dispose(neighborMinimaMap)
+
+        return occupancyMap
     }
 
     async computeDistanceMap(maximaMap, maxIterations)
@@ -245,6 +338,8 @@ export default class MIPProcessor extends EventEmitter
         // Convert variable to tensor
         distanceMap = distanceMap.clone()
 
+        // console.log(distanceMap.mean().arraySync())
+
         // Cleanup
         tf.disposeVariables()
         await tf.nextFrame()
@@ -267,15 +362,15 @@ export default class MIPProcessor extends EventEmitter
                     case 4: return tensor.reverse(1).reverse(2)            // octant (+ - -)
                     case 5: return tensor.reverse(1)                       // octant (+ - +)
                     case 6: return tensor.reverse(2)                       // octant (+ + -)
-                    case 7: return tensor.clone();                         // octant (+ + +)
+                    case 7: return tensor.clone()                          // octant (+ + +)
                 }
             })
         }
 
         // Initialize distance map and previous/next diffusion
-        let reverseMap = reverse(maximaMap, index)
-        let diffusionMap = tf.tidy(() => tf.variable(tf.clone(reverseMap), true))
-        let distanceMap  = tf.tidy(() => tf.variable(tf.zeros(reverseMap.shape, 'int32'), true))
+        let reversedMap = reverse(maximaMap, index)
+        let diffusionMap = tf.tidy(() => tf.variable(tf.clone(reversedMap), true))
+        let distanceMap  = tf.tidy(() => tf.variable(tf.zeros(reversedMap.shape, 'int32'), true))
 
         // Reflect the map to align with direction
         reverse(diffusionMap, index)
@@ -286,7 +381,7 @@ export default class MIPProcessor extends EventEmitter
             {
                 // Compute distance update
                 const distance = tf.scalar(i, 'int32')
-                const update = tf.greaterEqual(reverseMap, diffusionMap)
+                const update = tf.greaterEqual(reversedMap, diffusionMap)
 
                 // Update distance map
                 distanceMap.assign(this.mix(distanceMap, distance, update))
@@ -301,6 +396,8 @@ export default class MIPProcessor extends EventEmitter
 
         // Reflect back the distance map and convert variable to tensor
         distanceMap = reverse(distanceMap, index)
+
+        console.log(distanceMap.mean().arraySync())
 
         // Cleanup
         tf.disposeVariables()
@@ -326,9 +423,6 @@ export default class MIPProcessor extends EventEmitter
         const distanceMap23 = tf.tidy(() => tf.add(distanceMap2, distanceMap3.mul(tf.scalar(16, 'int32'))))
         const distanceMap45 = tf.tidy(() => tf.add(distanceMap4, distanceMap5.mul(tf.scalar(16, 'int32'))))
         const distanceMap67 = tf.tidy(() => tf.add(distanceMap6, distanceMap7.mul(tf.scalar(16, 'int32'))))
-
-        // const map = tf.tidy(() => distanceMap0.minimum(distanceMap1).minimum(distanceMap2).minimum(distanceMap3).minimum(distanceMap4).minimum(distanceMap5).minimum(distanceMap6).minimum(distanceMap7))
-        // console.log(map.sub(this.computes.distanceMap.tensor).dataSync())
 
         // Anisotropic distance map
         const distanceMap = tf.concat([distanceMap01, distanceMap23, distanceMap45, distanceMap67], 3)
@@ -360,6 +454,16 @@ export default class MIPProcessor extends EventEmitter
         const mixed = tensorA.add(scaled)
         tf.dispose(scaled)
         return mixed
+    }
+
+    shift(tensor, amount)
+    {
+        const begins = amount.map((x) => (x < 0) ? -x : 0)
+        const paddings = amount.map((x) => (x < 0) ? [0, -x] : [x, 0])
+        const padded = tensor.pad(paddings)
+        const shifted = padded.slice(begins, tensor.shape)
+        tf.dispose(padded)
+        return shifted
     }
 
 }
