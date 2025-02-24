@@ -2,7 +2,7 @@
 import { colormapLocations } from '../../../../static/textures/colormaps/colormaps'
 // import { throttleByCalls, throttleByDelay } from '../../Utils/Throttle'
 
-export default class MIPGui
+export default class MPRGui
 {
     constructor(viewer)
     {
@@ -21,7 +21,7 @@ export default class MIPGui
     addFolders()
     {
         this.folders = {}
-        this.folders.viewer = this.debug.ui.addFolder('MIPViewer').open()
+        this.folders.viewer = this.debug.ui.addFolder('MPRViewer').open()
     }
 
     addSubfolders()
