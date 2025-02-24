@@ -142,46 +142,6 @@ class NIFTILoader extends Loader {
         volume.matrix = affine
         volume.inverseMatrix = new Matrix4().copy(volume.matrix).invert()
 
-        // // overload volume with util functions
-        // volume.getDataUint8 = function() 
-        // {
-        //     const range = this.max - this.min
-        //     const dataUint8 = new Uint8Array(this.data.length);
-
-        //     if (range > 0)
-        //     {
-        //         for (let i=0; i < dataUint8.length; i++)
-        //         {
-        //             dataUint8[i] = Math.round(((this.data[i] - this.min) / range ) * 255);
-        //         }                
-        //     }
-        //     else 
-        //     {
-        //         dataUint8.fill(255)
-        //     }
-           
-        //     return dataUint8;
-        // }
-
-        // volume.getDataFloat32 = function() 
-        // {
-        //     const range = this.max - this.min;
-        //     const dataFloat32 = new Float32Array(this.data.length);
-
-        //     if (range > 0)
-        //     {
-        //         for (let i=0; i < dataFloat32.length; i++)
-        //         {
-        //             dataFloat32[i] = (this.data[i] - this.min) / range;
-        //         }                
-        //     }
-        //     else 
-        //     {
-        //         dataFloat32.fill(1)
-        //     }
-           
-        //     return dataFloat32;
-        // }
 
         return volume;
     }       

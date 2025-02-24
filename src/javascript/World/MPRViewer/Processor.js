@@ -1,23 +1,20 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import EventEmitter from '../../Utils/EventEmitter'
+import Experience from '../../Experience'
 
-const timeit = (name, callback) => 
-{ 
-    console.time(name) 
-    callback()
-    console.timeEnd(name) 
-}
-
-export default class MPRProcessor extends EventEmitter
+export default class Processor extends EventEmitter
 {
-    constructor(volume)
+    constructor()
     {
         super()
 
+        this.experience = new Experience()
+        this.scene = this.experience.scene
+        this.resources = this.experience.resources
+        this.renderer = this.experience.renderer
+
         this.setTensorflow()
-        this.setIntensityMap(volume)
-        this.trigger('ready')
     }
 
     async setTensorflow()
@@ -25,10 +22,12 @@ export default class MPRProcessor extends EventEmitter
         // tf.enableProdMode()
         await tf.setBackend('webgl')
         await tf.ready()
+        this.trigger('ready')
     }
 
-    setIntensityMap(volume)
+    async generateIntensityMap()
     {
+        const volume = this.resources.items.intensityMap
         const parameters = 
         {
             dimensions       : new THREE.Vector3().fromArray(volume.dimensions),
@@ -62,6 +61,11 @@ export default class MPRProcessor extends EventEmitter
 
         // console.log(this.computes.intensityMap.parameters)
         // console.log(this.computes.intensityMap.tensor.dataSync())
+    }
+
+    async generateBinaryMap()
+    {
+
     }
 
     destroy() 

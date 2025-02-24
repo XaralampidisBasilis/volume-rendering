@@ -6,6 +6,12 @@ export class Container
     constructor(size)
     {
         this.size = size
+        this.setGeometry()
+        this.setMaterial()
+        this.setBox()
+        this.setObb()
+        this.setMesh()
+        this.setHelper()
     }
 
     setGeometry()
@@ -26,10 +32,14 @@ export class Container
         this.material.depthWrite = true
     }
 
-    setObb()
+    setBox()
     {
         const center = new THREE.Vector3()
         this.box = new THREE.Box3().setFromCenterAndSize(center, this.size)
+    }
+
+    setObb()
+    {
         this.obbLocal = new OBB().fromBox3(this.box)
         this.obbWorld = new OBB().copy(this.obbLocal)
     }

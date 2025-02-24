@@ -1,19 +1,27 @@
 import * as THREE from 'three'
 import { colormapLocations } from '../../../../static/textures/colormaps/colormaps.js'
-import vertexShader from '../../../shaders/mip_viewer/vertex.glsl'
-import fragmentShader from '../../../shaders/mip_viewer/fragment.glsl'
+import vertexShader from '../../../shaders/mpr_viewer/slice/vertex.glsl'
+import fragmentShader from '../../../shaders/mpr_viewer/slice/fragment.glsl'
 
 export default function()
 {
     const uniforms = 
     {
+        u_plane : new THREE.Uniform
+        ({
+            normal    : new THREE.Vector3(),
+            origin    : new THREE.Vector3(),
+            visible   : true,
+            alpha     : 1.0,
+            index     : 0,
+            brightness: 1.0,
+            contrast  : 0.0
+        }),
+
         u_textures: new THREE.Uniform
         ({
             intensity_map           : null,
-            color_maps              : null,
-            maxima_map              : null,
-            distance_map            : null,
-            anisotropic_distance_map: null,
+            binary_map              : null,
         }),
 
         u_intensity_map : new THREE.Uniform
@@ -21,37 +29,19 @@ export default function()
             dimensions            : new THREE.Vector3(),
             spacing               : new THREE.Vector3(),
             size                  : new THREE.Vector3(),
-            spacing_length        : 0.0,
-            size_length           : 0.0,
             inv_dimensions        : new THREE.Vector3(),
             inv_spacing           : new THREE.Vector3(),
             inv_size              : new THREE.Vector3(),
-            min_intensity         : 0.0,
-            max_intensity         : 0.0,
         }),
 
-        u_maxima_map : new THREE.Uniform
+        u_binary_map : new THREE.Uniform
         ({
-            sub_division    : 4,
-            inv_sub_division: 1/4,
-            dimensions      : new THREE.Vector3(),
-            spacing         : new THREE.Vector3(),
-            size            : new THREE.Vector3(),
-            inv_dimensions  : new THREE.Vector3(),
-            inv_spacing     : new THREE.Vector3(),
-            inv_size        : new THREE.Vector3(),
-        }),
-
-        u_distance_map : new THREE.Uniform
-        ({
-            max_iterations  : 100,
-            max_distance    : 255,
-            dimensions      : new THREE.Vector3(),
-            spacing         : new THREE.Vector3(),
-            size            : new THREE.Vector3(),
-            inv_dimensions  : new THREE.Vector3(),
-            inv_spacing     : new THREE.Vector3(),
-            inv_size        : new THREE.Vector3(),
+            dimensions            : new THREE.Vector3(),
+            spacing               : new THREE.Vector3(),
+            size                  : new THREE.Vector3(),
+            inv_dimensions        : new THREE.Vector3(),
+            inv_spacing           : new THREE.Vector3(),
+            inv_size              : new THREE.Vector3(),
         }),
 
         u_color_map: new THREE.Uniform
@@ -68,11 +58,6 @@ export default function()
             max_count       : 0,
             max_cell_count  : 0,
             max_block_count : 0,
-        }),
-
-        u_shading: new THREE.Uniform
-        ({
-            depth_focus : 0,
         }),
 
         u_debugging: new THREE.Uniform

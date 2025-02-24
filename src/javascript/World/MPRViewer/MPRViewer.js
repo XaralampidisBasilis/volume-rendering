@@ -2,8 +2,8 @@ import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
-import MPRGui from './MPRGui'
-import MPRProcessor from './MPRProcessor'
+import GUI from './GUI'
+import Processor from './Processor'
 import { OBB } from "three/addons/math/OBB.js";
 
 export default class MPRViewer extends EventEmitter
@@ -19,8 +19,8 @@ export default class MPRViewer extends EventEmitter
         this.camera = this.experience.camera
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
-        this.gui = new MPRGui(this)
-        this.processor = new MPRProcessor(this.resources.items.volumeNifti)
+        this.gui = new GUI(this)
+        this.processor = new Processor()
     }
     
     async generateMaps()
@@ -72,9 +72,9 @@ export default class MPRViewer extends EventEmitter
     setGeometry()
     {
         const size = this.parameters.volume.size
-        const center = this.parameters.volume.size.clone().divideScalar(2)
+        const offset = this.parameters.volume.size.clone().divideScalar(2)
         this.geometry = new THREE.BoxGeometry(...size)
-        this.geometry.translate(...center) 
+        this.geometry.translate(...offset) 
     }
 
     setMaterial()

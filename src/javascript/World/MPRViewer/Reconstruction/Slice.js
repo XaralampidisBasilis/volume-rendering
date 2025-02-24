@@ -1,16 +1,14 @@
 import * as THREE from 'three'
-import MPRMaterial from './MPRMaterial'
+import Material from './Material'
 import Experience from '../../Experience'
 
-export default class MPRPlane
+export default class Slice
 {
     constructor()
     {
         this.experience = new Experience()
         this.resources = this.experience.resources
         this.renderer = this.experience.renderer
-        this.camera = this.experience.camera
-        this.sizes = this.experience.sizes
     }
 
     setGeometry()
@@ -20,7 +18,12 @@ export default class MPRPlane
 
     setMaterial()
     {
-        this.material = MPRMaterial()
+        this.material = Material()
+    }
+
+    setPlane()
+    {
+        
     }
 
     setMesh()
