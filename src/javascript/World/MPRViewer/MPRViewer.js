@@ -4,6 +4,7 @@ import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
 import Processor from './Processor'
 import Slices from './Slices/Slices'
+import { TransformControls } from "three/addons/controls/TransformControls.js";
 
 export default class MPRViewer extends EventEmitter
 {
@@ -12,6 +13,7 @@ export default class MPRViewer extends EventEmitter
         super()
 
         this.experience = new Experience()
+        this.canvas = this.experience.canvas
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.renderer = this.experience.renderer
@@ -54,12 +56,12 @@ export default class MPRViewer extends EventEmitter
             ...this.processor.intensityMap.parameters.dimensions
         )
         this.textures.intensityMap.format = THREE.RedFormat
-        tf.dispose(this.processor.intensityMap.tensor)  
         this.textures.intensityMap.type = THREE.FloatType
         this.textures.intensityMap.minFilter = THREE.LinearFilter
         this.textures.intensityMap.magFilter = THREE.LinearFilter
         this.textures.intensityMap.computeMipmaps = false
         this.textures.intensityMap.needsUpdate = true
+        tf.dispose(this.processor.intensityMap.tensor)  
 
         // Binary map 
         this.textures.binaryMap = new THREE.Data3DTexture
@@ -78,14 +80,17 @@ export default class MPRViewer extends EventEmitter
 
     setSlices()
     {
+        // Set slices in space
         this.slices = new Slices()
-        this.slices.scale.copy(this.processor.intensityMap.parameters.size)
-        this.slices.position.sub(this.processor.intensityMap.parameters.size).divideScalar(2)
+        this.slices.scale.multiplyScalar(this.processor.intensityMap.parameters.sizeLength * 2)
+        this.slices.position.copy(this.processor.intensityMap.parameters.size).divideScalar(2)
+        this.slices.updateSlices()
+
+        // Set for each slice the material uniforms
         this.slices.children.forEach((slice) => 
         {
             const processor = this.processor
             const uniforms = slice.material.uniforms
-            const defines = slice.material.defines
 
             uniforms.u_textures.value.color_maps = this.textures.colorMaps
             uniforms.u_textures.value.intensity_map = this.textures.intensityMap
@@ -108,14 +113,11 @@ export default class MPRViewer extends EventEmitter
             uniforms.u_binary_map.value.inv_size.copy(processor.binaryMap.parameters.invSize)
             uniforms.u_binary_map.value.spacing_length = processor.binaryMap.parameters.spacingLength
             uniforms.u_binary_map.value.size_length = processor.binaryMap.parameters.sizeLength
-
-            defines.MAX_VOXELS = processor.intensityMap.parameters.maxVoxels
-
-            slice.material.needsUpdate = true
         })
 
+        // Add slices in scene and set camera position
         this.scene.add(this.slices)
-        this.camera.instance.position.copy(this.processor.intensityMap.parameters.size).multiplyScalar(5)        
+        this.camera.instance.position.copy(this.processor.intensityMap.parameters.size).multiplyScalar(2)
     }
 
     setGeometry()
@@ -130,6 +132,11 @@ export default class MPRViewer extends EventEmitter
 
     setMesh()
     {   
+        
+    }
+
+    update()
+    {
         
     }
 

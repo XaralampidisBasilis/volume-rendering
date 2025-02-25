@@ -1,3 +1,4 @@
+#include "./uniforms_slice"
 #include "./uniforms_textures"
 #include "./uniforms_color_map"
 #include "./uniforms_intensity_map"

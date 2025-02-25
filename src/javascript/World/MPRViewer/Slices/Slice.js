@@ -5,13 +5,23 @@ export default class Slice extends THREE.Mesh
 {
     constructor()
     {
-        const length = Math.sqrt(3) * 2
-        const geometry = new THREE.PlaneGeometry(length, length)
-        const material = Material()
+        super() 
 
-        super(geometry, material) // Call parent constructor
-
+        this.setGeometry()
+        this.setMaterial()
         this.setPlane()
+    }
+
+    setGeometry()
+    {
+        this.geometry.dispose() 
+        this.geometry = new THREE.PlaneGeometry(1, 1)
+    }
+
+    setMaterial()
+    {
+        this.material.dispose() 
+        this.material = Material()
     }
 
     setPlane()

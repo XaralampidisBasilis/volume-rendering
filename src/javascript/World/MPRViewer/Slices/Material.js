@@ -7,15 +7,10 @@ export default function()
 {
     const uniforms = 
     {
-        u_plane : new THREE.Uniform
+        u_slice : new THREE.Uniform
         ({
-            normal    : new THREE.Vector3(),
-            origin    : new THREE.Vector3(),
-            visible   : true,
-            alpha     : 1.0,
-            index     : 0,
-            brightness: 1.0,
-            contrast  : 0.0
+            transform : new THREE.Matrix4(),
+            hessian   : new THREE.Vector4(),
         }),
 
         u_textures: new THREE.Uniform
@@ -80,7 +75,6 @@ export default function()
         STATS_ENABLED          : 1,
         DEBUG_ENABLED          : 1,
         DISCARDING_DISABLED    : 0,
-        MAX_VOXELS             : 100,
     }
 
     const material = new THREE.ShaderMaterial

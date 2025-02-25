@@ -17,11 +17,20 @@ export default class World extends EventEmitter
         // Wait for resources
         this.resources.on('ready', () =>
         {
-            this.viewer = new MPRViewer().on('ready', () => 
+            this.viewer = new MPRViewer()
+            this.viewer.on('ready', () => 
             {
                 this.trigger('ready')
             })
         })
+    }
+
+    update()
+    {
+        if (this.viewer)
+        {
+            this.viewer.update()
+        }
     }
 
     destroy()
