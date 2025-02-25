@@ -2,9 +2,8 @@ import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
-import GUI from './GUI'
 import Processor from './Processor'
-import { OBB } from "three/addons/math/OBB.js";
+import Slices from './Slices/Slices'
 
 export default class MPRViewer extends EventEmitter
 {
@@ -19,29 +18,21 @@ export default class MPRViewer extends EventEmitter
         this.camera = this.experience.camera
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
-        this.gui = new GUI(this)
+
+        this.setProcessor().then(() =>
+        {
+            this.setTextures()
+            this.setSlices()
+        })
+    }
+
+    async setProcessor()
+    {
         this.processor = new Processor()
-    }
-    
-    async generateMaps()
-    {
+
+        await this.processor.getReady()
         await this.processor.generateIntensityMap()
-    }
-
-    async setViewer()
-    {
-        this.setParameters()
-        this.setTextures()
-        this.setGeometry()
-        this.setMaterial()
-        this.setMesh()
-        this.trigger('ready')
-    }
-
-    setParameters()
-    {
-        this.parameters = {}
-        this.parameters.volume = { ...this.processor.volume.parameters}
+        await this.processor.generateBinaryMap()
     }
 
     setTextures()
@@ -49,7 +40,7 @@ export default class MPRViewer extends EventEmitter
         this.textures = {}
 
         // Color maps
-        this.textures.colorMaps = this.resources.items.colormaps                      
+        this.textures.colorMaps = this.resources.items.colorMaps                      
         this.textures.colorMaps.colorSpace = THREE.SRGBColorSpace
         this.textures.colorMaps.minFilter = THREE.LinearFilter
         this.textures.colorMaps.magFilter = THREE.LinearFilter         
@@ -57,70 +48,89 @@ export default class MPRViewer extends EventEmitter
         this.textures.colorMaps.needsUpdate = true 
 
         // Intensity map 
-        this.textures.intensityMap = new THREE.Data3DTexture(
-            this.processor.volume.data, 
-            ...this.processor.intensityMap.parameters.dimensions)
+        this.textures.intensityMap = new THREE.Data3DTexture
+        (
+            this.processor.intensityMap.tensor.dataSync(), 
+            ...this.processor.intensityMap.parameters.dimensions
+        )
         this.textures.intensityMap.format = THREE.RedFormat
+        tf.dispose(this.processor.intensityMap.tensor)  
         this.textures.intensityMap.type = THREE.FloatType
         this.textures.intensityMap.minFilter = THREE.LinearFilter
         this.textures.intensityMap.magFilter = THREE.LinearFilter
         this.textures.intensityMap.computeMipmaps = false
         this.textures.intensityMap.needsUpdate = true
-        tf.dispose(this.processor.intensityMap.tensor)  
+
+        // Binary map 
+        this.textures.binaryMap = new THREE.Data3DTexture
+        (
+            this.processor.binaryMap.tensor.dataSync(),
+            ...this.processor.binaryMap.parameters.dimensions
+        )
+        this.textures.binaryMap.format = THREE.RedFormat
+        this.textures.binaryMap.type = THREE.UnsignedByteType
+        this.textures.binaryMap.minFilter = THREE.NearestFilter
+        this.textures.binaryMap.magFilter = THREE.NearestFilter
+        this.textures.binaryMap.computeMipmaps = false
+        this.textures.binaryMap.needsUpdate = true
+        tf.dispose(this.processor.binaryMap.tensor)  
     }
-  
+
+    setSlices()
+    {
+        this.slices = new Slices()
+        this.slices.scale.copy(this.processor.intensityMap.parameters.size)
+        this.slices.position.sub(this.processor.intensityMap.parameters.size).divideScalar(2)
+        this.slices.children.forEach((slice) => 
+        {
+            const processor = this.processor
+            const uniforms = slice.material.uniforms
+            const defines = slice.material.defines
+
+            uniforms.u_textures.value.color_maps = this.textures.colorMaps
+            uniforms.u_textures.value.intensity_map = this.textures.intensityMap
+            uniforms.u_textures.value.binary_map = this.textures.binaryMap
+
+            uniforms.u_intensity_map.value.dimensions.copy(processor.intensityMap.parameters.dimensions)
+            uniforms.u_intensity_map.value.spacing.copy(processor.intensityMap.parameters.spacing)
+            uniforms.u_intensity_map.value.size.copy(processor.intensityMap.parameters.size)
+            uniforms.u_intensity_map.value.inv_dimensions.copy(processor.intensityMap.parameters.invDimensions)
+            uniforms.u_intensity_map.value.inv_spacing.copy(processor.intensityMap.parameters.invSpacing)
+            uniforms.u_intensity_map.value.inv_size.copy(processor.intensityMap.parameters.invSize)
+            uniforms.u_intensity_map.value.spacing_length = processor.intensityMap.parameters.spacingLength
+            uniforms.u_intensity_map.value.size_length = processor.intensityMap.parameters.sizeLength
+
+            uniforms.u_binary_map.value.dimensions.copy(processor.binaryMap.parameters.dimensions)
+            uniforms.u_binary_map.value.spacing.copy(processor.binaryMap.parameters.spacing)
+            uniforms.u_binary_map.value.size.copy(processor.binaryMap.parameters.size)
+            uniforms.u_binary_map.value.inv_dimensions.copy(processor.binaryMap.parameters.invDimensions)
+            uniforms.u_binary_map.value.inv_spacing.copy(processor.binaryMap.parameters.invSpacing)
+            uniforms.u_binary_map.value.inv_size.copy(processor.binaryMap.parameters.invSize)
+            uniforms.u_binary_map.value.spacing_length = processor.binaryMap.parameters.spacingLength
+            uniforms.u_binary_map.value.size_length = processor.binaryMap.parameters.sizeLength
+
+            defines.MAX_VOXELS = processor.intensityMap.parameters.maxVoxels
+
+            slice.material.needsUpdate = true
+        })
+
+        this.scene.add(this.slices)
+        this.camera.instance.position.copy(this.processor.intensityMap.parameters.size).multiplyScalar(5)        
+    }
+
     setGeometry()
     {
-        const size = this.parameters.volume.size
-        const offset = this.parameters.volume.size.clone().divideScalar(2)
-        this.geometry = new THREE.BoxGeometry(...size)
-        this.geometry.translate(...offset) 
+
     }
 
     setMaterial()
     {        
-        // Computes
-        const intensityMap = this.processor.computes.intensityMap
-
-        // Uniforms/Defines
-        const u_textures = this.material.uniforms.u_textures.value
-        const u_intensity_map = this.material.uniforms.u_intensity_map.value
-        const defines = this.material.defines
-
-        // Update Uniforms
-        u_textures.intensity_map = this.textures.intensityMap
-        u_textures.color_maps = this.textures.colorMaps   
-        u_textures.maxima_map = this.textures.maximaMap
-        u_textures.distance_map = this.textures.distanceMap
-        u_textures.anisotropic_distance_map = this.textures.anisotropicDistanceMap
         
-        u_intensity_map.dimensions.copy(intensityMap.parameters.dimensions)
-        u_intensity_map.spacing.copy(intensityMap.parameters.spacing)
-        u_intensity_map.size.copy(intensityMap.parameters.size)
-        u_intensity_map.min_intensity = intensityMap.parameters.minIntensity
-        u_intensity_map.max_intensity = intensityMap.parameters.maxIntensity
-        u_intensity_map.size_length = intensityMap.parameters.sizeLength
-        u_intensity_map.spacing_length = intensityMap.parameters.spacingLength
-        u_intensity_map.inv_dimensions.copy(intensityMap.parameters.invDimensions)
-        u_intensity_map.inv_spacing.copy(intensityMap.parameters.invSpacing)
-        u_intensity_map.inv_size.copy(intensityMap.parameters.invSize)
- 
-
-        // Update Defines
-        defines.MAX_TRACE_COUNT = Math.ceil(intensityMap.parameters.sizeLength / Math.min(...intensityMap.parameters.spacing))
-        defines.MAX_TRACE_SUBCOUNT = Math.ceil(maximaMap.parameters.spacingLength / Math.min(...intensityMap.parameters.spacing))
-        defines.MAX_CELL_COUNT = intensityMap.parameters.maxCellCount
-        defines.MAX_CELL_SUBCOUNT = 3 * maximaMap.parameters.subDivision - 2
-        defines.MAX_BLOCK_COUNT = maximaMap.parameters.maxBlockCount
-
-        // console.log(defines)
     }
 
     setMesh()
     {   
-        this.mesh = new THREE.Mesh(this.geometry, this.material)
-        this.mesh.position.copy(this.parameters.volume.size).divideScalar(-2)
-        this.scene.add(this.mesh)
+        
     }
 
     destroy() 

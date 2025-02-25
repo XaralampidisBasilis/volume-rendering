@@ -20,7 +20,7 @@ export default class Camera
     setInstance()
     {
         this.instance = new THREE.PerspectiveCamera(35, this.sizes.width / this.sizes.height, 0.001, 10)
-        this.instance.position.set(6, 4, 8)
+        this.instance.position.set(1, 1, 1)
         this.scene.add(this.instance)
     }
 
@@ -28,18 +28,18 @@ export default class Camera
     {
         this.controls = {}
 
-        // this.controls.orbit = new OrbitControls(this.instance, this.canvas)
-        // this.controls.orbit.enableDamping = true
-        // this.controls.orbit.enableZoom = true
-        // this.controls.orbit.zoomToCursor = true
-        // this.controls.orbit.zoomSpeed = 2
+        this.controls.orbit = new OrbitControls(this.instance, this.canvas)
+        this.controls.orbit.enableDamping = true
+        this.controls.orbit.enableZoom = true
+        this.controls.orbit.zoomToCursor = true
+        this.controls.orbit.zoomSpeed = 2
 
-        this.controls.trackball = new TrackballControls(this.instance, this.canvas)
-        this.controls.trackball.staticMoving = false
-        this.controls.trackball.dynamicDampingFactor = 0.3
-        this.controls.trackball.zoomSpeed = 2.0
-        this.controls.trackball.panSpeed = 0.05
-        this.controls.trackball.rotateSpeed = 1.0
+        // this.controls.trackball = new TrackballControls(this.instance, this.canvas)
+        // this.controls.trackball.staticMoving = false
+        // this.controls.trackball.dynamicDampingFactor = 0.3
+        // this.controls.trackball.zoomSpeed = 2.0
+        // this.controls.trackball.panSpeed = 0.05
+        // this.controls.trackball.rotateSpeed = 1.0
     }
 
     resize()
@@ -53,24 +53,30 @@ export default class Camera
         // let distance = Math.max(this.instance.position.distanceTo( this.controls.trackball.target), 0.0001)
         // this.controls.trackball.panSpeed  = 0.05 / distance
         // this.controls.trackball.zoomSpeed = 0.5 / distance
-        
-        this.controls.trackball.update()
-        
+        // this.controls.trackball.update()
+
+        this.controls.orbit.update()
     }
 
     destroy() 
     {
         this.scene.remove(this.instance);
 
+        if (this.controls.obit) 
+        {
+            this.controls.obit.dispose()
+            this.controls = null
+        }
+        
         if (this.controls.trackball) 
         {
             this.controls.trackball.dispose()
-            this.controls = null // prevent memory leaks
+            this.controls = null
         }
 
         if (this.instance) 
         {
-            this.instance = null // allow garbage collection
+            this.instance = null
         }
 
         this.experience = null

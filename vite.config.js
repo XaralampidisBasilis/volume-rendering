@@ -1,4 +1,5 @@
 import glsl from 'vite-plugin-glsl'
+import path from 'path'
 import { defineConfig } from 'vite'
 
 export default ({
@@ -15,6 +16,14 @@ export default ({
         outDir: '../dist', // Output in the dist/ folder
         emptyOutDir: true, // Empty the folder first
         sourcemap: true // Add sourcemap
+    },
+    resolve: 
+    {
+        alias: {
+            '@': path.resolve(__dirname, 'src'),
+            '@textures': path.resolve(__dirname, 'static/textures'),
+            '@shaders': path.resolve(__dirname, 'src/shaders'),
+        }
     },
     plugins:
     [

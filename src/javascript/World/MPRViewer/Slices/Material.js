@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { colormapLocations } from '../../../../static/textures/colormaps/colormaps.js'
-import vertexShader from '../../../shaders/mpr_viewer/slice/vertex.glsl'
-import fragmentShader from '../../../shaders/mpr_viewer/slice/fragment.glsl'
+import { colormapLocations } from '@textures/colormaps/colormaps.js'
+import vertexShader from '@shaders/mpr_viewer/slice/vertex.glsl'
+import fragmentShader from '@shaders/mpr_viewer/slice/fragment.glsl'
 
 export default function()
 {
@@ -20,8 +20,9 @@ export default function()
 
         u_textures: new THREE.Uniform
         ({
-            intensity_map           : null,
-            binary_map              : null,
+            color_maps     : null,
+            intensity_map  : null,
+            binary_map     : null,
         }),
 
         u_intensity_map : new THREE.Uniform
@@ -32,6 +33,8 @@ export default function()
             inv_dimensions        : new THREE.Vector3(),
             inv_spacing           : new THREE.Vector3(),
             inv_size              : new THREE.Vector3(),
+            spacing_length        : 0.0,
+            size_length           : 0.0,
         }),
 
         u_binary_map : new THREE.Uniform
@@ -42,6 +45,8 @@ export default function()
             inv_dimensions        : new THREE.Vector3(),
             inv_spacing           : new THREE.Vector3(),
             inv_size              : new THREE.Vector3(),
+            spacing_length        : 0.0,
+            size_length           : 0.0,
         }),
 
         u_color_map: new THREE.Uniform
@@ -63,9 +68,6 @@ export default function()
         u_debugging: new THREE.Uniform
         ({
             option      : 0,
-            trace_count : 0,
-            cell_count  : 0,
-            block_count : 0,
             variable1   : 0,
             variable2   : 0,
             variable3   : 0,
@@ -75,23 +77,16 @@ export default function()
     const defines = 
     {           
         INTERSECT_BBOX_ENABLED : 1,
-        PRE_MARCHING_ENABLED   : 1,
-        SKIPPING_ENABLED       : 1,
-
         STATS_ENABLED          : 1,
         DEBUG_ENABLED          : 1,
         DISCARDING_DISABLED    : 0,
-
-        MAX_TRACE_COUNT        : 100,
-        MAX_CELL_COUNT         : 100,
-        MAX_CELL_SUBCOUNT      : 100,
-        MAX_BLOCK_COUNT        : 100,
+        MAX_VOXELS             : 100,
     }
 
     const material = new THREE.ShaderMaterial
     ({    
-        side: THREE.BackSide,
-        transparent: true,
+        side: THREE.DoubleSide,
+        transparent: false,
         depthTest: true,
         depthWrite: true,
 

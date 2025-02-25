@@ -19,7 +19,6 @@ export default class World extends EventEmitter
         {
             this.viewer = new MPRViewer().on('ready', () => 
             {
-                this.camera.instance.position.copy(this.viewer.parameters.volume.size)
                 this.trigger('ready')
             })
         })
