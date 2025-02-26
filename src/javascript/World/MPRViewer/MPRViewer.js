@@ -85,18 +85,8 @@ export default class MPRViewer extends EventEmitter
         this.camera.instance.position.copy(this.processor.intensityMap.parameters.size).multiplyScalar(2)
     }
 
-    setGeometry()
+    setSurface()
     {
-
-    }
-
-    setMaterial()
-    {        
-        
-    }
-
-    setMesh()
-    {   
         
     }
 

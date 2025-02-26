@@ -1,0 +1,18 @@
+
+// For kernel convolution
+const ivec2 binary_offset = ivec2(0, 1);
+const vec2 center_offset = vec2(-0.5, 0.5);
+const ivec3 binary_offsets[8] = ivec3[8]
+(
+    binary_offset.xxx, binary_offset.yxx, 
+    binary_offset.xyx, binary_offset.xxy, 
+    binary_offset.xyy, binary_offset.yxy,
+    binary_offset.yyx, binary_offset.yyy 
+);
+const vec3 center_offsets[8] = vec3[8]
+(
+    center_offset.xxx, center_offset.yxx, 
+    center_offset.xyx, center_offset.xxy, 
+    center_offset.xyy, center_offset.yxy,
+    center_offset.yyx, center_offset.yyy 
+);

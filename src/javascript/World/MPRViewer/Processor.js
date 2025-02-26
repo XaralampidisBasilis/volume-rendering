@@ -22,6 +22,7 @@ export default class Processor extends EventEmitter
 
         await this.generateIntensityMap()
         await this.generateBinaryMap()
+        await this.generateBoundingBox()
         
         this.trigger('ready')
     }
@@ -43,7 +44,6 @@ export default class Processor extends EventEmitter
             maxVoxels        : source.dimensions.reduce((voxels, dimension) => voxels + dimension, -2),
             shape            : source.dimensions.toReversed().concat(1),
         }
-
 
         const min = source.min
         const range = source.max - source.min
@@ -85,6 +85,24 @@ export default class Processor extends EventEmitter
         // console.log(this.binaryMap.tensor.dataSync())
     }
 
+    async generateBoundingBox()
+    {
+        const boundingBox = await this.computeBoundingBox(this.binaryMap.tensor)
+        
+        const parameters = {}
+        parameters.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
+        parameters.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
+        parameters.minPosition = parameters.minCoords.clone().addScalar(0).multiply(this.binaryMap.parameters.spacing)
+        parameters.maxPosition = parameters.maxCoords.clone().addScalar(1).multiply(this.binaryMap.parameters.spacing)
+        parameters.dimensions = new THREE.Vector3().subVectors(parameters.maxCoords, parameters.minCoords).addScalar(1)
+        parameters.numCells = parameters.dimensions.toArray().reduce((count, dimension) => count * dimension, 1)
+        parameters.maxCells = parameters.dimensions.toArray().reduce((count, dimension) => count + dimension, -2)
+
+        this.boundingBox = {}
+        this.boundingBox.parameters = parameters
+        console.log(this.boundingBox.parameters)
+    }
+
     destroy() 
     {
         if (this.intensityMap.tensor instanceof tf.Tensor) 
@@ -98,4 +116,71 @@ export default class Processor extends EventEmitter
 
         console.log('MPRProcessor destroyed.')
     }
+
+    // tensor functions
+
+    async computeBoundingBox(binaryTensor) 
+    {
+        console.time('computeBoundingBox')
+        const coords = []
+        const collapsedX = binaryTensor.any([1, 2, 3]) 
+        coords[2] = await this.argBounds(collapsedX)
+        tf.dispose(collapsedX)
+
+        const collapsedYZ = binaryTensor.any([0, 3]) 
+        const collapsedY = collapsedYZ.any(1) 
+        coords[1] = await this.argBounds(collapsedY)
+        tf.dispose(collapsedY)
+
+        const collapsedZ = collapsedYZ.any(0) 
+        coords[0] = await this.argBounds(collapsedZ)
+        tf.dispose([collapsedZ, collapsedYZ])
+
+        const minCoords = [coords[0][0], coords[1][0], coords[2][0]]
+        const maxCoords = [coords[0][1], coords[1][1], coords[2][1]]
+        console.timeEnd('computeBoundingBox')
+
+        return { minCoords, maxCoords }    
+    }
+
+    async argBounds(binaryArray)
+    {
+        console.time('argBounds')
+        const coords = await tf.whereAsync(binaryArray)
+        const indices = coords.arraySync().flat()
+        tf.dispose(coords)
+        console.timeEnd('argBounds')
+
+        return (indices.length) ? [indices[0], indices[indices.length - 1]] : [0, 0]
+    }
+
+    async argBoundsSync(binaryArray) 
+    {
+        console.time('argBoundsSync')
+        const array = binaryArray.dataSync()
+    
+        let firstIndex;
+        let lastIndex;
+
+        for (firstIndex = 0; firstIndex <= array.length - 1; firstIndex++) 
+        {
+            if (array[firstIndex]) 
+            {
+                break
+            }
+        }
+
+        for (lastIndex = array.length - 1; lastIndex >= 0; lastIndex--) 
+        {
+            if (array[lastIndex]) 
+            {
+                break
+            }
+        }
+        console.timeEnd('argBoundsSync')
+        
+        return (firstIndex <= lastIndex) ? [firstIndex, lastIndex] : [0, 0]
+    }
+
+
 }

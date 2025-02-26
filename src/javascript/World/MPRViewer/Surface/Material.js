@@ -59,6 +59,15 @@ export default function()
             size_length           : 0.0,
         }),
 
+        u_bounding_box : new THREE.Uniform
+        ({
+            dimensions  : new THREE.Vector3(),
+            min_coords  : new THREE.Vector3(),
+            max_coords  : new THREE.Vector3(),
+            min_position: new THREE.Vector3(),
+            max_position: new THREE.Vector3(),
+        }),
+
         u_color_map: new THREE.Uniform
         ({
             levels      : 50,

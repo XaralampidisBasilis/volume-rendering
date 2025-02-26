@@ -1,7 +1,7 @@
-#ifndef UNIFORMS_INTENSITY_MAP
-#define UNIFORMS_INTENSITY_MAP
+#ifndef UNIFORMS_BINARY_MAP
+#define UNIFORMS_BINARY_MAP
 
-struct IntensityMap 
+struct BinaryMap 
 {
     ivec3 dimensions;    
     vec3  spacing;           
@@ -13,6 +13,6 @@ struct IntensityMap
     float size_length;  
 };
 
-uniform IntensityMap u_intensity_map;
+uniform BinaryMap u_binary_map;
 
 #endif

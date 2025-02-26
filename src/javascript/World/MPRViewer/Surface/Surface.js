@@ -41,6 +41,12 @@ export default class Surface extends THREE.Mesh
         uniforms.u_binary_map.value.inv_size.copy(processor.binaryMap.parameters.invSize)
         uniforms.u_binary_map.value.spacing_length = processor.binaryMap.parameters.spacingLength
         uniforms.u_binary_map.value.size_length = processor.binaryMap.parameters.sizeLength
+
+        uniforms.u_bounding_box.value.dimensions.copy(processor.boundingBox.parameters.dimensions)
+        uniforms.u_bounding_box.value.min_coords.copy(processor.boundingBox.parameters.minCoords)
+        uniforms.u_bounding_box.value.max_coords.copy(processor.boundingBox.parameters.maxCoords)
+        uniforms.u_bounding_box.value.min_position.copy(processor.boundingBox.parameters.minPosition)
+        uniforms.u_bounding_box.value.max_position.copy(processor.boundingBox.parameters.maxPosition)
     }
 
     update()

@@ -13,7 +13,6 @@ struct Box
     float min_entry_distance;
     float max_exit_distance;     
     float max_span_distance;   
-   
 };
 
 Box set_box()

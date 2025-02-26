@@ -3,13 +3,8 @@ precision highp sampler2D;
 precision highp float;
 precision highp int;
 
-in vec3  v_camera_position;
-in vec3  v_camera_direction;
-in float v_camera_near_distance;
-in float v_camera_far_distance;
-in vec3  v_ray_direction;
-in mat4  v_model_view_matrix;
-in mat4  v_projection_model_view_matrix;
+in vec3  v_origin;
+in vec3  v_direction;
 
 out vec4 fragColor;
 

@@ -3,8 +3,7 @@ Box    box    = set_box();
 Ray    ray    = set_ray();
 Trace  trace  = set_trace();
 Trace  mip    = set_trace();
-Cell   cell   = set_cell();
-Block  block  = set_block();
+Voxel  voxel  = set_voxel();
 Frag   frag   = set_frag();
 
 #if DEBUG_ENABLED == 1
