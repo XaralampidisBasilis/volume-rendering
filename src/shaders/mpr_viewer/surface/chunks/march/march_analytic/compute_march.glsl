@@ -2,7 +2,7 @@
 // start march at ray start
 #include "./modules/start_march"
 
-for (int count = 0; count < MAX_CELL_COUNT; count++) 
+for (int count = 0; count < MAX_VOXELS; count++) 
 {
     // update current cell, take samples, and compute if there is intersection
     #include "./modules/update_cell"

@@ -1,2 +1,0 @@
-
-trace.exhausted = ! cell.terminated;
