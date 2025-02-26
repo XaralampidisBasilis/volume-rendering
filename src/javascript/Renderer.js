@@ -21,6 +21,7 @@ export default class Renderer
             antialias: true,
             depth: true,
             alpha: true,
+            sortObjects: false,
             powerPreference: 'high-performance',
         })       
         this.instance.setClearColor('#211d20', 1)

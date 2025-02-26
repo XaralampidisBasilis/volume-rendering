@@ -32,8 +32,6 @@ export default class MPRViewer extends EventEmitter
                 this.gui = new MPRGui(this)
             })
         })
-
-       
     }
 
     setTextures()
@@ -79,42 +77,10 @@ export default class MPRViewer extends EventEmitter
 
     setSlices()
     {
-        // Set slices in space
-        this.slices = new Slices()
-        this.slices.scale.multiplyScalar(this.processor.intensityMap.parameters.sizeLength * 2)
+        this.slices = new Slices(this)
         this.slices.position.copy(this.processor.intensityMap.parameters.size).divideScalar(2)
-        this.slices.updateSlices()
+        this.slices.update()
 
-        // Set for each slice the material uniforms
-        this.slices.children.forEach((slice) => 
-        {
-            const processor = this.processor
-            const uniforms = slice.material.uniforms
-
-            uniforms.u_textures.value.color_maps = this.textures.colorMaps
-            uniforms.u_textures.value.intensity_map = this.textures.intensityMap
-            uniforms.u_textures.value.binary_map = this.textures.binaryMap
-
-            uniforms.u_intensity_map.value.dimensions.copy(processor.intensityMap.parameters.dimensions)
-            uniforms.u_intensity_map.value.spacing.copy(processor.intensityMap.parameters.spacing)
-            uniforms.u_intensity_map.value.size.copy(processor.intensityMap.parameters.size)
-            uniforms.u_intensity_map.value.inv_dimensions.copy(processor.intensityMap.parameters.invDimensions)
-            uniforms.u_intensity_map.value.inv_spacing.copy(processor.intensityMap.parameters.invSpacing)
-            uniforms.u_intensity_map.value.inv_size.copy(processor.intensityMap.parameters.invSize)
-            uniforms.u_intensity_map.value.spacing_length = processor.intensityMap.parameters.spacingLength
-            uniforms.u_intensity_map.value.size_length = processor.intensityMap.parameters.sizeLength
-
-            uniforms.u_binary_map.value.dimensions.copy(processor.binaryMap.parameters.dimensions)
-            uniforms.u_binary_map.value.spacing.copy(processor.binaryMap.parameters.spacing)
-            uniforms.u_binary_map.value.size.copy(processor.binaryMap.parameters.size)
-            uniforms.u_binary_map.value.inv_dimensions.copy(processor.binaryMap.parameters.invDimensions)
-            uniforms.u_binary_map.value.inv_spacing.copy(processor.binaryMap.parameters.invSpacing)
-            uniforms.u_binary_map.value.inv_size.copy(processor.binaryMap.parameters.invSize)
-            uniforms.u_binary_map.value.spacing_length = processor.binaryMap.parameters.spacingLength
-            uniforms.u_binary_map.value.size_length = processor.binaryMap.parameters.sizeLength
-        })
-
-        // Add slices in scene and set camera position
         this.scene.add(this.slices)
         this.camera.instance.position.copy(this.processor.intensityMap.parameters.size).multiplyScalar(2)
     }

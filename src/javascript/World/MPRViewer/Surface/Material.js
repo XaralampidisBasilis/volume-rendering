@@ -1,16 +1,31 @@
 import * as THREE from 'three'
 import { colormapLocations } from '@textures/colormaps/colormaps.js'
-import vertexShader from '@shaders/mpr_viewer/slice/vertex.glsl'
-import fragmentShader from '@shaders/mpr_viewer/slice/fragment.glsl'
+import vertexShader from '@shaders/mpr_viewer/surface/vertex.glsl'
+import fragmentShader from '@shaders/mpr_viewer/surface/fragment.glsl'
 
 export default function()
 {
     const uniforms = 
     {
-        u_plane : new THREE.Uniform
+        u_axial : new THREE.Uniform
         ({
             transform : new THREE.Matrix4(),
             hessian   : new THREE.Vector4(),
+            visible   : true,
+        }),
+
+        u_coronal : new THREE.Uniform
+        ({
+            transform : new THREE.Matrix4(),
+            hessian   : new THREE.Vector4(),
+            visible   : true,
+        }),
+
+        u_sagittal : new THREE.Uniform
+        ({
+            transform : new THREE.Matrix4(),
+            hessian   : new THREE.Vector4(),
+            visible   : true,
         }),
 
         u_textures: new THREE.Uniform

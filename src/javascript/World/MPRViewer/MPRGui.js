@@ -64,9 +64,9 @@ export default class MPRGui
         const size = this.viewer.processor.intensityMap.parameters.size.clone() 
         this.controllers.rendering = 
         {
-            x : folder.add(this.viewer.slices.position, 'x').min(0).max(size.x).step(0.0001).onChange(() => this.viewer.slices.updateSlices()),
-            y : folder.add(this.viewer.slices.position, 'y').min(0).max(size.y).step(0.0001).onChange(() => this.viewer.slices.updateSlices()),
-            z : folder.add(this.viewer.slices.position, 'z').min(0).max(size.z).step(0.0001).onChange(() => this.viewer.slices.updateSlices()),
+            x : folder.add(this.viewer.slices.position, 'x').min(0).max(size.x).step(0.0001).onChange(() => this.viewer.slices.update()),
+            y : folder.add(this.viewer.slices.position, 'y').min(0).max(size.y).step(0.0001).onChange(() => this.viewer.slices.update()),
+            z : folder.add(this.viewer.slices.position, 'z').min(0).max(size.z).step(0.0001).onChange(() => this.viewer.slices.update()),
         }
     }
 

@@ -4,71 +4,54 @@ import Slice from './Slice'
 const _plane = new THREE.Plane()
 export default class Slices extends THREE.Group
 {
-    constructor()
+    constructor(viewer)
     {
         super()
 
-        this.setAxial() // XY slice 
-        this.setCoronal() // XZ slice 
-        this.setSagittal() // YZ slice 
-    }
-
-    setAxial()
-    {
-        const normal = new THREE.Vector3(0, 0, 1)
-        const constant = 0
-
-        this.axial = new Slice()
-        this.axial.name = 'axial'
-        this.axial.geometry.dispose()
-        this.axial.geometry = new THREE.PlaneGeometry(1, 1)
-        this.axial.plane = new THREE.Plane(normal, constant)
-        this.axial.matrixAutoUpdate = false
-
+        this.setAxial(viewer)    // XY slice 
+        this.setCoronal(viewer)  // XZ slice 
+        this.setSagittal(viewer) // YZ slice 
         this.add(this.axial)
-    }
-
-    setCoronal()
-    {
-        const normal = new THREE.Vector3(0, 1, 0)
-        const constant = 0
-
-        this.coronal = new Slice()
-        this.coronal.name = 'coronal'
-        this.coronal.geometry.dispose()
-        this.coronal.geometry = new THREE.PlaneGeometry(1, 1).rotateX(Math.PI / 2)
-        this.coronal.plane = new THREE.Plane(normal, constant)
-        this.coronal.matrixAutoUpdate = false
-
         this.add(this.coronal)
-    }
-
-    setSagittal()
-    {
-        const normal = new THREE.Vector3(1, 0, 0)
-        const constant = 0
-
-        this.sagittal = new Slice()
-        this.sagittal.name = 'sagittal'
-        this.sagittal.geometry.dispose()
-        this.sagittal.geometry = new THREE.PlaneGeometry(1, 1).rotateY(-Math.PI / 2)
-        this.sagittal.plane = new THREE.Plane(normal, constant)
-        this.sagittal.matrixAutoUpdate = false
-
         this.add(this.sagittal)
     }
 
-    updateSlices()
+    setAxial(viewer)
+    {
+        this.axial = new Slice(viewer)
+        this.axial.plane.set(new THREE.Vector3(0, 0, 1), 0)
+        this.axial.matrixAutoUpdate = false
+        this.axial.name = 'axial'
+    }
+
+    setCoronal(viewer)
+    {
+        this.coronal = new Slice(viewer)
+        this.coronal.geometry.rotateX(Math.PI / 2)
+        this.coronal.plane.set(new THREE.Vector3(0, 1, 0), 0)
+        this.coronal.matrixAutoUpdate = false
+        this.coronal.name = 'coronal'
+    }
+
+    setSagittal(viewer)
+    {
+        this.sagittal = new Slice(viewer)
+        this.sagittal.geometry.rotateY(-Math.PI / 2)
+        this.sagittal.plane.set(new THREE.Vector3(1, 0, 0), 0)
+        this.sagittal.matrixAutoUpdate = false
+        this.sagittal.name = 'sagittal'
+    }
+
+    update()
     {
         this.updateMatrix()
 
         this.children.forEach((slice) => 
         {
-            _plane.copy(slice.plane).applyMatrix4(this.matrix).normalize()
-
             const uniforms = slice.material.uniforms
-            uniforms.u_slice.value.hessian.set(_plane.normal, _plane.constant)
-            uniforms.u_slice.value.transform.copy(this.matrix)
+            _plane.copy(slice.plane).applyMatrix4(this.matrix).normalize()
+            uniforms.u_plane.value.hessian.set(_plane.normal, _plane.constant)
+            uniforms.u_plane.value.transform.copy(this.matrix)
         })
     }
 
@@ -76,23 +59,25 @@ export default class Slices extends THREE.Group
     {
         if (this.axial)
         {
+            this.axial.dispose()
             this.remove(this.axial)
-            this.axial.destroy()
-            this.axial = null
         }
 
         if (this.coronal)
         {
+            this.coronal.dispose()
             this.remove(this.coronal)
-            this.coronal.destroy()
-            this.coronal = null
         }
 
         if (this.sagittal)
         {
+            this.sagittal.dispose()
             this.remove(this.sagittal)
-            this.sagittal.destroy()
-            this.sagittal = null
         }
+
+        this.axial = null
+        this.coronal = null
+        this.sagittal = null
+
     }
 }

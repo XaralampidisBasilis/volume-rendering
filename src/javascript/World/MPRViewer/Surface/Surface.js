@@ -1,24 +1,17 @@
 import * as THREE from 'three'
 import Material from './Material'
 
-export default class Slice extends THREE.Mesh
+export default class Surface extends THREE.Mesh
 {
     constructor(viewer)
     {
-        const length = viewer.processor.intensityMap.parameters.sizeLength * 2
-        const geometry = new THREE.PlaneGeometry(length, length)
-        const material = new Material()
+        const size = viewer.processor.intensityMap.parameters.size
+        const offset = size.clone().divideScalar(2)
+        const geometry = new THREE.BoxGeometry(...size).translate(...offset)
+        const material = Material()
         super(geometry, material)
 
-        this.setPlane()
         this.setUniforms(viewer)
-    }
-
-    setPlane()
-    {
-        const constant = 0
-        const normal = new THREE.Vector3(0, 0, 1)
-        this.plane = new THREE.Plane(normal, constant)
     }
 
     setUniforms(viewer)
@@ -50,9 +43,11 @@ export default class Slice extends THREE.Mesh
         uniforms.u_binary_map.value.size_length = processor.binaryMap.parameters.sizeLength
     }
 
+    update()
+    {
+    }
+
     destroy()
     {
-        this.geometry.dispose()
-        this.material.dispose()
     }
 }

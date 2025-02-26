@@ -18,15 +18,21 @@ export default class World extends EventEmitter
 
     update()
     {
-        if (this.viewer)
-        {
-            this.viewer.update()
-        }
+        this.viewer.update()
     }
 
     destroy()
     {
-        // dispose scene
+        this.destroyScene()
+        this.camera = null
+        this.resources = null
+        this.experience = null
+
+        console.log('World destroyed')
+    }
+
+    destroyScene()
+    {
         this.scene.traverse((child) =>
         {
             // test if it's a mesh
@@ -49,10 +55,5 @@ export default class World extends EventEmitter
         })
 
         this.scene = null
-        this.camera = null
-        this.resources = null
-        this.experience = null
-
-        console.log('World destroyed')
     }
 }
