@@ -13,16 +13,7 @@ export default class World extends EventEmitter
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.camera = this.experience.camera
-
-        // Wait for resources
-        this.resources.on('ready', () =>
-        {
-            this.viewer = new MPRViewer()
-            this.viewer.on('ready', () => 
-            {
-                this.trigger('ready')
-            })
-        })
+        this.viewer = new MPRViewer()
     }
 
     update()

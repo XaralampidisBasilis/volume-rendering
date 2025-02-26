@@ -4,7 +4,7 @@ import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
 import Processor from './Processor'
 import Slices from './Slices/Slices'
-import { TransformControls } from "three/addons/controls/TransformControls.js";
+import MPRGui from './MPRGui'
 
 export default class MPRViewer extends EventEmitter
 {
@@ -20,21 +20,20 @@ export default class MPRViewer extends EventEmitter
         this.camera = this.experience.camera
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
-
-        this.setProcessor().then(() =>
-        {
-            this.setTextures()
-            this.setSlices()
-        })
-    }
-
-    async setProcessor()
-    {
         this.processor = new Processor()
 
-        await this.processor.getReady()
-        await this.processor.generateIntensityMap()
-        await this.processor.generateBinaryMap()
+        this.resources.on('ready', () =>
+        {
+            this.processor.compute()
+            this.processor.on('ready', () =>
+            {
+                this.setTextures()
+                this.setSlices()
+                this.gui = new MPRGui(this)
+            })
+        })
+
+       
     }
 
     setTextures()
@@ -137,7 +136,6 @@ export default class MPRViewer extends EventEmitter
 
     update()
     {
-        
     }
 
     destroy() 

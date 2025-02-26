@@ -14,11 +14,16 @@ export default class Processor extends EventEmitter
         this.renderer = this.experience.renderer
     }
 
-    async getReady()
+    async compute()
     {
         // tf.enableProdMode()
         await tf.setBackend('webgl')
         await tf.ready()
+
+        await this.generateIntensityMap()
+        await this.generateBinaryMap()
+        
+        this.trigger('ready')
     }
 
     async generateIntensityMap()

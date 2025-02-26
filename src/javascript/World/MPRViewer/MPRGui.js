@@ -1,8 +1,7 @@
 
 import { colormapLocations } from '../../../../static/textures/colormaps/colormaps'
-// import { throttleByCalls, throttleByDelay } from '../../Utils/Throttle'
 
-export default class GUI
+export default class MPRGui
 {
     constructor(viewer)
     {
@@ -12,29 +11,25 @@ export default class GUI
         // setup
         if (this.debug.active)
         {
-            this.addFolders()
-            this.addSubfolders()
-            this.addControllers()
+            this.setFolders()
+            this.setControllers()
         }
     }
 
-    addFolders()
+    setFolders()
     {
         this.folders = {}
-        this.folders.viewer = this.debug.ui.addFolder('MPRViewer').open()
-    }
+        this.subfolders = {}
 
-    addSubfolders()
-    {
-        this.subfolders          = {}
+        this.folders.viewer = this.debug.ui.addFolder('MPRViewer').open()
+
         this.subfolders.rendering = this.folders.viewer.addFolder('rendering').close()
         this.subfolders.colormap = this.folders.viewer.addFolder('colormap').close()
         this.subfolders.debugging = this.folders.viewer.addFolder('debugging').close()
-
-        this.addToggles()            
+        this.setOpenClose()
     }
 
-    addToggles()
+    setOpenClose()
     {
         const subfolders = Object.values(this.subfolders)
 
@@ -54,43 +49,28 @@ export default class GUI
             })
         })
     }
-
-    // controllers
     
-    addControllers()
+    setControllers()
     {
         this.controllers = {}
-        this.addControllersRendering() 
-        this.addControllersColormap() 
-        this.addControllersShading() 
-        this.addControllersDebugging() 
-        
-        // this.setBindings()  
+        this.setControllersRendering() 
+        // this.setControllersColormap() 
+        // this.setControllersDebugging() 
     }
 
-    addControllersRendering() 
+    setControllersRendering() 
     {
         const folder = this.subfolders.rendering
-        const material = this.viewer.material
-        const defines = this.viewer.material.defines
-        const uniforms = this.viewer.material.uniforms.u_rendering.value
-        const objects = 
-        { 
-            INTERSECT_BBOX_ENABLED     : Boolean(defines.INTERSECT_BBOX_ENABLED),
-            SKIPPING_ENABLED           : Boolean(defines.SKIPPING_ENABLED),
-        }
-    
+        const size = this.viewer.processor.intensityMap.parameters.size.clone() 
         this.controllers.rendering = 
         {
-            maxCount           : folder.add(uniforms, 'max_count').min(0).max(200).step(1),
-            maxCellCount       : folder.add(uniforms, 'max_cell_count').min(0).max(200).step(1),
-            maxBlockCount      : folder.add(uniforms, 'max_block_count').min(0).max(200).step(1),
-            enableIntersectBbox: folder.add(objects, 'INTERSECT_BBOX_ENABLED').name('enable_intersect_bbox').onFinishChange((value) => { defines.INTERSECT_BBOX_ENABLED = Number(value), material.needsUpdate = true }),
-            enableSkipping     : folder.add(objects, 'SKIPPING_ENABLED').name('enable_skipping').onFinishChange((value) => { defines.SKIPPING_ENABLED = Number(value), material.needsUpdate = true }),
+            x : folder.add(this.viewer.slices.position, 'x').min(0).max(size.x).step(0.0001).onChange(() => this.viewer.slices.updateSlices()),
+            y : folder.add(this.viewer.slices.position, 'y').min(0).max(size.y).step(0.0001).onChange(() => this.viewer.slices.updateSlices()),
+            z : folder.add(this.viewer.slices.position, 'z').min(0).max(size.z).step(0.0001).onChange(() => this.viewer.slices.updateSlices()),
         }
     }
 
-    addControllersColormap() 
+    setControllersColormap() 
     {
         const folder = this.subfolders.colormap
         const uniforms = this.viewer.material.uniforms.u_color_map.value
@@ -106,18 +86,8 @@ export default class GUI
         }
 
     }
-
-    addControllersShading() 
-    {
-        const folder = this.subfolders.shading
-        const uniforms = this.viewer.material.uniforms.u_shading.value
-
-        this.controllers.shading = 
-        {
-        }
-    }
     
-    addControllersDebugging()
+    setControllersDebugging()
     {
         const folder = this.subfolders.debugging
         const uniforms = this.viewer.material.uniforms.u_debugging.value
