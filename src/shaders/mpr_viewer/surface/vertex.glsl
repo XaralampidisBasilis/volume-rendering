@@ -19,6 +19,5 @@ void main() {
     v_direction = position - v_origin; // direction vector from camera to vertex in model coordinates
 
     // vertex position
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-
+    gl_Position = v_clip_space_matrix * vec4(position, 1.0);
 }

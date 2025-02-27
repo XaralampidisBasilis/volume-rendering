@@ -7,7 +7,7 @@ if (voxel.intersected)
     trace.uvw = trace.position * u_intensity_map.inv_size;
 
     // compute gradient at trace
-    #include "./modules/compute_gradient"
+    #include "./compute_gradient"
 }
 
 if (voxel.terminated)

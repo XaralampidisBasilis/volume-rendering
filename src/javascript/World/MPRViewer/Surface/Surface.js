@@ -19,6 +19,7 @@ export default class Surface extends THREE.Mesh
         const textures = viewer.textures
         const processor = viewer.processor
         const uniforms = this.material.uniforms
+        const defines = this.material.defines
 
         uniforms.u_textures.value.intensity_map = textures.intensityMap
         uniforms.u_textures.value.binary_map = textures.binaryMap
@@ -46,6 +47,9 @@ export default class Surface extends THREE.Mesh
         uniforms.u_bounding_box.value.max_coords.copy(processor.boundingBox.parameters.maxCoords)
         uniforms.u_bounding_box.value.min_position.copy(processor.boundingBox.parameters.minPosition)
         uniforms.u_bounding_box.value.max_position.copy(processor.boundingBox.parameters.maxPosition)
+
+        defines.MAX_TRACES = processor.boundingBox.parameters.maxTraces
+        defines.MAX_VOXELS = processor.boundingBox.parameters.maxCells
     }
 
     update()

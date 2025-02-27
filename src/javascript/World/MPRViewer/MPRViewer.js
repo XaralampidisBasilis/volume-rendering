@@ -4,9 +4,10 @@ import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
 import Processor from './Processor'
 import Slices from './Slices/Slices'
+import Surface from './Surface/Surface'
 import MPRGui from './MPRGui'
 
-export default class MPRViewer extends EventEmitter
+export default class MPRViewer extends THREE.Group
 {
     constructor()
     {
@@ -29,7 +30,12 @@ export default class MPRViewer extends EventEmitter
             {
                 this.setTextures()
                 this.setSlices()
+                this.setSurface()
                 this.gui = new MPRGui(this)
+
+                this.position.copy(this.processor.intensityMap.parameters.size).divideScalar(-2)
+                this.camera.instance.position.copy(this.processor.intensityMap.parameters.size).multiplyScalar(2)
+                this.scene.add(this)
             })
         })
     }
@@ -68,8 +74,8 @@ export default class MPRViewer extends EventEmitter
         )
         this.textures.binaryMap.format = THREE.RedFormat
         this.textures.binaryMap.type = THREE.UnsignedByteType
-        this.textures.binaryMap.minFilter = THREE.NearestFilter
-        this.textures.binaryMap.magFilter = THREE.NearestFilter
+        this.textures.binaryMap.minFilter = THREE.LinearFilter
+        this.textures.binaryMap.magFilter = THREE.LinearFilter
         this.textures.binaryMap.computeMipmaps = false
         this.textures.binaryMap.needsUpdate = true
         tf.dispose(this.processor.binaryMap.tensor)  
@@ -81,13 +87,13 @@ export default class MPRViewer extends EventEmitter
         this.slices.position.copy(this.processor.intensityMap.parameters.size).divideScalar(2)
         this.slices.update()
 
-        this.scene.add(this.slices)
-        this.camera.instance.position.copy(this.processor.intensityMap.parameters.size).multiplyScalar(2)
+        this.add(this.slices)
     }
 
     setSurface()
     {
-        
+        this.surface = new Surface(this)
+        this.add(this.surface)
     }
 
     update()

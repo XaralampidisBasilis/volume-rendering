@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { colormapLocations } from '@textures/colormaps/colormaps.js'
 import vertexShader from '@shaders/mpr_viewer/surface/vertex.glsl'
 import fragmentShader from '@shaders/mpr_viewer/surface/fragment.glsl'
 
@@ -45,6 +44,14 @@ export default function()
             min_position: new THREE.Vector3(),
             max_position: new THREE.Vector3(),
         }),
+
+        u_shading: new THREE.Uniform
+        ({
+            ambient_reflectance  : 0.2,
+            diffuse_reflectance  : 1.0,
+            specular_reflectance : 1.0,
+            shininess            : 40.0,
+        }),
         
         u_debugging: new THREE.Uniform
         ({
@@ -68,7 +75,7 @@ export default function()
     const material = new THREE.ShaderMaterial
     ({    
         side: THREE.DoubleSide,
-        transparent: false,
+        transparent: true,
         depthTest: true,
         depthWrite: true,
 

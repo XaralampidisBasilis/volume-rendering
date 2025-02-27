@@ -24,7 +24,7 @@ Frag set_frag()
     Frag frag;
     frag.depth            = 0.0;
     frag.position         = vec3(0.0);
-    frag.color            = COLOR.PASTEL_RED;
+    frag.color            = vec4(COLOR.PASTEL_RED, 1.0);
     frag.ambient_color    = vec3(0.0);
     frag.diffuse_color    = vec3(0.0);
     frag.specular_color   = vec3(0.0);

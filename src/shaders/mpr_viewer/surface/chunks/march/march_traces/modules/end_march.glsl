@@ -2,10 +2,13 @@
 if (trace.intersected)
 {
     // chose between current and previous trace
-    trace = (trace.intensity > prev_trace.intensity) ? trace : prev_trace;
+    if (trace.intensity < prev_trace.intensity)
+    {
+        trace = prev_trace;
+    }
 
     // compute gradient at trace
-    #include "./modules/compute_gradient"
+    #include "./compute_gradient"
 }
 
 if (trace.terminated)
