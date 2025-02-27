@@ -12,5 +12,4 @@ for (int count = 0; count < MAX_TRACES; count++)
     }
 }   
 
-// compute gradient at trace
-#include "./modules/compute_gradient"
+#include "./modules/end_march"

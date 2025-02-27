@@ -7,27 +7,6 @@ export default function()
 {
     const uniforms = 
     {
-        u_axial : new THREE.Uniform
-        ({
-            transform : new THREE.Matrix4(),
-            hessian   : new THREE.Vector4(),
-            visible   : true,
-        }),
-
-        u_coronal : new THREE.Uniform
-        ({
-            transform : new THREE.Matrix4(),
-            hessian   : new THREE.Vector4(),
-            visible   : true,
-        }),
-
-        u_sagittal : new THREE.Uniform
-        ({
-            transform : new THREE.Matrix4(),
-            hessian   : new THREE.Vector4(),
-            visible   : true,
-        }),
-
         u_textures: new THREE.Uniform
         ({
             intensity_map  : null,
@@ -67,13 +46,6 @@ export default function()
             max_position: new THREE.Vector3(),
         }),
         
-        u_rendering: new THREE.Uniform
-        ({
-            max_count       : 0,
-            max_cell_count  : 0,
-            max_block_count : 0,
-        }),
-
         u_debugging: new THREE.Uniform
         ({
             option      : 0,
@@ -85,13 +57,12 @@ export default function()
 
     const defines = 
     {           
-        INTERSECT_BBOX_ENABLED : 1,
-        STATS_ENABLED          : 1,
-        DEBUG_ENABLED          : 1,
-        DISCARDING_DISABLED    : 0,
-
-        MAX_TRACES             : 1000,
-        MAX_VOXELS             : 1000,
+        DISCARDING_DISABLED: 0,
+        BBOX_ENABLED       : 1,
+        STATS_ENABLED      : 1,
+        DEBUG_ENABLED      : 1,
+        MAX_TRACES         : 1000,
+        MAX_VOXELS         : 1000,
     }
 
     const material = new THREE.ShaderMaterial

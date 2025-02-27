@@ -1,4 +1,3 @@
-#include "./uniforms_plane"
 #include "./uniforms_textures"
 #include "./uniforms_intensity_map"
 #include "./uniforms_binary_map"

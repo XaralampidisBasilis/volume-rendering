@@ -10,6 +10,15 @@
  */
 
 // Sample neighbors
+const vec2 center_offset = vec2(-0.5, 0.5);
+const vec3 center_offsets[8] = vec3[8]
+(
+    center_offset.xxx, center_offset.yxx, 
+    center_offset.xyx, center_offset.xxy, 
+    center_offset.xyy, center_offset.yxy,
+    center_offset.yyx, center_offset.yyy 
+);
+
 float samples[8];
 for (int i = 0; i < 8; i++)
 {

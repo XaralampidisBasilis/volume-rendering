@@ -13,7 +13,6 @@ struct Trace
     float spacing;
     vec3  gradient;             // gradient vector
     float intensity;            // sampled value at the current position
-    float error;           
 };
 
 Trace set_trace()
@@ -29,7 +28,6 @@ Trace set_trace()
     trace.spacing     = 0.0;
     trace.gradient    = vec3(0.0);
     trace.intensity   = 0.0;
-    trace.error       = 0.0;
     return trace;
 }
 

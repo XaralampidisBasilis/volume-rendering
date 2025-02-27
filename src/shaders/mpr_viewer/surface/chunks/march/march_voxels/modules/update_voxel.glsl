@@ -1,4 +1,7 @@
 
+// copy previous voxel
+prev_voxel = voxel;
+
 // compute voxel coords
 voxel.coords += voxel.coords_step;
 voxel.occupied = texelFetch(u_textures.binary_map, voxel.coords, 0).r > 0;
@@ -15,7 +18,8 @@ voxel.exit_distance = intersect_box_max(voxel.min_position, voxel.max_position, 
 voxel.entry_position = voxel.exit_position;
 voxel.exit_position = camera.position + ray.direction * voxel.exit_distance
 
-// compute termination condition
+// compute termination conditions
+voxel.intersected = voxel.occupied ^^ prev_voxel.occupied;
 voxel.terminated = voxel.exit_distance > ray.end_distance;
 
 // Update stats
