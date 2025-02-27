@@ -5,8 +5,7 @@ struct Frag
 {
     float depth;             // depth traveled from camera in NDC space
     vec3  position;          // position in NDC space
-    float mapped_intensity;  // sampled value at the current position
-    vec4  mapped_color;      // color mapped from the voxel value
+    vec4  color;             // color mapped from the voxel value
     vec3  ambient_color;
     vec3  diffuse_color;
     vec3  specular_color;
@@ -25,8 +24,7 @@ Frag set_frag()
     Frag frag;
     frag.depth            = 0.0;
     frag.position         = vec3(0.0);
-    frag.mapped_intensity = 0.0;
-    frag.mapped_color     = vec4(vec3(0.0), 1.0);
+    frag.color            = COLOR.PASTEL_RED;
     frag.ambient_color    = vec3(0.0);
     frag.diffuse_color    = vec3(0.0);
     frag.specular_color   = vec3(0.0);

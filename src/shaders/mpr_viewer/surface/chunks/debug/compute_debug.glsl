@@ -1,9 +1,4 @@
 
-
-// #include "./modules/debug_block_march_a"
-// #include "./modules/debug_block_march_b"
-// #include "./modules/debug_block_march_c"
-
 int debug_slot_ray       = 100;
 int debug_slot_trace     = 200;
 int debug_slot_mip       = 1000;

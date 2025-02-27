@@ -13,7 +13,7 @@ vec4 debug_frag_camera_angle = to_color(acos(frag.camera_angle) / PI);
 vec4 debug_frag_mapped_intensity = to_color(frag.mapped_intensity);
 
 // mapped color
-vec4 debug_frag_mapped_color = to_color(frag.mapped_color.rgb);
+vec4 debug_frag_color = to_color(frag.color.rgb);
 
 // PRINT DEBUG
 
@@ -23,6 +23,6 @@ switch (u_debugging.option - debug_slot_frag)
     case 2: fragColor = debug_frag_position;         break;
     case 3: fragColor = debug_frag_camera_angle;     break;
     case 4: fragColor = debug_frag_mapped_intensity; break;
-    case 5: fragColor = debug_frag_mapped_color;     break;
+    case 5: fragColor = debug_frag_color;     break;
 
 }   
