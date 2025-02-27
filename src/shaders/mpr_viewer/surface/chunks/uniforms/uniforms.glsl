@@ -1,6 +1,6 @@
 #include "./uniforms_plane"
 #include "./uniforms_textures"
-#include "./uniforms_color_map"
 #include "./uniforms_intensity_map"
 #include "./uniforms_binary_map"
+#include "./uniforms_bounding_box"
 #include "./uniforms_debugging"

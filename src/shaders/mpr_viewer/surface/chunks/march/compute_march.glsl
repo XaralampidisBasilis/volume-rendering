@@ -1,6 +1,7 @@
 
 #if SKIPPING_ENABLED == 1
-#include "./march_skipping_3/compute_march"
+#include "./march_voxels/compute_march"
 #else
-#include "./march_skipping_3c/compute_march"
+#include "./march_traces/compute_march"
 #endif
+

@@ -20,10 +20,10 @@ vec4 debug_trace_position = to_color(map(box.min_position, box.max_position, tra
 vec4 debug_trace_intensity = to_color(trace.intensity);
 
 // error
-vec4 debug_trace_error = to_color(mmix(BLUE_COLOR, BLACK_COLOR, RED_COLOR, map(-1.0, 1.0, trace.error / MILLI_TOLERANCE)));
+vec4 debug_trace_error = to_color(mmix(BLUE_COLOR, BLACK_COLOR, RED_COLOR, map(-1.0, 1.0, trace.error / TOLERANCE.MILLI)));
 
 // abs error
-vec4 debug_trace_abs_error = to_color(mmix(BLACK_COLOR, RED_COLOR, abs(trace.error / MILLI_TOLERANCE)));
+vec4 debug_trace_abs_error = to_color(mmix(BLACK_COLOR, RED_COLOR, abs(trace.error / TOLERANCE.MILLI)));
 
 // gradient
 vec4 debug_trace_gradient = to_color((trace.gradient / mmax(u_intensity_map.inv_spacing)) * 0.5 + 0.5);

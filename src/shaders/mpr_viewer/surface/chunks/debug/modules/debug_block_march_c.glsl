@@ -15,8 +15,8 @@ for (int i = 0; i < u_debugging.block_count; i++)
     block.max_coords = block.coords + block.cheby_distance;
 
     // Compute block bounding box position in model space  
-    block.min_position = (vec3(block.min_coords + 0) - MILLI_TOLERANCE) * u_distance_map.spacing - u_intensity_map.spacing * 0.5;
-    block.max_position = (vec3(block.max_coords + 1) + MILLI_TOLERANCE) * u_distance_map.spacing - u_intensity_map.spacing * 0.5;  
+    block.min_position = (vec3(block.min_coords + 0) - TOLERANCE.MILLI) * u_distance_map.spacing - u_intensity_map.spacing * 0.5;
+    block.max_position = (vec3(block.max_coords + 1) + TOLERANCE.MILLI) * u_distance_map.spacing - u_intensity_map.spacing * 0.5;  
 
     // Compute block entry/exit distances
     block.entry_distance = block.exit_distance;

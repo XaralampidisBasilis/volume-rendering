@@ -4,6 +4,7 @@
 struct Voxel 
 {
     bool  terminated;
+    bool  occupied;
     ivec3 coords;
     ivec3 coords_step;
     vec3  min_position;
@@ -18,6 +19,7 @@ Voxel set_voxel()
 {
     Voxel voxel;
     voxel.terminated         = false;
+    voxel.occupied           = false;
     voxel.coords             = ivec3(0);
     voxel.coords_step        = ivec3(0);
     voxel.min_position       = vec3(0.0);

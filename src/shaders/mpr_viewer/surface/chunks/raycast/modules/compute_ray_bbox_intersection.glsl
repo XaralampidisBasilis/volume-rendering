@@ -1,11 +1,11 @@
 
 // Volume bounding box in model space
-vec3 bbox_min_position = u_intensity_map.min_position;
-vec3 bbox_max_position = u_intensity_map.max_position;
+vec3 bbox_min_position = u_bounding_box.min_position;
+vec3 bbox_max_position = u_bounding_box.max_position;
 
 // shrink volume bounding box by a small amount to avoid numerical instabilities in the boundary
-bbox_min_position += u_intensity_map.spacing * MILLI_TOLERANCE;
-bbox_max_position -= u_intensity_map.spacing * MILLI_TOLERANCE;
+bbox_min_position += u_intensity_map.spacing * TOLERANCE.MILLI;
+bbox_max_position -= u_intensity_map.spacing * TOLERANCE.MILLI;
 
 // make sure volume bounding box is not bigger than volume box
 bbox_min_position = max(bbox_min_position, box.min_position);

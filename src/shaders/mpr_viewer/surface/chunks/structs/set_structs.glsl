@@ -2,7 +2,6 @@ Camera camera = set_camera();
 Box    box    = set_box();
 Ray    ray    = set_ray();
 Trace  trace  = set_trace();
-Trace  mip    = set_trace();
 Voxel  voxel  = set_voxel();
 Frag   frag   = set_frag();
 

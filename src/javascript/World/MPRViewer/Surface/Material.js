@@ -30,7 +30,6 @@ export default function()
 
         u_textures: new THREE.Uniform
         ({
-            color_maps     : null,
             intensity_map  : null,
             binary_map     : null,
         }),
@@ -67,15 +66,6 @@ export default function()
             min_position: new THREE.Vector3(),
             max_position: new THREE.Vector3(),
         }),
-
-        u_color_map: new THREE.Uniform
-        ({
-            levels      : 50,
-            name        : 'viridis',
-            thresholds  : new THREE.Vector2(0, 1),
-            start_coords: new THREE.Vector2(colormapLocations['viridis'].x_start, colormapLocations['viridis'].y),
-            end_coords  : new THREE.Vector2(colormapLocations['viridis'].x_end,   colormapLocations['viridis'].y),
-        }),
         
         u_rendering: new THREE.Uniform
         ({
@@ -99,6 +89,9 @@ export default function()
         STATS_ENABLED          : 1,
         DEBUG_ENABLED          : 1,
         DISCARDING_DISABLED    : 0,
+
+        MAX_TRACES             : 1000,
+        MAX_VOXELS             : 1000,
     }
 
     const material = new THREE.ShaderMaterial

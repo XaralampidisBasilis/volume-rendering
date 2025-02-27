@@ -20,7 +20,6 @@ export default class Surface extends THREE.Mesh
         const processor = viewer.processor
         const uniforms = this.material.uniforms
 
-        uniforms.u_textures.value.color_maps = textures.colorMaps
         uniforms.u_textures.value.intensity_map = textures.intensityMap
         uniforms.u_textures.value.binary_map = textures.binaryMap
 
@@ -55,5 +54,7 @@ export default class Surface extends THREE.Mesh
 
     destroy()
     {
+        this.geometry.dispose()
+        this.material.dispose()
     }
 }

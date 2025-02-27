@@ -10,7 +10,7 @@ vec4 debug_ray_octant = to_color(sign(ray.direction) * 0.5 + 0.5);
 vec4 debug_ray_direction = to_color(ray.direction * 0.5 + 0.5);
 
 // step distance
-vec4 debug_ray_step_distance = to_color(ray.step_distance / u_intensity_map.spacing_length);
+vec4 debug_ray_spacing = to_color(ray.spacing / u_intensity_map.spacing_length);
 
 // start distance
 vec4 debug_ray_start_distance = to_color(map(box.min_entry_distance, box.max_exit_distance, ray.start_distance));
@@ -41,7 +41,7 @@ switch (u_debugging.option - debug_slot_ray)
     case  1: fragColor = debug_ray_discarded;       break;
     case  2: fragColor = debug_ray_octant;          break;
     case  3: fragColor = debug_ray_direction;       break;
-    case  4: fragColor = debug_ray_step_distance;   break;
+    case  4: fragColor = debug_ray_spacing;   break;
     case  5: fragColor = debug_ray_start_distance;  break;
     case  6: fragColor = debug_ray_end_distance;    break;
     case  7: fragColor = debug_ray_span_distance;   break;

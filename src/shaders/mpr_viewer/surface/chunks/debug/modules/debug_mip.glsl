@@ -20,10 +20,10 @@ vec4 debug_mip_position = to_color(map(box.min_position, box.max_position, mip.p
 vec4 debug_mip_intensity = to_color(mip.intensity);
 
 // error
-vec4 debug_mip_error = to_color(mmix(BLUE_COLOR, BLACK_COLOR, RED_COLOR, map(-1.0, 1.0, mip.error / MILLI_TOLERANCE)));
+vec4 debug_mip_error = to_color(mmix(BLUE_COLOR, BLACK_COLOR, RED_COLOR, map(-1.0, 1.0, mip.error / TOLERANCE.MILLI)));
 
 // abs error
-vec4 debug_mip_abs_error = to_color(mmix(BLACK_COLOR, RED_COLOR, abs(mip.error / MILLI_TOLERANCE)));
+vec4 debug_mip_abs_error = to_color(mmix(BLACK_COLOR, RED_COLOR, abs(mip.error / TOLERANCE.MILLI)));
 
 // gradient
 vec4 debug_mip_gradient = to_color((mip.gradient / mmax(u_intensity_map.inv_spacing)) * 0.5 + 0.5);

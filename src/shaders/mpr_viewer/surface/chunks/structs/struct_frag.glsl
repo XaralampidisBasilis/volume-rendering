@@ -18,7 +18,6 @@ struct Frag
     float light_angle;
     float view_angle;
     float halfway_angle;
-    float camera_angle;
 };
 
 Frag set_frag()
@@ -39,7 +38,6 @@ Frag set_frag()
     frag.light_angle      = 0.0;
     frag.view_angle       = 0.0;
     frag.halfway_angle    = 0.0;
-    frag.camera_angle     = 0.0;
     return frag;
 }
 
