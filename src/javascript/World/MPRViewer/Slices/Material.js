@@ -11,6 +11,7 @@ export default function()
         ({
             transform : new THREE.Matrix4(),
             hessian   : new THREE.Vector4(),
+            visible   : true,
         }),
 
         u_textures: new THREE.Uniform

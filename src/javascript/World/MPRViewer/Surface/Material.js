@@ -14,26 +14,26 @@ export default function()
 
         u_intensity_map : new THREE.Uniform
         ({
-            dimensions            : new THREE.Vector3(),
-            spacing               : new THREE.Vector3(),
-            size                  : new THREE.Vector3(),
-            inv_dimensions        : new THREE.Vector3(),
-            inv_spacing           : new THREE.Vector3(),
-            inv_size              : new THREE.Vector3(),
-            spacing_length        : 0.0,
-            size_length           : 0.0,
+            dimensions     : new THREE.Vector3(),
+            spacing        : new THREE.Vector3(),
+            size           : new THREE.Vector3(),
+            inv_dimensions : new THREE.Vector3(),
+            inv_spacing    : new THREE.Vector3(),
+            inv_size       : new THREE.Vector3(),
+            spacing_length : 0.0,
+            size_length    : 0.0,
         }),
 
         u_binary_map : new THREE.Uniform
         ({
-            dimensions            : new THREE.Vector3(),
-            spacing               : new THREE.Vector3(),
-            size                  : new THREE.Vector3(),
-            inv_dimensions        : new THREE.Vector3(),
-            inv_spacing           : new THREE.Vector3(),
-            inv_size              : new THREE.Vector3(),
-            spacing_length        : 0.0,
-            size_length           : 0.0,
+            dimensions     : new THREE.Vector3(),
+            spacing        : new THREE.Vector3(),
+            size           : new THREE.Vector3(),
+            inv_dimensions : new THREE.Vector3(),
+            inv_spacing    : new THREE.Vector3(),
+            inv_size       : new THREE.Vector3(),
+            spacing_length : 0.0,
+            size_length    : 0.0,
         }),
 
         u_bounding_box : new THREE.Uniform
@@ -43,6 +43,12 @@ export default function()
             max_coords  : new THREE.Vector3(),
             min_position: new THREE.Vector3(),
             max_position: new THREE.Vector3(),
+        }),
+
+        u_slices : new THREE.Uniform
+        ({
+            hessian : new Array(3).map(() => new THREE.Vector4()),
+            visible : new Array(3).map(() => true),
         }),
 
         u_shading: new THREE.Uniform
@@ -64,12 +70,13 @@ export default function()
 
     const defines = 
     {           
-        DISCARDING_DISABLED: 0,
-        BBOX_ENABLED       : 1,
-        STATS_ENABLED      : 1,
-        DEBUG_ENABLED      : 1,
-        MAX_TRACES         : 1000,
-        MAX_VOXELS         : 1000,
+        INTERSECT_BBOX_ENABLED  : 1,
+        INTERSECT_SLICES_ENABLED: 1,
+        DISCARDING_DISABLED     : 0,
+        STATS_ENABLED           : 1,
+        DEBUG_ENABLED           : 1,
+        MAX_TRACES              : 1000,
+        MAX_VOXELS              : 1000,
     }
 
     const material = new THREE.ShaderMaterial
