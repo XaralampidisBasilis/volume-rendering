@@ -50,7 +50,7 @@ export default class Slices extends THREE.Group
         {
             const uniforms = slice.material.uniforms
             _plane.copy(slice.plane).applyMatrix4(this.matrix).normalize()
-            uniforms.u_plane.value.hessian.set(_plane.normal, _plane.constant)
+            uniforms.u_plane.value.hessian.set(..._plane.normal, _plane.constant)
             uniforms.u_plane.value.transform.copy(this.matrix)
         })
     }

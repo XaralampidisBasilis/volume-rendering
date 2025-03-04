@@ -5,7 +5,7 @@ import EventEmitter from '../../Utils/EventEmitter'
 import Processor from './Processor'
 import Slices from './Slices/Slices'
 import Surface from './Surface/Surface'
-import MPRGui from './MPRGui'
+import Gui from './Gui'
 
 export default class MPRViewer extends THREE.Group
 {
@@ -31,7 +31,7 @@ export default class MPRViewer extends THREE.Group
                 this.setTextures()
                 this.setSlices()
                 this.setSurface()
-                this.gui = new MPRGui(this)
+                this.gui = new Gui(this)
 
                 this.position.copy(this.processor.intensityMap.parameters.size).divideScalar(-2)
                 this.camera.instance.position.copy(this.processor.intensityMap.parameters.size).multiplyScalar(2)
@@ -86,6 +86,7 @@ export default class MPRViewer extends THREE.Group
         this.slices = new Slices(this)
         this.slices.position.copy(this.processor.intensityMap.parameters.size).divideScalar(2)
         this.slices.update()
+        this.slices.visible = false
 
         this.add(this.slices)
     }

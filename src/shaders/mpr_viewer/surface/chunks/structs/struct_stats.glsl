@@ -3,15 +3,15 @@
 
 struct Stats
 {
-    int num_fetches;          // texture fetch
+    int num_fetches;  // texture fetch
     int num_steps;
 };
 
 Stats set_stats()
 {
     Stats stats;
-    stats.num_fetches         = 0;
-    stats.num_steps           = 0;
+    stats.num_fetches = 0;
+    stats.num_steps   = 0;
     return stats;
 }
 

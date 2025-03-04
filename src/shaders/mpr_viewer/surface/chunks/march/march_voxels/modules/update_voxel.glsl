@@ -26,5 +26,5 @@ voxel.terminated = voxel.exit_distance > ray.end_distance;
 
 // Update stats
 #if STATS_ENABLED == 1
-stats.num_fetches += 3;
+stats.num_fetches += 1;
 #endif

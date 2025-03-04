@@ -1,7 +1,7 @@
 
 import { colormapLocations } from '../../../../static/textures/colormaps/colormaps'
 
-export default class MPRGui
+export default class Gui
 {
     constructor(viewer)
     {
@@ -55,7 +55,7 @@ export default class MPRGui
         this.controllers = {}
         this.setControllersRendering() 
         // this.setControllersColormap() 
-        // this.setControllersDebugging() 
+        this.setControllersDebugging() 
     }
 
     setControllersRendering() 
@@ -90,109 +90,78 @@ export default class MPRGui
     setControllersDebugging()
     {
         const folder = this.subfolders.debugging
-        const uniforms = this.viewer.material.uniforms.u_debugging.value
-        const defines = this.viewer.material.defines
-        const material = this.viewer.material
+        const material = this.viewer.surface.material
+        const uniforms = material.uniforms.u_debugging.value
+        const defines = material.defines
         const objects = { DISCARDING_DISABLED: Boolean(defines.DISCARDING_DISABLED) }
 
         this.controllers.debugging = 
         {
             option: folder.add(uniforms, 'option').options({ 
                 default                 : 0,
-
+                
                 ray_discarded           : 101,
-                ray_octant              : 102,
-                ray_direction           : 103,
-                ray_step_distance       : 104,
-                ray_start_distance      : 105,
-                ray_end_distance        : 106,
-                ray_span_distance       : 107,
-                ray_start_position      : 108,
-                ray_end_position        : 109,
-                ray_max_cell_count      : 110,
-                ray_max_block_count     : 111,
-                 
+                ray_direction           : 102,
+                ray_spacing             : 103,
+                ray_start_distance      : 104,
+                ray_end_distance        : 105,
+                ray_span_distance       : 106,
+                ray_start_position      : 107,
+                ray_end_position        : 108,
+                
                 trace_terminated        : 201,
-                trace_exhausted         : 202,
-                trace_outside           : 203,
-                trace_distance          : 204,
-                trace_position          : 205,
-                trace_intensity         : 206,
-                trace_error             : 207,
-                trace_abs_error         : 208,
-                trace_gradient          : 209,
-                trace_gradient_length   : 210,
-
-                mip_terminated          : 1001,
-                mip_exhausted           : 1002,
-                mip_outside             : 1003,
-                mip_distance            : 1004,
-                mip_position            : 1005,
-                mip_intensity           : 1006,
-                mip_error               : 1007,
-                mip_abs_error           : 1008,
-                mip_gradient            : 1009,
-                mip_gradient_length     : 1010,
+                trace_intersected       : 202,
+                trace_exhausted         : 203,
+                trace_outside           : 204,
+                trace_distance          : 205,
+                trace_position          : 206,
+                trace_intensity         : 207,
+                trace_gradient          : 208,
+                trace_gradient_length   : 209,
                 
-                cell_intersected        : 401,
-                cell_terminated         : 402,
-                cell_coords             : 403,
-                cell_coords_step        : 404,
-                cell_max_position       : 405,
-                cell_min_position       : 406,
-                cell_entry_distance     : 407,
-                cell_exit_distance      : 408,
-                cell_span_distance      : 409,
-                cell_sample_distances   : 410,
-                cell_sample_intensities : 411,
-                cell_intensity_coeffs   : 412,
+                voxel_occupied          : 301,
+                voxel_intersected       : 302,
+                voxel_terminated        : 303,
+                voxel_coords            : 304,
+                voxel_coords_step       : 305,
+                voxel_max_position      : 306,
+                voxel_min_position      : 307,
+                voxel_entry_distance    : 308,
+                voxel_exit_distance     : 309,
+                voxel_span_distance     : 310,
 
-                block_min_intensity     : 501,
-                block_max_intensity     : 502,
-                block_cheby_distance    : 503,
-                block_occupied          : 504,
-                block_terminated        : 505,
-                block_coords            : 506,
-                block_coords_step       : 507,
-                block_min_position      : 508,
-                block_max_position      : 509,
-                block_entry_distance    : 510,
-                block_exit_distance     : 511,
-                block_entry_position    : 512,
-                block_exit_position     : 513,
+                frag_depth              : 401,
+                frag_position           : 402,
+                frag_normal_vector      : 403,
+                frag_view_vector        : 404,
+                frag_light_vector       : 405,
+                frag_halfway_vector     : 406,
+                frag_view_angle         : 407,
+                frag_light_angle        : 408,
+                frag_halfway_angle      : 409,
+                frag_color              : 410,
+                frag_ambient_color      : 411,
+                frag_diffuse_color      : 412,
+                frag_specular_color     : 413,
+                frag_luminance          : 414,
 
-                frag_depth              : 601,
-                frag_position           : 602,
-                frag_camera_angle       : 603,
-                frag_mapped_intensity   : 604,
-                frag_mapped_color       : 605,
+                box_entry_distance      : 501,
+                box_exit_distance       : 502,
+                box_span_distance       : 503,
+                box_entry_position      : 504,
+                box_exit_position       : 505,
 
-                box_entry_distance      : 701,
-                box_exit_distance       : 702,
-                box_span_distance       : 703,
-                box_entry_position      : 704,
-                box_exit_position       : 705,
-                box_min_entry_distance  : 706,
-                box_max_exit_distance   : 707,
-                box_max_span_distance   : 708,
+                camera_position         : 601,
 
-                camera_position         : 801,
-                camera_direction        : 802,
-                camera_far_distance     : 803,
-                camera_near_distance    : 804,
-
-                stats_num_fetches       : 301,
-                stats_num_steps         : 302,
-                stats_num_skips         : 303,
+                stats_num_fetches       : 701,
+                stats_num_steps         : 702,
+                stats_num_skips         : 703,
                 
-                variable1               : 901,
-                variable2               : 902,
-                variable3               : 903,
+                variable1               : 801,
+                variable2               : 802,
+                variable3               : 803,
             }),
 
-            traceCount: folder.add(uniforms, 'trace_count').min(0).max(1000).step(1),
-            cellCount : folder.add(uniforms, 'cell_count').min(0).max(1000).step(1),
-            blockCount: folder.add(uniforms, 'block_count').min(0).max(300).step(1),
             variable1 : folder.add(uniforms, 'variable1').min(-2).max(2).step(0.00000001),
             variable2 : folder.add(uniforms, 'variable2').min(0).max(256).step(0.00000001),
             variable3 : folder.add(uniforms, 'variable3').min(0).max(10).step(1),

@@ -9,7 +9,7 @@
 #define INFINITY 3.402823e38
 #endif
 
-float intersect_plane(vec4 hessian, vec3 origin, vec3 direction ) 
+float intersect_plane(vec4 hessian, vec3 origin, vec3 direction) 
 {
     float denominator = dot(hessian.xyz, direction);
     if ( abs(denominator) < MICRO_TOLERANCE ) 

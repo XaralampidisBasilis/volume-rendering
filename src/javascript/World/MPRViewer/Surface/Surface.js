@@ -12,6 +12,7 @@ export default class Surface extends THREE.Mesh
         super(geometry, material)
 
         this.setUniforms(viewer)
+        console.log(this.material)
     }
 
     setUniforms(viewer)
@@ -47,6 +48,12 @@ export default class Surface extends THREE.Mesh
         uniforms.u_bounding_box.value.max_coords.copy(processor.boundingBox.parameters.maxCoords)
         uniforms.u_bounding_box.value.min_position.copy(processor.boundingBox.parameters.minPosition)
         uniforms.u_bounding_box.value.max_position.copy(processor.boundingBox.parameters.maxPosition)
+
+        viewer.slices.children.forEach((slice, i) => 
+        {
+            uniforms.u_slices.value.hessian[i] = slice.material.uniforms.u_plane.value.hessian
+            uniforms.u_slices.value.visible[i] = slice.material.uniforms.u_plane.value.visible
+        })
 
         defines.MAX_TRACES = processor.boundingBox.parameters.maxTraces
         defines.MAX_VOXELS = processor.boundingBox.parameters.maxCells
