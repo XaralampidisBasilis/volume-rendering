@@ -165,6 +165,7 @@ export default class Gui
             variable1 : folder.add(uniforms, 'variable1').min(-2).max(2).step(0.00000001),
             variable2 : folder.add(uniforms, 'variable2').min(0).max(256).step(0.00000001),
             variable3 : folder.add(uniforms, 'variable3').min(0).max(10).step(1),
+            maxVoxels : folder.add(uniforms, 'max_voxels').min(0).max(defines.MAX_VOXELS).step(1),
             discarding: folder.add(objects, 'DISCARDING_DISABLED').name('disable_discarding').onFinishChange((value) => { defines.DISCARDING_DISABLED = Number(value), material.needsUpdate = true }),
         }
     }

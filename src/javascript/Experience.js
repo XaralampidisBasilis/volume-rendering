@@ -9,6 +9,7 @@ import Camera from './Camera'
 import Renderer from './Renderer'
 import World from './World/World'
 import Resources from './Utils/Resources'
+import XRManager from './XR/XRManager'
 import sources from './sources'
 
 let instance = null
@@ -42,6 +43,7 @@ export default class Experience
         this.renderer = new Renderer()
         this.world = new World()
         this.stats = new Stats(true)
+        this.xr = new XRManager()
 
         // Resize event
         this.sizes.on('resize', () => 
@@ -74,7 +76,7 @@ export default class Experience
 
         if (this.renderer.instance.xr.isPresenting)
         {
-
+            this.xr.update()
         }
         else
         {

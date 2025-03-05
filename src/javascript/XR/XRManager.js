@@ -16,15 +16,11 @@ export default class XRManager
         this.renderer = this.experience.renderer
         this.world = this.experience.world
         this.scene = this.experience.scene
-
-        this.world.on('ready', () =>
-        {
-            this.gestures = new XRGestures()
-            this.hitTest = new XRHitTest()
-            this.setButton()
-            this.addSessionListeners()
-            this.setActions()
-        })
+        this.gestures = new XRGestures()
+        this.hitTest = new XRHitTest()
+        this.setButton()
+        this.addSessionListeners()
+        // this.setActions()
     } 
 
     setButton()

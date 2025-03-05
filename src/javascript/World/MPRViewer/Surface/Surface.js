@@ -12,7 +12,7 @@ export default class Surface extends THREE.Mesh
         super(geometry, material)
 
         this.setUniforms(viewer)
-        console.log(this.material)
+        viewer.add(this)
     }
 
     setUniforms(viewer)

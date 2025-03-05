@@ -29,12 +29,13 @@ export default class MPRViewer extends THREE.Group
             this.processor.on('ready', () =>
             {
                 this.setTextures()
-                this.setSlices()
-                this.setSurface()
+                this.slices = new Slices(this)
+                this.surface = new Surface(this)
                 this.gui = new Gui(this)
 
-                this.position.copy(this.processor.intensityMap.parameters.size).divideScalar(-2)
-                this.camera.instance.position.copy(this.processor.intensityMap.parameters.size).multiplyScalar(2)
+                const size = this.processor.intensityMap.parameters.size
+                this.position.copy(size).divideScalar(-2)
+                this.camera.instance.position.copy(size).multiplyScalar(2)
                 this.scene.add(this)
             })
         })
@@ -79,22 +80,6 @@ export default class MPRViewer extends THREE.Group
         this.textures.binaryMap.computeMipmaps = false
         this.textures.binaryMap.needsUpdate = true
         tf.dispose(this.processor.binaryMap.tensor)  
-    }
-
-    setSlices()
-    {
-        this.slices = new Slices(this)
-        this.slices.position.copy(this.processor.intensityMap.parameters.size).divideScalar(2)
-        this.slices.update()
-        this.slices.visible = false
-
-        this.add(this.slices)
-    }
-
-    setSurface()
-    {
-        this.surface = new Surface(this)
-        this.add(this.surface)
     }
 
     update()

@@ -23,12 +23,14 @@ export default class Processor extends EventEmitter
         await this.generateIntensityMap()
         await this.generateBinaryMap()
         await this.generateBoundingBox()
+        // await this.generateDistanceMap()
         
         this.trigger('ready')
     }
 
     async generateIntensityMap()
     {
+        console.time('generateIntensityMap') 
         const source = this.resources.items.intensityMap
         const parameters = 
         {
@@ -53,12 +55,15 @@ export default class Processor extends EventEmitter
         this.intensityMap = {}
         this.intensityMap.tensor = intensityMap
         this.intensityMap.parameters = parameters
+        console.timeEnd('generateIntensityMap') 
+
         // console.log(this.intensityMap.parameters)
         // console.log(this.intensityMap.tensor.dataSync())
     }
 
     async generateBinaryMap()
     {
+        console.time('generateBinaryMap') 
         const source = this.resources.items.binaryMap
         const parameters = 
         {
@@ -81,14 +86,16 @@ export default class Processor extends EventEmitter
         this.binaryMap = {}
         this.binaryMap.tensor = binaryMap
         this.binaryMap.parameters = parameters
+        console.timeEnd('generateBinaryMap') 
+
         // console.log(this.binaryMap.parameters)
         // console.log(this.binaryMap.tensor.dataSync())
     }
 
     async generateBoundingBox()
     {
+        console.time('generateBoundingBox') 
         const boundingBox = await this.computeBoundingBox(this.binaryMap.tensor)
-        
         const parameters = {}
         parameters.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
         parameters.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
@@ -102,7 +109,30 @@ export default class Processor extends EventEmitter
 
         this.boundingBox = {}
         this.boundingBox.parameters = parameters
-        console.log(this.boundingBox.parameters)
+        console.timeEnd('generateBoundingBox') 
+
+        // console.log(this.boundingBox.parameters)
+    }
+
+    async generateDistanceMap()
+    {
+        console.time('generateDistanceMap') 
+        const distanceMap = await this.computeDistanceMap(this.binaryMap.tensor, 100)
+        const parameters = {...this.binaryMap.parameters}
+        const maxTensor = distanceMap.max()
+        const meanTensor = distanceMap.mean()
+
+        parameters.maxDistance = maxTensor.arraySync()  
+        parameters.meanDistance = meanTensor.arraySync()  
+        tf.dispose([maxTensor, meanTensor])
+
+        this.distanceMap = {}
+        this.distanceMap.tensor = distanceMap
+        this.distanceMap.parameters = parameters
+        console.timeEnd('generateDistanceMap') 
+
+        console.log(this.distanceMap.parameters)
+        // console.log(this.distanceMap.tensor.dataSync())
     }
 
     destroy() 
@@ -121,9 +151,55 @@ export default class Processor extends EventEmitter
 
     // tensor functions
 
+    async computeDistanceMap(occupancyMap, maxIterations) 
+    {
+        // Initialize distance map and previous/next diffusion
+        let distanceMap   = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'int32'), true))
+        let diffusionPrev = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'bool'), true))
+        let diffusionNext = tf.tidy(() => tf.variable(tf.clone(occupancyMap), true))
+        
+        for (let n = 0; n < maxIterations; n++) 
+        {
+            // Compute distance update
+            const scalarIter = tf.scalar(n, 'int32')
+            const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
+            const distanceUpdate = diffusionUpdate.mul(scalarIter)
+
+            // Update distance map
+            const distanceMapUpdate = distanceMap.add(distanceUpdate)
+            distanceMap.assign(distanceMapUpdate)
+
+            // Update previous diffusion state
+            diffusionPrev.assign(diffusionNext)
+
+            // Compute next diffusion with max pooling
+            const diffusionNextUpdate = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
+            diffusionNext.assign(diffusionNextUpdate)
+
+            // Await for garbage disposal
+            tf.dispose([diffusionNextUpdate, distanceMapUpdate, distanceUpdate, diffusionUpdate, scalarIter])
+            await tf.nextFrame()
+        }
+
+        // Compute final distance update
+        const scalarMax = tf.scalar(maxIterations - 1, 'int32')
+        const diffusionUpdate = tf.logicalNot(diffusionPrev)
+        const distanceUpdate = diffusionUpdate.mul(scalarMax)
+
+        // Update final distance map
+        distanceMap = distanceMap.add(distanceUpdate)
+
+        // Cleanup
+        tf.dispose([distanceUpdate, diffusionUpdate, scalarMax])
+        tf.disposeVariables()
+        await tf.nextFrame()
+
+        // Return the final distance map
+        return distanceMap
+    }
+
     async computeBoundingBox(binaryTensor) 
     {
-        console.time('computeBoundingBox')
         const coords = []
         const collapsedX = binaryTensor.any([1, 2, 3]) 
         coords[2] = await this.argBounds(collapsedX)
@@ -140,18 +216,15 @@ export default class Processor extends EventEmitter
 
         const minCoords = [coords[0][0], coords[1][0], coords[2][0]]
         const maxCoords = [coords[0][1], coords[1][1], coords[2][1]]
-        console.timeEnd('computeBoundingBox')
 
         return { minCoords, maxCoords }    
     }
 
     async argBounds(binaryArray)
     {
-        console.time('argBounds')
         const coords = await tf.whereAsync(binaryArray)
         const indices = coords.arraySync().flat()
         tf.dispose(coords)
-        console.timeEnd('argBounds')
 
         return (indices.length) ? [indices[0], indices[indices.length - 1]] : [0, 0]
     }

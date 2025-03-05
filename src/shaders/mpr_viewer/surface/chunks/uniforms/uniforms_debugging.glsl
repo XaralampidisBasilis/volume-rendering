@@ -4,6 +4,7 @@
 struct Debugging
 {
     int option;    
+    int max_voxels;
     float variable1; 
     float variable2; 
     float variable3; 

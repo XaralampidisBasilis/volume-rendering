@@ -14,6 +14,11 @@ export default class Slices extends THREE.Group
         this.add(this.axial)
         this.add(this.coronal)
         this.add(this.sagittal)
+
+        const size = viewer.processor.intensityMap.parameters.size
+        this.position.copy(size).divideScalar(2)
+        this.update()
+        viewer.add(this)
     }
 
     setAxial(viewer)

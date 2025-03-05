@@ -7,7 +7,8 @@ voxel.coords += voxel.coords_step;
 
 // compute occupation and intersection
 voxel.occupied = texelFetch(u_textures.binary_map, voxel.coords, 0).r > 0.0;
-voxel.intersected = voxel.occupied ^^ prev_voxel.occupied;
+// voxel.intersected = voxel.occupied ^^ prev_voxel.occupied;
+voxel.intersected = voxel.occupied;
 
 // compute voxel bounding box in model coordinates
 voxel.min_position = vec3(voxel.coords + 0) * u_intensity_map.spacing;

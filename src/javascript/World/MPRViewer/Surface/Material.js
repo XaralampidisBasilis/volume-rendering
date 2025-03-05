@@ -62,6 +62,7 @@ export default function()
         u_debugging: new THREE.Uniform
         ({
             option      : 0,
+            max_voxels  : 0,
             variable1   : 0,
             variable2   : 0,
             variable3   : 0,
