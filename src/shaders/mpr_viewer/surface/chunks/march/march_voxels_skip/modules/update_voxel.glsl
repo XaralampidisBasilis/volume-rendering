@@ -22,11 +22,9 @@ voxel.entry_position = voxel.exit_position;
 voxel.exit_distance = intersect_box_max(voxel.min_position, voxel.max_position, camera.position, ray.direction);
 voxel.exit_position = camera.position + ray.direction * voxel.exit_distance;
 
-// compute intersection
+// compute voxel conditions
 voxel.intersected = voxel.cheby_distance == 0;
-
-// compute termination condition
-voxel.terminated = voxel.exit_distance > ray.end_distance;
+voxel.terminated = voxel.entry_distance > ray.end_distance;
 
 // Update stats
 #if STATS_ENABLED == 1

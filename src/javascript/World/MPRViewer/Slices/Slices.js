@@ -18,7 +18,8 @@ export default class Slices extends THREE.Group
         const size = viewer.processor.intensityMap.parameters.size
         this.position.copy(size).divideScalar(2)
         this.update()
-        this.visible = false
+        this.visible = true
+        
         viewer.add(this)
     }
 

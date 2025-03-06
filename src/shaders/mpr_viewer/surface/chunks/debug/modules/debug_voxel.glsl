@@ -11,7 +11,7 @@ vec4 debug_voxel_intersected = to_color(voxel.intersected);
 vec4 debug_voxel_terminated = to_color(voxel.terminated);
 
 // cheby distance
-vec4 debug_voxel_cheby_distance = to_color(float(voxel.cheby_distance) / 1.0);
+vec4 debug_voxel_cheby_distance = to_color(float(voxel.cheby_distance) / 128.0);
 
 // coords
 vec4 debug_voxel_coords = to_color(vec3(voxel.coords) * u_intensity_map.inv_dimensions);

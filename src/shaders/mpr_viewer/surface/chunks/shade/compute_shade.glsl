@@ -14,8 +14,10 @@
 
 // Compute shaded color
 vec3 directional_color = mix(frag.diffuse_color, frag.specular_color, specular);
-frag.shaded_color.rgb = frag.ambient_color + directional_color;
+directional_color *= smoothstep(0.0, 0.6, abs(frag.view_angle));
 
 // Assign frag color
+frag.shaded_color.rgb = frag.ambient_color + directional_color;
 fragColor = frag.shaded_color;
+fragColor.a = 0.3;
 gl_FragDepth = frag.depth;

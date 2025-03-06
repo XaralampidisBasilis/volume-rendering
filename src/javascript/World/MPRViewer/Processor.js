@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import EventEmitter from '../../Utils/EventEmitter'
 import Experience from '../../Experience'
+import { distance } from 'mathjs'
 
 export default class Processor extends EventEmitter
 {
@@ -56,7 +57,6 @@ export default class Processor extends EventEmitter
         this.intensityMap.tensor = intensityMap
         this.intensityMap.parameters = parameters
         console.timeEnd('generateIntensityMap') 
-
         // console.log(this.intensityMap.parameters)
         // console.log(this.intensityMap.tensor.dataSync())
     }
@@ -87,7 +87,6 @@ export default class Processor extends EventEmitter
         this.binaryMap.tensor = binaryMap
         this.binaryMap.parameters = parameters
         console.timeEnd('generateBinaryMap') 
-
         // console.log(this.binaryMap.parameters)
         // console.log(this.binaryMap.tensor.dataSync())
     }
@@ -110,7 +109,6 @@ export default class Processor extends EventEmitter
         this.boundingBox = {}
         this.boundingBox.parameters = parameters
         console.timeEnd('generateBoundingBox') 
-
         // console.log(this.boundingBox.parameters)
     }
 
@@ -129,7 +127,7 @@ export default class Processor extends EventEmitter
         this.distanceMap.tensor = distanceMap
         this.distanceMap.parameters = parameters
         console.timeEnd('generateDistanceMap') 
-        console.log(this.distanceMap.parameters)
+        // console.log(this.distanceMap.parameters)
         // console.log(this.distanceMap.tensor)
         // console.log(this.distanceMap.tensor.dataSync())
     }
@@ -152,13 +150,13 @@ export default class Processor extends EventEmitter
 
     async computeDistanceSubmap(occupancyMap, begin, size, maxIterations)
     {
-        const occupancySubmap = occupancyMap.slice(begin, size)
+        const occupancySubmap = tf.slice4d(occupancyMap, begin, size)
         const distanceSubmap = await this.computeDistanceMap(occupancySubmap, maxIterations)
         tf.dispose(occupancySubmap)
 
         const shape = occupancyMap.shape
         const paddings = shape.map((dimension, i) => [begin[i], dimension - begin[i] - size[i]])
-        const distanceMap = distanceSubmap.pad(paddings, 1)
+        const distanceMap = tf.pad4d(distanceSubmap, paddings, 1)
         tf.dispose(distanceSubmap)
 
         return distanceMap

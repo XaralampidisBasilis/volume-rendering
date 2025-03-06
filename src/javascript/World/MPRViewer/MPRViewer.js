@@ -75,8 +75,8 @@ export default class MPRViewer extends THREE.Group
         )
         this.textures.binaryMap.format = THREE.RedFormat
         this.textures.binaryMap.type = THREE.UnsignedByteType
-        this.textures.binaryMap.minFilter = THREE.NearestFilter
-        this.textures.binaryMap.magFilter = THREE.NearestFilter
+        this.textures.binaryMap.minFilter = THREE.LinearFilter
+        this.textures.binaryMap.magFilter = THREE.LinearFilter
         this.textures.binaryMap.computeMipmaps = false
         this.textures.binaryMap.needsUpdate = true
         tf.dispose(this.processor.binaryMap.tensor)  
@@ -84,7 +84,7 @@ export default class MPRViewer extends THREE.Group
         // Distance map 
         this.textures.distanceMap = new THREE.Data3DTexture
         (
-            new Uint8ClampedArray(this.processor.distanceMap.tensor.dataSync()),
+            new Uint8Array(this.processor.distanceMap.tensor.dataSync()),
             ...this.processor.distanceMap.parameters.dimensions
         )
         this.textures.distanceMap.format = THREE.RedFormat

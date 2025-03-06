@@ -11,7 +11,13 @@ export default class Surface extends THREE.Mesh
         const material = Material()
         super(geometry, material)
 
+        this.material.depthWrite = true
+        this.material.depthTest = true
+        this.material.transparent = true
+        this.visible = true
+
         this.setUniforms(viewer)
+
         viewer.add(this)
     }
 
@@ -24,7 +30,7 @@ export default class Surface extends THREE.Mesh
 
         uniforms.u_textures.value.intensity_map = textures.intensityMap
         uniforms.u_textures.value.binary_map = textures.binaryMap
-        uniforms.u_textures.value.binary_map = textures.distanceMap
+        uniforms.u_textures.value.distance_map = textures.distanceMap
 
         uniforms.u_intensity_map.value.dimensions.copy(processor.intensityMap.parameters.dimensions)
         uniforms.u_intensity_map.value.spacing.copy(processor.intensityMap.parameters.spacing)
