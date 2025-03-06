@@ -11,14 +11,10 @@
 
 float intersect_plane(vec4 hessian, vec3 origin, vec3 direction) 
 {
-    float denominator = dot(hessian.xyz, direction);
-    if ( abs(denominator) < MICRO_TOLERANCE ) 
-    {
-        return INFINITY;
-    }
+    float denominator = dot(hessian, vec4(direction, 0.0));
+    float distance = -dot(hessian, vec4(origin, 1.0)) / denominator;
 
-    float distance = -(dot( hessian.xyz, origin) + hessian.w) / denominator;
-    if ( distance < 0.0 ) 
+    if ( abs(denominator) < MICRO_TOLERANCE ) 
     {
         return INFINITY;
     }

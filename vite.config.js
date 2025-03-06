@@ -21,6 +21,7 @@ export default ({
     {
         alias: {
             '@': path.resolve(__dirname, 'src'),
+            '@static': path.resolve(__dirname, 'static'),
             '@textures': path.resolve(__dirname, 'static/textures'),
             '@shaders': path.resolve(__dirname, 'src/shaders'),
         }

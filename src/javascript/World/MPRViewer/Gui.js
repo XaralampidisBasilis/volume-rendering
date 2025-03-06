@@ -1,5 +1,5 @@
 
-import { colormapLocations } from '../../../../static/textures/colormaps/colormaps'
+import { colormapLocations } from '@textures/colormaps/colormaps'
 
 export default class Gui
 {
@@ -122,13 +122,14 @@ export default class Gui
                 voxel_occupied          : 301,
                 voxel_intersected       : 302,
                 voxel_terminated        : 303,
-                voxel_coords            : 304,
-                voxel_coords_step       : 305,
-                voxel_max_position      : 306,
-                voxel_min_position      : 307,
-                voxel_entry_distance    : 308,
-                voxel_exit_distance     : 309,
-                voxel_span_distance     : 310,
+                voxel_cheby_distance    : 304,
+                voxel_coords            : 305,
+                voxel_coords_step       : 306,
+                voxel_max_position      : 307,
+                voxel_min_position      : 308,
+                voxel_entry_distance    : 309,
+                voxel_exit_distance     : 310,
+                voxel_span_distance     : 311,
 
                 frag_depth              : 401,
                 frag_position           : 402,

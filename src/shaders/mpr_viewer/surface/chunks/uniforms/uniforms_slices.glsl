@@ -4,7 +4,7 @@
 struct Slices 
 {
     vec4  hessian[3];
-    float visible[3];
+    bool visible[3];
 };
 
 uniform Slices u_slices;

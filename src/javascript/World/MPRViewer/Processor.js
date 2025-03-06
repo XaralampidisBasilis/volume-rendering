@@ -23,7 +23,7 @@ export default class Processor extends EventEmitter
         await this.generateIntensityMap()
         await this.generateBinaryMap()
         await this.generateBoundingBox()
-        // await this.generateDistanceMap()
+        await this.generateDistanceMap()
         
         this.trigger('ready')
     }
@@ -117,21 +117,20 @@ export default class Processor extends EventEmitter
     async generateDistanceMap()
     {
         console.time('generateDistanceMap') 
-        const distanceMap = await this.computeDistanceMap(this.binaryMap.tensor, 100)
-        const parameters = {...this.binaryMap.parameters}
+        const begin = this.boundingBox.parameters.minCoords.toArray().toReversed().concat(0)
+        const size = this.boundingBox.parameters.dimensions.toArray().toReversed().concat(1)
+        const distanceMap = await this.computeDistanceSubmap(this.binaryMap.tensor, begin, size, 128)
         const maxTensor = distanceMap.max()
-        const meanTensor = distanceMap.mean()
-
+        const parameters = {...this.binaryMap.parameters}
         parameters.maxDistance = maxTensor.arraySync()  
-        parameters.meanDistance = meanTensor.arraySync()  
-        tf.dispose([maxTensor, meanTensor])
+        tf.dispose(maxTensor)
 
         this.distanceMap = {}
         this.distanceMap.tensor = distanceMap
         this.distanceMap.parameters = parameters
         console.timeEnd('generateDistanceMap') 
-
         console.log(this.distanceMap.parameters)
+        // console.log(this.distanceMap.tensor)
         // console.log(this.distanceMap.tensor.dataSync())
     }
 
@@ -151,6 +150,20 @@ export default class Processor extends EventEmitter
 
     // tensor functions
 
+    async computeDistanceSubmap(occupancyMap, begin, size, maxIterations)
+    {
+        const occupancySubmap = occupancyMap.slice(begin, size)
+        const distanceSubmap = await this.computeDistanceMap(occupancySubmap, maxIterations)
+        tf.dispose(occupancySubmap)
+
+        const shape = occupancyMap.shape
+        const paddings = shape.map((dimension, i) => [begin[i], dimension - begin[i] - size[i]])
+        const distanceMap = distanceSubmap.pad(paddings, 1)
+        tf.dispose(distanceSubmap)
+
+        return distanceMap
+    }
+
     async computeDistanceMap(occupancyMap, maxIterations) 
     {
         // Initialize distance map and previous/next diffusion
@@ -158,7 +171,7 @@ export default class Processor extends EventEmitter
         let diffusionPrev = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'bool'), true))
         let diffusionNext = tf.tidy(() => tf.variable(tf.clone(occupancyMap), true))
         
-        for (let n = 0; n < maxIterations; n++) 
+        for (let n = 0; n <= maxIterations; n++) 
         {
             // Compute distance update
             const scalarIter = tf.scalar(n, 'int32')
@@ -182,7 +195,7 @@ export default class Processor extends EventEmitter
         }
 
         // Compute final distance update
-        const scalarMax = tf.scalar(maxIterations - 1, 'int32')
+        const scalarMax = tf.scalar(maxIterations, 'int32')
         const diffusionUpdate = tf.logicalNot(diffusionPrev)
         const distanceUpdate = diffusionUpdate.mul(scalarMax)
 
@@ -228,34 +241,4 @@ export default class Processor extends EventEmitter
 
         return (indices.length) ? [indices[0], indices[indices.length - 1]] : [0, 0]
     }
-
-    async argBoundsSync(binaryArray) 
-    {
-        console.time('argBoundsSync')
-        const array = binaryArray.dataSync()
-    
-        let firstIndex;
-        let lastIndex;
-
-        for (firstIndex = 0; firstIndex <= array.length - 1; firstIndex++) 
-        {
-            if (array[firstIndex]) 
-            {
-                break
-            }
-        }
-
-        for (lastIndex = array.length - 1; lastIndex >= 0; lastIndex--) 
-        {
-            if (array[lastIndex]) 
-            {
-                break
-            }
-        }
-        console.timeEnd('argBoundsSync')
-        
-        return (firstIndex <= lastIndex) ? [firstIndex, lastIndex] : [0, 0]
-    }
-
-
 }

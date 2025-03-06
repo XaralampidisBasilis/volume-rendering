@@ -10,6 +10,9 @@ vec4 debug_voxel_intersected = to_color(voxel.intersected);
 // terminated
 vec4 debug_voxel_terminated = to_color(voxel.terminated);
 
+// cheby distance
+vec4 debug_voxel_cheby_distance = to_color(float(voxel.cheby_distance) / 1.0);
+
 // coords
 vec4 debug_voxel_coords = to_color(vec3(voxel.coords) * u_intensity_map.inv_dimensions);
 
@@ -38,12 +41,13 @@ switch (u_debugging.option - debug_slot_voxel)
     case  1: fragColor = debug_voxel_occupied;       break;
     case  2: fragColor = debug_voxel_intersected;    break;
     case  3: fragColor = debug_voxel_terminated;     break;
-    case  4: fragColor = debug_voxel_coords;         break;
-    case  5: fragColor = debug_voxel_coords_step;    break;
-    case  6: fragColor = debug_voxel_max_position;   break;
-    case  7: fragColor = debug_voxel_min_position;   break;
-    case  8: fragColor = debug_voxel_entry_distance; break;
-    case  9: fragColor = debug_voxel_exit_distance;  break;
-    case 10: fragColor = debug_voxel_span_distance;  break;
+    case  4: fragColor = debug_voxel_cheby_distance; break;
+    case  5: fragColor = debug_voxel_coords;         break;
+    case  6: fragColor = debug_voxel_coords_step;    break;
+    case  7: fragColor = debug_voxel_max_position;   break;
+    case  8: fragColor = debug_voxel_min_position;   break;
+    case  9: fragColor = debug_voxel_entry_distance; break;
+    case 10: fragColor = debug_voxel_exit_distance;  break;
+    case 11: fragColor = debug_voxel_span_distance;  break;
 }
 
