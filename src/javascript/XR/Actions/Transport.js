@@ -1,28 +1,29 @@
 
 
-import XRGestures from '../XRGestures/XRGestures'
+import Gestures from '../Gestures/Gestures'
 
-export default class Translate
+export default class Transport
 {
-    constructor(object3D, gestureEvent)
+    constructor(object3D)
     {
+        this.gestures = new Gestures()
+        this.controller = this.gestures.controller[0]
         this.object3D = object3D
-        this.gestureEvent = gestureEvent
-        this.gestures = new XRGestures()
-        this.setup()
+
+        this.initialize()
         this.addListener()       
     }
 
-    setup()
+    initialize()
     {
         this.point = new THREE.Points()
-		this.gestures.controller[0].attach(this.point)
+		this.controller.attach(this.point)
     }
 
     addListener()
     {
         this.listener = (event) => this.onGesture(event)
-        this.gestures.addEventListener(this.gestureEvent, this.listener)
+        this.gestures.addEventListener('hold', this.listener)
     }
 
     onGesture(event)
@@ -46,12 +47,13 @@ export default class Translate
 
     onEnd()
     {
+        
     }
 
     destroy() 
     {
-        this.gestures.controller[0].remove(this.point)
-        this.gestures.removeEventListener(this.gestureEvent, this.listener)
+        this.controller.remove(this.point)
+        this.gestures.removeEventListener('hold', this.listener)
         this.point = null
     }
 } 

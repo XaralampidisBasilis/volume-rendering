@@ -1,10 +1,10 @@
-import XRGestures from './XRGestures'
+import Gestures from './Gestures'
 
 export default class Tap 
 {
     constructor()
     {
-        this.gestures = new XRGestures()
+        this.gestures = new Gestures()
         this.parameters = this.gestures.parameters
         this.setGesture()
     }

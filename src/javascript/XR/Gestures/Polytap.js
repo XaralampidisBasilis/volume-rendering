@@ -1,10 +1,10 @@
-import XRGestures from './XRGestures'
+import Gestures from './Gestures'
 
 export default class Polytap 
 {
     constructor()
     {
-        this.gestures = new XRGestures()
+        this.gestures = new Gestures()
         this.parameters = this.gestures.parameters
         this.setGesture()
     }
@@ -63,7 +63,7 @@ export default class Polytap
         if ( this.end ) {
 
             this.gestures.dispatchEvent( { type: 'polytap', end: true, numTaps: this.numTaps, userData: this.userData } ) 
-            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR ) 
+            this.gestures.delayGestures( Gestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures()
             this.gestures.inventory.tap.numTaps = 0
             this.numTaps = 0 

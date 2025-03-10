@@ -3,7 +3,7 @@
     import Reticle from './Reticle'
     import EventEmitter from '../Utils/EventEmitter'
 
-    export default class XRHitTest extends EventEmitter
+    export default class HitTest extends EventEmitter
     {
         constructor()
         {

@@ -67,7 +67,7 @@ export default function()
 
         u_shading: new THREE.Uniform
         ({
-            ambient_reflectance  : 0.2,
+            ambient_reflectance  : 0.2  ,
             diffuse_reflectance  : 1.0,
             specular_reflectance : 1.0,
             shininess            : 40.0,

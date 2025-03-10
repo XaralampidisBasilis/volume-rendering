@@ -1,28 +1,33 @@
 
 
-import XRGestures from '../XRGestures/XRGestures'
+import Gestures from '../Gestures/Gestures'
+
+const degToRad = Math.PI / 180
 
 export default class Roll
 {
-    constructor(object3D, gestureEvent)
+    constructor(object3D)
     {
         this.object3D = object3D
-        this.gestureEvent = gestureEvent
-        this.gestures = new XRGestures()
-        this.setup()
+        this.gestures = new Gestures()
+        this.viewRay = this.gestures.raycasters.view.ray
+        this.parameters = this.gestures.parametersDual
+
+        this.initialize()
         this.addListener()       
     }
 
-    setup()
+    initialize()
     {
         this.angle = 0
 		this.axis = new THREE.Vector3()
+        this.quaternion = new THREE.Quaternion()
     }
 
     addListener()
     {
         this.listener = (event) => this.onGesture(event)
-        this.gestures.addEventListener(this.gestureEvent, this.listener)
+        this.gestures.addEventListener('twist', this.listener)
     }
 
     onGesture(event)
@@ -34,30 +39,30 @@ export default class Roll
 
     onStart()
     {
-		this.quaternion0 = this.object3D.quaternion.clone()
+		this.quaternion.copy(this.object3D.quaternion)
 	}
 
     onCurrent()
     {
-        this.axis.copy(this.gestures.raycasters.view.ray.direction)
-        this.angle = (this.gestures.parametersDual.angleOffset * Math.PI) / 180
+        this.axis.copy(this.viewRay.direction)
+        this.angle = this.parameters.angleOffset * degToRad
 		this.angle *= Roll.ANGLE_MULTIPLIER
 
-		this.object3D.quaternion.copy(this.quaternion0)
+		this.object3D.quaternion.copy(this.quaternion)
 		this.object3D.rotateOnWorldAxis(this.axis, -this.angle)
     }
 
     onEnd()
     {
+
     }
 
     destroy() 
     {
-        this.gestures.removeEventListener(this.gestureEvent, this.listener)
-        this.gestureEvent = null
+        this.gestures.removeEventListener('twist', this.listener)
         this.angle = null
         this.axis = null
-        this.quaternion0 = null
+        this.quaternion = null
     }
 } 
 

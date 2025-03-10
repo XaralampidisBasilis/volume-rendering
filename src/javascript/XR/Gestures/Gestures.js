@@ -32,7 +32,7 @@ function formatVector( vector, digits )
 
 let instance = null
 
-class XRGestures extends THREE.EventDispatcher 
+class Gestures extends THREE.EventDispatcher 
 {
     constructor() {
 
@@ -44,6 +44,7 @@ class XRGestures extends THREE.EventDispatcher
         instance = this
             
         this.experience = new Experience()
+        this.scene = this.experience.scene
         this.renderer = this.experience.renderer.instance
         this.camera = this.renderer.xr.getCamera()
         
@@ -54,7 +55,7 @@ class XRGestures extends THREE.EventDispatcher
         this.setRaycasters()
         this.setParameters()
         this.setControllers()
-        this.setInventory()
+        this.setList()
     }
 
     // setup 
@@ -77,11 +78,11 @@ class XRGestures extends THREE.EventDispatcher
             cursor      : new THREE.Vector2(),
             cursor0     : new THREE.Vector2(),
             cursorOffset: new THREE.Vector2(),
-            cursorBuffer: new Array( XRGestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
-            cursorSmooth: new Array( XRGestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
+            cursorBuffer: new Array( Gestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
+            cursorSmooth: new Array( Gestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
             distance     : 0,
             angle        : 0,
-            angleBuffer  : new Array( XRGestures.BUFFER_LENGTH ).fill( 0 ),
+            angleBuffer  : new Array( Gestures.BUFFER_LENGTH ).fill( 0 ),
             radialSpeed  : 0,
             angularSpeed : 0,
             pathDistance : 0,
@@ -100,7 +101,7 @@ class XRGestures extends THREE.EventDispatcher
             medianOffset  : new THREE.Vector2(),
             vector        : new THREE.Vector2(),
             vector0       : new THREE.Vector2(),
-            vectorBuffer  : new Array( XRGestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
+            vectorBuffer  : new Array( Gestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
             distance      : 0,
             distance0     : 0,
             distanceOffset: 0,
@@ -108,7 +109,7 @@ class XRGestures extends THREE.EventDispatcher
             angle0        : 0,
             angleOffset   : 0,
             turnAngle     : 0,
-            angleBuffer   : new Array( XRGestures.BUFFER_LENGTH ).fill( 0 ),
+            angleBuffer   : new Array( Gestures.BUFFER_LENGTH ).fill( 0 ),
             radialSpeed   : 0,
             angularSpeed  : 0,
         }
@@ -131,9 +132,9 @@ class XRGestures extends THREE.EventDispatcher
         })     
     }
 
-    setInventory() {
+    setList() {
 
-        this.inventory =  {
+        this.list =  {
             tap    : new Tap(),
             polytap: new Polytap(),
             hold   : new Hold(),
@@ -152,7 +153,7 @@ class XRGestures extends THREE.EventDispatcher
         
         const controller = event.target
         const index = controller.userData.index
-        await delay( XRGestures.DELAY_CONTROLLER ) // need this to avoid some transient phenomenon, without it 
+        await delay( Gestures.DELAY_CONTROLLER ) // need this to avoid some transient phenomenon, without it 
 
         this.numControllers += 1                            
         this.startParameters( index )
@@ -166,7 +167,7 @@ class XRGestures extends THREE.EventDispatcher
 
         const controller = event.target
         const index = controller.userData.index
-        await delay( XRGestures.DELAY_CONTROLLER )
+        await delay( Gestures.DELAY_CONTROLLER )
 
         this.numControllers -= 1 
         this.stopParameters( index )
@@ -241,17 +242,17 @@ class XRGestures extends THREE.EventDispatcher
             this.destroyDualParameters()
     
         // Clean up inventory items (gesture detectors)
-        if (this.inventory) 
+        if (this.list) 
         {
-            Object.keys(this.inventory).forEach((gesture) => 
+            Object.keys(this.list).forEach((gesture) => 
             {
-                if (this.inventory[gesture].destroy)
-                    this.inventory[gesture].destroy() // Call a destroy method if available
+                if (this.list[gesture].destroy)
+                    this.list[gesture].destroy() // Call a destroy method if available
                 
-                this.inventory[gesture] = null
+                this.list[gesture] = null
             })
 
-            this.inventory = null
+            this.list = null
         }
     
         // Nullify references
@@ -260,21 +261,21 @@ class XRGestures extends THREE.EventDispatcher
         this.camera = null
         this.controller = null    
 
-        console.log("XRGestures destroyed")
+        console.log("Gestures destroyed")
     }
 
     detect() {
 
         // order matters
-        this.inventory.tap.detectGesture()                                   
-        this.inventory.polytap.detectGesture()
-        this.inventory.swipe.detectGesture()
-        this.inventory.hold.detectGesture()
-        this.inventory.pan.detectGesture()
-        this.inventory.pinch.detectGesture()
-        this.inventory.twist.detectGesture()
-        this.inventory.explode.detectGesture()
-        this.inventory.implode.detectGesture()
+        this.list.tap.detectGesture()                                   
+        this.list.polytap.detectGesture()
+        this.list.swipe.detectGesture()
+        this.list.hold.detectGesture()
+        this.list.pan.detectGesture()
+        this.list.pinch.detectGesture()
+        this.list.twist.detectGesture()
+        this.list.explode.detectGesture()
+        this.list.implode.detectGesture()
 
     }
 
@@ -378,13 +379,13 @@ class XRGestures extends THREE.EventDispatcher
         console.log(`parameters${i}: \n\n\tcursor = ${formatVector( this.parameters[i].cursor, digits )} mm` )
         console.log(`parameters${i}: \n\n\tcursor0 = ${formatVector( this.parameters[i].cursor0, digits )} mm` )
         console.log(`parameters${i}: \n\n\tcursorOffset = ${formatVector( this.parameters[i].cursorOffset, digits )} mm` )
-        console.log(`parameters${i}: \n\n\tcursorBuffer[ 0 ] = ${formatVector( this.parameters[i].cursorBuffer[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parameters[i].cursorBuffer[XRGestures.BUFFER_LENGTH - 1], digits )} mm`)
-        console.log(`parameters${i}: \n\n\tcursorSmooth[ 0 ] = ${formatVector( this.parameters[i].cursorSmooth[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parameters[i].cursorSmooth[XRGestures.BUFFER_LENGTH - 1], digits )} mm`)
+        console.log(`parameters${i}: \n\n\tcursorBuffer[ 0 ] = ${formatVector( this.parameters[i].cursorBuffer[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parameters[i].cursorBuffer[Gestures.BUFFER_LENGTH - 1], digits )} mm`)
+        console.log(`parameters${i}: \n\n\tcursorSmooth[ 0 ] = ${formatVector( this.parameters[i].cursorSmooth[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parameters[i].cursorSmooth[Gestures.BUFFER_LENGTH - 1], digits )} mm`)
         console.log(`parameters${i}: \n\n\tdistance = ${this.parameters[i].distance.toFixed(digits)} mm`)
         console.log(`parameters${i}: \n\n\tpathDistance = ${this.parameters[i].pathDistance.toFixed(digits)} mm`)
         console.log(`parameters${i}: \n\n\tangle = ${this.parameters[i].angle.toFixed(digits)} °`)
         console.log(`parameters${i}: \n\n\tturnAngle = ${this.parameters[i].turnAngle.toFixed(digits)} °`)
-        console.log(`parameters${i}: \n\n\tangleBuffer[ 0 ] = ${this.parameters[i].angleBuffer[0].toFixed(digits)} ° \n\n\tangleBuffer[end] = ${this.parameters[i].angleBuffer[XRGestures.BUFFER_LENGTH - 1].toFixed(digits)} °`)
+        console.log(`parameters${i}: \n\n\tangleBuffer[ 0 ] = ${this.parameters[i].angleBuffer[0].toFixed(digits)} ° \n\n\tangleBuffer[end] = ${this.parameters[i].angleBuffer[Gestures.BUFFER_LENGTH - 1].toFixed(digits)} °`)
         console.log(`parameters${i}: \n\n\tradialSpeed = ${this.parameters[i].radialSpeed.toFixed(digits)} m/s`)
         console.log(`parameters${i}: \n\n\tangularSpeed = ${this.parameters[i].angularSpeed.toFixed(digits)} °/ms`)
         console.log(`parameters${i}: \n\n\tpathSpeed = ${this.parameters[i].pathSpeed.toFixed(digits)} m/s`)
@@ -418,10 +419,10 @@ class XRGestures extends THREE.EventDispatcher
     
         // compute average cursor 
         _cursor.set( 0, 0 )
-        for ( let n = 0; n < XRGestures.WINDOW_SMOOTH; ++n ) {
+        for ( let n = 0; n < Gestures.WINDOW_SMOOTH; ++n ) {
             _cursor.add( this.parameters[i].cursorBuffer[n] ) 
         }
-        _cursor.divideScalar( XRGestures.WINDOW_SMOOTH ) // mm
+        _cursor.divideScalar( Gestures.WINDOW_SMOOTH ) // mm
 
         // save in buffer
         this.parameters[i].cursorSmooth.unshift( this.parameters[i].cursorSmooth.pop() )  // mm
@@ -621,7 +622,7 @@ class XRGestures extends THREE.EventDispatcher
         console.log(`parametersDual: \n\n\tmedian0 = ${formatVector( this.parametersDual.median0, digits )} mm` )
         console.log(`parametersDual: \n\n\tvector = ${formatVector( this.parametersDual.vector, digits )} mm` )
         console.log(`parametersDual: \n\n\tvector0 = ${formatVector( this.parametersDual.vector0, digits )} mm` )
-        console.log(`parametersDual: \n\n\tvectorBuffer[ 0 ] = ${formatVector( this.parametersDual.vectorBuffer[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parametersDual.vectorBuffer[XRGestures.BUFFER_LENGTH - 1], digits )} mm`)
+        console.log(`parametersDual: \n\n\tvectorBuffer[ 0 ] = ${formatVector( this.parametersDual.vectorBuffer[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parametersDual.vectorBuffer[Gestures.BUFFER_LENGTH - 1], digits )} mm`)
         console.log(`parametersDual: \n\n\tdistance = ${this.parametersDual.distance.toFixed(digits)} mm`)
         console.log(`parametersDual: \n\n\tdistance0 = ${this.parametersDual.distance0.toFixed(digits)} mm`)
         console.log(`parametersDual: \n\n\tdistanceOffset = ${this.parametersDual.distanceOffset.toFixed(digits)} mm`)
@@ -629,7 +630,7 @@ class XRGestures extends THREE.EventDispatcher
         console.log(`parametersDual: \n\n\tangle0 = ${this.parametersDual.angle0.toFixed(digits)} °`)
         console.log(`parametersDual: \n\n\tangleOffset = ${this.parametersDual.angleOffset.toFixed(digits)} °`)
         console.log(`parametersDual: \n\n\tturnAngle = ${this.parametersDual.turnAngle.toFixed(digits)} °`)
-        console.log(`parametersDual: \n\n\tangleBuffer[ 0 ] = ${this.parametersDual.angleBuffer[0].toFixed(digits)} ° \n\n\tangleBuffer[end] = ${this.parametersDual.angleBuffer[XRGestures.BUFFER_LENGTH - 1].toFixed(digits)} °`)
+        console.log(`parametersDual: \n\n\tangleBuffer[ 0 ] = ${this.parametersDual.angleBuffer[0].toFixed(digits)} ° \n\n\tangleBuffer[end] = ${this.parametersDual.angleBuffer[Gestures.BUFFER_LENGTH - 1].toFixed(digits)} °`)
         console.log(`parametersDual: \n\n\tradialSpeed = ${this.parametersDual.radialSpeed.toFixed(digits)} m/s`)
         console.log(`parametersDual: \n\n\tangularSpeed = ${this.parametersDual.angularSpeed.toFixed(digits)} °/ms`)    
 
@@ -749,16 +750,16 @@ class XRGestures extends THREE.EventDispatcher
 
     resetGesturesExcept( exception ) {
 
-        for (const gesture in this.inventory) {
-            if( gesture !== exception ) this.inventory[gesture].resetGesture()
+        for (const gesture in this.list) {
+            if( gesture !== exception ) this.list[gesture].resetGesture()
         }    
 
     }
 
     resetGestures() {
 
-        for (const gesture in this.inventory) {
-            this.inventory[gesture].resetGesture()
+        for (const gesture in this.list) {
+            this.list[gesture].resetGesture()
         }                
     }
 
@@ -792,9 +793,9 @@ class XRGestures extends THREE.EventDispatcher
 
 }
 
-XRGestures.DELAY_CONTROLLER = 20 // ms    
-XRGestures.DELAY_DETECTOR = 100 // ms
-XRGestures.BUFFER_LENGTH = 2 
-XRGestures.WINDOW_SMOOTH = 1
+Gestures.DELAY_CONTROLLER = 20 // ms    
+Gestures.DELAY_DETECTOR = 100 // ms
+Gestures.BUFFER_LENGTH = 2 
+Gestures.WINDOW_SMOOTH = 1
 
-export default XRGestures
+export default Gestures

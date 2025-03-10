@@ -1,10 +1,10 @@
-import XRGestures from './XRGestures'
+import Gestures from './Gestures'
 
 export default class Pinch 
 {
     constructor()
     {
-        this.gestures = new XRGestures()
+        this.gestures = new Gestures()
         this.parametersDual = this.gestures.parametersDual
         this.setGesture()          
     }
@@ -46,7 +46,7 @@ export default class Pinch
         if ( this.end ) {
 
             this.gestures.dispatchEvent( { type: 'pinch', end: true, userData: this.userData } )
-            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR ) 
+            this.gestures.delayGestures( Gestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures() 
 
         }

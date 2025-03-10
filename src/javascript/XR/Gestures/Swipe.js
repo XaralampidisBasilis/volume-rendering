@@ -1,10 +1,10 @@
-import XRGestures from './XRGestures'
+import Gestures from './Gestures'
 
 export default class Swipe 
 {
     constructor()
     {
-        this.gestures = new XRGestures()
+        this.gestures = new Gestures()
         this.parameters = this.gestures.parameters
         this.setGesture()
     }
@@ -53,7 +53,7 @@ export default class Swipe
             this.direction = this.directions[index]   
 
             this.gestures.dispatchEvent( { type: 'swipe', start: true, current: true, end: true, direction: this.direction, userData: this.userData } )
-            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR )   
+            this.gestures.delayGestures( Gestures.DELAY_DETECTOR )   
             this.gestures.resetGestures()
 
         }

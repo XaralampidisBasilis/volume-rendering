@@ -1,10 +1,10 @@
-import XRGestures from './XRGestures'
+import Gestures from './Gestures'
 
 export default class Implode 
 {
     constructor()
     {
-        this.gestures = new XRGestures()
+        this.gestures = new Gestures()
         this.parametersDual = this.gestures.parametersDual
         this.setGesture()          
     }
@@ -47,7 +47,7 @@ export default class Implode
         if ( this.end ) {  
 
             this.gestures.dispatchEvent( { type: 'implode', start: true, current: true, end: true, userData: this.userData, } )
-            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR ) 
+            this.gestures.delayGestures( Gestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures()
 
         }

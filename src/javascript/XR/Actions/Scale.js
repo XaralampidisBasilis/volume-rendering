@@ -1,21 +1,19 @@
 
-
-import XRGestures from '../XRGestures/XRGestures'
+import Gestures from '../Gestures/Gestures'
 
 export default class Scale
 {
-    constructor(object3D, gestureEvent)
+    constructor(object3D)
     {
         this.object3D = object3D
-        this.gestureEvent = gestureEvent
-        this.gestures = new XRGestures()
+        this.gestures = new Gestures()
         this.addListener()       
     }
 
     addListener()
     {
         this.listener = (event) => this.onGesture(event)
-        this.gestures.addEventListener(this.gestureEvent, this.listener)
+        this.gestures.addEventListener('pinch', this.listener)
     }
 
     onGesture(event)

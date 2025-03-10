@@ -1,15 +1,20 @@
 import * as THREE from 'three'
 import Experience from '../Experience'
 import EventEmitter from '../Utils/EventEmitter'
-import XRHitTest from './XRHitTest'
-import XRGestures from './XRGestures/XRGestures'
+import HitTest from './HitTest'
+import XRGestures from './Gestures/Gestures'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
 
-import Place from './XRActions/Place'
+let instance = null
+
 export default class XRManager
 {
     constructor()
     {
+        // Singleton
+        if(instance) return instance
+        instance = this
+
         // Setup
         this.experience = new Experience()
         this.resources = this.experience.resources
@@ -17,7 +22,7 @@ export default class XRManager
         this.world = this.experience.world
         this.scene = this.experience.scene
         this.gestures = new XRGestures()
-        this.hitTest = new XRHitTest()
+        this.hitTest = new HitTest()
         this.setButton()
         this.addSessionListeners()
         // this.setActions()
@@ -38,7 +43,6 @@ export default class XRManager
     setActions()
     {
         this.actions = {}
-        this.actions.place = new Place(this.world.viewer.mesh, 'polytap')
     }
 
     addSessionListeners()
