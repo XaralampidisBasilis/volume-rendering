@@ -22,7 +22,9 @@ export default class Processor extends EventEmitter
         await tf.ready()
 
         await this.generateIntensityMap()
+        await this.downscaleIntensityMap()
         await this.generateBinaryMap()
+        await this.downscaleBinaryMap()
         await this.generateBoundingBox()
         await this.generateDistanceMap()
         
@@ -59,11 +61,6 @@ export default class Processor extends EventEmitter
         console.timeEnd('generateIntensityMap') 
         // console.log(this.intensityMap.parameters)
         // console.log(this.intensityMap.tensor.dataSync())
-    }
-
-    async generateResizedIntensityMap()
-    {
-
     }
 
     async generateBinaryMap()
@@ -137,6 +134,60 @@ export default class Processor extends EventEmitter
         // console.log(this.distanceMap.tensor.dataSync())
     }
 
+    async downscaleIntensityMap()
+    {
+        console.time('downscaleIntensityMap') 
+        const downscaledMap = await this.downscaleLinear(this.intensityMap.tensor, 2)  
+
+        const parameters = {}
+        parameters.shape = downscaledMap.shape
+        parameters.dimensions = new THREE.Vector3().fromArray(downscaledMap.shape.slice(0, 3).toReversed())
+        parameters.size = new THREE.Vector3().copy(this.intensityMap.parameters.size)
+        parameters.spacing = new THREE.Vector3().copy(parameters.size).divide(parameters.dimensions)
+        parameters.invDimensions = new THREE.Vector3().fromArray(parameters.dimensions.toArray().map(x => 1/x))
+        parameters.invSpacing = new THREE.Vector3().fromArray(parameters.spacing.toArray().map(x => 1/x))
+        parameters.invSize = new THREE.Vector3().fromArray(parameters.size.toArray().map(x => 1/x))
+        parameters.spacingLength = parameters.spacing.length()
+        parameters.sizeLength = parameters.size.length()
+        parameters.numVoxels = parameters.dimensions.toArray().reduce((voxels, dimension) => voxels * dimension, 1)
+        parameters.maxVoxels = parameters.dimensions.toArray().reduce((voxels, dimension) => voxels + dimension, -2)
+
+        tf.dispose(this.intensityMap.tensor)
+        this.intensityMap.tensor = downscaledMap
+        this.intensityMap.parameters = parameters
+
+        console.timeEnd('downscaleIntensityMap') 
+        console.log(this.intensityMap.parameters)
+        console.log(this.intensityMap.tensor.dataSync())
+    }
+
+    async downscaleBinaryMap()
+    {
+        console.time('downscaleBinaryMap') 
+        const downscaledMap = await this.downscaleNearest(this.binaryMap.tensor, 2)  
+
+        const parameters = {}
+        parameters.shape = downscaledMap.shape
+        parameters.dimensions = new THREE.Vector3().fromArray(downscaledMap.shape.slice(0, 3).toReversed())
+        parameters.size = new THREE.Vector3().copy(this.binaryMap.parameters.size)
+        parameters.spacing = new THREE.Vector3().copy(parameters.size).divide(parameters.dimensions)
+        parameters.invDimensions = new THREE.Vector3().fromArray(parameters.dimensions.toArray().map(x => 1/x))
+        parameters.invSpacing = new THREE.Vector3().fromArray(parameters.spacing.toArray().map(x => 1/x))
+        parameters.invSize = new THREE.Vector3().fromArray(parameters.size.toArray().map(x => 1/x))
+        parameters.spacingLength = parameters.spacing.length()
+        parameters.sizeLength = parameters.size.length()
+        parameters.numVoxels = parameters.dimensions.toArray().reduce((voxels, dimension) => voxels * dimension, 1)
+        parameters.maxVoxels = parameters.dimensions.toArray().reduce((voxels, dimension) => voxels + dimension, -2)
+
+        tf.dispose(this.binaryMap.tensor)
+        this.binaryMap.tensor = downscaledMap
+        this.binaryMap.parameters = parameters
+
+        console.timeEnd('downscaleBinaryMap') 
+        console.log(this.binaryMap.parameters)
+        console.log(this.binaryMap.tensor.dataSync())
+    }
+
     destroy() 
     {
         if (this.intensityMap.tensor instanceof tf.Tensor) 
@@ -153,27 +204,48 @@ export default class Processor extends EventEmitter
 
     // tensor functions
 
-    async computeResizeLinear(intensityMap, downscale)
+    async downscaleLinear(intensityMap, scale)
     {
-        const newShape = intensityMap.shape.map((size) => Math.ceil(size / downscale))
+        const newShape = intensityMap.shape.map((size) => Math.ceil(size / scale))
 
-        const intensityMap0 = await this.resizeLinear(intensityMap, 0, newShape[0])
-        tf.dispose(intensityMap)
+        const resized0 = await this.resizeLinear(intensityMap, 0, newShape[0])
         await tf.nextFrame()
 
-        const intensityMap1 = await this.resizeLinear(intensityMap0, 1, newShape[1])
-        tf.dispose(intensityMap0)
+        const resized1 = await this.resizeLinear(resized0, 1, newShape[1])
+        tf.dispose(resized0)
         await tf.nextFrame()
 
-        const intensityMap2 = await this.resizeLinear(intensityMap1, 2, newShape[2])
-        tf.dispose(intensityMap1)
+        const resized2 = await this.resizeLinear(resized1, 2, newShape[2])
+        tf.dispose(resized1)
         await tf.nextFrame()
 
-        const intensityMapResized = await this.resizeLinear(intensityMap2, 3, newShape[3])
-        tf.dispose(intensityMap2)
+        const resized3 = await this.resizeLinear(resized2, 3, newShape[3])
+        tf.dispose(resized2)
         await tf.nextFrame()
 
-        return intensityMapResized
+        return resized3
+    }
+
+    async downscaleNearest(binaryMap, scale)
+    {
+        const newShape = binaryMap.shape.map((size) => Math.ceil(size / scale))
+
+        const resized0 = await this.resizeNearest(binaryMap, 0, newShape[0])
+        await tf.nextFrame()
+
+        const resized1 = await this.resizeNearest(resized0, 1, newShape[1])
+        tf.dispose(resized0)
+        await tf.nextFrame()
+
+        const resized2 = await this.resizeNearest(resized1, 2, newShape[2])
+        tf.dispose(resized1)
+        await tf.nextFrame()
+
+        const resized3 = await this.resizeNearest(resized2, 3, newShape[3])
+        tf.dispose(resized2)
+        await tf.nextFrame()
+
+        return resized3
     }
 
     async computeDistanceSubmap(occupancyMap, begin, size, maxIterations)
@@ -237,14 +309,14 @@ export default class Processor extends EventEmitter
         return distanceMap
     }
 
-    async computeBoundingBox(binaryTensor) 
+    async computeBoundingBox(binaryMap) 
     {
         const coords = []
-        const collapsedX = binaryTensor.any([1, 2, 3]) 
+        const collapsedX = binaryMap.any([1, 2, 3]) 
         coords[2] = await this.argBounds(collapsedX)
         tf.dispose(collapsedX)
 
-        const collapsedYZ = binaryTensor.any([0, 3]) 
+        const collapsedYZ = binaryMap.any([0, 3]) 
         const collapsedY = collapsedYZ.any(1) 
         coords[1] = await this.argBounds(collapsedY)
         tf.dispose(collapsedY)
@@ -299,13 +371,37 @@ export default class Processor extends EventEmitter
         })
     }
 
+    async resizeNearest(tensor, axis, newSize) 
+    {
+        return tf.tidy(() => 
+        {
+            // Compute new indices in normalized space
+            const delta = 1 / newSize
+            const indices = tf.linspace(0, newSize - 1, newSize)
+            const percents = indices.add(0.5).mul(delta) // normalized indices
+    
+            // Map to the original tensor index space
+            const size = tensor.shape[axis]
+            const samples = percents.mul(size).sub(0.5)
+    
+            // Use nearest neighbor rounding (instead of linear interpolation)
+            const nearestIndices = tf.round(samples).toInt() // Round to nearest index
+            const nearestClipped = tf.clipByValue(nearestIndices, 0, size - 1) // Ensure valid indices
+    
+            // Gather values from the original tensor
+            const resized = tf.gather(tensor, nearestClipped, axis)
+            return resized
+        });
+    }
+
     mix(A, B, T)
     {
-        const scaledA = A.mul([1 - T])
-        const scaledB = B.mul([T])
-        const mixed = scaledA.add(scaledB)
-        scaledA.dispose()
-        scaledB.dispose()
+        const difference = B.sub(A)
+        tf.dispose(B)
+        const offset = difference.mul(T)
+        tf.dispose(T)
+        const mixed = A.add(offset)
+        tf.dispose(A)
         return mixed
     }
 
