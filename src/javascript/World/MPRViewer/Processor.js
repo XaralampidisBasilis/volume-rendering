@@ -21,7 +21,7 @@ export default class Processor extends EventEmitter
         // tf.enableProdMode()
         await tf.ready()
 
-        await tf.setBackend('cpu')
+        await tf.setBackend('webgl')
         await this.generateIntensityMap()
         await this.downscaleIntensityMap()
         await this.generateBinaryMap()
