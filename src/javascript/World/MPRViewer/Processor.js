@@ -17,18 +17,22 @@ export default class Processor extends EventEmitter
 
     async compute()
     {
+        console.time('compute') 
         // tf.enableProdMode()
-        await tf.setBackend('webgl')
         await tf.ready()
 
+        await tf.setBackend('cpu')
         await this.generateIntensityMap()
         await this.downscaleIntensityMap()
         await this.generateBinaryMap()
         await this.downscaleBinaryMap()
+
+        await tf.setBackend('webgl')
         await this.generateBoundingBox()
         await this.generateDistanceMap()
         
         this.trigger('ready')
+        console.timeEnd('compute') 
     }
 
     async generateIntensityMap()
@@ -157,8 +161,8 @@ export default class Processor extends EventEmitter
         this.intensityMap.parameters = parameters
 
         console.timeEnd('downscaleIntensityMap') 
-        console.log(this.intensityMap.parameters)
-        console.log(this.intensityMap.tensor.dataSync())
+        // console.log(this.intensityMap.parameters)
+        // console.log(this.intensityMap.tensor.dataSync())
     }
 
     async downscaleBinaryMap()
@@ -184,8 +188,8 @@ export default class Processor extends EventEmitter
         this.binaryMap.parameters = parameters
 
         console.timeEnd('downscaleBinaryMap') 
-        console.log(this.binaryMap.parameters)
-        console.log(this.binaryMap.tensor.dataSync())
+        // console.log(this.binaryMap.parameters)
+        // console.log(this.binaryMap.tensor.dataSync())
     }
 
     destroy() 
@@ -203,50 +207,6 @@ export default class Processor extends EventEmitter
     }
 
     // tensor functions
-
-    async downscaleLinear(intensityMap, scale)
-    {
-        const newShape = intensityMap.shape.map((size) => Math.ceil(size / scale))
-
-        const resized0 = await this.resizeLinear(intensityMap, 0, newShape[0])
-        await tf.nextFrame()
-
-        const resized1 = await this.resizeLinear(resized0, 1, newShape[1])
-        tf.dispose(resized0)
-        await tf.nextFrame()
-
-        const resized2 = await this.resizeLinear(resized1, 2, newShape[2])
-        tf.dispose(resized1)
-        await tf.nextFrame()
-
-        const resized3 = await this.resizeLinear(resized2, 3, newShape[3])
-        tf.dispose(resized2)
-        await tf.nextFrame()
-
-        return resized3
-    }
-
-    async downscaleNearest(binaryMap, scale)
-    {
-        const newShape = binaryMap.shape.map((size) => Math.ceil(size / scale))
-
-        const resized0 = await this.resizeNearest(binaryMap, 0, newShape[0])
-        await tf.nextFrame()
-
-        const resized1 = await this.resizeNearest(resized0, 1, newShape[1])
-        tf.dispose(resized0)
-        await tf.nextFrame()
-
-        const resized2 = await this.resizeNearest(resized1, 2, newShape[2])
-        tf.dispose(resized1)
-        await tf.nextFrame()
-
-        const resized3 = await this.resizeNearest(resized2, 3, newShape[3])
-        tf.dispose(resized2)
-        await tf.nextFrame()
-
-        return resized3
-    }
 
     async computeDistanceSubmap(occupancyMap, begin, size, maxIterations)
     {
@@ -338,6 +298,50 @@ export default class Processor extends EventEmitter
         tf.dispose(coords)
 
         return (indices.length) ? [indices[0], indices[indices.length - 1]] : [0, 0]
+    }
+    
+    async downscaleLinear(intensityMap, scale)
+    {
+        const newShape = intensityMap.shape.map((size) => Math.ceil(size / scale))
+
+        const resized0 = await this.resizeLinear(intensityMap, 0, newShape[0])
+        await tf.nextFrame()
+
+        const resized1 = await this.resizeLinear(resized0, 1, newShape[1])
+        tf.dispose(resized0)
+        await tf.nextFrame()
+
+        const resized2 = await this.resizeLinear(resized1, 2, newShape[2])
+        tf.dispose(resized1)
+        await tf.nextFrame()
+
+        const resized3 = await this.resizeLinear(resized2, 3, newShape[3])
+        tf.dispose(resized2)
+        await tf.nextFrame()
+
+        return resized3
+    }
+
+    async downscaleNearest(binaryMap, scale)
+    {
+        const newShape = binaryMap.shape.map((size) => Math.ceil(size / scale))
+
+        const resized0 = await this.resizeNearest(binaryMap, 0, newShape[0])
+        await tf.nextFrame()
+
+        const resized1 = await this.resizeNearest(resized0, 1, newShape[1])
+        tf.dispose(resized0)
+        await tf.nextFrame()
+
+        const resized2 = await this.resizeNearest(resized1, 2, newShape[2])
+        tf.dispose(resized1)
+        await tf.nextFrame()
+
+        const resized3 = await this.resizeNearest(resized2, 3, newShape[3])
+        tf.dispose(resized2)
+        await tf.nextFrame()
+
+        return resized3
     }
 
     async resizeLinear(tensor, axis, newSize) 

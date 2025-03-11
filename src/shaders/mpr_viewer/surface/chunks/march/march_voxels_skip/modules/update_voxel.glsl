@@ -11,8 +11,8 @@ voxel.min_coords = voxel.coords - voxel.coords_step;
 voxel.max_coords = voxel.coords + voxel.coords_step;
 
 // Compute voxel min max positions 
-voxel.min_position = (vec3(voxel.min_coords + 0) - TOLERANCE.MILLI) * u_intensity_map.spacing;
-voxel.max_position = (vec3(voxel.max_coords + 1) + TOLERANCE.MILLI) * u_intensity_map.spacing;  
+voxel.min_position = (vec3(voxel.min_coords + 0) - TOLERANCE.CENTI) * u_intensity_map.spacing;
+voxel.max_position = (vec3(voxel.max_coords + 1) + TOLERANCE.CENTI) * u_intensity_map.spacing;  
 
 // compute voxel entry from previous exit, 
 voxel.entry_distance = voxel.exit_distance;

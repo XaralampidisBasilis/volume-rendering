@@ -22,11 +22,5 @@ frag.light_angle = dot(frag.light_vector, frag.normal_vector);
 frag.view_angle = dot(frag.view_vector, frag.normal_vector);
 frag.halfway_angle = dot(frag.halfway_vector, frag.normal_vector);
 
-// Compute frag position in screen space
-vec4 clip_position = v_clip_space_matrix * vec4(trace.position, 1.0); 
-frag.position = clip_position.xyz / clip_position.w; 
-frag.position = frag.position * 0.5 + 0.5;  
-frag.depth = frag.position.z;  
 
-    
 

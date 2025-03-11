@@ -23,6 +23,7 @@ export default class Renderer
             alpha: true,
             sortObjects: false,
             powerPreference: 'high-performance',
+            logarithmicDepthBuffer: true,
         })       
         this.instance.setClearColor('#211d20', 1)
         this.instance.setSize(this.sizes.width, this.sizes.height)
