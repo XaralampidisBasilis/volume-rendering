@@ -61,6 +61,11 @@ export default class Processor extends EventEmitter
         // console.log(this.intensityMap.tensor.dataSync())
     }
 
+    async generateResizedIntensityMap()
+    {
+
+    }
+
     async generateBinaryMap()
     {
         console.time('generateBinaryMap') 
@@ -147,6 +152,29 @@ export default class Processor extends EventEmitter
     }
 
     // tensor functions
+
+    async computeResizeLinear(intensityMap, downscale)
+    {
+        const newShape = intensityMap.shape.map((size) => Math.ceil(size / downscale))
+
+        const intensityMap0 = await this.resizeLinear(intensityMap, 0, newShape[0])
+        tf.dispose(intensityMap)
+        await tf.nextFrame()
+
+        const intensityMap1 = await this.resizeLinear(intensityMap0, 1, newShape[1])
+        tf.dispose(intensityMap0)
+        await tf.nextFrame()
+
+        const intensityMap2 = await this.resizeLinear(intensityMap1, 2, newShape[2])
+        tf.dispose(intensityMap1)
+        await tf.nextFrame()
+
+        const intensityMapResized = await this.resizeLinear(intensityMap2, 3, newShape[3])
+        tf.dispose(intensityMap2)
+        await tf.nextFrame()
+
+        return intensityMapResized
+    }
 
     async computeDistanceSubmap(occupancyMap, begin, size, maxIterations)
     {
@@ -239,4 +267,47 @@ export default class Processor extends EventEmitter
 
         return (indices.length) ? [indices[0], indices[indices.length - 1]] : [0, 0]
     }
+
+    async resizeLinear(tensor, axis, newSize) 
+    {
+        return tf.tidy(() => 
+        {
+            // Compute indices for interpolation
+            const delta = 1 / newSize
+            const indices = tf.linspace(0, newSize - 1, newSize)
+            const percents = indices.add(0.5).mul(delta) // normalized indices
+            
+            // Compute the sample indices 
+            const size = tensor.shape[axis]
+            const samples = percents.mul(size).sub(0.5)
+            const samplesFloor = tf.clipByValue(tf.floor(samples).toInt(), 0, size - 1)  // lower indices, clipped
+            const samplesCeil = tf.clipByValue(tf.ceil(samples).toInt(), 0, size - 1)    // upper indices, clipped
+
+            // Compute interpolation weights
+            const lerpWeights = samples.sub(tf.floor(samples))   // fractional part for interpolation
+            const lerpShape = new Array(tensor.shape.length).fill(1)
+            lerpShape[axis] = lerpWeights.size // match dimensions along the interpolation axis
+
+            // Gather slices along the specified axis
+            const expandedFloor = tf.gather(tensor, samplesFloor, axis)
+            const expandedCeil = tf.gather(tensor, samplesCeil, axis)
+            const expandedWeights = tf.reshape(lerpWeights, lerpShape) // reshape for broadcasting
+
+            // Perform linear interpolation
+            const interpolated = this.mix(expandedFloor, expandedCeil, expandedWeights)
+            return interpolated
+        })
+    }
+
+    mix(A, B, T)
+    {
+        const scaledA = A.mul([1 - T])
+        const scaledB = B.mul([T])
+        const mixed = scaledA.add(scaledB)
+        scaledA.dispose()
+        scaledB.dispose()
+        return mixed
+    }
+
+   
 }

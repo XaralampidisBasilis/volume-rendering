@@ -12,13 +12,13 @@ export default [
         name: 'intensityMap',
         type: 'niftiFile',
         path: 'nifti/cardiac/ct_train_1002_image.nii.gz',
-        // path: 'nifti/colon/volume.nii.gz',
+        // path: 'nifti/lung/volume2.nii.gz',
     }, 
 
     {
         name: 'binaryMap',
         type: 'niftiFile',
         path: 'nifti/cardiac/ct_train_1002_label.nii.gz',
-        // path: 'nifti/colon/mask.nii.gz',
+        // path: 'nifti/lung/mask2.nii.gz',
     }, 
 ]
