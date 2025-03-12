@@ -1,54 +1,77 @@
 #ifndef ARGMIN
 #define ARGMIN
 
-int argmin(in float a) { return 0; }
-int argmin(in float a, in float b) { return (a < b) ? 0 : 1; }
-int argmin(in float a, in float b, in float c) 
+int argmin(in float x) 
 { 
-    return (a < b && a < c) ? 0 : ((b < c) ? 1 : 2); 
+    return 0; 
 }
-int argmin(in float a, in float b, in float c, in float d) 
+int argmin(in int x) 
 { 
-    return (a < b && a < c && a < d) ? 0 :
-           (b < c && b < d) ? 1 :
-           (c < d) ? 2 : 3;
+    return 0; 
 }
-
-int argmin(in int a) { return 0; }
-int argmin(in int a, in int b) { return (a < b) ? 0 : 1; }
-int argmin(in int a, in int b, in int c) 
-{ 
-    return (a < b && a < c) ? 0 : ((b < c) ? 1 : 2); 
+int argmin(in float x, in float y) 
+{
+    return (x <= y) ? 0 : 1; 
 }
-int argmin(in int a, in int b, in int c, in int d) 
+int argmin(in int x, in int y) 
 { 
-    return (a < b && a < c && a < d) ? 0 :
-           (b < c && b < d) ? 1 :
-           (c < d) ? 2 : 3;
+    return (x <= y) ? 0 : 1; 
 }
-
-int argmin(const vec2 v) { return (v.x < v.y) ? 0 : 1; }
-int argmin(const vec3 v) 
+int argmin(in vec2 v) 
 { 
-    return (v.x < v.y && v.x < v.z) ? 0 : ((v.y < v.z) ? 1 : 2); 
+    return (v.x <= v.y) ? 0 : 1; 
 }
-int argmin(const vec4 v) 
+int argmin(in ivec2 v) 
 { 
-    return (v.x < v.y && v.x < v.z && v.x < v.w) ? 0 :
-           (v.y < v.z && v.y < v.w) ? 1 :
-           (v.z < v.w) ? 2 : 3;
+    return (v.x <= v.y) ? 0 : 1; 
 }
-
-int argmin(const ivec2 v) { return (v.x < v.y) ? 0 : 1; }
-int argmin(const ivec3 v) 
+int argmin(in float x, in float y, in float z) 
 { 
-    return (v.x < v.y && v.x < v.z) ? 0 : ((v.y < v.z) ? 1 : 2); 
+    return (x <= y) ? ((x <= z) ? 0 : 2) 
+                    : ((y <= z) ? 1 : 2);
 }
-int argmin(const ivec4 v) 
+int argmin(in int x, in int y, in int z) 
 { 
-    return (v.x < v.y && v.x < v.z && v.x < v.w) ? 0 :
-           (v.y < v.z && v.y < v.w) ? 1 :
-           (v.z < v.w) ? 2 : 3;
+    return (x <= y) ? ((x <= z) ? 0 : 2) 
+                    : ((y <= z) ? 1 : 2);
+}
+int argmin(in vec3 v) 
+{ 
+    return (v.x <= v.y) ? ((v.x <= v.z) ? 0 : 2) 
+                        : ((v.y <= v.z) ? 1 : 2);
+}
+int argmin(in ivec3 v) 
+{ 
+    return (v.x <= v.y) ? ((v.x <= v.z) ? 0 : 2) 
+                        : ((v.y <= v.z) ? 1 : 2);
+}
+int argmin(in float x, in float y, in float z, in float w)
+{ 
+    return (x <= y) ? ((x <= z) ? ((x <= w) ? 0 : 3) 
+                                : ((z <= w) ? 2 : 3)) 
+                    : ((y <= z) ? ((y <= w) ? 1 : 3) 
+                                : ((z <= w) ? 2 : 3));
+}
+int argmin(in int x, in int y, in int z, in int w) 
+{ 
+    return (x <= y) ? ((x <= z) ? ((x <= w) ? 0 : 3) 
+                                : ((z <= w) ? 2 : 3)) 
+                    : ((y <= z) ? ((y <= w) ? 1 : 3) 
+                                : ((z <= w) ? 2 : 3));
+}
+int argmin(in vec4 v) 
+{ 
+    return (v.x <= v.y) ? ((v.x <= v.z) ? ((v.x <= v.w) ? 0 : 3) 
+                                        : ((v.z <= v.w) ? 2 : 3)) 
+                        : ((v.y <= v.z) ? ((v.y <= v.w) ? 1 : 3) 
+                                        : ((v.z <= v.w) ? 2 : 3));
+}
+int argmin(in ivec4 v) 
+{ 
+    return (v.x <= v.y) ? ((v.x <= v.z) ? ((v.x <= v.w) ? 0 : 3) 
+                                        : ((v.z <= v.w) ? 2 : 3)) 
+                        : ((v.y <= v.z) ? ((v.y <= v.w) ? 1 : 3) 
+                                        : ((v.z <= v.w) ? 2 : 3));
 }
 
 #endif 

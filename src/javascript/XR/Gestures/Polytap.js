@@ -26,10 +26,10 @@ export default class Polytap
         if ( ! this.start ) {
 
             if ( ! ( this.gestures.current === undefined )) return
-            if ( ! ( this.gestures.inventory.tap.numTaps === 1 )) return        
+            if ( ! ( this.gestures.list.tap.numTaps === 1 )) return        
 
             this.gestures.current = 'polytap'
-            this.numTaps = this.gestures.inventory.tap.numTaps
+            this.numTaps = this.gestures.list.tap.numTaps
             this.timeoutID = setTimeout( () => this.endGesture(), Polytap.MAX_TAP_DURATION )
             this.gestures.dispatchEvent( { type: 'polytap', start: true, numTaps: this.numTaps, userData: this.userData } ) 
             this.startGesture()
@@ -45,16 +45,16 @@ export default class Polytap
             
                 clearTimeout( this.timeoutID )
                 this.resetGesture()   
-                this.gestures.inventory.tap.numTaps = 0 
+                this.gestures.list.tap.numTaps = 0 
                 this.numTaps = 0            
 
             }
 
             // refresh condition
-            if ( this.gestures.inventory.tap.numTaps > this.numTaps ) {
+            if ( this.gestures.list.tap.numTaps > this.numTaps ) {
 
                 clearTimeout( this.timeoutID )
-                this.numTaps = this.gestures.inventory.tap.numTaps
+                this.numTaps = this.gestures.list.tap.numTaps
                 this.timeoutID = setTimeout( () => this.endGesture(), Polytap.MAX_TAP_DURATION )
 
             }
@@ -65,7 +65,7 @@ export default class Polytap
             this.gestures.dispatchEvent( { type: 'polytap', end: true, numTaps: this.numTaps, userData: this.userData } ) 
             this.gestures.delayGestures( Gestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures()
-            this.gestures.inventory.tap.numTaps = 0
+            this.gestures.list.tap.numTaps = 0
             this.numTaps = 0 
 
         }

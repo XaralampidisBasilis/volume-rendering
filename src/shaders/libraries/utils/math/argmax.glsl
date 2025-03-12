@@ -1,53 +1,90 @@
 #ifndef ARGMAX
 #define ARGMAX
 
-int argmax(in float a) { return 0; }
-int argmax(in float a, in float b) { return (a > b) ? 0 : 1; }
-int argmax(in float a, in float b, in float c) 
+int argmax(in float x) 
 { 
-    return (a > b && a > c) ? 0 : ((b > c) ? 1 : 2); 
-}
-int argmax(in float a, in float b, in float c, in float d) 
-{ 
-    return (a > b && a > c && a > d) ? 0 :
-           (b > c && b > d) ? 1 :
-           (c > d) ? 2 : 3;
+    return 0; 
 }
 
-int argmax(in int a) { return 0; }
-int argmax(in int a, in int b) { return (a > b) ? 0 : 1; }
-int argmax(in int a, in int b, in int c) 
+int argmax(in int x) 
 { 
-    return (a > b && a > c) ? 0 : ((b > c) ? 1 : 2); 
-}
-int argmax(in int a, in int b, in int c, in int d) { 
-    return (a > b && a > c && a > d) ? 0 :
-           (b > c && b > d) ? 1 :
-           (c > d) ? 2 : 3;
+    return 0; 
 }
 
-int argmax(const vec2 v) { return (v.x > v.y) ? 0 : 1; }
-int argmax(const vec3 v) 
-{ 
-    return (v.x > v.y && v.x > v.z) ? 0 : ((v.y > v.z) ? 1 : 2); 
-}
-int argmax(const vec4 v) 
-{ 
-    return (v.x > v.y && v.x > v.z && v.x > v.w) ? 0 :
-           (v.y > v.z && v.y > v.w) ? 1 :
-           (v.z > v.w) ? 2 : 3;
+int argmax(in float x, in float y) 
+{
+    return (x >= y) ? 0 : 1; 
 }
 
-int argmax(const ivec2 v) { return (v.x > v.y) ? 0 : 1; }
-int argmax(const ivec3 v) 
+int argmax(in int x, in int y) 
 { 
-    return (v.x > v.y && v.x > v.z) ? 0 : ((v.y > v.z) ? 1 : 2); 
-}
-int argmax(const ivec4 v) 
-{ 
-    return (v.x > v.y && v.x > v.z && v.x > v.w) ? 0 :
-           (v.y > v.z && v.y > v.w) ? 1 :
-           (v.z > v.w) ? 2 : 3;
+    return (x >= y) ? 0 : 1; 
 }
 
-#endif 
+int argmax(in vec2 v) 
+{ 
+    return (v.x >= v.y) ? 0 : 1; 
+}
+
+int argmax(in ivec2 v) 
+{ 
+    return (v.x >= v.y) ? 0 : 1; 
+}
+
+int argmax(in float x, in float y, in float z) 
+{ 
+    return (x >= y) ? ((x >= z) ? 0 : 2)
+                    : ((y >= z) ? 1 : 2);
+}
+
+int argmax(in int x, in int y, in int z) 
+{ 
+    return (x >= y) ? ((x >= z) ? 0 : 2)
+                    : ((y >= z) ? 1 : 2);
+}
+
+int argmax(in vec3 v) 
+{ 
+    return (v.x >= v.y) ? ((v.x >= v.z) ? 0 : 2)
+                        : ((v.y >= v.z) ? 1 : 2);
+}
+
+int argmax(in ivec3 v) 
+{ 
+    return (v.x >= v.y) ? ((v.x >= v.z) ? 0 : 2)
+                        : ((v.y >= v.z) ? 1 : 2);
+}
+
+int argmax(in float x, in float y, in float z, in float w)
+{ 
+    return (x >= y) ? ((x >= z) ? ((x >= w) ? 0 : 3)
+                                : ((z >= w) ? 2 : 3))
+                    : ((y >= z) ? ((y >= w) ? 1 : 3)
+                                : ((z >= w) ? 2 : 3));
+}
+
+int argmax(in int x, in int y, in int z, in int w) 
+{ 
+    return (x >= y) ? ((x >= z) ? ((x >= w) ? 0 : 3)
+                                : ((z >= w) ? 2 : 3))
+                    : ((y >= z) ? ((y >= w) ? 1 : 3)
+                                : ((z >= w) ? 2 : 3));
+}
+
+int argmax(in vec4 v) 
+{ 
+    return (v.x >= v.y) ? ((v.x >= v.z) ? ((v.x >= v.w) ? 0 : 3)
+                                        : ((v.z >= v.w) ? 2 : 3))
+                        : ((v.y >= v.z) ? ((v.y >= v.w) ? 1 : 3)
+                                        : ((v.z >= v.w) ? 2 : 3));
+}
+
+int argmax(in ivec4 v) 
+{ 
+    return (v.x >= v.y) ? ((v.x >= v.z) ? ((v.x >= v.w) ? 0 : 3)
+                                        : ((v.z >= v.w) ? 2 : 3))
+                        : ((v.y >= v.z) ? ((v.y >= v.w) ? 1 : 3)
+                                        : ((v.z >= v.w) ? 2 : 3));
+}
+
+#endif // ARGMAX

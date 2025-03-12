@@ -55,7 +55,7 @@ class Gestures extends THREE.EventDispatcher
         this.setRaycasters()
         this.setParameters()
         this.setControllers()
-        this.setList()
+        this.setGesturesList()
     }
 
     // setup 
@@ -132,7 +132,7 @@ class Gestures extends THREE.EventDispatcher
         })     
     }
 
-    setList() {
+    setGesturesList() {
 
         this.list =  {
             tap    : new Tap(),
@@ -241,7 +241,7 @@ class Gestures extends THREE.EventDispatcher
         if (this.parametersDual)
             this.destroyDualParameters()
     
-        // Clean up inventory items (gesture detectors)
+        // Clean up list items (gesture detectors)
         if (this.list) 
         {
             Object.keys(this.list).forEach((gesture) => 
