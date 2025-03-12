@@ -2,8 +2,7 @@ import * as THREE from 'three'
 import Slice from './Slice'
 
 const _plane = new THREE.Plane()
-const _point = new THREE.Vector3()
-const _normal = new THREE.Vector3()
+const _matrix = new THREE.Matrix4()
 export default class Slices extends THREE.Group
 {
     constructor(viewer)
@@ -56,14 +55,11 @@ export default class Slices extends THREE.Group
     {
         this.updateMatrix()
 
-        _point.copy(this.position).multiply(this.parameters.invSize)
+        _matrix.makeScale(...this.parameters.invSize).multiply(this.matrix)
 
         this.children.forEach((slice) => 
-        {            
-            _normal.copy(slice.plane.normal).applyMatrix4(this.matrix)
-            _normal.multiply(this.parameters.invSize).normalize()
-            
-            _plane.setFromNormalAndCoplanarPoint(_normal, _point)
+        {                
+            _plane.copy(slice.plane).applyMatrix4(_matrix)
 
             const uniforms = slice.material.uniforms
             uniforms.u_plane.value.hessian.set(..._plane.normal, _plane.constant)

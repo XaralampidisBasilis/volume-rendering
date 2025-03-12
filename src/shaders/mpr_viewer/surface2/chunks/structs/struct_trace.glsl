@@ -4,7 +4,7 @@
 struct Trace 
 {
     bool  intersected;
-    bool  terminated;           // flag indicating if the trace has reached out of u_intensity_map bounds
+    bool  terminated;           // flag indicating if the trace has reached out of u_volume bounds
     bool  exhausted;
     ivec3 coords;
     vec3  position;             // current position in 3d texture coordinates

@@ -23,10 +23,10 @@ vec4 debug_trace_position = to_color(map(box.min_position, box.max_position, tra
 vec4 debug_trace_intensity = to_color(trace.intensity);
 
 // gradient
-vec4 debug_trace_gradient = to_color((trace.gradient / mmax(u_intensity_map.inv_spacing)) * 0.5 + 0.5);
+vec4 debug_trace_gradient = to_color((trace.gradient / mmax(u_volume.inv_spacing)) * 0.5 + 0.5);
 
 // gradient length
-vec4 debug_trace_gradient_length = to_color(map(0.0, mmax(u_intensity_map.inv_spacing), length(trace.gradient)));
+vec4 debug_trace_gradient_length = to_color(map(0.0, mmax(u_volume.inv_spacing), length(trace.gradient)));
 
 // PRINT DEBUG
 

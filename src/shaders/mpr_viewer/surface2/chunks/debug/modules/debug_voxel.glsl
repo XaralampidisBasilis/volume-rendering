@@ -14,7 +14,7 @@ vec4 debug_voxel_terminated = to_color(voxel.terminated);
 vec4 debug_voxel_cheby_distance = to_color(float(voxel.cheby_distance) / 128.0);
 
 // coords
-vec4 debug_voxel_coords = to_color(vec3(voxel.coords) * u_intensity_map.inv_dimensions);
+vec4 debug_voxel_coords = to_color(vec3(voxel.coords) * u_volume.inv_dimensions);
 
 // coords step
 vec4 debug_voxel_coords_step = to_color(vec3(voxel.coords_step) * 0.5 + 0.5); 
@@ -26,7 +26,7 @@ vec4 debug_voxel_entry_distance = to_color(map(box.min_entry_distance, box.max_e
 vec4 debug_voxel_exit_distance = to_color(map(box.min_entry_distance, box.max_exit_distance, voxel.exit_distance)); 
 
 // span distance
-vec4 debug_voxel_span_distance = to_color((voxel.exit_distance - voxel.entry_distance) / length(u_intensity_map.inv_dimensions)); 
+vec4 debug_voxel_span_distance = to_color((voxel.exit_distance - voxel.entry_distance) / length(u_volume.inv_dimensions)); 
 
 // min position
 vec4 debug_voxel_min_position = to_color(map(box.min_position, box.max_position, voxel.min_position)); 

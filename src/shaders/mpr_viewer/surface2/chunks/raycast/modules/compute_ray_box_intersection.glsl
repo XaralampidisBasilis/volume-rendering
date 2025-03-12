@@ -1,7 +1,7 @@
 
 // smaller volume box to avoid boundary instabilities
-box.min_position = vec3(0.0) + u_intensity_map.inv_dimensions * TOLERANCE.CENTI;
-box.max_position = vec3(1.0) - u_intensity_map.inv_dimensions * TOLERANCE.CENTI;
+box.min_position = vec3(0.0) + u_volume.inv_dimensions * TOLERANCE.CENTI;
+box.max_position = vec3(1.0) - u_volume.inv_dimensions * TOLERANCE.CENTI;
 
 // compute rays bound distances with the volume box
 vec2 ray_box_bounds = box_bounds(box.min_position, box.max_position, camera.position);

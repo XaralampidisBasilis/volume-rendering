@@ -1,12 +1,7 @@
 
 if (voxel.intersected)
 {
-    // compute trace from voxel
-    trace.distance = voxel.entry_distance;
-    trace.position = voxel.entry_position;
-
-    // compute gradient at trace
-    #include "./compute_gradient"
+    #include "./compute_trace"
 }
 
 if (voxel.terminated)

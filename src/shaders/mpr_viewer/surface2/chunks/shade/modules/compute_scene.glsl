@@ -8,7 +8,7 @@ frag.view_vector = camera.position - trace.position;
 frag.halfway_vector = frag.light_vector + frag.view_vector;
 
 // Normalize shading vectors in model coordinates
-vec3 scale = normalize(u_intensity_map.size);
+vec3 scale = normalize(u_volume.size);
 frag.light_vector = normalize(frag.light_vector * scale);
 frag.view_vector = normalize(frag.view_vector * scale);
 frag.halfway_vector = normalize(frag.halfway_vector * scale);

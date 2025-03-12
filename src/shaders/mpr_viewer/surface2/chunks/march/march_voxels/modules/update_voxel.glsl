@@ -3,8 +3,8 @@
 voxel.coords += voxel.coords_step;
 
 // compute voxel bounding box in model coordinates
-voxel.min_position = vec3(voxel.coords + 0) * u_intensity_map.inv_dimensions;
-voxel.max_position = vec3(voxel.coords + 1) * u_intensity_map.inv_dimensions;
+voxel.min_position = vec3(voxel.coords + 0) * u_volume.inv_dimensions;
+voxel.max_position = vec3(voxel.coords + 1) * u_volume.inv_dimensions;
 
 // compute voxel entry from previous exit, 
 voxel.entry_distance = voxel.exit_distance;

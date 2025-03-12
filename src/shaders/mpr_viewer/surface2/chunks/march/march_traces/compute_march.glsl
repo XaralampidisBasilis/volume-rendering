@@ -1,5 +1,4 @@
 
-// start march at ray start
 #include "./modules/start_march"
 
 for (int n = 0; n < MAX_VOXELS; n++) 

@@ -1,7 +1,7 @@
 
 // Volume bounding box in model space
-vec3 bbox_min_position = u_bounding_box.min_position * u_intensity_map.inv_size;
-vec3 bbox_max_position = u_bounding_box.max_position * u_intensity_map.inv_size;
+vec3 bbox_min_position = u_bounding_box.min_position * u_volume.inv_size;
+vec3 bbox_max_position = u_bounding_box.max_position * u_volume.inv_size;
 
 // make sure volume bounding box is not bigger than volume box
 bbox_min_position = max(bbox_min_position, box.min_position);

@@ -16,10 +16,10 @@ void main() {
     vec4 camera_position = inv_model_matrix * vec4(cameraPosition, 1.0);   
 
     // camera position varying
-    v_origin = camera_position.xyz * u_intensity_map.inv_size; // camera position in texture coordinates
+    v_origin = camera_position.xyz * u_volume.inv_size; // camera position in texture coordinates
 
     // vertex position varying
-    v_position = position * u_intensity_map.inv_size; // vertex position in texture coordinates
+    v_position = position * u_volume.inv_size; // vertex position in texture coordinates
 
     // ray direction varying
     v_direction = v_position - v_origin; // direction vector from camera to vertex in texture coordinates

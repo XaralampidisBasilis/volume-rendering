@@ -7,7 +7,7 @@ vec4 debug_ray_discarded = to_color(ray.discarded);
 vec4 debug_ray_direction = to_color(ray.direction * 0.5 + 0.5);
 
 // step distance
-vec4 debug_ray_spacing = to_color(ray.spacing / length(u_intensity_map.inv_dimensions));
+vec4 debug_ray_spacing = to_color(ray.spacing / length(u_volume.inv_dimensions));
 
 // start distance
 vec4 debug_ray_start_distance = to_color(map(box.min_entry_distance, box.max_exit_distance, ray.start_distance));
