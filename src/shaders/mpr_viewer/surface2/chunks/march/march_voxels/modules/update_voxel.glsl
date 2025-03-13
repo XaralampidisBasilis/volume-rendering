@@ -1,7 +1,8 @@
-
-// compute voxel bounding box in model coordinates
-voxel.min_position = vec3(voxel.coords + 0) * u_volume.inv_dimensions;
-voxel.max_position = vec3(voxel.coords + 1) * u_volume.inv_dimensions;
+// Compute min max positions 
+voxel.min_position = vec3(voxel.coords + 0);
+voxel.max_position = vec3(voxel.coords + 1);  
+voxel.min_position *= u_volume.inv_dimensions;
+voxel.max_position *= u_volume.inv_dimensions;
 
 // compute voxel entry from previous exit, 
 voxel.entry_distance = voxel.exit_distance;
@@ -9,7 +10,8 @@ voxel.entry_position = voxel.exit_position;
 
 // compute voxel ray intersection to find exit, 
 voxel.exit_distance = intersect_box_max(voxel.min_position, voxel.max_position, camera.position, ray.direction, voxel.axis);
-voxel.exit_position = camera.position + ray.direction * voxel.exit_distance;
+voxel.exit_position = camera.position;
+voxel.exit_position += ray.direction * voxel.exit_distance;
 
 // compute intersection
 voxel.intersected = texelFetch(u_textures.binary_map, voxel.coords, 0).r > 0.0;

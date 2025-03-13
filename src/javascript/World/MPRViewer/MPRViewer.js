@@ -84,11 +84,11 @@ export default class MPRViewer extends THREE.Group
         // Distance map 
         this.textures.distanceMap = new THREE.Data3DTexture
         (
-            new Uint8Array(this.processor.distanceMap.tensor.dataSync()),
+            new Int8Array(this.processor.distanceMap.tensor.dataSync()),
             ...this.processor.distanceMap.parameters.dimensions
         )
-        this.textures.distanceMap.format = THREE.RedFormat
-        this.textures.distanceMap.type = THREE.UnsignedByteType
+        this.textures.distanceMap.format = THREE.RedIntegerFormat
+        this.textures.distanceMap.type = THREE.ByteType
         this.textures.distanceMap.minFilter = THREE.NearestFilter
         this.textures.distanceMap.magFilter = THREE.NearestFilter
         this.textures.distanceMap.computeMipmaps = false

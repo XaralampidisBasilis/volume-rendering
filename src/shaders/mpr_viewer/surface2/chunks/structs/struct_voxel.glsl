@@ -10,6 +10,7 @@ struct Voxel
     ivec3 coords;
     ivec3 coords_step;
     int   axis;
+    ivec3 axes;
     ivec3 min_coords;
     ivec3 max_coords;
     vec3  min_position;
@@ -30,6 +31,7 @@ Voxel set_voxel()
     voxel.coords         = ivec3(0);
     voxel.coords_step    = ivec3(0);
     voxel.axis           = 0;
+    voxel.axes           = ivec3(0);
     voxel.min_coords     = ivec3(0);
     voxel.max_coords     = ivec3(0);
     voxel.min_position   = vec3(0.0);

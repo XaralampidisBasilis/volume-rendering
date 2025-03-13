@@ -19,7 +19,7 @@ Ray set_ray()
     Ray ray;
     ray.discarded      = false;
     ray.direction      = normalize(v_direction);
-    ray.sign           = ivec3(sign(ray.direction));
+    ray.sign           = ivec3(ssign(v_direction));
     ray.spacing        = 0.0;
     ray.start_position = vec3(0.0);
     ray.end_position   = vec3(0.0);
