@@ -14,10 +14,10 @@ voxel.exit_position = camera.position;
 voxel.exit_position += ray.direction * voxel.exit_distance;
 
 // compute intersection
-voxel.intersected = texelFetch(u_textures.binary_map, voxel.coords, 0).r > 0.0;
+voxel.intersected = (texelFetch(u_textures.binary_map, voxel.coords, 0).r > 0.0);
 
 // compute termination condition
-voxel.terminated = voxel.exit_distance > ray.end_distance;
+voxel.terminated = (voxel.exit_distance > ray.end_distance);
 
 // compute next voxel coordinates
 voxel.coords[voxel.axis] += ray.sign[voxel.axis];
