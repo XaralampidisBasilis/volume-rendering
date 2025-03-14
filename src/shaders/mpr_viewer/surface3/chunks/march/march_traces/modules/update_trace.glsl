@@ -4,6 +4,7 @@ trace.distance += ray.spacing;
 
 // Compute trace position
 trace.position = camera.position + ray.direction * trace.distance;
+trace.uvw = trace.position * u_volume.inv_dimensions;
 
 // Compute intersection of trace based of difference
 trace.intensity = texture(u_textures.binary_map, trace.position).r;

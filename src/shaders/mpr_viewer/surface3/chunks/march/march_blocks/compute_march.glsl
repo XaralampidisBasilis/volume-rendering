@@ -9,8 +9,6 @@ for (int n = 0; n < MAX_VOXELS; n++)
     {
         break;
     }
-
-    #include "./modules/update_voxels"
 }   
 
 #include "./modules/end_march"

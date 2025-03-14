@@ -26,7 +26,7 @@ vec4 debug_voxel_entry_distance = to_color(map(box.min_entry_distance, box.max_e
 vec4 debug_voxel_exit_distance = to_color(map(box.min_entry_distance, box.max_exit_distance, voxel.exit_distance)); 
 
 // span distance
-vec4 debug_voxel_span_distance = to_color((voxel.exit_distance - voxel.entry_distance) / length(u_volume.inv_dimensions)); 
+vec4 debug_voxel_span_distance = to_color((voxel.exit_distance - voxel.entry_distance) / length(vec3(1.0))); 
 
 // min position
 vec4 debug_voxel_min_position = to_color(map(box.min_position, box.max_position, voxel.min_position)); 

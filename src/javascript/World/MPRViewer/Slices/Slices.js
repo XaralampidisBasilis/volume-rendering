@@ -55,7 +55,7 @@ export default class Slices extends THREE.Group
     {
         this.updateMatrix()
 
-        _matrix.makeScale(...this.parameters.invSize).multiply(this.matrix)
+        _matrix.makeScale(...this.parameters.invSpacing).multiply(this.matrix)
 
         this.children.forEach((slice) => 
         {                

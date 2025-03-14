@@ -22,7 +22,7 @@ float samples[6];
 for (int i = 0; i < 6; i++)
 {
     vec3 offset = center_offsets[i] * u_volume.inv_dimensions;
-    samples[i] = texture(u_textures.binary_map, trace.position + offset).r;
+    samples[i] = texture(u_textures.binary_map, trace.uvw + offset).r;
 }
 
 // Gather samples

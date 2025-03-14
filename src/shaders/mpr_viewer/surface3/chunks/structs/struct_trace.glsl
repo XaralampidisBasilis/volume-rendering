@@ -8,6 +8,7 @@ struct Trace
     bool  exhausted;
     ivec3 coords;
     vec3  position;             // current position in 3d texture coordinates
+    vec3  uvw;
     float distance;             // current distance traveled from camera
     float spacing;
     vec3  gradient;             // gradient vector
@@ -22,6 +23,7 @@ Trace set_trace()
     trace.exhausted   = false;
     trace.coords      = ivec3(0.0);
     trace.position    = vec3(0.0);
+    trace.uvw         = vec3(0.0);
     trace.distance    = 0.0;
     trace.spacing     = 0.0;
     trace.gradient    = vec3(0.0);

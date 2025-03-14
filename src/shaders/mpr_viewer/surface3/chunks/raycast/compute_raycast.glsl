@@ -10,7 +10,7 @@
 
 // Compute intersection of ray with slices
 #if INTERSECT_SLICES_ENABLED == 1
-// #include "./modules/compute_ray_slices_intersection"
+#include "./modules/compute_ray_slices_intersection"
 #endif
 
 // Compute ray step distance

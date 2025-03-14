@@ -1,7 +1,8 @@
 
-// compute trace from voxel
+// compute trace from block
 trace.distance = block.entry_distance;
-trace.position = camera.position + ray.direction * trace.distance;
+trace.position = block.entry_position;
+trace.uvw = trace.position * u_volume.inv_dimensions;
 
 // compute gradient at trace
 #include "./compute_gradient_central"
