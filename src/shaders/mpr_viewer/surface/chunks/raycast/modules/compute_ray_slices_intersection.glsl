@@ -10,8 +10,7 @@ for (int n = 0; n < 3; n++)
     ray_plane_distance = intersect_plane(u_slices.hessian[n], camera.position, ray.direction);
 
     // Compute if intersection is acceptable
-    has_intersected = bool(inside_closed(box.entry_distance, box.exit_distance, ray_plane_distance));
-    has_intersected = has_intersected && u_slices.visible[n];
+    has_intersected = u_slices.visible[n] && inside_closed(box.entry_distance, box.exit_distance, ray_plane_distance);
 
     // Compute ray end distance
     ray_plane_distance = (has_intersected) ? ray_plane_distance : box.exit_distance;

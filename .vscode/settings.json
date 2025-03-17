@@ -103,6 +103,7 @@
         "timeit",
         "topk",
         "usampler",
+        "uvec",
         "vander",
         "viridis",
         "voldim",

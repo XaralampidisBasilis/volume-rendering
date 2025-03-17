@@ -15,10 +15,10 @@ void main() {
     vec4 camera_position = inverse(modelMatrix) * vec4(cameraPosition, 1.0);   
 
     // camera position varying
-    v_origin = camera_position.xyz * u_volume.dimensions; // camera position in grid coordinates
+    v_origin = camera_position.xyz * vec3(u_volume.dimensions); // camera position in grid coordinates
 
     // vertex position varying
-    v_position = position * u_volume.dimensions; // vertex position in grid coordinates
+    v_position = position * vec3(u_volume.dimensions); // vertex position in grid coordinates
 
     // ray direction varying
     v_direction = v_position - v_origin; // direction vector from camera to vertex in grid coordinates

@@ -8,6 +8,8 @@ struct Box
     vec3  exit_position;     
     float exit_distance;     
     float span_distance;
+    ivec3 min_coords;
+    ivec3 max_coords;
     vec3  min_position;     
     vec3  max_position;   
     float min_entry_distance;
@@ -23,6 +25,8 @@ Box set_box()
     box.entry_distance     = 0.0;
     box.exit_distance      = 0.0;
     box.span_distance      = 0.0;
+    box.min_coords         = ivec3(0);
+    box.max_coords         = ivec3(0);
     box.min_position       = vec3(0.0);
     box.max_position       = vec3(0.0);
     box.min_entry_distance = 0.0;

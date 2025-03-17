@@ -25,7 +25,7 @@ export default function()
             size_length    : 0.0,
         }),
 
-        u_bounding_box : new THREE.Uniform
+        u_bbox : new THREE.Uniform
         ({
             dimensions  : new THREE.Vector3(),
             min_coords  : new THREE.Vector3(),
@@ -65,7 +65,6 @@ export default function()
         DISCARDING_DISABLED     : 0,
         STATS_ENABLED           : 1,
         DEBUG_ENABLED           : 1,
-        MAX_TRACES              : 1000,
         MAX_VOXELS              : 1000,
     }
 

@@ -21,6 +21,7 @@ block.exit_distance = ray.start_distance + penetration;
 block.exit_position = ray.start_position + penetration * ray.direction;
 
 // compute break conditions
+// block.terminated = ! inside_closed_box(u_bbox.min_coords, u_bbox.max_coords, block.coords);
 block.terminated = (block.entry_distance > ray.end_distance);
 block.intersected = (block.cheby_distance == 0);    
 

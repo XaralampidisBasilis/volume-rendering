@@ -21,11 +21,11 @@ export default class Processor extends EventEmitter
         // tf.enableProdMode()
         await tf.ready()
 
-        await tf.setBackend('webgl')
+        await tf.setBackend('cpu')
         await this.generateIntensityMap()
         await this.generateBinaryMap()
-        // await this.downscaleIntensityMap()
-        // await this.downscaleBinaryMap()
+        await this.downscaleIntensityMap()
+        await this.downscaleBinaryMap()
 
         await tf.setBackend('webgl')
         await this.generateBoundingBox()
@@ -104,13 +104,10 @@ export default class Processor extends EventEmitter
         const parameters = {}
         parameters.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
         parameters.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
-        parameters.minPosition = parameters.minCoords.clone().addScalar(0).multiply(this.binaryMap.parameters.spacing)
-        parameters.maxPosition = parameters.maxCoords.clone().addScalar(1).multiply(this.binaryMap.parameters.spacing)
         parameters.dimensions = new THREE.Vector3().subVectors(parameters.maxCoords, parameters.minCoords).addScalar(1)
         parameters.size = parameters.dimensions.clone().multiply(this.binaryMap.parameters.spacing)
         parameters.numCells = parameters.dimensions.toArray().reduce((count, dimension) => count * dimension, 1)
         parameters.maxCells = parameters.dimensions.toArray().reduce((count, dimension) => count + dimension, -2)
-        parameters.maxTraces = Math.ceil(parameters.size.length() / this.binaryMap.parameters.spacing.length())
 
         this.boundingBox = {}
         this.boundingBox.parameters = parameters

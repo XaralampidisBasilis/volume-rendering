@@ -10,11 +10,11 @@ voxel.entry_position = voxel.exit_position;
 float penetration = intersect_box_max(voxel.min_position, voxel.max_position, ray.start_position, ray.direction, voxel.axis);
 voxel.exit_distance = ray.start_distance + penetration;
 voxel.exit_position = ray.start_position + penetration * ray.direction;
-// compute intersection
-voxel.intersected = (texelFetch(u_textures.binary_map, voxel.coords, 0).r > 0.0);
 
-// compute termination condition
+// compute break conditions
+// voxel.terminated = ! inside_closed_box(u_bbox.min_coords, u_bbox.max_coords, voxel.coords);
 voxel.terminated = (voxel.entry_distance > ray.end_distance);
+voxel.intersected = (texelFetch(u_textures.binary_map, voxel.coords, 0).r > 0.0);
 
 // compute next voxel coordinates
 voxel.coords[voxel.axis] += ray.sign[voxel.axis];

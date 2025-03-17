@@ -39,11 +39,9 @@ export default class Surface extends THREE.Mesh
         uniforms.u_volume.value.spacing_length = processor.intensityMap.parameters.spacingLength
         uniforms.u_volume.value.size_length = processor.intensityMap.parameters.sizeLength
 
-        uniforms.u_bounding_box.value.dimensions.copy(processor.boundingBox.parameters.dimensions)
-        uniforms.u_bounding_box.value.min_coords.copy(processor.boundingBox.parameters.minCoords)
-        uniforms.u_bounding_box.value.max_coords.copy(processor.boundingBox.parameters.maxCoords)
-        uniforms.u_bounding_box.value.min_position.copy(processor.boundingBox.parameters.minPosition)
-        uniforms.u_bounding_box.value.max_position.copy(processor.boundingBox.parameters.maxPosition)
+        uniforms.u_bbox.value.dimensions.copy(processor.boundingBox.parameters.dimensions)
+        uniforms.u_bbox.value.min_coords.copy(processor.boundingBox.parameters.minCoords)
+        uniforms.u_bbox.value.max_coords.copy(processor.boundingBox.parameters.maxCoords)
 
         viewer.slices.children.forEach((slice, i) => 
         {
@@ -51,7 +49,6 @@ export default class Surface extends THREE.Mesh
             uniforms.u_slices.value.visible[i] = slice.material.uniforms.u_plane.value.visible
         })
 
-        defines.MAX_TRACES = processor.boundingBox.parameters.maxTraces
         defines.MAX_VOXELS = processor.boundingBox.parameters.maxCells
     }
 

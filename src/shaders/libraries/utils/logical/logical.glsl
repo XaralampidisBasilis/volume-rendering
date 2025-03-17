@@ -9,10 +9,6 @@
 #include "./nand"
 #include "./nor"
 #include "./xnor"
-#include "./every"
-#include "./some"
-#include "./nevery"
-#include "./nsome"
 
 #endif 
 

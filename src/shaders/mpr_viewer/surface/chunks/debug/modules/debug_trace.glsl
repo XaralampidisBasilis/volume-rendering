@@ -11,7 +11,7 @@ vec4 debug_trace_terminated = to_color(trace.terminated);
 vec4 debug_trace_exhausted = to_color(trace.exhausted);
 
 // outside
-vec4 debug_trace_outside = to_color(outside_open_box(0.0, 1.0, map(box.min_position, box.max_position, trace.position)));
+vec4 debug_trace_outside = to_color(!inside_closed_box(0.0, 1.0, map(box.min_position, box.max_position, trace.position)));
 
 // distance
 vec4 debug_trace_distance = to_color(map(box.min_entry_distance, box.max_exit_distance, trace.distance));
