@@ -7,10 +7,9 @@ struct Block
     bool  terminated;
     bool  occupied;
     int   cheby_distance;
+    int   axis;
     ivec3 coords;
     ivec3 coords_step;
-    int   axis;
-    ivec3 axes;
     ivec3 min_coords;
     ivec3 max_coords;
     vec3  min_position;
@@ -29,9 +28,9 @@ Block set_block()
     block.terminated     = false;
     block.occupied       = false;
     block.cheby_distance = 1;
+    block.axis           = 0;
     block.coords         = ivec3(0);
     block.coords_step    = ivec3(0);
-    block.axis           = 0;
     block.min_coords     = ivec3(0);
     block.max_coords     = ivec3(0);
     block.min_position   = vec3(0.0);
