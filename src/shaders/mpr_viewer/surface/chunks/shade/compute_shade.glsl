@@ -1,10 +1,6 @@
 
-
 // Compute scene vectors, angles 
 #include "./modules/compute_scene"
-
-// Compute depth
-#include "./modules/compute_depth"
 
 // Compute ambient component
 #include "./modules/compute_ambient"
@@ -23,4 +19,6 @@ directional_color *= smoothstep(0.0, 0.6, abs(frag.view_angle));
 frag.shaded_color.rgb = frag.ambient_color + directional_color;
 fragColor = frag.shaded_color;
 // fragColor.a = 0.3;
-gl_FragDepth = frag.depth;
+
+// Compute depth
+#include "./modules/compute_depth"

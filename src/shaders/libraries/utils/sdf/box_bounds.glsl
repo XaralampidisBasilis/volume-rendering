@@ -16,8 +16,8 @@
 
 vec2 box_bounds(vec2 b_min, vec2 b_max, vec2 p) 
 {
-    vec2 c = (b_max + b_min) / 2.0;
-    vec2 s = (b_max - b_min) / 2.0;
+    vec2 c = (b_max + b_min) * 0.5;
+    vec2 s = (b_max - b_min) * 0.5;
     vec2 aq = abs(p - c);
     vec2 d_min = aq - s;
     vec2 d_max = aq + s;
@@ -26,8 +26,8 @@ vec2 box_bounds(vec2 b_min, vec2 b_max, vec2 p)
 
 vec2 box_bounds(vec2 b_min, vec2 b_max, vec2 p, out vec2 v_min, out vec2 v_max) 
 {
-    vec2 c = (b_max + b_min) / 2.0;
-    vec2 s = (b_max - b_min) / 2.0;
+    vec2 c = (b_max + b_min) * 0.5;
+    vec2 s = (b_max - b_min) * 0.5;
     vec2 q = p - c;
     vec2 aq = abs(q);
     vec2 sq = sign(q);
@@ -42,8 +42,8 @@ vec2 box_bounds(vec2 b_min, vec2 b_max, vec2 p, out vec2 v_min, out vec2 v_max)
 
 vec2 box_bounds(vec3 b_min, vec3 b_max, vec3 p) 
 {
-    vec3 c = (b_max + b_min) / 2.0;
-    vec3 s = (b_max - b_min) / 2.0;
+    vec3 c = (b_max + b_min) * 0.5;
+    vec3 s = (b_max - b_min) * 0.5;
     vec3 aq = abs(p - c);
     vec3 d_min = aq - s;
     vec3 d_max = aq + s;    
@@ -52,8 +52,8 @@ vec2 box_bounds(vec3 b_min, vec3 b_max, vec3 p)
 
 vec2 box_bounds(vec3 b_min, vec3 b_max, vec3 p, out vec3 v_min, out vec3 v_max) 
 {
-    vec3 c = (b_max + b_min) / 2.0;
-    vec3 s = (b_max - b_min) / 2.0;
+    vec3 c = (b_max + b_min) * 0.5;
+    vec3 s = (b_max - b_min) * 0.5;
     vec3 q = p - c;
     vec3 aq = abs(q);
     vec3 sq = sign(q);

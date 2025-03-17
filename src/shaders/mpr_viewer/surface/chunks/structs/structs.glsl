@@ -4,6 +4,7 @@
 #include "./struct_ray"
 #include "./struct_trace"
 #include "./struct_voxel"
+#include "./struct_block"
 
 #if DEBUG_ENABLED == 1
 #include "./struct_debug"

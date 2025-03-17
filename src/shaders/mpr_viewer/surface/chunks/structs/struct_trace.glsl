@@ -4,11 +4,11 @@
 struct Trace 
 {
     bool  intersected;
-    bool  terminated;           // flag indicating if the trace has reached out of u_intensity_map bounds
+    bool  terminated;           // flag indicating if the trace has reached out of u_volume bounds
     bool  exhausted;
     ivec3 coords;
-    vec3  position;             // current position in 3d model coordinates
-    vec3  uvw;                  // current position in 3d model coordinates
+    vec3  position;             // current position in 3d texture coordinates
+    vec3  uvw;
     float distance;             // current distance traveled from camera
     float spacing;
     vec3  gradient;             // gradient vector

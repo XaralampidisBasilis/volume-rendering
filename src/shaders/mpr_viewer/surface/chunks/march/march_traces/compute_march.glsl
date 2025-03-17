@@ -1,8 +1,7 @@
 
-// start march at ray start
 #include "./modules/start_march"
 
-for (int count = 0; count < MAX_TRACES; count++) 
+for (int n = 0; n < MAX_VOXELS; n++) 
 {
     #include "./modules/update_trace"
 

@@ -1,8 +1,17 @@
+
+// smaller volume box to avoid boundary instabilities
+box.min_position = vec3(0.0);
+box.max_position = u_volume.dimensions;
+
+// compute rays bound distances with the volume box
+vec2 bounds = box_bounds(box.min_position, box.max_position, camera.position);
+box.min_entry_distance = bounds.x;
+box.max_exit_distance  = bounds.y;
+box.max_span_distance  = bounds.y - bounds.x;
+
 // compute current ray intersection distances with the volume box
 vec2 ray_box_distances = intersect_box(box.min_position, box.max_position, camera.position, ray.direction);
-
-// clamp bbox distances above zero for the case we are inside
-ray_box_distances = max(ray_box_distances, 0.0);
+ray_box_distances = max(ray_box_distances, 0.0); // clamp bbox distances above zero for the case we are inside
 
 // update ray if there is an intersection 
 if (ray_box_distances.x < ray_box_distances.y)
@@ -21,7 +30,6 @@ if (ray_box_distances.x < ray_box_distances.y)
     ray.start_position = box.entry_position;
     ray.end_position   = box.exit_position;
 }
-// discard ray if there is no intersection
 else
 {
     #include "./discard_ray"

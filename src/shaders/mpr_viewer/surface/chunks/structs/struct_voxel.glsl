@@ -5,12 +5,9 @@ struct Voxel
 {
     bool  intersected;
     bool  terminated;
-    bool  occupied;
-    int   cheby_distance;
     ivec3 coords;
     ivec3 coords_step;
-    ivec3 min_coords;
-    ivec3 max_coords;
+    int   axis;
     vec3  min_position;
     vec3  max_position;
     float entry_distance;
@@ -24,12 +21,9 @@ Voxel set_voxel()
     Voxel voxel;
     voxel.intersected    = false;
     voxel.terminated     = false;
-    voxel.occupied       = false;
-    voxel.cheby_distance = 1;
     voxel.coords         = ivec3(0);
     voxel.coords_step    = ivec3(0);
-    voxel.min_coords     = ivec3(0);
-    voxel.max_coords     = ivec3(0);
+    voxel.axis           = 0;
     voxel.min_position   = vec3(0.0);
     voxel.max_position   = vec3(0.0);
     voxel.entry_distance = 0.0;

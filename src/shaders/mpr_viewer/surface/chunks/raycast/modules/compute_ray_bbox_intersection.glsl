@@ -1,7 +1,7 @@
 
 // Volume bounding box in model space
-vec3 bbox_min_position = u_bounding_box.min_position;
-vec3 bbox_max_position = u_bounding_box.max_position;
+vec3 bbox_min_position = u_bounding_box.min_coords + 0.0;
+vec3 bbox_max_position = u_bounding_box.max_coords + 1.0;
 
 // make sure volume bounding box is not bigger than volume box
 bbox_min_position = max(bbox_min_position, box.min_position);
@@ -22,7 +22,6 @@ if (ray_bbox_distances.x < ray_bbox_distances.y)
     ray.start_position = camera.position + ray.direction * ray_bbox_distances.x;
     ray.end_position   = camera.position + ray.direction * ray_bbox_distances.y;
 }
-// discard ray if no intersection
 else
 {
     #include "./discard_ray"

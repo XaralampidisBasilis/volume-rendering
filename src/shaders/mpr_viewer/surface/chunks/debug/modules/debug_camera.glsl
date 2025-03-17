@@ -3,7 +3,6 @@
 
 // position
 vec4 debug_camera_position = to_color(map(box.min_position, box.max_position, camera.position));
- 
 
 // PRINT DEBUG
 

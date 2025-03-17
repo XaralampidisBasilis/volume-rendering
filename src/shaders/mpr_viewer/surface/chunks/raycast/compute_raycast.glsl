@@ -1,7 +1,4 @@
 
-// Compute bounds of ray with volume box
-#include "./modules/compute_ray_box_bounds"
-
 // Compute intersection of ray with volume box
 #include "./modules/compute_ray_box_intersection"
 

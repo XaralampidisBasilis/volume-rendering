@@ -22,7 +22,7 @@ const vec3 center_offsets[8] = vec3[8]
 float samples[8];
 for (int i = 0; i < 8; i++)
 {
-    vec3 offset = center_offsets[i] * u_intensity_map.inv_dimensions;
+    vec3 offset = center_offsets[i] * u_volume.inv_dimensions;
     samples[i] = texture(u_textures.binary_map, trace.uvw + offset).r;
 }
 
@@ -39,7 +39,7 @@ vec3 backward = vec3(
 );
 
 // Compute gradient
-trace.gradient = (forward - backward) / (u_intensity_map.spacing * 4.0);
+trace.gradient = (forward - backward) / (u_volume.spacing * 4.0);
 
 // Update stats
 #if STATS_ENABLED == 1

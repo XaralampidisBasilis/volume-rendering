@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import vertexShader from '@shaders/mpr_viewer/surface3/vertex.glsl'
-import fragmentShader from '@shaders/mpr_viewer/surface3/fragment.glsl'
+import vertexShader from '@shaders/mpr_viewer/surface/vertex.glsl'
+import fragmentShader from '@shaders/mpr_viewer/surface/fragment.glsl'
 
 export default function()
 {

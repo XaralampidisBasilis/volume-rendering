@@ -1,21 +1,17 @@
 
-// Copy previous trace
-prev_trace = trace;
-
 // Compute trace distance
-trace.distance += trace.spacing;
+trace.distance += ray.spacing;
 
 // Compute trace position
 trace.position = camera.position + ray.direction * trace.distance;
-trace.coords = ivec3(trace.position * u_intensity_map.inv_spacing);
-trace.uvw = trace.position * u_intensity_map.inv_size;
+trace.uvw = trace.position * u_volume.inv_dimensions;
 
 // Compute intersection of trace based of difference
-trace.intensity = texture(u_textures.binary_map, trace.uvw).r;
-trace.intersected = abs(trace.intensity - prev_trace.intensity) > 0.0;
+trace.intensity = texture(u_textures.binary_map, trace.position).r;
 
-// Compute trace termination condition
+// Compute trace break conditions
 trace.terminated = trace.distance > ray.end_distance;
+trace.intersected = trace.intensity > 0.0;
 
 // Update stats
 #if STATS_ENABLED == 1

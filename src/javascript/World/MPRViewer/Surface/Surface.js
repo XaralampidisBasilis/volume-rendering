@@ -5,24 +5,22 @@ export default class Surface extends THREE.Mesh
 {
     constructor(viewer)
     {
-        const size = viewer.processor.intensityMap.parameters.size
-        const offset = size.clone().divideScalar(2)
-        const geometry = new THREE.BoxGeometry(...size).translate(...offset)
+        const offset = new THREE.Vector3().setScalar(0.5)
+        const geometry = new THREE.BoxGeometry().translate(...offset)
         const material = Material()
         super(geometry, material)
 
-        this.material.depthWrite = true
-        this.material.depthTest = true
-        this.material.transparent = true
-        this.visible = true
-
-        this.setUniforms(viewer)
-
+        this.scale.copy(viewer.processor.intensityMap.parameters.size)
+        this.setMaterial(viewer)
         viewer.add(this)
     }
 
-    setUniforms(viewer)
+    setMaterial(viewer)
     {
+        this.material.depthWrite = true
+        this.material.depthTest = true
+        this.material.transparent = true
+
         const textures = viewer.textures
         const processor = viewer.processor
         const uniforms = this.material.uniforms

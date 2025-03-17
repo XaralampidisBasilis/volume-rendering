@@ -10,27 +10,25 @@ block.max_coords = block.coords + radius;
 // Compute min max positions 
 block.min_position = vec3(block.min_coords + 0);
 block.max_position = vec3(block.max_coords + 1);  
-block.min_position *= u_volume.inv_dimensions;
-block.max_position *= u_volume.inv_dimensions;
 
 // compute entry from previous exit, 
 block.entry_distance = block.exit_distance;
 block.entry_position = block.exit_position;
 
 // compute block ray intersection to find exit, 
-block.exit_distance = intersect_box_max(block.min_position, block.max_position, camera.position, ray.direction, block.axis);
-block.exit_position = camera.position;
-block.exit_position += ray.direction * block.exit_distance;
+float penetration = intersect_box_max(block.min_position, block.max_position, ray.start_position, ray.direction, block.axis);
+block.exit_distance = ray.start_distance + penetration;
+block.exit_position = ray.start_position + penetration * ray.direction;
 
 // compute break conditions
-block.intersected = (block.cheby_distance == 0);
 block.terminated = (block.entry_distance > ray.end_distance);
+block.intersected = (block.cheby_distance == 0);    
 
 // compute next coordinates 
 int coordinate = block.coords[block.axis];
 coordinate += block.cheby_distance * ray.sign[block.axis];
 
-block.coords = ivec3(block.exit_position * u_volume.dimensions);
+block.coords = ivec3(block.exit_position);
 block.coords[block.axis] = coordinate;
 
 // Update stats

@@ -1,6 +1,0 @@
-#include "./uniforms_textures"
-#include "./uniforms_volume"
-#include "./uniforms_bounding_box"
-#include "./uniforms_slices"
-#include "./uniforms_shading"
-#include "./uniforms_debugging"

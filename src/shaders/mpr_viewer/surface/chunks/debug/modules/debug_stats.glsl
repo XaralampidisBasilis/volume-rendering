@@ -2,7 +2,7 @@
 // COMPUTE DEBUG
 
 // num fetches
-vec4 debug_stats_num_fetches = to_color(float(stats.num_fetches) / float(MAX_VOXELS) * 2.0);
+vec4 debug_stats_num_fetches = to_color(float(stats.num_fetches) / float(MAX_VOXELS));
 
 // num steps
 vec4 debug_stats_num_steps = to_color(float(stats.num_steps) / float(MAX_VOXELS));
