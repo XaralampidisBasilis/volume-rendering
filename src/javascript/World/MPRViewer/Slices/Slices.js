@@ -9,42 +9,44 @@ export default class Slices extends THREE.Group
     {
         super()
 
-        this.setAxial(viewer)    // XY slice 
-        this.setCoronal(viewer)  // XZ slice 
-        this.setSagittal(viewer) // YZ slice 
+        this.viewer = viewer
+        this.parameters = viewer.processor.intensityMap.parameters
+
+        this.setAxial()    // XY slice 
+        this.setCoronal()  // XZ slice 
+        this.setSagittal() // YZ slice 
         this.add(this.axial)
         this.add(this.coronal)
         this.add(this.sagittal)
 
-        this.viewer = viewer
-        this.parameters = viewer.processor.intensityMap.parameters
+        this.scale.copy(this.parameters.size)
         this.position.copy(this.parameters.size).divideScalar(2)
         this.update()
         this.visible = true
         
-        viewer.add(this)
+        this.viewer.add(this)
     }
 
-    setAxial(viewer)
+    setAxial()
     {
-        this.axial = new Slice(viewer)
+        this.axial = new Slice(this.viewer)
         this.axial.plane.set(new THREE.Vector3(0, 0, 1), 0)
         this.axial.matrixAutoUpdate = false
         this.axial.name = 'axial'
     }
 
-    setCoronal(viewer)
+    setCoronal()
     {
-        this.coronal = new Slice(viewer)
+        this.coronal = new Slice(this.viewer)
         this.coronal.geometry.rotateX(Math.PI / 2)
         this.coronal.plane.set(new THREE.Vector3(0, 1, 0), 0)
         this.coronal.matrixAutoUpdate = false
         this.coronal.name = 'coronal'
     }
 
-    setSagittal(viewer)
+    setSagittal()
     {
-        this.sagittal = new Slice(viewer)
+        this.sagittal = new Slice(this.viewer)
         this.sagittal.geometry.rotateY(-Math.PI / 2)
         this.sagittal.plane.set(new THREE.Vector3(1, 0, 0), 0)
         this.sagittal.matrixAutoUpdate = false

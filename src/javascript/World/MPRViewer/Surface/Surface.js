@@ -10,19 +10,22 @@ export default class Surface extends THREE.Mesh
         const material = Material()
         super(geometry, material)
 
-        this.scale.copy(viewer.processor.intensityMap.parameters.size)
-        this.setMaterial(viewer)
-        viewer.add(this)
+        this.viewer = viewer
+        this.parameters = viewer.processor.intensityMap.parameters
+
+        this.scale.copy(this.parameters.size)
+        this.setMaterial()
+        this.viewer.add(this)
     }
 
-    setMaterial(viewer)
+    setMaterial()
     {
         this.material.depthWrite = true
         this.material.depthTest = true
         this.material.transparent = true
 
-        const textures = viewer.textures
-        const processor = viewer.processor
+        const textures = this.viewer.textures
+        const processor = this.viewer.processor
         const uniforms = this.material.uniforms
         const defines = this.material.defines
 
@@ -43,7 +46,7 @@ export default class Surface extends THREE.Mesh
         uniforms.u_bbox.value.min_coords.copy(processor.boundingBox.parameters.minCoords)
         uniforms.u_bbox.value.max_coords.copy(processor.boundingBox.parameters.maxCoords)
 
-        viewer.slices.children.forEach((slice, i) => 
+        this.viewer.slices.children.forEach((slice, i) => 
         {
             uniforms.u_slices.value.hessian[i] = slice.material.uniforms.u_plane.value.hessian
             uniforms.u_slices.value.visible[i] = slice.material.uniforms.u_plane.value.visible

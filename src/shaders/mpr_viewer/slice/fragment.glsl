@@ -19,7 +19,7 @@ void main()
         float intensity = texture(u_textures.intensity_map, v_uvw).r;
         fragColor = to_color(intensity); 
 
-        ivec3 coords = ivec3(v_position * u_intensity_map.inv_spacing);
+        ivec3 coords = ivec3(v_position * u_volume.inv_spacing);
         float highlight = texelFetch(u_textures.binary_map, coords, 0).r;
         fragColor.r += float(highlight > 0.0) * 0.3;    
     }

@@ -1,7 +1,7 @@
-#ifndef UNIFORMS_BINARY_MAP
-#define UNIFORMS_BINARY_MAP
+#ifndef UNIFORMS_VOLUME
+#define UNIFORMS_VOLUME
 
-struct BinaryMap 
+struct Volume 
 {
     ivec3 dimensions;    
     vec3  spacing;           
@@ -13,6 +13,6 @@ struct BinaryMap
     float size_length;  
 };
 
-uniform BinaryMap u_binary_map;
+uniform Volume u_volume;
 
 #endif

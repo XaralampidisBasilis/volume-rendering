@@ -21,19 +21,7 @@ export default function()
             binary_map     : null,
         }),
 
-        u_intensity_map : new THREE.Uniform
-        ({
-            dimensions            : new THREE.Vector3(),
-            spacing               : new THREE.Vector3(),
-            size                  : new THREE.Vector3(),
-            inv_dimensions        : new THREE.Vector3(),
-            inv_spacing           : new THREE.Vector3(),
-            inv_size              : new THREE.Vector3(),
-            spacing_length        : 0.0,
-            size_length           : 0.0,
-        }),
-
-        u_binary_map : new THREE.Uniform
+        u_volume : new THREE.Uniform
         ({
             dimensions            : new THREE.Vector3(),
             spacing               : new THREE.Vector3(),
