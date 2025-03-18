@@ -1,7 +1,7 @@
 
-if (trace.intersected)
+if (voxel.intersected)
 {
-    #include "./update_voxel"
+    #include "./compute_trace"
 }
 
 if (trace.terminated)

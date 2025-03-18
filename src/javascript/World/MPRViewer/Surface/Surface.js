@@ -13,8 +13,15 @@ export default class Surface extends THREE.Mesh
         this.viewer = viewer
         this.parameters = viewer.processor.intensityMap.parameters
 
-        this.scale.copy(this.parameters.size)
         this.setMaterial()
+        this.setMesh()
+    }
+
+    setMesh()
+    {
+        this.scale.copy(this.parameters.size)
+        this.renderOrder = 4
+
         this.viewer.add(this)
     }
 

@@ -21,4 +21,4 @@ fragColor = frag.shaded_color;
 // fragColor.a = 0.3;
 
 // Compute depth
-#include "./modules/compute_depth"
+// #include "./modules/compute_depth"

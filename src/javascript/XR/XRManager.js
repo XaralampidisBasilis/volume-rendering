@@ -72,11 +72,11 @@ export default class XRManager
         
         this.renderer.instance.setClearAlpha(0)
         this.renderer.instance.domElement.style.display = 'none'
-        this.scene.traverse((child) =>
-        {
-            if(child instanceof THREE.Mesh)
-                child.visible = false
-        })
+        // this.scene.traverse((child) =>
+        // {
+        //     if(child instanceof THREE.Mesh)
+        //         child.visible = false
+        // })
         
         this.hitTest.reticle.mesh.visible = false    
     }
@@ -87,11 +87,11 @@ export default class XRManager
         this.renderer.instance.domElement.style.display = ''
 
         this.hitTest.reticle.mesh.visible = false     
-        this.scene.traverse((child) =>
-        {
-            if(child instanceof THREE.Mesh)
-                child.visible = true
-        })  
+        // this.scene.traverse((child) =>
+        // {
+        //     if(child instanceof THREE.Mesh)
+        //         child.visible = true
+        // })  
     }
 
     destroy()

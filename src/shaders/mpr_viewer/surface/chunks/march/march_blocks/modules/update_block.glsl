@@ -27,7 +27,7 @@ block.intersected = (block.cheby_distance == 0);
 
 // compute next coordinates 
 int coordinate = block.coords[block.axis];
-coordinate += block.cheby_distance * ray.sign[block.axis];
+coordinate += block.cheby_distance * ray.octant[block.axis];
 
 block.coords = ivec3(block.exit_position);
 block.coords[block.axis] = coordinate;

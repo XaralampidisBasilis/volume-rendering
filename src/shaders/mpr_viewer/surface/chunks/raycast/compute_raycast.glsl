@@ -15,4 +15,5 @@
 // Compute ray step distance
 #include "./modules/compute_ray_spacing"
 
-
+// Compute ray dithering
+#include "./modules/compute_ray_dithering"
