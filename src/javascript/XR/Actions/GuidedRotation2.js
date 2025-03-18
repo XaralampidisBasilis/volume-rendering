@@ -10,6 +10,7 @@ export default class GuidedRotation
         this.xrManager = new XRManager()
         this.gestures = this.xrManager.gestures
         this.scene = this.xrManager.scene
+        this.viewRay = this.gestures.raycasters.view.ray
         this.handRay = this.gestures.raycasters.hand[0].ray
 
         this.object3D = object3D
@@ -60,13 +61,13 @@ export default class GuidedRotation
         this.quaternion.copy(this.object3D.quaternion)
 
         // Set guide plane
-        this.plane.setFromNormalAndCoplanarPoint(this.axis, this.pivot)
+        this.plane.setFromNormalAndCoplanarPoint(this.viewRay.direction, this.pivot)
 
         // Intersect ray and plane
         this.handRay.intersectPlane(this.plane, this.intersection)
         
         // Compute lever vector
-        this.lever.copy(this.intersection).sub(this.pivot)
+        this.lever.copy(this.intersection).sub(this.pivot).projectOnPlane(this.axis)
 
         // Compute plane coordinate system
         this.xAxis.copy(this.lever).normalize()
@@ -77,6 +78,10 @@ export default class GuidedRotation
     {
         console.log('guided rotation current', this)
 
+        // Update plane
+        this.plane.normal.copy(this.viewRay.direction)
+        this.plane.normalize()
+
         // Intersect ray and plane
         this.handRay.intersectPlane(this.plane, this.intersection)
 
@@ -84,7 +89,7 @@ export default class GuidedRotation
         if (this.intersection) 
         {
             // Update lever 
-            this.lever.copy(this.intersection).sub(this.pivot)
+            this.lever.copy(this.intersection).sub(this.pivot).projectOnPlane(this.axis)
 
             // Update angle of rotation
             this.coords.set(this.lever.dot(this.xAxis), this.lever.dot(this.yAxis))

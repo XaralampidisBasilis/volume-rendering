@@ -5,6 +5,12 @@ import HitTest from './HitTest'
 import XRGestures from './Gestures/Gestures'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
 
+import Grab from './Actions/Grab'
+import GuidedRotation from './Actions/GuidedRotation'
+import GuidedRotation2 from './Actions/GuidedRotation2'
+import GuidedTranslation from './Actions/GuidedTranslation'
+import Anchor from './Actions/Anchor'
+
 let instance = null
 
 export default class XRManager
@@ -23,9 +29,10 @@ export default class XRManager
         this.scene = this.experience.scene
         this.gestures = new XRGestures()
         this.hitTest = new HitTest()
+
         this.setButton()
         this.addSessionListeners()
-        // this.setActions()
+        this.setActions()
     } 
 
     setButton()
@@ -42,7 +49,11 @@ export default class XRManager
 
     setActions()
     {
-        this.actions = {}
+        // this.grab = new Grab(this.world.viewer, 'hold')
+        // this.guidedRotation = new GuidedRotation(this.world.viewer, 'hold', new THREE.Vector3(), new THREE.Vector3(0, 0, 1))
+        // this.guidedRotation2 = new GuidedRotation2(this.world.viewer, 'hold', new THREE.Vector3(), new THREE.Vector3(0, 0, 1))
+        // this.guidedTranslation = new GuidedTranslation(this.world.viewer, 'hold', new THREE.Vector3(), new THREE.Vector3(1, 0, 0))
+        // this.anchor = new Anchor(this.world.viewer)
     }
 
     addSessionListeners()
@@ -72,21 +83,22 @@ export default class XRManager
         
         this.renderer.instance.setClearAlpha(0)
         this.renderer.instance.domElement.style.display = 'none'
+        this.hitTest.reticle.mesh.visible = true    
+
         // this.scene.traverse((child) =>
         // {
         //     if(child instanceof THREE.Mesh)
         //         child.visible = false
         // })
         
-        this.hitTest.reticle.mesh.visible = false    
     }
 
     onSessionEnd()
     {
         this.renderer.instance.setClearAlpha(1)
         this.renderer.instance.domElement.style.display = ''
-
         this.hitTest.reticle.mesh.visible = false     
+
         // this.scene.traverse((child) =>
         // {
         //     if(child instanceof THREE.Mesh)

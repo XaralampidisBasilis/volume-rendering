@@ -1,10 +1,16 @@
 
-import Gestures from '../Gestures/Gestures'
+import * as THREE from 'three'
+import XRManager from '../XRManager'
 
 export default class Scale
 {
     constructor(object3D)
     {
+        this.xrManager = new XRManager()
+        this.gestures = this.xrManager.gestures
+        this.scene = this.xrManager.scene
+        this.controller = this.gestures.controller[0]
+
         this.object3D = object3D
         this.gestures = new Gestures()
         this.addListener()       

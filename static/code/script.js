@@ -2956,7 +2956,7 @@ function onGestureMoveScreenMonitor(event) {
 			// }
 		}
 	}
-
+    
 	if (event.end && data.selected) {
 		display.attach(screen);
 

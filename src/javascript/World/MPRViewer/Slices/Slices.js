@@ -15,15 +15,16 @@ export default class Slices extends THREE.Group
         this.setAxial()    // XY slice 
         this.setCoronal()  // XZ slice 
         this.setSagittal() // YZ slice 
-        this.add(this.axial)
-        this.add(this.coronal)
-        this.add(this.sagittal)
+        this.setGroup()
+    }
 
+    setGroup()
+    {
         this.scale.copy(this.parameters.size)
         this.position.copy(this.parameters.size).divideScalar(2)
-        this.update()
         this.visible = true
-        
+        this.update()
+
         this.viewer.add(this)
     }
 
@@ -33,6 +34,7 @@ export default class Slices extends THREE.Group
         this.axial.plane.set(new THREE.Vector3(0, 0, 1), 0)
         this.axial.matrixAutoUpdate = false
         this.axial.name = 'axial'
+        this.add(this.axial)
     }
 
     setCoronal()
@@ -42,6 +44,7 @@ export default class Slices extends THREE.Group
         this.coronal.plane.set(new THREE.Vector3(0, 1, 0), 0)
         this.coronal.matrixAutoUpdate = false
         this.coronal.name = 'coronal'
+        this.add(this.coronal)
     }
 
     setSagittal()
@@ -51,6 +54,7 @@ export default class Slices extends THREE.Group
         this.sagittal.plane.set(new THREE.Vector3(1, 0, 0), 0)
         this.sagittal.matrixAutoUpdate = false
         this.sagittal.name = 'sagittal'
+        this.add(this.sagittal)
     }
 
     update()

@@ -1,15 +1,19 @@
 
-
-import Gestures from '../Gestures/Gestures'
+import * as THREE from 'three'
+import XRManager from '../XRManager'
 
 export default class Grab
 {
     constructor(object3d, gesture = 'hold')
     {
-        this.gestures = new Gestures()
+        this.xrManager = new XRManager()
+        this.gestures = this.xrManager.gestures
+        this.scene = this.xrManager.scene
         this.controller = this.gestures.controller[0]
+
         this.object3d = object3d
         this.gesture = gesture
+        this.paused = false
 
         this.initialize()
         this.addListener()       
@@ -17,7 +21,7 @@ export default class Grab
 
     initialize()
     {
-		this.proxy = new THREE.Object3D()
+		this.grip = new THREE.Object3D()
         this.transform = new THREE.Matrix4()
     }
 
@@ -29,6 +33,7 @@ export default class Grab
 
     onGesture(event)
     {
+        if (this.paused) return
         if (event.start) this.onStart()
         if (event.current) this.onCurrent()
         if (event.end) this.onEnd()
@@ -36,30 +41,56 @@ export default class Grab
 
     onStart()
     {
-        this.object3d.matrixWorld.decompose(this.proxy.position, this.proxy.quaternion, this.proxy.scale)
-        this.proxy.updateMatrixWorld(true)
-        this.controller.attach(this.proxy)
+        console.log('grab start', this)
+        // copy world transformations of object to grip
+        this.object3d.matrixWorld.decompose(this.grip.position, this.grip.quaternion, this.grip.scale)
+
+        // attach proxy to controller
+        this.grip.updateMatrixWorld(true)
+        this.controller.attach(this.grip)
 	}
 
     onCurrent()
     {
-        this.proxy.updateMatrixWorld(true)
+        console.log('grab current', this)
 
+        // update word grip 
+        this.grip.updateMatrixWorld(true)
+
+        // copy grip transform to object3d
         this.transform.copy(this.object3d.parent.matrixWorld).invert()
-        this.transform.multiply(this.proxy.matrixWorld)
+        this.transform.multiply(this.grip.matrixWorld)
         this.transform.decompose(this.object3d.position, this.object3d.quaternion, this.object3d.scale)
 
+        // update world object
         this.object3d.updateMatrix()
     }
 
     onEnd()
     {
-        this.controller.remove(this.proxy)
+        console.log('grab end', this)
+
+        // remove grip from controller
+        this.controller.remove(this.grip)
+    }
+
+    pause() 
+    {
+        if (this.paused) return
+        console.log('grab paused')
+        this.paused = true
+    }
+
+    resume() 
+    {
+        if (!this.paused) return
+        console.log('grab resumed')
+        this.paused = false
     }
 
     destroy() 
     {
         this.gestures.removeEventListener(this.gesture, this.listener)
-        this.point = null
+        this.grip = null
     }
 } 
