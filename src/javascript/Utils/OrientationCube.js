@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 
-
 var HasMoved = false;
 
 function antiMoveOnDown(e) 

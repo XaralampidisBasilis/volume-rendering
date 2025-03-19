@@ -4,12 +4,8 @@ import EventEmitter from '../Utils/EventEmitter'
 import HitTest from './HitTest'
 import XRGestures from './Gestures/Gestures'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
+import * as Actions from './Actions/Actions'
 
-import Grab from './Actions/Grab'
-import GuidedRotation from './Actions/GuidedRotation'
-import GuidedRotation2 from './Actions/GuidedRotation2'
-import GuidedTranslation from './Actions/GuidedTranslation'
-import Anchor from './Actions/Anchor'
 
 let instance = null
 
@@ -49,11 +45,15 @@ export default class XRManager
 
     setActions()
     {
-        // this.grab = new Grab(this.world.viewer, 'hold')
-        // this.guidedRotation = new GuidedRotation(this.world.viewer, 'hold', new THREE.Vector3(), new THREE.Vector3(0, 0, 1))
-        // this.guidedRotation2 = new GuidedRotation2(this.world.viewer, 'hold', new THREE.Vector3(), new THREE.Vector3(0, 0, 1))
-        // this.guidedTranslation = new GuidedTranslation(this.world.viewer, 'hold', new THREE.Vector3(), new THREE.Vector3(1, 0, 0))
-        // this.anchor = new Anchor(this.world.viewer)
+        this.anchorViewer = new Actions.Anchor(this.world.viewer)
+        this.grabViewer = new Actions.Grab(this.world.viewer, 'hold')
+        this.transportViewer = new Actions.ParallelTransport(this.world.viewer, 'pan')
+        this.rollViewer = new Actions.Roll(this.world.viewer, 'twist')
+        this.scaleViewer = new Actions.Scale(this.world.viewer, 'pinch')
+        // this.guidedRotation = new Actions.GuidedRotation(this.world.viewer, 'hold', new THREE.Vector3(), new THREE.Vector3(0, 0, 1))
+        // this.guidedRotation2 = new Actions.GuidedRotation2(this.world.viewer, 'hold', new THREE.Vector3(), new THREE.Vector3(0, 0, 1))
+        // this.guidedRotation3 = new Actions.GuidedRotation3(this.world.viewer, 'hold', new THREE.Vector3(), new THREE.Vector3(0, 0, 1))
+        // this.guidedTranslation = new Actions.GuidedTranslation(this.world.viewer, 'hold', new THREE.Vector3(), new THREE.Vector3(1, 0, 0))
     }
 
     addSessionListeners()

@@ -100,7 +100,6 @@ export default class GuidedRotation
         this.parent.attach(this.object3D)
         console.log('guided rotation end', this)
     }
-
     
     pause() 
     {
@@ -115,7 +114,6 @@ export default class GuidedRotation
         console.log('guided rotation resumed')
         this.paused = false
     }
-
 
     destroy() 
     {

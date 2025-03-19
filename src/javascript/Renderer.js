@@ -20,17 +20,18 @@ export default class Renderer
             canvas: this.canvas,
             depth: true,
             alpha: true,
-            preserveDrawingBuffer: true,
             antialias: false,
+            stencil: false, 
             sortObjects: false,
+            preserveDrawingBuffer: false,
             logarithmicDepthBuffer: false,
-            powerPreference: "low-power",
+            precision: "mediump",
+            powerPreference: "high-performance"
         })       
         this.instance.setClearColor('#211d20', 1)
         this.instance.setSize(this.sizes.width, this.sizes.height)
         this.instance.setPixelRatio(this.sizes.pixelRatio)
         this.instance.xr.enabled = true;
-        this.instance.shadowMap.enabled = false
     }
 
     resize()

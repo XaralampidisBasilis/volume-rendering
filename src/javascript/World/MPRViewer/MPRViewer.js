@@ -98,6 +98,10 @@ export default class MPRViewer extends THREE.Group
 
     update()
     {
+        if (this.slices)
+        {
+            this.slices.intersect()
+        }
     }
 
     destroy() 

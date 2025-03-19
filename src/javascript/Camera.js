@@ -10,11 +10,13 @@ export default class Camera
     {
         this.experience = new Experience()
         this.sizes = this.experience.sizes
+        this.mouse = this.experience.mouse
         this.scene = this.experience.scene
         this.canvas = this.experience.canvas
 
         this.setInstance()
         this.setControls()
+        this.setRaycaster()
     }
 
     setInstance()
@@ -42,6 +44,12 @@ export default class Camera
         // this.controls.trackball.rotateSpeed = 1.0
     }
 
+    setRaycaster()
+    {
+        this.raycaster = new THREE.Raycaster()
+        this.raycaster.setFromCamera(this.mouse.ndcPosition, this.instance)
+    }
+
     resize()
     {
         this.instance.aspect = this.sizes.width / this.sizes.height
@@ -56,6 +64,7 @@ export default class Camera
         // this.controls.trackball.update()
 
         this.controls.orbit.update()
+        this.raycaster.setFromCamera(this.mouse.ndcPosition, this.instance)
     }
 
     destroy() 

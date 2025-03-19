@@ -4,15 +4,17 @@ import XRManager from '../XRManager'
 
 export default class Scale
 {
-    constructor(object3d)
+    constructor(object3d, gesture = 'pinch')
     {
         this.xrManager = new XRManager()
         this.gestures = this.xrManager.gestures
         this.parameters = this.gestures.parametersDual
 
         this.object3d = object3d
+        this.gesture = gesture
         this.paused = false
 
+        this.initialize()
         this.addListener()       
     }
 
@@ -25,7 +27,7 @@ export default class Scale
     addListener()
     {
         this.listener = (event) => this.onGesture(event)
-        this.gestures.addEventListener('pinch', this.listener)
+        this.gestures.addEventListener(this.gesture, this.listener)
     }
 
     onGesture(event)
@@ -72,7 +74,7 @@ export default class Scale
 
     destroy() 
     {
-        this.gestures.removeEventListener('pinch', this.listener)
+        this.gestures.removeEventListener(this.gesture, this.listener)
         this.object3d = null
         this.ratio = null
         this.scale = null

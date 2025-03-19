@@ -1,12 +1,12 @@
 import * as THREE from 'three'
 import Experience from '../Experience'
-import MPRViewer from './MPRViewer/MPRViewer'
 import EventEmitter from '../Utils/EventEmitter'
+import MPRViewer from './MPRViewer/MPRViewer'
 
 export default class World extends EventEmitter
 {
     constructor()
-    {
+    {   
         super()
 
         this.experience = new Experience()
@@ -16,7 +16,7 @@ export default class World extends EventEmitter
         this.viewer = new MPRViewer()
 
         // const geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3); 
-        // const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
+        // const material = new THREE.MeshNormalMaterial(); 
         // this.viewer = new THREE.Mesh( geometry, material ); 
         // this.scene.add(this.viewer)
     }

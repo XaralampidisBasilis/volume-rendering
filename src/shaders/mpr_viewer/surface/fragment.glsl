@@ -1,7 +1,3 @@
-precision highp sampler3D;
-precision highp sampler2D;
-precision highp float;
-precision highp int;
 
 in vec3 v_origin;
 in vec3 v_direction;

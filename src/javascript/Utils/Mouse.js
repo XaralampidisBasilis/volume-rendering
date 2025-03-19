@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import EventEmitter from './EventEmitter'
 
 export default class Mouse extends EventEmitter
@@ -7,12 +8,10 @@ export default class Mouse extends EventEmitter
         super()
 
         // Initial mouse position
-        this.x = 0
-        this.y = 0
+        this.screenPosition = new THREE.Vector2()
 
         // Normalized mouse position (-1 to 1 range)
-        this.normalizedX = 0
-        this.normalizedY = 0
+        this.ndcPosition = new THREE.Vector2()
 
         // Bind event handlers to the instance
         this.onMouseMove = this.onMouseMove.bind(this)
@@ -28,19 +27,20 @@ export default class Mouse extends EventEmitter
     onMouseMove(event)
     {
         // Update mouse position
-        this.x = event.clientX
-        this.y = event.clientY
+        this.screenPosition.x = event.clientX
+        this.screenPosition.y = event.clientY
 
         // Update normalized mouse position
-        this.normalizedX = (this.x / window.innerWidth) * 2 - 1
-        this.normalizedY = (-this.y / window.innerHeight) * 2 - 1
+        this.ndcPosition.x = (this.screenPosition.x / window.innerWidth) * 2 - 1
+        this.ndcPosition.y = (-this.screenPosition.y / window.innerHeight) * 2 - 1
 
         // Emit the `move` event
-        this.trigger('move', {
-            x: this.x,
-            y: this.y,
-            normalizedX: this.normalizedX,
-            normalizedY: this.normalizedY
+        this.trigger('move', 
+        {
+            x: this.screenPosition.x,
+            y: this.screenPosition.y,
+            ndcX: this.ndcPosition.x,
+            ndcY: this.ndcPosition.y,
         })
 
         // console.log('mousemove', this)
@@ -50,9 +50,12 @@ export default class Mouse extends EventEmitter
     {
         // Emit the `down` event with button information
         this.trigger('down', {
+        
             button: event.button,
-            x: this.x,
-            y: this.y
+            x: this.screenPosition.x,
+            y: this.screenPosition.y,
+            ndcX: this.ndcPosition.x,
+            ndcY: this.ndcPosition.y,
         })
 
         // console.log('mousedown', this)
@@ -61,10 +64,13 @@ export default class Mouse extends EventEmitter
     onMouseUp(event)
     {
         // Emit the `up` event with button information
-        this.trigger('up', {
+        this.trigger('up', 
+        {
             button: event.button,
-            x: this.x,
-            y: this.y
+            x: this.screenPosition.x,
+            y: this.screenPosition.y,
+            ndcX: this.ndcPosition.x,
+            ndcY: this.ndcPosition.y,
         })
 
         // console.log('mouseup', this)
@@ -78,10 +84,8 @@ export default class Mouse extends EventEmitter
         window.removeEventListener('mouseup', this.onMouseUp)
 
         // Clear properties for cleanup
-        this.x = null
-        this.y = null
-        this.normalizedX = null
-        this.normalizedY = null
+        this.screenPosition = null
+        this.ndcPosition = null
 
         console.log('Mouse destroyed')
     }

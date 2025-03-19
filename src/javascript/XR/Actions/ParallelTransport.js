@@ -1,9 +1,8 @@
 
-
 import * as THREE from 'three'
 import XRManager from '../XRManager'
 
-export default class Transport
+export default class ParallelTransport
 {
     constructor(object3d, gesture = 'hold')
     {
@@ -21,7 +20,7 @@ export default class Transport
 
     initialize()
     {
-        this.point = new THREE.Points()
+        this.transporter = new THREE.Object3D()
     }
 
     addListener()
@@ -40,39 +39,43 @@ export default class Transport
 
     onStart()
     {
-        this.controller.attach(this.point)
-		this.object3d.getWorldPosition(this.point.position)
+        this.object3d.updateMatrixWorld(true)
+        this.object3d.getWorldPosition(this.transporter.position)
+        this.controller.attach(this.transporter)
+        console.log('parallel transport start', this)
 	}
 
     onCurrent()
     {
-        this.point.getWorldPosition(this.object3d.position)
+        this.transporter.getWorldPosition(this.object3d.position)
 		this.object3d.parent.worldToLocal(this.object3d.position)
-		this.object3d.updateMatrix()
+        this.object3d.updateMatrixWorld(true)
+        console.log('parallel transport current', this)
     }
 
     onEnd()
     {
-        this.controller.remove(this.point)
+        this.controller.remove(this.transporter)
+        console.log('parallel transport end', this)
     }
 
     pause() 
     {
         if (this.paused) return
-        console.log('parallel translation paused')
+        console.log('parallel transport paused')
         this.paused = true
     }
 
     resume() 
     {
         if (!this.paused) return
-        console.log('parallel translation resumed')
+        console.log('parallel transport resumed')
         this.paused = false
     }
 
     destroy() 
     {
         this.gestures.removeEventListener(this.gesture, this.listener)
-        this.point = null
+        this.transporter = null
     }
 } 

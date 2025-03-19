@@ -6,7 +6,7 @@ const degToRad = Math.PI / 180
 
 export default class Roll
 {
-    constructor(object3d)
+    constructor(object3d,  gesture = 'twist')
     {
         this.xrManager = new XRManager()
         this.gestures = this.xrManager.gestures
@@ -14,6 +14,7 @@ export default class Roll
         this.parameters = this.gestures.parametersDual
 
         this.object3d = object3d
+        this.gesture = gesture
         this.paused = false
 
         this.initialize()
@@ -29,7 +30,7 @@ export default class Roll
     addListener()
     {
         this.listener = (event) => this.onGesture(event)
-        this.gestures.addEventListener('twist', this.listener)
+        this.gestures.addEventListener(this.gesture, this.listener)
     }
 
     onGesture(event)
@@ -76,7 +77,7 @@ export default class Roll
 
     destroy() 
     {
-        this.gestures.removeEventListener('twist', this.listener)
+        this.gestures.removeEventListener(this.gesture, this.listener)
         this.object3d = null
         this.angle = null
         this.quaternion = null
