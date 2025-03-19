@@ -70,7 +70,11 @@ export default function()
 
     const material = new THREE.ShaderMaterial
     ({    
-        side: THREE.FrontSide,
+        side: THREE.BackSide,
+        transparent: true,
+        depthWrite: true,
+        depthTest: false,
+
         glslVersion: THREE.GLSL3,
         uniforms: uniforms,
         defines: defines,

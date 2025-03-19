@@ -1,17 +1,20 @@
 
-
-import Gestures from '../Gestures/Gestures'
+import * as THREE from 'three'
+import XRManager from '../XRManager'
 
 const degToRad = Math.PI / 180
 
 export default class Roll
 {
-    constructor(object3D)
+    constructor(object3d)
     {
-        this.object3D = object3D
-        this.gestures = new Gestures()
+        this.xrManager = new XRManager()
+        this.gestures = this.xrManager.gestures
         this.viewRay = this.gestures.raycasters.view.ray
         this.parameters = this.gestures.parametersDual
+
+        this.object3d = object3d
+        this.paused = false
 
         this.initialize()
         this.addListener()       
@@ -20,7 +23,6 @@ export default class Roll
     initialize()
     {
         this.angle = 0
-		this.axis = new THREE.Vector3()
         this.quaternion = new THREE.Quaternion()
     }
 
@@ -32,6 +34,7 @@ export default class Roll
 
     onGesture(event)
     {
+        if (this.paused) return
         if (event.start) this.onStart()
         if (event.current) this.onCurrent()
         if (event.end) this.onEnd()
@@ -39,29 +42,43 @@ export default class Roll
 
     onStart()
     {
-		this.quaternion.copy(this.object3D.quaternion)
+		this.quaternion.copy(this.object3d.quaternion)
+        console.log('roll current', this)
 	}
 
     onCurrent()
     {
-        this.axis.copy(this.viewRay.direction)
-        this.angle = this.parameters.angleOffset * degToRad
-		this.angle *= Roll.ANGLE_MULTIPLIER
+        this.angle = - this.parameters.angleOffset * Roll.ANGLE_MULTIPLIER * degToRad
 
-		this.object3D.quaternion.copy(this.quaternion)
-		this.object3D.rotateOnWorldAxis(this.axis, -this.angle)
+		this.object3d.quaternion.copy(this.quaternion)
+		this.object3d.rotateOnWorldAxis(this.viewRay.direction, this.angle)
+        console.log('roll current', this)
     }
 
     onEnd()
     {
+        console.log('roll current', this)
+    }
+      
+    pause() 
+    {
+        if (this.paused) return
+        console.log('roll paused')
+        this.paused = true
+    }
 
+    resume() 
+    {
+        if (!this.paused) return
+        console.log('roll resumed')
+        this.paused = false
     }
 
     destroy() 
     {
         this.gestures.removeEventListener('twist', this.listener)
+        this.object3d = null
         this.angle = null
-        this.axis = null
         this.quaternion = null
     }
 } 

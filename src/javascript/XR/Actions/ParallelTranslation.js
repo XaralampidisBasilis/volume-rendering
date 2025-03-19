@@ -1,8 +1,9 @@
 
+
 import * as THREE from 'three'
 import XRManager from '../XRManager'
 
-export default class Grab
+export default class Transport
 {
     constructor(object3d, gesture = 'hold')
     {
@@ -13,15 +14,14 @@ export default class Grab
         this.object3d = object3d
         this.gesture = gesture
         this.paused = false
-
+      
         this.initialize()
         this.addListener()       
     }
 
     initialize()
     {
-		this.grip = new THREE.Object3D()
-        this.transform = new THREE.Matrix4()
+        this.point = new THREE.Points()
     }
 
     addListener()
@@ -40,54 +40,39 @@ export default class Grab
 
     onStart()
     {
-        // copy world transformations of object to grip
-        this.object3d.matrixWorld.decompose(this.grip.position, this.grip.quaternion, this.grip.scale)
-        
-        // attach proxy to controller
-        this.grip.updateMatrixWorld(true)
-        this.controller.attach(this.grip)
-        console.log('grab start', this)
+        this.controller.attach(this.point)
+		this.object3d.getWorldPosition(this.point.position)
 	}
 
     onCurrent()
     {
-        // update word grip 
-        this.grip.updateMatrixWorld(true)
-        
-        // copy grip transform to object3d
-        this.transform.copy(this.object3d.parent.matrixWorld).invert()
-        this.transform.multiply(this.grip.matrixWorld)
-        this.transform.decompose(this.object3d.position, this.object3d.quaternion, this.object3d.scale)
-        
-        // update world object
-        this.object3d.updateMatrix()
-        console.log('grab current', this)
+        this.point.getWorldPosition(this.object3d.position)
+		this.object3d.parent.worldToLocal(this.object3d.position)
+		this.object3d.updateMatrix()
     }
 
     onEnd()
     {
-        // remove grip from controller
-        this.controller.remove(this.grip)
-        console.log('grab end', this)
+        this.controller.remove(this.point)
     }
 
     pause() 
     {
         if (this.paused) return
-        console.log('grab paused')
+        console.log('parallel translation paused')
         this.paused = true
     }
 
     resume() 
     {
         if (!this.paused) return
-        console.log('grab resumed')
+        console.log('parallel translation resumed')
         this.paused = false
     }
 
     destroy() 
     {
         this.gestures.removeEventListener(this.gesture, this.listener)
-        this.grip = null
+        this.point = null
     }
 } 

@@ -48,50 +48,49 @@ export default class GuidedTranslation
 
     onStart()
     {        
-        console.log('guided translation start', this)
-
         // Object becomes a world object
         this.scene.attach(this.object3d) 
-
+        
         // Get world position
         this.position.copy(this.object3d.position)
-
+        
         // Set normal from camera direction 
         this.plane.normal.copy(this.viewRay.direction)
         this.plane.normal.projectOnPlane(this.direction).normalize()
-
+        
         // Set guide plane
         this.plane.setFromNormalAndCoplanarPoint(this.plane.normal, this.origin)
+        console.log('guided translation start', this)
     }
 
     onCurrent()
     {
-        console.log('guided translation current', this)
-
+        
         // Update normal from camera direction 
         this.plane.normal.copy(this.viewRay.direction)
         this.plane.normal.projectOnPlane(this.direction).normalize()
-
+        
         // Update plane
         this.plane.normalize()
-
+        
         // Intersect ray and plane
         this.handRay.intersectPlane(this.plane, this.intersection)
-
+        
         // If intersected translate object
         if (this.intersection) 
         {
             this.translation.subVectors(this.intersection, this.origin).projectOnVector(this.direction)
             this.object3d.position.copy(this.position).add(this.translation)
         }
+
+        console.log('guided translation current', this)
     }
 
     onEnd()
     {
-        console.log('guided translation end', this)
-
         // Reattach object to parent
         this.parent.attach(this.object3d)
+        console.log('guided translation end', this)
     }
 
     pause() 

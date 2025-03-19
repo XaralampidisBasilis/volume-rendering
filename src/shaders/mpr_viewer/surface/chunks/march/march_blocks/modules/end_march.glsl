@@ -3,8 +3,7 @@ if (block.intersected)
 {
     #include "./compute_trace"
 }
-
-if (block.terminated)
+else
 {
     #if DISCARDING_DISABLED == 0
     discard;  

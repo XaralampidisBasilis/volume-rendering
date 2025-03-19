@@ -10,7 +10,6 @@ export default class Anchor
         this.xrManager = new XRManager()
         this.experience = this.xrManager.experience
         this.gestures = this.xrManager.gestures
-        this.scene = this.xrManager.scene
         this.hitTest = this.xrManager.hitTest
         this.gestures = this.xrManager.gestures
 
@@ -52,9 +51,8 @@ export default class Anchor
 
     onEnd()
     {
-        console.log('anchor end', this)
-
         this.object3d.position.setFromMatrixPosition(this.hitTest.reticle.mesh.matrix)
+        console.log('anchor end', this)
     }
 
     pause() 

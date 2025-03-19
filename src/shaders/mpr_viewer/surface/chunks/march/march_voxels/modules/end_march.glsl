@@ -3,8 +3,7 @@ if (voxel.intersected)
 {
     #include "./compute_trace"
 }
-
-if (voxel.terminated)
+else
 {
     #if DISCARDING_DISABLED == 0
     discard;  

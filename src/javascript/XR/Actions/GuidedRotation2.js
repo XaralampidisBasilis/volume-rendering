@@ -2,11 +2,10 @@
 import * as THREE from 'three'
 import XRManager from '../XRManager'
 
-export default class GuidedRotation
+export default class GuidedRotation2
 {
     constructor(object3D, gesture = 'pan', pivot, axis)
     {
-    
         this.xrManager = new XRManager()
         this.gestures = this.xrManager.gestures
         this.scene = this.xrManager.scene
@@ -52,64 +51,61 @@ export default class GuidedRotation
 
     onStart()
     {        
-        console.log('guided rotation start', this)
-
         // Object becomes a world object
         this.scene.attach(this.object3D) 
 
         // Get world position and quaternion
         this.quaternion.copy(this.object3D.quaternion)
-
+        
         // Set guide plane
         this.plane.setFromNormalAndCoplanarPoint(this.viewRay.direction, this.pivot)
-
+        
         // Intersect ray and plane
         this.handRay.intersectPlane(this.plane, this.intersection)
         
         // Compute lever vector
         this.lever.copy(this.intersection).sub(this.pivot).projectOnPlane(this.axis)
-
+        
         // Compute plane coordinate system
         this.xAxis.copy(this.lever).normalize()
         this.yAxis.copy(this.xAxis).applyAxisAngle(this.axis, Math.PI / 2).normalize()
+        console.log('guided rotation start', this)
     }
 
     onCurrent()
     {
-        console.log('guided rotation current', this)
-
         // Update plane
         this.plane.normal.copy(this.viewRay.direction)
         this.plane.normalize()
 
         // Intersect ray and plane
         this.handRay.intersectPlane(this.plane, this.intersection)
-
+        
         // If intersected rotate object
         if (this.intersection) 
         {
             // Update lever 
             this.lever.copy(this.intersection).sub(this.pivot).projectOnPlane(this.axis)
-
+            
             // Update angle of rotation
             this.coords.set(this.lever.dot(this.xAxis), this.lever.dot(this.yAxis))
             this.angle = this.coords.length() > 0.01 ? this.coords.angle() : 0
-
+            
             // Update object rotation
             this.object3D.quaternion.copy(this.quaternion)
             this.object3D.rotateOnWorldAxis(this.axis, this.angle)
         }
+
+        console.log('guided rotation current', this)
     }
 
     onEnd()
     {
-        console.log('guided rotation end', this)
-
         // Reattach object to parent
         this.parent.attach(this.object3D)
+        console.log('guided rotation end', this)
     }
 
-    
     pause() 
     {
         if (this.paused) return
@@ -123,7 +119,6 @@ export default class GuidedRotation
         console.log('guided rotation resumed')
         this.paused = false
     }
-
 
     destroy() 
     {

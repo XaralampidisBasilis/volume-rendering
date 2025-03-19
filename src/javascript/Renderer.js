@@ -18,12 +18,13 @@ export default class Renderer
     {
         this.instance = new THREE.WebGLRenderer({
             canvas: this.canvas,
-            antialias: false,
             depth: true,
-            alpha: false,
+            alpha: true,
+            preserveDrawingBuffer: true,
+            antialias: false,
             sortObjects: false,
-            powerPreference: 'high-performance',
             logarithmicDepthBuffer: false,
+            powerPreference: "low-power",
         })       
         this.instance.setClearColor('#211d20', 1)
         this.instance.setSize(this.sizes.width, this.sizes.height)

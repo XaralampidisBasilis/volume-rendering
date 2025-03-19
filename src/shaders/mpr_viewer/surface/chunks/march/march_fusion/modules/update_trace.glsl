@@ -8,7 +8,7 @@ trace.uvw = trace.position * u_volume.inv_dimensions;
 
 // Sample distance map
 int cheby_distance = texture(u_textures.distance_map, trace.uvw).r;
-trace.spacing = float(cheby_distance) * 1.0;
+trace.spacing = (cheby_distance == 1) ? ray.spacing * 0.3 : float(cheby_distance);
 
 // Compute trace break conditions
 trace.terminated = (trace.distance > ray.end_distance);

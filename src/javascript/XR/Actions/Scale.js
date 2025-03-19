@@ -4,16 +4,22 @@ import XRManager from '../XRManager'
 
 export default class Scale
 {
-    constructor(object3D)
+    constructor(object3d)
     {
         this.xrManager = new XRManager()
         this.gestures = this.xrManager.gestures
-        this.scene = this.xrManager.scene
-        this.controller = this.gestures.controller[0]
+        this.parameters = this.gestures.parametersDual
 
-        this.object3D = object3D
-        this.gestures = new Gestures()
+        this.object3d = object3d
+        this.paused = false
+
         this.addListener()       
+    }
+
+    initialize()
+    {
+        this.ratio = 1
+        this.scale = new THREE.Vector3()
     }
 
     addListener()
@@ -24,6 +30,7 @@ export default class Scale
 
     onGesture(event)
     {
+        if (this.paused) return
         if (event.start) this.onStart()
         if (event.current) this.onCurrent()
         if (event.end) this.onEnd()
@@ -31,30 +38,44 @@ export default class Scale
 
     onStart()
     {
-        this.distanceRatio = 1
-        this.scale0 = this.object3D.scale.clone()
+        this.ratio = 1
+        this.scale.copy(this.object3d.scale)
+        console.log('scale current', this)
 	}
 
     onCurrent()
     {
-        this.distanceRatio = this.gestures.parametersDual.distance / this.gestures.parametersDual.distance0
-        this.distanceRatio = this.distanceRatio ** Scale.DISTANCE_RATIO_EXPONENT
+        this.ratio = (this.parameters.distance / this.parameters.distance0) ** Scale.DISTANCE_RATIO_EXPONENT
 
-        this.object3D.scale.copy(this.scale0)
-        this.object3D.scale.multiplyScalar(this.distanceRatio)
+        this.object3d.scale.copy(this.scale).multiplyScalar(this.ratio)
+        console.log('scale current', this)
     }
 
     onEnd()
     {
+        console.log('scale current', this)
+    }
+
+    pause() 
+    {
+        if (this.paused) return
+        console.log('scale paused')
+        this.paused = true
+    }
+
+    resume() 
+    {
+        if (!this.paused) return
+        console.log('scale resumed')
+        this.paused = false
     }
 
     destroy() 
     {
-        this.gestures.removeEventListener(this.gestureEvent, this.listener)
-        this.gestureEvent = null
-        this.object3D = null
-        this.distanceRatio = null
-        this.scale0 = null
+        this.gestures.removeEventListener('pinch', this.listener)
+        this.object3d = null
+        this.ratio = null
+        this.scale = null
     }
 } 
 

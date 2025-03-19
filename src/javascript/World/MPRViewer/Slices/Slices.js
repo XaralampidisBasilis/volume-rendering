@@ -22,6 +22,7 @@ export default class Slices extends THREE.Group
     {
         this.scale.copy(this.parameters.size)
         this.position.copy(this.parameters.size).divideScalar(2)
+        this.renderOrder = 0
         this.visible = true
         this.update()
 

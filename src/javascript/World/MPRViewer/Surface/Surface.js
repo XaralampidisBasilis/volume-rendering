@@ -20,17 +20,13 @@ export default class Surface extends THREE.Mesh
     setMesh()
     {
         this.scale.copy(this.parameters.size)
-        this.renderOrder = 4
+        this.renderOrder = 1
 
         this.viewer.add(this)
     }
 
     setMaterial()
     {
-        this.material.depthWrite = true
-        this.material.depthTest = true
-        this.material.transparent = true
-
         const textures = this.viewer.textures
         const processor = this.viewer.processor
         const uniforms = this.material.uniforms

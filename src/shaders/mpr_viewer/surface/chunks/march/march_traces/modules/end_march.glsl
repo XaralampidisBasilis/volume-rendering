@@ -1,10 +1,9 @@
 
 if (trace.intersected)
 {
-    #include "./update_voxel"
+    #include "./compute_voxel"
 }
-
-if (trace.terminated)
+else
 {
     #if DISCARDING_DISABLED == 0
     discard;  
