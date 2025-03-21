@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'three'
 import EventEmitter from './EventEmitter'
 
 export default class Mouse extends EventEmitter
@@ -22,6 +22,12 @@ export default class Mouse extends EventEmitter
         window.addEventListener('mousemove', this.onMouseMove)
         window.addEventListener('mousedown', this.onMouseDown)
         window.addEventListener('mouseup', this.onMouseUp)
+    }
+
+    setRaycaster()
+    {
+        this.raycaster = new THREE.Raycaster()
+        this.raycaster.setFromCamera(this.mouse.ndcPosition, this.instance)
     }
 
     onMouseMove(event)

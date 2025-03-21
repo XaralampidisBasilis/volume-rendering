@@ -1,26 +1,30 @@
 
 import * as THREE from 'three'
-import XRManager from '../XRManager'
+import XREnvironment from '../XREnvironment'
 
-export default class ParallelTransport
+const degToRad = Math.PI / 180
+
+export default class Roll
 {
-    constructor(object3d, gesture = 'hold')
+    constructor(object3d,  gesture = 'twist')
     {
-        this.xrManager = new XRManager()
+        this.xrManager = new XREnvironment()
         this.gestures = this.xrManager.gestures
-        this.controller = this.gestures.controller[0]
+        this.viewRay = this.gestures.raycasters.view.ray
+        this.parameters = this.gestures.parametersDual
 
         this.object3d = object3d
         this.gesture = gesture
         this.paused = false
-      
+
         this.initialize()
         this.addListener()       
     }
 
     initialize()
     {
-        this.transporter = new THREE.Object3D()
+        this.angle = 0
+        this.quaternion = new THREE.Quaternion()
     }
 
     addListener()
@@ -39,43 +43,46 @@ export default class ParallelTransport
 
     onStart()
     {
-        this.object3d.updateMatrixWorld(true)
-        this.object3d.getWorldPosition(this.transporter.position)
-        this.controller.attach(this.transporter)
-        console.log('parallel transport start', this)
+		this.quaternion.copy(this.object3d.quaternion)
+        console.log('roll current', this)
 	}
 
     onCurrent()
     {
-        this.transporter.getWorldPosition(this.object3d.position)
-		this.object3d.parent.worldToLocal(this.object3d.position)
-        this.object3d.updateMatrixWorld(true)
-        console.log('parallel transport current', this)
+        this.angle = - this.parameters.angleOffset * Roll.ANGLE_MULTIPLIER * degToRad
+
+		this.object3d.quaternion.copy(this.quaternion)
+		this.object3d.rotateOnWorldAxis(this.viewRay.direction, this.angle)
+        console.log('roll current', this)
     }
 
     onEnd()
     {
-        this.controller.remove(this.transporter)
-        console.log('parallel transport end', this)
+        console.log('roll current', this)
     }
-
+      
     pause() 
     {
         if (this.paused) return
-        console.log('parallel transport paused')
+        console.log('roll paused')
         this.paused = true
     }
 
     resume() 
     {
         if (!this.paused) return
-        console.log('parallel transport resumed')
+        console.log('roll resumed')
         this.paused = false
     }
 
     destroy() 
     {
         this.gestures.removeEventListener(this.gesture, this.listener)
-        this.transporter = null
+        this.object3d = null
+        this.angle = null
+        this.quaternion = null
     }
 } 
+
+// action constants
+Roll.ANGLE_MULTIPLIER = 1.2

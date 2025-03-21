@@ -1,8 +1,6 @@
 import * as THREE from 'three'
 import Experience from './Experience'
-import { OrientationCube } from './Utils/OrientationCube'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
 
 export default class Camera
 {
@@ -30,18 +28,11 @@ export default class Camera
     {
         this.controls = {}
 
-        this.controls.orbit = new OrbitControls(this.instance, this.canvas)
-        this.controls.orbit.enableDamping = true
-        this.controls.orbit.enableZoom = true
-        this.controls.orbit.zoomToCursor = true
-        this.controls.orbit.zoomSpeed = 2
-
-        // this.controls.trackball = new TrackballControls(this.instance, this.canvas)
-        // this.controls.trackball.staticMoving = false
-        // this.controls.trackball.dynamicDampingFactor = 0.3
-        // this.controls.trackball.zoomSpeed = 2.0
-        // this.controls.trackball.panSpeed = 0.05
-        // this.controls.trackball.rotateSpeed = 1.0
+        this.controls = new OrbitControls(this.instance, this.canvas)
+        this.controls.enableDamping = true
+        this.controls.enableZoom = true
+        this.controls.zoomToCursor = true
+        this.controls.zoomSpeed = 2
     }
 
     setRaycaster()
@@ -58,12 +49,7 @@ export default class Camera
 
     update()
     {
-        // let distance = Math.max(this.instance.position.distanceTo( this.controls.trackball.target), 0.0001)
-        // this.controls.trackball.panSpeed  = 0.05 / distance
-        // this.controls.trackball.zoomSpeed = 0.5 / distance
-        // this.controls.trackball.update()
-
-        this.controls.orbit.update()
+        this.controls.update()
         this.raycaster.setFromCamera(this.mouse.ndcPosition, this.instance)
     }
 
@@ -71,16 +57,15 @@ export default class Camera
     {
         this.scene.remove(this.instance);
 
-        if (this.controls.obit) 
+        if (this.controls) 
         {
-            this.controls.obit.dispose()
+            this.controls.dispose()
             this.controls = null
         }
-        
-        if (this.controls.trackball) 
+
+        if (this.raycaster)
         {
-            this.controls.trackball.dispose()
-            this.controls = null
+            this.raycaster = null
         }
 
         if (this.instance) 

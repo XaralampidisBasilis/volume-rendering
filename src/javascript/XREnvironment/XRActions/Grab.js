@@ -1,12 +1,12 @@
 
 import * as THREE from 'three'
-import XRManager from '../XRManager'
+import XREnvironment from '../XREnvironment'
 
 export default class Grab
 {
     constructor(object3d, gesture = 'hold')
     {
-        this.xrManager = new XRManager()
+        this.xrManager = new XREnvironment()
         this.gestures = this.xrManager.gestures
         this.controller = this.gestures.controller[0]
 

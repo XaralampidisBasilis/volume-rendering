@@ -1,11 +1,11 @@
-
+import MPRViewer from './MPRViewer'
 import { colormapLocations } from '@textures/colormaps/colormaps'
 
 export default class Gui
 {
-    constructor(viewer)
+    constructor()
     {
-        this.viewer = viewer
+        this.viewer = new MPRViewer()
         this.debug = this.viewer.debug
 
         // setup
@@ -61,7 +61,7 @@ export default class Gui
     setControllersRendering() 
     {
         const folder = this.subfolders.rendering
-        const size = this.viewer.processor.intensityMap.parameters.size.clone() 
+        const size = this.viewer.computes.intensityMap.parameters.size.clone() 
         this.controllers.rendering = 
         {
             x : folder.add(this.viewer.slices.position, 'x').min(0).max(size.x).step(0.0001).onChange(() => this.viewer.slices.update()),

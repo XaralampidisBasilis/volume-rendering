@@ -1,9 +1,9 @@
 import * as THREE from 'three'
-import XRManager from '../XRManager'
+import XREnvironment from '../XREnvironment'
 
 export default class GuidedRotation3 {
     constructor(object3D, gesture = 'pan', pivot, axis) {
-        this.xrManager = new XRManager();
+        this.xrManager = new XREnvironment();
         this.gestures = this.xrManager.gestures;
         this.scene = this.xrManager.scene;
         this.viewRay = this.gestures.raycasters.view.ray;

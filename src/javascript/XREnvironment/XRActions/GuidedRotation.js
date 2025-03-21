@@ -1,15 +1,15 @@
 
 import * as THREE from 'three'
-import XRManager from '../XRManager'
+import XREnvironment from '../XREnvironment'
 
-export default class GuidedRotation2
+export default class GuidedRotation
 {
     constructor(object3D, gesture = 'pan', pivot, axis)
     {
-        this.xrManager = new XRManager()
+    
+        this.xrManager = new XREnvironment()
         this.gestures = this.xrManager.gestures
         this.scene = this.xrManager.scene
-        this.viewRay = this.gestures.raycasters.view.ray
         this.handRay = this.gestures.raycasters.hand[0].ray
 
         this.object3D = object3D
@@ -53,18 +53,18 @@ export default class GuidedRotation2
     {        
         // Object becomes a world object
         this.scene.attach(this.object3D) 
-
+        
         // Get world position and quaternion
         this.quaternion.copy(this.object3D.quaternion)
         
         // Set guide plane
-        this.plane.setFromNormalAndCoplanarPoint(this.viewRay.direction, this.pivot)
+        this.plane.setFromNormalAndCoplanarPoint(this.axis, this.pivot)
         
         // Intersect ray and plane
         this.handRay.intersectPlane(this.plane, this.intersection)
         
         // Compute lever vector
-        this.lever.copy(this.intersection).sub(this.pivot).projectOnPlane(this.axis)
+        this.lever.copy(this.intersection).sub(this.pivot)
         
         // Compute plane coordinate system
         this.xAxis.copy(this.lever).normalize()
@@ -74,10 +74,6 @@ export default class GuidedRotation2
 
     onCurrent()
     {
-        // Update plane
-        this.plane.normal.copy(this.viewRay.direction)
-        this.plane.normalize()
-
         // Intersect ray and plane
         this.handRay.intersectPlane(this.plane, this.intersection)
         
@@ -85,7 +81,7 @@ export default class GuidedRotation2
         if (this.intersection) 
         {
             // Update lever 
-            this.lever.copy(this.intersection).sub(this.pivot).projectOnPlane(this.axis)
+            this.lever.copy(this.intersection).sub(this.pivot)
             
             // Update angle of rotation
             this.coords.set(this.lever.dot(this.xAxis), this.lever.dot(this.yAxis))
@@ -95,7 +91,6 @@ export default class GuidedRotation2
             this.object3D.quaternion.copy(this.quaternion)
             this.object3D.rotateOnWorldAxis(this.axis, this.angle)
         }
-
         console.log('guided rotation current', this)
     }
 
@@ -105,7 +100,7 @@ export default class GuidedRotation2
         this.parent.attach(this.object3D)
         console.log('guided rotation end', this)
     }
-
+    
     pause() 
     {
         if (this.paused) return

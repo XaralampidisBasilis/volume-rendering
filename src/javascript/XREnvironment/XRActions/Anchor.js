@@ -1,13 +1,13 @@
 
 
 import * as THREE from 'three'
-import XRManager from '../XRManager'
+import XREnvironment from '../XREnvironment'
 
 export default class Anchor
 {
     constructor(object3d)
     {
-        this.xrManager = new XRManager()
+        this.xrManager = new XREnvironment()
         this.experience = this.xrManager.experience
         this.gestures = this.xrManager.gestures
         this.hitTest = this.xrManager.hitTest

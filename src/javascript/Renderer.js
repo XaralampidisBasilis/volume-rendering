@@ -16,8 +16,7 @@ export default class Renderer
 
     setInstance()
     {
-        this.instance = new THREE.WebGLRenderer({
-            canvas: this.canvas,
+        this.instance = new THREE.WebGLRenderer({ canvas: this.canvas,
             depth: true,
             alpha: true,
             antialias: false,
@@ -27,7 +26,8 @@ export default class Renderer
             logarithmicDepthBuffer: false,
             precision: "mediump",
             powerPreference: "high-performance"
-        })       
+        })      
+         
         this.instance.setClearColor('#211d20', 1)
         this.instance.setSize(this.sizes.width, this.sizes.height)
         this.instance.setPixelRatio(this.sizes.pixelRatio)

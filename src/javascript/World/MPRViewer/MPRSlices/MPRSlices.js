@@ -1,19 +1,21 @@
 import * as THREE from 'three'
 import Slice from './Slice'
+import MPRViewer from '../MPRViewer'
 import { OBB } from 'three/addons/math/OBB.js'
 import { dominantAxis } from '../../../Utils/VectorUtils'
 
 const _plane = new THREE.Plane()
 const _matrix = new THREE.Matrix4()
-export default class Slices extends THREE.Group
+
+export default class MPRSlices extends THREE.Group
 {
-    constructor(viewer)
+    constructor()
     {
         super()
 
-        this.viewer = viewer
-        this.parameters = viewer.processor.intensityMap.parameters
-        this.raycaster = this.viewer.experience.camera.raycaster
+        this.viewer = new MPRViewer()
+        this.parameters = this.viewer.parameters
+        this.raycaster = this.viewer.camera.raycaster
         
         this.setAxial()    // XY slice 
         this.setCoronal()  // XZ slice 
@@ -36,8 +38,7 @@ export default class Slices extends THREE.Group
 
     setBoundingBox()
     {
-        const center = new THREE.Vector3()
-        const box3 = new THREE.Box3().setFromCenterAndSize(center, this.parameters.size)
+        const box3 = new THREE.Box3(1, 1, 1)
         this.boundingBox = new OBB().fromBox3(box3).applyMatrix4(this.matrixWorld)
         this.boundingBox.local = new OBB().fromBox3(box3)
     }

@@ -1,9 +1,9 @@
     import * as THREE from 'three'
     import Experience from '../Experience'
-    import Reticle from './Reticle'
+    import Reticle from '../Utils/Reticle'
     import EventEmitter from '../Utils/EventEmitter'
 
-    export default class HitTest extends EventEmitter
+    export default class XRHitTest extends EventEmitter
     {
         constructor()
         {
@@ -51,7 +51,7 @@
 
         requestSource()
         {
-            this.session = this.experience.xr.session
+            this.session = this.experience.xrEnvironment.session
             this.session.requestReferenceSpace('viewer')
                 .then((referenceSpace) => {
                     this.referenceSpace = referenceSpace

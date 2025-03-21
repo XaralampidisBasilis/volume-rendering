@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import Experience from '../../Experience'
+import { formatVector } from '../../Utils/VectorUtils'
 
 import Tap from './Tap'
 import Polytap from './Polytap'
@@ -18,30 +19,20 @@ const _cursor   = new THREE.Vector2()
 const _cursor0  = new THREE.Vector2()
 const _cursor1  = new THREE.Vector2()
 
-// standalone functions
-function delay( duration ) 
-{  
-    return new Promise( resolve => setTimeout( resolve, duration ) ) 
-}
-function formatVector( vector, digits ) 
+class XRGestures extends THREE.EventDispatcher 
 {
-    let sign = vector.toArray().map( (component) => ( component > 0 ) ? '+' : '-' )
-    if ( vector instanceof THREE.Vector2 ) return `(${sign[0] + Math.abs(vector.x).toFixed(digits)}, ${sign[1] + Math.abs(vector.y).toFixed(digits)})`
-    if ( vector instanceof THREE.Vector3 ) return `(${sign[0] + Math.abs(vector.x).toFixed(digits)}, ${sign[1] + Math.abs(vector.y).toFixed(digits)}, ${sign[2] + Math.abs(vector.z).toFixed(digits)})`
-}
+    static instance = null
 
-let instance = null
-
-class Gestures extends THREE.EventDispatcher 
-{
     constructor() {
 
         super()     
 
         // Singleton
-        if(instance)
-            return instance
-        instance = this
+        if (XRGestures.instance) 
+        {
+            return XRGestures.instance
+        }
+        XRGestures.instance = this
             
         this.experience = new Experience()
         this.scene = this.experience.scene
@@ -78,11 +69,11 @@ class Gestures extends THREE.EventDispatcher
             cursor      : new THREE.Vector2(),
             cursor0     : new THREE.Vector2(),
             cursorOffset: new THREE.Vector2(),
-            cursorBuffer: new Array( Gestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
-            cursorSmooth: new Array( Gestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
+            cursorBuffer: new Array( XRGestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
+            cursorSmooth: new Array( XRGestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
             distance     : 0,
             angle        : 0,
-            angleBuffer  : new Array( Gestures.BUFFER_LENGTH ).fill( 0 ),
+            angleBuffer  : new Array( XRGestures.BUFFER_LENGTH ).fill( 0 ),
             radialSpeed  : 0,
             angularSpeed : 0,
             pathDistance : 0,
@@ -101,7 +92,7 @@ class Gestures extends THREE.EventDispatcher
             medianOffset  : new THREE.Vector2(),
             vector        : new THREE.Vector2(),
             vector0       : new THREE.Vector2(),
-            vectorBuffer  : new Array( Gestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
+            vectorBuffer  : new Array( XRGestures.BUFFER_LENGTH ).fill().map( () => new THREE.Vector2() ),
             distance      : 0,
             distance0     : 0,
             distanceOffset: 0,
@@ -109,7 +100,7 @@ class Gestures extends THREE.EventDispatcher
             angle0        : 0,
             angleOffset   : 0,
             turnAngle     : 0,
-            angleBuffer   : new Array( Gestures.BUFFER_LENGTH ).fill( 0 ),
+            angleBuffer   : new Array( XRGestures.BUFFER_LENGTH ).fill( 0 ),
             radialSpeed   : 0,
             angularSpeed  : 0,
         }
@@ -153,7 +144,7 @@ class Gestures extends THREE.EventDispatcher
         
         const controller = event.target
         const index = controller.userData.index
-        await delay( Gestures.DELAY_CONTROLLER ) // need this to avoid some transient phenomenon, without it 
+        await this.delay( XRGestures.DELAY_CONTROLLER ) // need this to avoid some transient phenomenon, without it 
 
         this.numControllers += 1                            
         this.startParameters( index )
@@ -167,7 +158,7 @@ class Gestures extends THREE.EventDispatcher
 
         const controller = event.target
         const index = controller.userData.index
-        await delay( Gestures.DELAY_CONTROLLER )
+        await this.delay( XRGestures.DELAY_CONTROLLER )
 
         this.numControllers -= 1 
         this.stopParameters( index )
@@ -181,7 +172,7 @@ class Gestures extends THREE.EventDispatcher
 
     update() {  
      
-        if ( ! this.renderer.xr.isPresenting ) console.error('Gestures must be in xr mode')
+        if ( ! this.renderer.xr.isPresenting ) console.error('XRGestures must be in xr mode')
 
         this.camera.updateMatrix()    
         this.updateViewRaycaster()
@@ -261,7 +252,7 @@ class Gestures extends THREE.EventDispatcher
         this.camera = null
         this.controller = null    
 
-        console.log("Gestures destroyed")
+        console.log("XRGestures destroyed")
     }
 
     detect() {
@@ -379,13 +370,13 @@ class Gestures extends THREE.EventDispatcher
         console.log(`parameters${i}: \n\n\tcursor = ${formatVector( this.parameters[i].cursor, digits )} mm` )
         console.log(`parameters${i}: \n\n\tcursor0 = ${formatVector( this.parameters[i].cursor0, digits )} mm` )
         console.log(`parameters${i}: \n\n\tcursorOffset = ${formatVector( this.parameters[i].cursorOffset, digits )} mm` )
-        console.log(`parameters${i}: \n\n\tcursorBuffer[ 0 ] = ${formatVector( this.parameters[i].cursorBuffer[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parameters[i].cursorBuffer[Gestures.BUFFER_LENGTH - 1], digits )} mm`)
-        console.log(`parameters${i}: \n\n\tcursorSmooth[ 0 ] = ${formatVector( this.parameters[i].cursorSmooth[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parameters[i].cursorSmooth[Gestures.BUFFER_LENGTH - 1], digits )} mm`)
+        console.log(`parameters${i}: \n\n\tcursorBuffer[ 0 ] = ${formatVector( this.parameters[i].cursorBuffer[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parameters[i].cursorBuffer[XRGestures.BUFFER_LENGTH - 1], digits )} mm`)
+        console.log(`parameters${i}: \n\n\tcursorSmooth[ 0 ] = ${formatVector( this.parameters[i].cursorSmooth[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parameters[i].cursorSmooth[XRGestures.BUFFER_LENGTH - 1], digits )} mm`)
         console.log(`parameters${i}: \n\n\tdistance = ${this.parameters[i].distance.toFixed(digits)} mm`)
         console.log(`parameters${i}: \n\n\tpathDistance = ${this.parameters[i].pathDistance.toFixed(digits)} mm`)
         console.log(`parameters${i}: \n\n\tangle = ${this.parameters[i].angle.toFixed(digits)} °`)
         console.log(`parameters${i}: \n\n\tturnAngle = ${this.parameters[i].turnAngle.toFixed(digits)} °`)
-        console.log(`parameters${i}: \n\n\tangleBuffer[ 0 ] = ${this.parameters[i].angleBuffer[0].toFixed(digits)} ° \n\n\tangleBuffer[end] = ${this.parameters[i].angleBuffer[Gestures.BUFFER_LENGTH - 1].toFixed(digits)} °`)
+        console.log(`parameters${i}: \n\n\tangleBuffer[ 0 ] = ${this.parameters[i].angleBuffer[0].toFixed(digits)} ° \n\n\tangleBuffer[end] = ${this.parameters[i].angleBuffer[XRGestures.BUFFER_LENGTH - 1].toFixed(digits)} °`)
         console.log(`parameters${i}: \n\n\tradialSpeed = ${this.parameters[i].radialSpeed.toFixed(digits)} m/s`)
         console.log(`parameters${i}: \n\n\tangularSpeed = ${this.parameters[i].angularSpeed.toFixed(digits)} °/ms`)
         console.log(`parameters${i}: \n\n\tpathSpeed = ${this.parameters[i].pathSpeed.toFixed(digits)} m/s`)
@@ -419,10 +410,10 @@ class Gestures extends THREE.EventDispatcher
     
         // compute average cursor 
         _cursor.set( 0, 0 )
-        for ( let n = 0; n < Gestures.WINDOW_SMOOTH; ++n ) {
+        for ( let n = 0; n < XRGestures.WINDOW_SMOOTH; ++n ) {
             _cursor.add( this.parameters[i].cursorBuffer[n] ) 
         }
-        _cursor.divideScalar( Gestures.WINDOW_SMOOTH ) // mm
+        _cursor.divideScalar( XRGestures.WINDOW_SMOOTH ) // mm
 
         // save in buffer
         this.parameters[i].cursorSmooth.unshift( this.parameters[i].cursorSmooth.pop() )  // mm
@@ -622,7 +613,7 @@ class Gestures extends THREE.EventDispatcher
         console.log(`parametersDual: \n\n\tmedian0 = ${formatVector( this.parametersDual.median0, digits )} mm` )
         console.log(`parametersDual: \n\n\tvector = ${formatVector( this.parametersDual.vector, digits )} mm` )
         console.log(`parametersDual: \n\n\tvector0 = ${formatVector( this.parametersDual.vector0, digits )} mm` )
-        console.log(`parametersDual: \n\n\tvectorBuffer[ 0 ] = ${formatVector( this.parametersDual.vectorBuffer[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parametersDual.vectorBuffer[Gestures.BUFFER_LENGTH - 1], digits )} mm`)
+        console.log(`parametersDual: \n\n\tvectorBuffer[ 0 ] = ${formatVector( this.parametersDual.vectorBuffer[0], digits )} mm \n\n\tcursorBuffer[end] = ${formatVector( this.parametersDual.vectorBuffer[XRGestures.BUFFER_LENGTH - 1], digits )} mm`)
         console.log(`parametersDual: \n\n\tdistance = ${this.parametersDual.distance.toFixed(digits)} mm`)
         console.log(`parametersDual: \n\n\tdistance0 = ${this.parametersDual.distance0.toFixed(digits)} mm`)
         console.log(`parametersDual: \n\n\tdistanceOffset = ${this.parametersDual.distanceOffset.toFixed(digits)} mm`)
@@ -630,7 +621,7 @@ class Gestures extends THREE.EventDispatcher
         console.log(`parametersDual: \n\n\tangle0 = ${this.parametersDual.angle0.toFixed(digits)} °`)
         console.log(`parametersDual: \n\n\tangleOffset = ${this.parametersDual.angleOffset.toFixed(digits)} °`)
         console.log(`parametersDual: \n\n\tturnAngle = ${this.parametersDual.turnAngle.toFixed(digits)} °`)
-        console.log(`parametersDual: \n\n\tangleBuffer[ 0 ] = ${this.parametersDual.angleBuffer[0].toFixed(digits)} ° \n\n\tangleBuffer[end] = ${this.parametersDual.angleBuffer[Gestures.BUFFER_LENGTH - 1].toFixed(digits)} °`)
+        console.log(`parametersDual: \n\n\tangleBuffer[ 0 ] = ${this.parametersDual.angleBuffer[0].toFixed(digits)} ° \n\n\tangleBuffer[end] = ${this.parametersDual.angleBuffer[XRGestures.BUFFER_LENGTH - 1].toFixed(digits)} °`)
         console.log(`parametersDual: \n\n\tradialSpeed = ${this.parametersDual.radialSpeed.toFixed(digits)} m/s`)
         console.log(`parametersDual: \n\n\tangularSpeed = ${this.parametersDual.angularSpeed.toFixed(digits)} °/ms`)    
 
@@ -772,6 +763,11 @@ class Gestures extends THREE.EventDispatcher
 
     // utils
 
+    delay( duration ) 
+    {  
+        return new Promise( resolve => setTimeout( resolve, duration ) ) 
+    }
+
     reduceAngle ( theta ) {
 
         return ((theta + 180) % 360 + 360) % 360 - 180
@@ -793,9 +789,9 @@ class Gestures extends THREE.EventDispatcher
 
 }
 
-Gestures.DELAY_CONTROLLER = 20 // ms    
-Gestures.DELAY_DETECTOR = 100 // ms
-Gestures.BUFFER_LENGTH = 2 
-Gestures.WINDOW_SMOOTH = 1
+XRGestures.DELAY_CONTROLLER = 20 // ms    
+XRGestures.DELAY_DETECTOR = 100 // ms
+XRGestures.BUFFER_LENGTH = 2 
+XRGestures.WINDOW_SMOOTH = 1
 
-export default Gestures
+export default XRGestures

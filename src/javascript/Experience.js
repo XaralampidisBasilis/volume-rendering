@@ -9,7 +9,7 @@ import Camera from './Camera'
 import Renderer from './Renderer'
 import World from './World/World'
 import Resources from './Utils/Resources'
-import XRManager from './XR/XRManager'
+import XREnvironment from './XREnvironment/XREnvironment'
 import sources from './sources'
 
 let instance = null
@@ -19,10 +19,7 @@ export default class Experience
     constructor(_canvas)
     {
         // Singleton
-        if(instance)
-        {
-            return instance
-        }
+        if (instance) return instance
         instance = this
         
         // Global access
@@ -33,35 +30,26 @@ export default class Experience
 
         // Setup
         this.debug = new Debug()
+        this.scene = new THREE.Scene()
         this.sizes = new Sizes()
         this.time = new Time()
         this.mouse = new Mouse()
         this.keyboard = new Keyboard()
-        this.scene = new THREE.Scene()
         this.camera = new Camera()
-        this.resources = new Resources(sources)
         this.renderer = new Renderer()
+        this.resources = new Resources(sources)
         this.world = new World()
         this.stats = new Stats(true)
-        this.xr = new XRManager()
+        this.xrEnvironment = new XREnvironment()
 
         // Resize event
-        this.sizes.on('resize', () => 
-        {
-            this.resize()
-        })
+        this.sizes.on('resize', () => { this.resize() })
 
         // Time tick event
-        this.time.on('tick', () => 
-        {
-            this.update()
-        })
+        this.time.on('tick', () => { this.update() })
 
         // Refresh event
-        window.addEventListener('beforeunload', () => 
-        {
-            this.destroy()
-        })
+        window.addEventListener('beforeunload', () => { this.destroy() })
     }
 
     resize()
@@ -76,13 +64,13 @@ export default class Experience
 
         if (this.renderer.instance.xr.isPresenting)
         {
-            this.xr.update()
+            this.xrEnvironment.update()
         }
         else
         {
-            this.stats.update()    
-            this.renderer.update()
             this.world.update()
+            this.renderer.update()
+            this.stats.update()    
         }
     }
 

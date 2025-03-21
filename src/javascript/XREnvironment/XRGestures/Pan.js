@@ -1,10 +1,10 @@
-import Gestures from './Gestures'
+import XRGestures from './XRGestures'
 
 export default class Pan 
 {
     constructor()
     {
-        this.gestures = new Gestures()
+        this.gestures = new XRGestures()
         this.parameters = this.gestures.parameters
         this.setGesture()
     }
@@ -48,7 +48,7 @@ export default class Pan
         if ( this.end ) {
 
             this.gestures.dispatchEvent( { type: 'pan', end: true, userData: this.userData, } ) 
-            this.gestures.delayGestures( Gestures.DELAY_DETECTOR ) 
+            this.gestures.delayGestures( XRGestures.DELAY_DETECTOR ) 
             this.gestures.resetGestures()
   
         }     

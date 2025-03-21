@@ -1,12 +1,12 @@
 
 import * as THREE from 'three'
-import XRManager from '../XRManager'
+import XREnvironment from '../XREnvironment'
 
 export default class Scale
 {
     constructor(object3d, gesture = 'pinch')
     {
-        this.xrManager = new XRManager()
+        this.xrManager = new XREnvironment()
         this.gestures = this.xrManager.gestures
         this.parameters = this.gestures.parametersDual
 
