@@ -7,16 +7,16 @@ export default function()
 {
     const uniforms = 
     {
-        u_plane : new THREE.Uniform
+
+        u_slice : new THREE.Uniform
         ({
-            transform : new THREE.Matrix4(),
-            hessian   : new THREE.Vector4(),
-            visible   : true,
+            matrix : new THREE.Matrix4(),
+            hessian : new THREE.Vector4(),
+            visible : true,
         }),
 
         u_textures: new THREE.Uniform
         ({
-            color_maps     : null,
             intensity_map  : null,
             binary_map     : null,
         }),
@@ -31,22 +31,6 @@ export default function()
             inv_size              : new THREE.Vector3(),
             spacing_length        : 0.0,
             size_length           : 0.0,
-        }),
-
-        u_color_map: new THREE.Uniform
-        ({
-            levels      : 50,
-            name        : 'viridis',
-            thresholds  : new THREE.Vector2(0, 1),
-            start_coords: new THREE.Vector2(colormapLocations['viridis'].x_start, colormapLocations['viridis'].y),
-            end_coords  : new THREE.Vector2(colormapLocations['viridis'].x_end,   colormapLocations['viridis'].y),
-        }),
-        
-        u_rendering: new THREE.Uniform
-        ({
-            max_count       : 0,
-            max_cell_count  : 0,
-            max_block_count : 0,
         }),
 
         u_debugging: new THREE.Uniform

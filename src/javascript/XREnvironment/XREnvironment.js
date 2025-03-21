@@ -27,12 +27,12 @@ export default class XREnvironment
         this.gestures = new XRGestures()
         this.hitTest = new XRHitTest()
 
-        this.setXRButton()
-        this.addXRSessionListeners()
-        this.setXRActions()
+        this.setButton()
+        this.setListeners()
+        this.setActions()
     } 
 
-    setXRButton()
+    setButton()
     {
         this.button = ARButton.createButton(this.renderer.instance, 
         { 
@@ -44,7 +44,7 @@ export default class XREnvironment
         document.body.appendChild(this.button)
     }
 
-    addXRSessionListeners()
+    setListeners()
     {
         this.sessionStartListener = () => this.onSessionStart()
         this.sessionEndListener = () => this.onSessionEnd()
@@ -81,7 +81,7 @@ export default class XREnvironment
         // })  
     }
 
-    setXRActions()
+    setActions()
     {
         this.anchorViewer = new XRActions.Anchor(this.world.viewer)
         this.grabViewer = new XRActions.Grab(this.world.viewer, 'hold')

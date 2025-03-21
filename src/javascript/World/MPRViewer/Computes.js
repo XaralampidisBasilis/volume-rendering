@@ -44,7 +44,7 @@ export default class Computes extends EventEmitter
 
     async setIntensityMap()
     {
-        console.time('generateIntensityMap') 
+        console.time('setIntensityMap') 
         const source = this.resources.items.intensityMap
         const parameters = 
         {
@@ -69,14 +69,14 @@ export default class Computes extends EventEmitter
         this.intensityMap = {}
         this.intensityMap.tensor = intensityMap
         this.intensityMap.parameters = parameters
-        console.timeEnd('generateIntensityMap') 
+        console.timeEnd('setIntensityMap') 
         // console.log(this.intensityMap.parameters)
         // console.log(this.intensityMap.tensor.dataSync())
     }
 
     async setBinaryMap()
     {
-        console.time('generateBinaryMap') 
+        console.time('setBinaryMap') 
         const source = this.resources.items.binaryMap
         const parameters = 
         {
@@ -99,14 +99,14 @@ export default class Computes extends EventEmitter
         this.binaryMap = {}
         this.binaryMap.tensor = binaryMap
         this.binaryMap.parameters = parameters
-        console.timeEnd('generateBinaryMap') 
+        console.timeEnd('setBinaryMap') 
         // console.log(this.binaryMap.parameters)
         // console.log(this.binaryMap.tensor.dataSync())
     }
 
     async setBoundingBox()
     {
-        console.time('generateBoundingBox') 
+        console.time('setBoundingBox') 
         const boundingBox = await computeBoundingBox(this.binaryMap.tensor)
         const parameters = {}
         parameters.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
@@ -118,13 +118,13 @@ export default class Computes extends EventEmitter
 
         this.boundingBox = {}
         this.boundingBox.parameters = parameters
-        console.timeEnd('generateBoundingBox') 
+        console.timeEnd('setBoundingBox') 
         // console.log(this.boundingBox.parameters)
     }
 
     async setDistanceMap()
     {
-        console.time('generateDistanceMap') 
+        console.time('setDistanceMap') 
         const begin = this.boundingBox.parameters.minCoords.toArray().toReversed().concat(0)
         const size = this.boundingBox.parameters.dimensions.toArray().toReversed().concat(1)
         const distanceMap = await computeDistanceSubmap(this.binaryMap.tensor, begin, size, 128)
@@ -136,7 +136,7 @@ export default class Computes extends EventEmitter
         this.distanceMap = {}
         this.distanceMap.tensor = distanceMap
         this.distanceMap.parameters = parameters
-        console.timeEnd('generateDistanceMap') 
+        console.timeEnd('setDistanceMap') 
         // console.log(this.distanceMap.parameters)
         // console.log(this.distanceMap.tensor)
         // console.log(this.distanceMap.tensor.dataSync())

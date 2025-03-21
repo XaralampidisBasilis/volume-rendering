@@ -4,11 +4,11 @@ import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
 import Computes from './Computes'
 import Textures from './Textures'
-import MPRSlices from './MPRSlices/MPRSlices'
-import MPRSurface from './MPRSurface/MPRSurface'
+import Slices from './Slices/Slices'
+import Surface from './Surface/Surface'
 import Gui from './Gui'
 
-export default class MPRViewer extends THREE.Group
+export default class MPRViewer extends EventEmitter
 {
     static instance = null
 
@@ -34,20 +34,25 @@ export default class MPRViewer extends THREE.Group
         this.computes = new Computes()
         this.textures = new Textures()
 
+        // Wait for textures
         this.textures.on('ready', () =>
         {
             this.parameters = this.computes.intensityMap.parameters
-            this.slices = new MPRSlices()
-            this.surface = new MPRSurface()
+            this.setGroup()
             this.gui = new Gui()
-
-            const size = this.parameters.size
-            this.position.copy(size).divideScalar(-2)
-            this.camera.instance.position.copy(size).multiplyScalar(2)
-            this.scene.add(this)
         })
     }
 
+    setGroup()
+    {
+        this.group = new THREE.Group()
+        this.group.position.copy(this.parameters.size).divideScalar(-2)
+        this.camera.instance.position.copy(this.parameters.size).multiplyScalar(2)
+        this.scene.add(this.group)
+
+        this.slices = new Slices()
+        this.surface = new Surface()
+    }
 
     update()
     {
@@ -56,23 +61,11 @@ export default class MPRViewer extends THREE.Group
 
     destroy() 
     {
-        Object.keys(this.textures).forEach(key => 
+        if (this.resources)
         {
-            if (this.textures[key]) 
-            {
-                this.textures[key].dispose()
-            }
-        })
-    
-        if (this.mesh) 
-        {
-            this.scene.remove(this.mesh)
-            this.mesh.geometry.dispose()
-            this.mesh.material.dispose()
+            this.resources.destroy()
+            this.resources = null
         }
-    
-        // if (this.gui) 
-        //     this.gui.destroy()
 
         if (this.computes)
         {
@@ -80,6 +73,24 @@ export default class MPRViewer extends THREE.Group
             this.computes = null
         }
 
+        if (this.textures)
+        {
+            this.textures.destroy()
+            this.textures = null
+        }
+
+        if (this.slices)
+        {
+            this.slices.destroy()
+            this.slices = null
+        }
+
+        if (this.surface)
+        {
+            this.surface.destroy()
+            this.surface = null
+        }
+    
         // Clean up references
         this.scene = null
         this.resources = null

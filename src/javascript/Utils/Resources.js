@@ -91,4 +91,33 @@ export default class Resources extends EventEmitter
             // console.log('ready', this)
         }
     }
+
+    destroy()
+    {
+        // Dispose loaded resources if they support .dispose()
+        for(const key in this.items)
+        {
+            const item = this.items[key]
+
+            if(item?.dispose instanceof Function)
+            {
+                item.dispose()
+            }
+
+            this.items[key] = null
+        }
+
+        // Clear loader references
+        this.loaders = null
+
+        // Clear source references
+        this.sources = null
+        this.items = null
+
+        // Reset counters
+        this.toLoad = 0
+        this.loaded = 0
+
+        console.log('Resources destroyed')
+    }
 }

@@ -2,39 +2,36 @@ import * as THREE from 'three'
 import Material from './Material'
 import MPRViewer from '../MPRViewer'
 
-export default class MPRSurface extends THREE.Mesh
+const _matrix = new THREE.Matrix4()
+const _plane = new THREE.Plane()
+
+export default class Surface
 {
     constructor()
     {
-        // set mesh as unit box in [0, 1]
-        const size = new THREE.Vector3(1, 1, 1)
-        const offset = new THREE.Vector3(0.5, 0.5, 0.5)
-        const geometry = new THREE.BoxGeometry(...size).translate(...offset)
-        const material = Material()
-        super(geometry, material)
-
         this.viewer = new MPRViewer()
         this.parameters = this.viewer.parameters
 
+        this.setGeometry()
         this.setMaterial()
         this.setMesh()
     }
 
-    setMesh()
-    {   
-        // scale mesh to [0, size]
-        this.scale.copy(this.parameters.size)
-        this.renderOrder = 1
-
-        this.viewer.add(this)
+    setGeometry()
+    {
+        const size = new THREE.Vector3().setScalar(1)
+        const offset = new THREE.Vector3().setScalar(0.5)
+        this.geometry = new THREE.BoxGeometry(...size).translate(...offset)
     }
 
     setMaterial()
     {
+        this.material = Material()
+
         const textures = this.viewer.textures
-        const computes = this.viewer.computes
         const uniforms = this.material.uniforms
         const defines = this.material.defines
+        const computes = this.viewer.computes
 
         uniforms.u_textures.value.intensity_map = textures.intensityMap
         uniforms.u_textures.value.binary_map = textures.binaryMap
@@ -53,17 +50,35 @@ export default class MPRSurface extends THREE.Mesh
         uniforms.u_bbox.value.min_coords.copy(computes.boundingBox.parameters.minCoords)
         uniforms.u_bbox.value.max_coords.copy(computes.boundingBox.parameters.maxCoords)
 
-        this.viewer.slices.children.forEach((slice, i) => 
-        {
-            uniforms.u_slices.value.hessian[i] = slice.material.uniforms.u_plane.value.hessian
-            uniforms.u_slices.value.visible[i] = slice.material.uniforms.u_plane.value.visible
-        })
-
         defines.MAX_VOXELS = computes.boundingBox.parameters.maxCells
     }
 
-    update()
-    {
+    setMesh()
+    {   
+        this.mesh = new THREE.Mesh(this.geometry, this.material)
+        this.mesh.scale.copy(this.parameters.size)
+        this.mesh.renderOrder = 1
+
+        this.viewer.group.add(this)
+    }
+
+    updateSlicesUniforms()
+    {    
+        const uniforms = this.material.uniforms
+        const slices = this.viewer.slices.group
+        
+        // create a transform from slices local coords to parent grid coords
+        _matrix.makeScale(...this.parameters.invSpacing).multiply(slices.matrix)
+
+        slices.planes.forEach((plane, i) => 
+        {                
+            // compute slice plane in parent grid coords
+            _plane.copy(plane.local).applyMatrix4(_matrix)
+
+            // update uniforms
+            uniforms.u_slices.value.hessian[i].set(..._plane.normal, _plane.constant)
+            uniforms.u_slices.value.visible[i] = slices.children[i].visible
+        })
     }
 
     destroy()

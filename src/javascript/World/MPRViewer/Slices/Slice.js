@@ -1,33 +1,32 @@
 import * as THREE from 'three'
 import Material from './Material'
+import MPRViewer from '../MPRViewer'
 
-export default class Slice extends THREE.Mesh
+export default class Slice 
 {
-    constructor(viewer)
+    constructor()
     {
-        const length = Math.sqrt(3) * 2
-        const geometry = new THREE.PlaneGeometry(length, length)
-        const material = new Material()
-        super(geometry, material)
+        this.viewer = new MPRViewer()
 
-        this.setPlane()
-        this.setUniforms(viewer)
+        this.setGeometry()
+        this.setMaterial()
+        this.setMesh()
     }
 
-    setPlane()
+    setGeometry()
     {
-        const constant = 0
-        const normal = new THREE.Vector3(0, 0, 1)
-        this.plane = new THREE.Plane(normal, constant)
+        const length = this.viewer.parameters.sizeLength * 2
+        this.geometry = new THREE.PlaneGeometry(length, length)
     }
 
-    setUniforms(viewer)
+    setMaterial()
     {
-        const textures = viewer.textures
-        const computes = viewer.computes
+        this.material = new Material()
+
         const uniforms = this.material.uniforms
+        const textures = this.viewer.textures
+        const computes = this.viewer.computes
 
-        uniforms.u_textures.value.color_maps = textures.colorMaps
         uniforms.u_textures.value.intensity_map = textures.intensityMap
         uniforms.u_textures.value.binary_map = textures.binaryMap
 
@@ -41,9 +40,19 @@ export default class Slice extends THREE.Mesh
         uniforms.u_volume.value.size_length = computes.intensityMap.parameters.sizeLength
     }
 
+    setMesh()
+    {
+        this.mesh = new THREE.Mesh(this.geometry, this.material)
+    }
+
     destroy()
     {
         this.geometry.dispose()
         this.material.dispose()
+
+        this.viewer = null
+        this.geometry = null
+        this.material = null
+        this.mesh = null
     }
 }

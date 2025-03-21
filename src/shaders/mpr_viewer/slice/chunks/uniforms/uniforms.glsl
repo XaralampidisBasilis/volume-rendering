@@ -1,5 +1,4 @@
-#include "./uniforms_plane"
+#include "./uniforms_slice"
 #include "./uniforms_textures"
 #include "./uniforms_volume"
-#include "./uniforms_color_map"
 #include "./uniforms_debugging"
