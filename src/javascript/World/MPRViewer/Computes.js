@@ -31,8 +31,8 @@ export default class Computes extends EventEmitter
         await tf.setBackend('webgl')
         await this.setIntensityMap()
         await this.setBinaryMap()
-        await this.downscaleIntensityMap()
-        await this.downscaleBinaryMap()
+        // await this.downscaleIntensityMap()
+        // await this.downscaleBinaryMap()
         
         await tf.setBackend('webgl')
         await this.setBoundingBox()

@@ -38,7 +38,8 @@ export default class Mouse extends EventEmitter
 
         // Update normalized mouse position
         this.ndcPosition.x = (this.screenPosition.x / window.innerWidth) * 2 - 1
-        this.ndcPosition.y = (-this.screenPosition.y / window.innerHeight) * 2 - 1
+        this.ndcPosition.y = (this.screenPosition.y / window.innerHeight) * 2 - 1
+        this.ndcPosition.y *= - 1
 
         // Emit the `move` event
         this.trigger('move', 

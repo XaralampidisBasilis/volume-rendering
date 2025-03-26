@@ -36,8 +36,8 @@ export default function()
 
         u_slices : new THREE.Uniform
         ({
-            hessian : new Array(3).map(() => new THREE.Vector4()),
-            visible : new Array(3).map(() => true),
+            hessian : new Array(3).fill().map(() => new THREE.Vector4()),
+            visible : new Array(3).fill().map(() => true),
         }),
 
         u_shading: new THREE.Uniform

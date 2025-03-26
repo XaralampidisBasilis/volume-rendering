@@ -3,6 +3,7 @@ import Slice from './Slice'
 import Gui from './Gui'
 import MPRViewer from '../MPRViewer'
 import { OBB } from 'three/addons/math/OBB.js'
+import { cos } from 'mathjs'
 
 const _plane = new THREE.Plane()
 
@@ -11,48 +12,46 @@ export default class Slices
     constructor()
     {
         this.viewer = new MPRViewer()
+        this.scene = this.viewer.scene
         this.parameters = this.viewer.parameters
         this.raycaster = this.viewer.camera.raycaster
-        this.gui = new Gui()
+        // this.gui = new Gui()
         
-        this.setGroup()
         this.setAxial()    
         this.setCoronal() 
         this.setSagittal() 
+        this.setGroup()
         this.setPlanes()
         this.setBox()
-    }
-
-    setGroup()
-    {   
-        this.group = new THREE.Group()
-        this.group.renderOrder = 0
-        this.group.visible = true
-        this.group.position.copy(this.parameters.size).divideScalar(2)
-        this.group.updateMatrixWorld(true)
-        this.viewer.group.add(this.group)
+        this.update()
     }
 
     setAxial()
     {
         this.axial = new Slice() 
-        this.axial.mesh.matrixAutoUpdate = false
-        this.group.add(this.axial.mesh)
     }
 
     setCoronal()
     {
         this.coronal = new Slice()  
         this.coronal.mesh.geometry.rotateX(Math.PI / 2)
-        this.coronal.mesh.matrixAutoUpdate = false
-        this.group.add(this.coronal.mesh)
     }
 
     setSagittal()
     {
         this.sagittal = new Slice() 
         this.sagittal.mesh.geometry.rotateY(-Math.PI / 2)
-        this.sagittal.mesh.matrixAutoUpdate = false
+    }
+
+    setGroup()
+    {   
+        this.group = new THREE.Group()
+        this.group.position.copy(this.parameters.size).divideScalar(2)
+        this.group.renderOrder = 0
+        this.group.updateMatrixWorld(true)
+
+        this.group.add(this.axial.mesh)
+        this.group.add(this.coronal.mesh)
         this.group.add(this.sagittal.mesh)
     }
 
@@ -86,7 +85,7 @@ export default class Slices
 
     update()
     {
-        this.updateMatrixWord(true)
+        this.group.updateMatrixWorld(true)
         this.updatePlanesToWorld()
         this.updateBoxToWorld()
         this.updateSliceUniforms()
@@ -107,41 +106,42 @@ export default class Slices
 
     updateSliceUniforms()   
     {
-        this.group.children.forEach((slice, i) => 
+        this.group.children.forEach((child, i) => 
         {                
             _plane.copy(this.planes[i].local).applyMatrix4(this.group.matrix)
 
-            const uniforms = slice.mesh.material.uniforms
+            const uniforms = child.material.uniforms
             uniforms.u_slice.value.hessian.set(..._plane.normal, _plane.constant)
             uniforms.u_slice.value.matrix.copy(this.group.matrix)
-            uniforms.u_slice.value.visible = slice.mesh.visible
+            uniforms.u_slice.value.visible = child.visible
         })
     }
 
-    intersect(raycaster) 
+    intersect() 
     {
-        const { ray } = raycaster
+        const { ray } = this.raycaster
         let closest = null
-    
+        
         for (const plane of this.planes) 
         {
-            // compute ray plane distance
+            // compute ray-plane distance
             const distance = ray.distanceToPlane(plane)
 
-            if (distance && distance > 0) 
+            if (distance !== null && distance >= 0) 
             {
-                // compute ray plane intersection point
-                const point = ray.at(distance, new THREE.Vector3())
+                // compute ray-plane intersection point
+                ray.at(distance,  new THREE.Vector3())
 
-                if (this.box.containsPoint(point) && closest && distance < closest.distance) 
+                if (this.box.containsPoint(point) && (! closest || distance < closest.distance)) 
                 {
-                    // update the closest intersection point
                     const normal = plane.normal.clone()
+
+                    // update the closest intersection point
                     closest = { point, distance, normal }
                 }
             }
         }
-    
+
         return closest
     }
 
@@ -149,25 +149,27 @@ export default class Slices
     {
         if (this.axial)
         {
-            this.axial.dispose()
+            this.axial.destroy()
             this.remove(this.axial)
         }
 
         if (this.coronal)
         {
-            this.coronal.dispose()
+            this.coronal.destroy()
             this.remove(this.coronal)
         }
 
         if (this.sagittal)
         {
-            this.sagittal.dispose()
+            this.sagittal.destroy()
             this.remove(this.sagittal)
         }
 
         this.axial = null
         this.coronal = null
         this.sagittal = null
-
+        this.group = null
+        this.planes = null
+        this.box = null
     }
 }

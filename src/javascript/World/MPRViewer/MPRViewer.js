@@ -6,7 +6,7 @@ import Computes from './Computes'
 import Textures from './Textures'
 import Slices from './Slices/Slices'
 import Surface from './Surface/Surface'
-import Gui from './Gui'
+// import Gui from './Gui'
 
 export default class MPRViewer extends EventEmitter
 {
@@ -34,29 +34,45 @@ export default class MPRViewer extends EventEmitter
         this.computes = new Computes()
         this.textures = new Textures()
 
+        const axesHelper = new THREE.AxesHelper(0.5)
+        this.scene.add( axesHelper )
+
         // Wait for textures
         this.textures.on('ready', () =>
         {
-            this.parameters = this.computes.intensityMap.parameters
             this.setGroup()
-            this.gui = new Gui()
+            // this.gui = new Gui()
         })
     }
 
     setGroup()
     {
-        this.group = new THREE.Group()
-        this.group.position.copy(this.parameters.size).divideScalar(-2)
-        this.camera.instance.position.copy(this.parameters.size).multiplyScalar(2)
-        this.scene.add(this.group)
+        this.parameters = this.computes.intensityMap.parameters
 
         this.slices = new Slices()
         this.surface = new Surface()
+
+        this.group = new THREE.Group()
+        this.group.position.copy(this.parameters.size).divideScalar(-2)
+        this.group.updateMatrixWorld(true)
+        this.group.add(this.slices.group)
+        this.group.add(this.surface.mesh)
+        this.scene.add(this.group)
+
+        this.camera.instance.position.copy(this.parameters.size).multiplyScalar(2)
     }
 
     update()
     {
-      
+        if (this.slices)
+        {
+            this.slices.update()
+        }
+
+        if (this.surface)
+        {
+            this.surface.update()
+        }
     }
 
     destroy() 

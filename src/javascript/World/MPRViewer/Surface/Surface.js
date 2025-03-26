@@ -15,6 +15,7 @@ export default class Surface
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
+        this.update()
     }
 
     setGeometry()
@@ -51,6 +52,8 @@ export default class Surface
         uniforms.u_bbox.value.max_coords.copy(computes.boundingBox.parameters.maxCoords)
 
         defines.MAX_VOXELS = computes.boundingBox.parameters.maxCells
+        
+        this.updateSlicesUniforms()
     }
 
     setMesh()
@@ -58,17 +61,20 @@ export default class Surface
         this.mesh = new THREE.Mesh(this.geometry, this.material)
         this.mesh.scale.copy(this.parameters.size)
         this.mesh.renderOrder = 1
+    }
 
-        this.viewer.group.add(this)
+    update()
+    {
+        this.updateSlicesUniforms()
     }
 
     updateSlicesUniforms()
     {    
+        const slices = this.viewer.slices
         const uniforms = this.material.uniforms
-        const slices = this.viewer.slices.group
         
         // create a transform from slices local coords to parent grid coords
-        _matrix.makeScale(...this.parameters.invSpacing).multiply(slices.matrix)
+        _matrix.makeScale(...this.parameters.invSpacing).multiply(slices.group.matrix)
 
         slices.planes.forEach((plane, i) => 
         {                
@@ -77,7 +83,7 @@ export default class Surface
 
             // update uniforms
             uniforms.u_slices.value.hessian[i].set(..._plane.normal, _plane.constant)
-            uniforms.u_slices.value.visible[i] = slices.children[i].visible
+            uniforms.u_slices.value.visible[i] = slices.group.children[i].visible
         })
     }
 

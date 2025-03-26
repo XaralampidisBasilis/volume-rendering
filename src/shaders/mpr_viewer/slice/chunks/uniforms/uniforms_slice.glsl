@@ -8,6 +8,6 @@ struct Slice
     bool visible;  
 };
 
-uniform Slice slice;
+uniform Slice u_slice;
 
 #endif 

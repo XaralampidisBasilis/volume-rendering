@@ -43,6 +43,8 @@ export default class Slice
     setMesh()
     {
         this.mesh = new THREE.Mesh(this.geometry, this.material)
+        this.mesh.matrixAutoUpdate = true
+        this.mesh.matrixWorldAutoUpdate = true
     }
 
     destroy()
