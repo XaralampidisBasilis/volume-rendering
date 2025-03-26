@@ -1,5 +1,5 @@
 
-#include "./modules/start_march"
+#include "./modules/start_trace"
 
 for (int n = 0; n < MAX_VOXELS; n++) 
 {
@@ -13,17 +13,7 @@ for (int n = 0; n < MAX_VOXELS; n++)
 
 if (trace.intersected)
 {
-    #include "./modules/start_refine"
-
-    for (int n = 0; n < 30; n++) 
-    {
-        #include "./modules/update_voxel"
-
-        if (voxel.intersected || voxel.terminated) 
-        {
-            break;
-        }
-    }   
+    #include "./modules/march_voxels"
 }
 
 #include "./modules/end_march"

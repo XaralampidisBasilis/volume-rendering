@@ -3,7 +3,6 @@ import Slice from './Slice'
 import Gui from './Gui'
 import MPRViewer from '../MPRViewer'
 import { OBB } from 'three/addons/math/OBB.js'
-import { cos } from 'mathjs'
 
 const _plane = new THREE.Plane()
 
@@ -15,7 +14,7 @@ export default class Slices
         this.scene = this.viewer.scene
         this.parameters = this.viewer.parameters
         this.raycaster = this.viewer.camera.raycaster
-        // this.gui = new Gui()
+        
         
         this.setAxial()    
         this.setCoronal() 
@@ -48,8 +47,6 @@ export default class Slices
         this.group = new THREE.Group()
         this.group.position.copy(this.parameters.size).divideScalar(2)
         this.group.renderOrder = 0
-        this.group.updateMatrixWorld(true)
-
         this.group.add(this.axial.mesh)
         this.group.add(this.coronal.mesh)
         this.group.add(this.sagittal.mesh)
@@ -120,6 +117,7 @@ export default class Slices
     intersect() 
     {
         const { ray } = this.raycaster
+        
         let closest = null
         
         for (const plane of this.planes) 

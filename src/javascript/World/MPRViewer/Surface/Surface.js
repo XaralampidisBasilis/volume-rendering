@@ -47,13 +47,11 @@ export default class Surface
         uniforms.u_volume.value.spacing_length = computes.intensityMap.parameters.spacingLength
         uniforms.u_volume.value.size_length = computes.intensityMap.parameters.sizeLength
 
-        uniforms.u_bbox.value.dimensions.copy(computes.boundingBox.parameters.dimensions)
-        uniforms.u_bbox.value.min_coords.copy(computes.boundingBox.parameters.minCoords)
-        uniforms.u_bbox.value.max_coords.copy(computes.boundingBox.parameters.maxCoords)
+        this.updateBboxUniforms()
+        this.updateSlicesUniforms()
 
         defines.MAX_VOXELS = computes.boundingBox.parameters.maxCells
         
-        this.updateSlicesUniforms()
     }
 
     setMesh()
@@ -65,13 +63,12 @@ export default class Surface
 
     update()
     {
-        this.updateSlicesUniforms()
     }
 
     updateSlicesUniforms()
     {    
-        const slices = this.viewer.slices
         const uniforms = this.material.uniforms
+        const slices = this.viewer.slices
         
         // create a transform from slices local coords to parent grid coords
         _matrix.makeScale(...this.parameters.invSpacing).multiply(slices.group.matrix)
@@ -85,6 +82,16 @@ export default class Surface
             uniforms.u_slices.value.hessian[i].set(..._plane.normal, _plane.constant)
             uniforms.u_slices.value.visible[i] = slices.group.children[i].visible
         })
+    }
+
+    updateBboxUniforms()
+    {
+        const uniforms = this.material.uniforms
+        const computes = this.viewer.computes
+
+        uniforms.u_bbox.value.dimensions.copy(computes.boundingBox.parameters.dimensions)
+        uniforms.u_bbox.value.min_coords.copy(computes.boundingBox.parameters.minCoords)
+        uniforms.u_bbox.value.max_coords.copy(computes.boundingBox.parameters.maxCoords)
     }
 
     destroy()

@@ -6,8 +6,9 @@ trace.distance += trace.spacing;
 trace.position = camera.position + ray.direction * trace.distance;
 
 // Sample distance map
-int cheby_distance = texelFetch(u_textures.distance_map, ivec3(trace.position), 0).r;
-trace.spacing = (cheby_distance == 1) ? ray.spacing * 0.3 : float(cheby_distance);
+ivec3 coords = ivec3(trace.position);
+int cheby_distance = texelFetch(u_textures.distance_map, coords, 0).r;
+trace.spacing = (cheby_distance == 1) ? ray.spacing : float(cheby_distance);
 
 // Compute trace break conditions
 trace.terminated = (trace.distance > ray.end_distance);

@@ -37,8 +37,9 @@ export default class XREnvironment
         this.button = ARButton.createButton(this.renderer.instance, 
         { 
             requiredFeatures: ['hit-test'],
-            optionalFeatures: ['dom-overlay'],            
+            optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],            
             domOverlay: { root: document.getElementById('container-xr') },
+            // domOverlay: { root: document.body },
         })
         
         document.body.appendChild(this.button)

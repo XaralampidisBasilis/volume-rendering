@@ -42,6 +42,7 @@ export default class MPRViewer extends EventEmitter
         {
             this.setGroup()
             // this.gui = new Gui()
+            this.trigger('ready')
         })
     }
 
@@ -64,15 +65,15 @@ export default class MPRViewer extends EventEmitter
 
     update()
     {
-        if (this.slices)
-        {
-            this.slices.update()
-        }
+        // if (this.slices)
+        // {
+        //     this.slices.update()
+        // }
 
-        if (this.surface)
-        {
-            this.surface.update()
-        }
+        // if (this.surface)
+        // {
+        //     this.surface.update()
+        // }
     }
 
     destroy() 
