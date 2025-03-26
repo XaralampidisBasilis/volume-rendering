@@ -19,10 +19,12 @@ const vec3 center_offsets[6] = vec3[6]
 );
 
 float samples[6];
+vec3 uvw = u_volume.inv_dimensions * voxel.entry_position;
+
 for (int i = 0; i < 6; i++)
 {
     vec3 offset = center_offsets[i] * u_volume.inv_dimensions;
-    samples[i] = texture(u_textures.binary_map, trace.uvw + offset).r;
+    samples[i] = texture(u_textures.binary_map, uvw + offset).r;
 }
 
 // Gather samples

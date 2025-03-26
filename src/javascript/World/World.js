@@ -23,7 +23,6 @@ export default class World extends EventEmitter
 
     update()
     {
-        this.viewer.update()
     }
 
     destroy()

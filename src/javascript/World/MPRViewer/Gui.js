@@ -64,9 +64,9 @@ export default class Gui
         const size = this.viewer.computes.intensityMap.parameters.size.clone() 
         this.controllers.rendering = 
         {
-            x : folder.add(this.viewer.slices.position, 'x').min(0).max(size.x).step(0.0001).onChange(() => this.viewer.slices.update()),
-            y : folder.add(this.viewer.slices.position, 'y').min(0).max(size.y).step(0.0001).onChange(() => this.viewer.slices.update()),
-            z : folder.add(this.viewer.slices.position, 'z').min(0).max(size.z).step(0.0001).onChange(() => this.viewer.slices.update()),
+            x : folder.add(this.viewer.slices.position, 'x').min(0).max(size.x).step(0.0001).onChange(() => this.viewer.update()),
+            y : folder.add(this.viewer.slices.position, 'y').min(0).max(size.y).step(0.0001).onChange(() => this.viewer.update()),
+            z : folder.add(this.viewer.slices.position, 'z').min(0).max(size.z).step(0.0001).onChange(() => this.viewer.update()),
             slicesVisible : folder.add(this.viewer.slices, 'visible').name('slicesVisible'),
             surfaceVisible : folder.add(this.viewer.surface, 'visible').name('surfaceVisible'),
         }

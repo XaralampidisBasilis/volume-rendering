@@ -1,4 +1,4 @@
 
-trace.distance = ray.start_distance;
-trace.distance += ray.dithering;
-trace.spacing = 0.0;
+float min_spacing = ray.spacing * 0.3;
+trace.spacing = ray.dithering;
+trace.distance = 0.0;

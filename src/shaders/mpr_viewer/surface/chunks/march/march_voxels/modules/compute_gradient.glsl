@@ -20,10 +20,12 @@ const vec3 center_offsets[8] = vec3[8]
 );
 
 float samples[8];
+vec3 uvw = u_volume.inv_dimensions * voxel.entry_position;
+
 for (int i = 0; i < 8; i++)
 {
-    vec3 offset = center_offsets[i] * u_volume.inv_dimensions;
-    samples[i] = texture(u_textures.binary_map, trace.uvw + offset).r;
+    vec3 offset = u_volume.inv_dimensions * center_offsets[i];
+    samples[i] = texture(u_textures.binary_map, uvw + offset).r;
 }
 
 vec3 forward = vec3(

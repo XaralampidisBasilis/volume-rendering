@@ -1,7 +1,7 @@
 
 if (trace.intersected)
 {
-    #include "./compute_voxel"
+    #include "./compute_gradient"
 }
 else
 {

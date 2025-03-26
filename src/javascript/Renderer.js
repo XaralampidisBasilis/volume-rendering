@@ -24,8 +24,8 @@ export default class Renderer
             sortObjects: false,
             preserveDrawingBuffer: false,
             logarithmicDepthBuffer: false,
-            precision: "mediump",
-            powerPreference: "high-performance"
+            powerPreference: "high-performance" // has big impact on mobile
+            // precision: "mediump", // has big impact on mobile
         })      
          
         this.instance.setClearColor('#211d20', 1)
