@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import EventEmitter from '../../Utils/EventEmitter'
 import MPRViewer from './MPRViewer'
-import { computeBoundingBox, computeDistanceSubmap, downscaleLinear, downscaleNearest } from '../../Utils/TensorUtils'
+import * as TENSOR from '../../Utils/TensorUtils'
 
 export default class Computes extends EventEmitter
 {
@@ -107,7 +107,7 @@ export default class Computes extends EventEmitter
     async setBoundingBox()
     {
         console.time('setBoundingBox') 
-        const boundingBox = await computeBoundingBox(this.binaryMap.tensor)
+        const boundingBox = await TENSOR.computeBoundingBox(this.binaryMap.tensor)
         const parameters = {}
         parameters.minCoords = new THREE.Vector3().fromArray(boundingBox.minCoords)
         parameters.maxCoords = new THREE.Vector3().fromArray(boundingBox.maxCoords)
@@ -127,7 +127,9 @@ export default class Computes extends EventEmitter
         console.time('setDistanceMap') 
         const begin = this.boundingBox.parameters.minCoords.toArray().toReversed().concat(0)
         const size = this.boundingBox.parameters.dimensions.toArray().toReversed().concat(1)
-        const distanceMap = await computeDistanceSubmap(this.binaryMap.tensor, begin, size, 128)
+        // const distanceMap = await TENSOR.computeDistanceSubmap(this.binaryMap.tensor, begin, size, 128)
+        // const distanceMap = await TENSOR.computeDirectionalDistanceMap(this.binaryMap.tensor, 0, +1, x)
+        const distanceMap = await TENSOR.computeDistanceMap(this.binaryMap.tensor, 64)
         const maxTensor = distanceMap.max()
         const parameters = {...this.binaryMap.parameters}
         parameters.maxDistance = maxTensor.arraySync()  
@@ -145,7 +147,7 @@ export default class Computes extends EventEmitter
     async downscaleIntensityMap()
     {
         console.time('downscaleIntensityMap') 
-        const downscaledMap = await downscaleLinear(this.intensityMap.tensor, 2)  
+        const downscaledMap = await TENSOR.downscaleLinear(this.intensityMap.tensor, 2)  
 
         const parameters = {}
         parameters.shape = downscaledMap.shape
@@ -172,7 +174,7 @@ export default class Computes extends EventEmitter
     async downscaleBinaryMap()
     {
         console.time('downscaleBinaryMap') 
-        const downscaledMap = await downscaleNearest(this.binaryMap.tensor, 2)  
+        const downscaledMap = await TENSOR.downscaleNearest(this.binaryMap.tensor, 2)  
 
         const parameters = {}
         parameters.shape = downscaledMap.shape
