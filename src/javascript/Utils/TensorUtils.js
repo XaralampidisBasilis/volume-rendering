@@ -1,7 +1,5 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
-import everpolate from 'everpolate'
-import BESSEL from 'bessel'
 
 export async function computeDistanceSubmap(occupancyMap, begin, size, maxIterations)
 {
@@ -17,47 +15,89 @@ export async function computeDistanceSubmap(occupancyMap, begin, size, maxIterat
     return distanceMap
 }
 
+// export async function computeDistanceMap(occupancyMap, maxIterations) 
+// {
+//     // Initialize distance map and previous/next flood
+//     let distanceMap = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'int32'), false))
+//     let floodPrev   = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'bool'), false))
+//     let floodNext   = tf.tidy(() => tf.variable(tf.clone(occupancyMap), false))
+    
+//     for (let n = 0; n <= maxIterations; n++) 
+//     {
+//         // Compute distance update
+//         const wavefront = tf.notEqual(floodNext, floodPrev)
+//         const distance = tf.scalar(n, 'int32')
+//         const distanceWavefront = wavefront.mul(distance)
+
+//         // Update distance map
+//         const distanceUpdate = distanceMap.add(distanceWavefront)
+//         distanceMap.assign(distanceUpdate)
+
+//         // Update previous flood state
+//         floodPrev.assign(floodNext)
+
+//         // Compute next flood with max pooling
+//         const floodUpdate = tf.maxPool3d(floodPrev, [3, 3, 3], [1, 1, 1], 'same')
+//         floodNext.assign(floodUpdate)
+
+//         // Await for garbage disposal
+//         tf.dispose([floodUpdate, distanceUpdate, distanceWavefront, wavefront, distance])
+//         await tf.nextFrame()
+//     }
+
+//     // Compute final distance update
+//     const distanceMax = tf.scalar(maxIterations, 'int32')
+//     const floodUpdate = tf.logicalNot(floodPrev)
+//     const distanceUpdate = floodUpdate.mul(distanceMax)
+
+//     // Update final distance map
+//     distanceMap = distanceMap.add(distanceUpdate)
+
+//     // Cleanup
+//     tf.disposeVariables()
+//     tf.dispose([distanceUpdate, floodUpdate, distanceMax])
+//     await tf.nextFrame()
+
+//     // Return the final distance map
+//     return distanceMap
+// }
+
 export async function computeDistanceMap(occupancyMap, maxIterations) 
 {
-    // Initialize distance map and previous/next diffusion
-    let distanceMap   = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'int32'), true))
-    let diffusionPrev = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'bool'), true))
-    let diffusionNext = tf.tidy(() => tf.variable(tf.clone(occupancyMap), true))
+    // Initialize frontier and distances
+    let frontier = tf.tidy(() => tf.variable(tf.cast(occupancyMap, 'bool'), false))
+    let distances = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'int32'), false))
     
-    for (let n = 0; n <= maxIterations; n++) 
+    for (let n = 1; n < maxIterations; n++) 
     {
-        // Compute distance update
-        const scalarIter = tf.scalar(n, 'int32')
-        const diffusionUpdate = tf.notEqual(diffusionNext, diffusionPrev)
-        const distanceUpdate = diffusionUpdate.mul(scalarIter)
+        // Compute frontier and wavefront
+        const newFrontier = tf.maxPool3d(frontier, [3, 3, 3], [1, 1, 1], 'same')
+        const wavefront = tf.notEqual(newFrontier, frontier)
+        frontier.assign(newFrontier)
 
-        // Update distance map
-        const distanceMapUpdate = distanceMap.add(distanceUpdate)
-        distanceMap.assign(distanceMapUpdate)
+        // Compute distance field
+        const distance = tf.scalar(n, 'int32')
+        const waveDistance = wavefront.mul(distance)
+        const newDistances = distances.add(waveDistance)
+        distances.assign(newDistances)
 
-        // Update previous diffusion state
-        diffusionPrev.assign(diffusionNext)
-
-        // Compute next diffusion with max pooling
-        const diffusionNextUpdate = tf.maxPool3d(diffusionPrev, [3, 3, 3], [1, 1, 1], 'same')
-        diffusionNext.assign(diffusionNextUpdate)
-
-        // Await for garbage disposal
-        tf.dispose([diffusionNextUpdate, distanceMapUpdate, distanceUpdate, diffusionUpdate, scalarIter])
+        // Garbage disposal
+        tf.dispose([distance, wavefront, waveDistance, newDistances, newFrontier])
         await tf.nextFrame()
     }
 
-    // Compute final distance update
-    const scalarMax = tf.scalar(maxIterations, 'int32')
-    const diffusionUpdate = tf.logicalNot(diffusionPrev)
-    const distanceUpdate = diffusionUpdate.mul(scalarMax)
+    // Compute final wavefront
+    const wavefront = tf.logicalNot(frontier)
+    frontier.dispose()
 
-    // Update final distance map
-    distanceMap = distanceMap.add(distanceUpdate)
+    // Compute final distance map
+    const distance = tf.scalar(maxIterations, 'int32')
+    const waveDistance = wavefront.mul(distance)
+    const distanceMap = distances.add(waveDistance)
+    distances.dispose()
 
-    // Cleanup
-    tf.dispose([distanceUpdate, diffusionUpdate, scalarMax])
-    tf.disposeVariables()
+    // Garbage disposal
+    tf.dispose([distance, wavefront, waveDistance])
     await tf.nextFrame()
 
     // Return the final distance map
