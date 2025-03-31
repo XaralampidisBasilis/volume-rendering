@@ -171,7 +171,7 @@ export async function computeDirectionalDistanceMap(occupancyMap, axis, directio
  * @returns {tf.Tensor}            - An int32 tensor of same shape as input, where each voxel holds
  *                                   its anisotropic distance from the nearest occupied region
  */
-export async function computeConicDistanceMap(occupancyMap, axis, direction, maxDistance) 
+export async function computeAxialDistanceMap(occupancyMap, axis, direction, maxDistance) 
 {
     // Initialize frontier and distances
     let frontier = tf.tidy(() => tf.variable(tf.cast(occupancyMap, 'bool'), false))
