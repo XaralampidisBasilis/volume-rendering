@@ -3,7 +3,8 @@
 trace.distance += trace.spacing;
 
 // Compute position
-trace.position = ray.start_position + ray.direction * trace.distance;
+// trace.position = ray.start_position + ray.direction * trace.distance;
+trace.position += ray.direction * trace.spacing;
 trace.uvw = u_volume.inv_dimensions * trace.position;
 
 // Sample distance map

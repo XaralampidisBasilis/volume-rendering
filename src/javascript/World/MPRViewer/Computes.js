@@ -127,9 +127,7 @@ export default class Computes extends EventEmitter
         console.time('setDistanceMap') 
         const begin = this.boundingBox.parameters.minCoords.toArray().toReversed().concat(0)
         const size = this.boundingBox.parameters.dimensions.toArray().toReversed().concat(1)
-        // const distanceMap = await TENSOR.computeDistanceSubmap(this.binaryMap.tensor, begin, size, 128)
-        // const distanceMap = await TENSOR.computeDirectionalDistanceMap(this.binaryMap.tensor, 0, +1, x)
-        const distanceMap = await TENSOR.computeDistanceMap(this.binaryMap.tensor, 64)
+        const distanceMap = await TENSOR.computeDistanceSubmap(this.binaryMap.tensor, begin, size, 128)
         const maxTensor = distanceMap.max()
         const parameters = {...this.binaryMap.parameters}
         parameters.maxDistance = maxTensor.arraySync()  
