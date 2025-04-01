@@ -1,13 +1,13 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 
-export async function computeDistanceSubmap(occupancyMap, begin, size, maxIterations)
+export async function computeDistanceSubmap(binaryMap, begin, size, maxIterations)
 {
-    const occupancySubmap = tf.slice4d(occupancyMap, begin, size)
+    const occupancySubmap = tf.slice4d(binaryMap, begin, size)
     const distanceSubmap = await computeDistanceMap(occupancySubmap, maxIterations)
     tf.dispose(occupancySubmap)
 
-    const shape = occupancyMap.shape
+    const shape = binaryMap.shape
     const paddings = shape.map((dimension, i) => [begin[i], dimension - begin[i] - size[i]])
     const distanceMap = tf.pad4d(distanceSubmap, paddings, 1)
     tf.dispose(distanceSubmap)
@@ -23,33 +23,37 @@ export async function computeDistanceSubmap(occupancyMap, begin, size, maxIterat
  * (distance) at which the wavefront reaches it. Voxels not reached
  * within `maxDistance` are assigned `maxDistance` as their value.
  * 
- * @param {tf.Tensor} occupancyMap - 3D binary tensor indicating occupied voxels (1 = occupied, 0 = free)
+ * @param {tf.Tensor} binaryMap - 3D binary tensor indicating occupied voxels (1 = occupied, 0 = free)
  * @param {number} maxDistance     - Maximum number of expansion steps (voxels)
  * 
  * @returns {tf.Tensor}            - An int32 tensor of same shape as input, where each voxel holds
  *                                   its chebysev distance from the nearest occupied region
  */
-export async function computeDistanceMap(occupancyMap, maxDistance) 
+export async function computeDistanceMap(binaryMap, maxDistance) 
 {
     // Initialize frontier and distances
-    let frontier = tf.tidy(() => tf.variable(tf.cast(occupancyMap, 'bool'), false))
-    let distances = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'int32'), false))
+    let frontier = tf.cast(binaryMap, 'bool')
+    let distances = tf.zeros(binaryMap.shape, 'int32')  
     
-    for (let d = 1; d < maxDistance; d++) 
+    for (let i = 1; i < maxDistance; i++) 
     {
-        // Compute frontier and wavefront
+        // Compute new frontier and wavefront
         const newFrontier = tf.maxPool3d(frontier, [3, 3, 3], [1, 1, 1], 'same')
         const wavefront = tf.notEqual(newFrontier, frontier)
-        frontier.assign(newFrontier)
+        frontier.dispose()
 
-        // Compute distance field
-        const distance = tf.scalar(d, 'int32')
+        // Compute new distances
+        const distance = tf.scalar(i, 'int32')
         const waveDistance = wavefront.mul(distance)
         const newDistances = distances.add(waveDistance)
-        distances.assign(newDistances)
+        distances.dispose()
 
-        // Garbage disposal
-        tf.dispose([distance, wavefront, waveDistance, newDistances, newFrontier])
+        // Update frontier and distances
+        frontier = newFrontier
+        distances = newDistances
+
+        // Await garbage disposal
+        tf.dispose([distance, wavefront, waveDistance])
         await tf.nextFrame()
     }
 
@@ -63,7 +67,7 @@ export async function computeDistanceMap(occupancyMap, maxDistance)
     const distanceMap = distances.add(waveDistance)
     distances.dispose()
 
-    // Garbage disposal
+    // Await garbage disposal
     tf.dispose([distance, wavefront, waveDistance])
     await tf.nextFrame()
 
@@ -71,16 +75,16 @@ export async function computeDistanceMap(occupancyMap, maxDistance)
     return distanceMap
 }
 
-export async function computeAnisotropicDistanceMap(occupancyMap, maxDistance) 
+export async function computeAnisotropicDistanceMap(binaryMap, maxDistance) 
 {
     const directionalMaps = []
     
-    directionalMaps.push( await computeAnisotropicDistanceMap(occupancyMap, 0, -1, maxDistance) )
-    directionalMaps.push( await computeAnisotropicDistanceMap(occupancyMap, 1, -1, maxDistance) )
-    directionalMaps.push( await computeAnisotropicDistanceMap(occupancyMap, 2, -1, maxDistance) )
-    directionalMaps.push( await computeAnisotropicDistanceMap(occupancyMap, 0,  1, maxDistance) )
-    directionalMaps.push( await computeAnisotropicDistanceMap(occupancyMap, 1,  1, maxDistance) )
-    directionalMaps.push( await computeAnisotropicDistanceMap(occupancyMap, 2,  1, maxDistance) )
+    directionalMaps.push( await computeAnisotropicDistanceMap(binaryMap, 0, -1, maxDistance) )
+    directionalMaps.push( await computeAnisotropicDistanceMap(binaryMap, 1, -1, maxDistance) )
+    directionalMaps.push( await computeAnisotropicDistanceMap(binaryMap, 2, -1, maxDistance) )
+    directionalMaps.push( await computeAnisotropicDistanceMap(binaryMap, 0,  1, maxDistance) )
+    directionalMaps.push( await computeAnisotropicDistanceMap(binaryMap, 1,  1, maxDistance) )
+    directionalMaps.push( await computeAnisotropicDistanceMap(binaryMap, 2,  1, maxDistance) )
 
     const anisotropicDistanceMap = tf.concat(directionalMaps, 4)
     tf.dispose(directionalMaps)
@@ -96,7 +100,7 @@ export async function computeAnisotropicDistanceMap(occupancyMap, maxDistance)
  * (distance) at which the wavefront reaches it. Voxels not reached
  * within `maxDistance` are assigned `maxDistance` as their value.
  * 
- * @param {tf.Tensor} occupancyMap - 3D binary tensor indicating occupied voxels (1 = occupied, 0 = free)
+ * @param {tf.Tensor} binaryMap - 3D binary tensor indicating occupied voxels (1 = occupied, 0 = free)
  * @param {number} axis            - Axis (0, 1, or 2) along which the wavefront propagates
  * @param {number} direction       - Direction of expansion (+1 or -1) along the specified axis
  * @param {number} maxDistance     - Maximum number of expansion steps (voxels)
@@ -104,11 +108,11 @@ export async function computeAnisotropicDistanceMap(occupancyMap, maxDistance)
  * @returns {tf.Tensor}            - An int32 tensor of same shape as input, where each voxel holds
  *                                   its anisotropic distance from the nearest occupied region
  */
-export async function computeDirectionalDistanceMap(occupancyMap, axis, direction, maxDistance) 
+export async function computeDirectionalDistanceMap(binaryMap, axis, direction, maxDistance) 
 {
     // Initialize frontier and distances
-    let frontier = tf.tidy(() => tf.variable(tf.cast(occupancyMap, 'bool'), false))
-    let distances = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'int32'), false))
+    let frontier = tf.tidy(() => tf.variable(tf.cast(binaryMap, 'bool'), false))
+    let distances = tf.tidy(() => tf.variable(tf.zeros(binaryMap.shape, 'int32'), false))
 
     // Initialize parameters
     const filterSize = [3, 3, 3]
@@ -163,7 +167,7 @@ export async function computeDirectionalDistanceMap(occupancyMap, axis, directio
  * (distance) at which the wavefront reaches it. Voxels not reached
  * within `maxDistance` are assigned `maxDistance` as their value.
  * 
- * @param {tf.Tensor} occupancyMap - 3D binary tensor indicating occupied voxels (1 = occupied, 0 = free)
+ * @param {tf.Tensor} booleanMap - 3D binary tensor indicating occupied voxels (1 = occupied, 0 = free)
  * @param {number} axis            - Axis (0, 1, or 2) along which the wavefront propagates
  * @param {number} direction       - Direction of expansion (+1 or -1) along the specified axis
  * @param {number} maxDistance     - Maximum number of expansion steps (voxels)
@@ -171,40 +175,42 @@ export async function computeDirectionalDistanceMap(occupancyMap, axis, directio
  * @returns {tf.Tensor}            - An int32 tensor of same shape as input, where each voxel holds
  *                                   its anisotropic distance from the nearest occupied region
  */
-export async function computeAxialDistanceMap(occupancyMap, axis, direction, maxDistance) 
+export async function computeAxialDistanceMap(booleanMap, axis, direction, maxDistance) 
 {
+    // Initialize the directional convolution filter 
+    const filterData = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
+                        [0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1], 
+                        [0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1]][axis]
+    const filterSize = [[2, 3, 3, 1, 1],
+                        [3, 2, 3, 1, 1],
+                        [3, 3, 2, 1, 1]][axis]
+    const filter = tf.tensor(filterData, filterSize, 'float32')
+
     // Initialize frontier and distances
-    let frontier = tf.tidy(() => tf.variable(tf.cast(occupancyMap, 'bool'), false))
-    let distances = tf.tidy(() => tf.variable(tf.zeros(occupancyMap.shape, 'int32'), false))
+    let frontier = (direction > 0) ? booleanMap.clone() : booleanMap.reverse(axis)
+    let distances = tf.zeros(booleanMap.shape, 'int32')  
 
-    const filter = (axis === 0) ? tf.tensor([0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1], [2, 3, 3, 1, 1], 'int32') : 
-                   (axis === 1) ? tf.tensor([0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1], [3, 2, 3, 1, 1], 'int32') :
-                   (axis === 2) ? tf.tensor([0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1], [3, 3, 2, 1, 1], 'int32') : null
-
-    // Initialize parameters
-    const filterSize = [3, 3, 3]
-    filterSize[axis] = 1
-    
-    for (let d = 1; d < maxDistance; d++) 
+    // Compute chebysev distances with a frontline approach
+    for (let i = 1; i < maxDistance; i++) 
     {
         // Compute directional frontier and wavefront
-        const newFrontier = tf.tidy(() => 
-        {
-            const shifted = shift(frontier, axis, -direction) // shift the current frontier in the opposite direction of growth
-            const expanded = tf.maxPool3d(shifted, filterSize, [1, 1, 1], 'same') // expand the shifted frontier using a max pool along rest of the axes
-            return tf.logicalOr(frontier, expanded) // merge the expanded frontier with the current frontier (accumulate growth)
-        })
+        const fullFrontier = tf.conv3d(frontier, filter, [1, 1, 1], 'same')
+        const newFrontier = fullFrontier.cast('bool')
         const wavefront = tf.notEqual(newFrontier, frontier)
-        frontier.assign(newFrontier)
+        frontier.dispose()
 
         // Compute directional distances
-        const distance = tf.scalar(d, 'int32')
+        const distance = tf.scalar(i, 'int32')
         const waveDistance = wavefront.mul(distance)
         const newDistances = distances.add(waveDistance)
-        distances.assign(newDistances)
+        distances.dispose()
+
+        // Update frontier and distances
+        frontier = newFrontier
+        distances = newDistances
 
         // Garbage disposal
-        tf.dispose([distance, wavefront, waveDistance, newDistances, newFrontier])
+        tf.dispose([fullFrontier, distance, wavefront, waveDistance])
         await tf.nextFrame()
     }
 
@@ -215,11 +221,14 @@ export async function computeAxialDistanceMap(occupancyMap, axis, direction, max
     // Compute final distances
     const distance = tf.scalar(maxDistance, 'int32')
     const waveDistance = wavefront.mul(distance)
-    const distanceMap = distances.add(waveDistance)
+    const newDistances = distances.add(waveDistance)
     distances.dispose()
 
+    // Reverse back the result
+    const distanceMap = (direction > 0) ? newDistances.clone() : newDistances.reverse(axis)
+
     // Garbage disposal
-    tf.dispose([distance, wavefront, waveDistance])
+    tf.dispose([filter, distance, wavefront, waveDistance, newDistances])
     await tf.nextFrame()
 
     // Return the final distance map

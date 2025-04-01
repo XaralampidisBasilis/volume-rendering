@@ -1,8 +1,7 @@
 
 if (trace.intersected)
 {
-    // #include "./end_trace"
-    #include "./compute_gradient"
+    #include "./end_trace"
 }
 else
 {
