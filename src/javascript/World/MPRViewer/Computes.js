@@ -30,13 +30,14 @@ export default class Computes extends EventEmitter
 
         await tf.setBackend('webgl')
         await this.setIntensityMap()
-        await this.setBinaryMap()
+        await TENSOR.computeViewDependentCulling(this.intensityMap.tensor)
+        // await this.setBinaryMap()
         // await this.downscaleIntensityMap()
         // await this.downscaleBinaryMap()
-        
-        await tf.setBackend('webgl')
-        await this.setBoundingBox()
-        await this.setDistanceMap()
+
+        // await tf.setBackend('webgl')
+        // await this.setBoundingBox()
+        // await this.setDistanceMap()
      
         this.trigger('ready')
         console.timeEnd('Computes') 
@@ -127,9 +128,9 @@ export default class Computes extends EventEmitter
         console.time('setDistanceMap') 
         const begin = this.boundingBox.parameters.minCoords.toArray().toReversed().concat(0)
         const size = this.boundingBox.parameters.dimensions.toArray().toReversed().concat(1)
-        // const distanceMap = await TENSOR.computeDistanceMapSlice(this.binaryMap.tensor, begin, size, 128)
+        const distanceMap = await TENSOR.computeDistanceMapSlice(this.binaryMap.tensor, begin, size, 128)
         // const distanceMap = await TENSOR.computeDistanceMap(this.binaryMap.tensor, 128)
-        const distanceMap = await TENSOR.computeAxialDistanceMap(this.binaryMap.tensor, 0, -1, 128)
+        // const distanceMap = await TENSOR.computeAxialDistanceMap(this.binaryMap.tensor, 0, -1, 128)
         const maxTensor = distanceMap.max()
         const parameters = {...this.binaryMap.parameters}
         parameters.maxDistance = maxTensor.arraySync()  
