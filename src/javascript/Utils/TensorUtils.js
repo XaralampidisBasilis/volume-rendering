@@ -305,117 +305,108 @@ export function mix(a, b, t)
         return result
     })
 }
-
 export async function computeViewDependentCulling(intensityMap)
 {
-    console.time('computeViewDependentCulling')
-
     // Min tensors
 
     const tensor = tf.pad(intensityMap, [[1, 0], [1, 0], [1, 0], [0, 0]])
-    const tensor2 = tf.pad(intensityMap, [[1, 1], [1, 1], [1, 1], [0, 0]])
     const shape = tensor.shape
 
-    const mx = minPool3d(tensor, [2, 1, 1], 1, 'same')
+    let mx = minPool3d(tensor, [2, 1, 1], 1, 'same')
+    let my = minPool3d(tensor, [1, 2, 1], 1, 'same')
+    let mz = minPool3d(tensor, [1, 1, 2], 1, 'same')
+
+    tensor.dispose()
+
+    // Propagate
     await tf.nextFrame()
 
-    const Mx = tf.tidy(() => tf.maxPool3d(tensor2, [2, 1, 1], 1, 'same').slice([1, 1, 1, 0], shape))
-    await tf.nextFrame()
+    for (let i = 0; i < 1; i++)
+    {
+        // Updates
 
-    const cx   = tf.greaterEqual(mx, Mx)
-    tf.dispose([mx, Mx])
-    await tf.nextFrame()
+        const _mx = tf.tidy(() => 
+        {
+            const sx   = shift(mx, 0, -1)
+            const sy   = shift(my, 0, -1)
+            const sz   = shift(mz, 0, -1)
 
-    const my = minPool3d(tensor, [1, 2, 1], 1, 'same')
-    await tf.nextFrame()
+            const sxy  = tf.minimum(sx, sy)
+            const sxyz = tf.minimum(sxy, sz)
 
-    const My = tf.tidy(() => tf.maxPool3d(tensor2, [1, 2, 1], 1, 'same').slice([1, 1, 1, 0], shape))
-    await tf.nextFrame()
-
-    const cy   = tf.greaterEqual(my, My)
-    tf.dispose([my, My])
-    await tf.nextFrame()
-
-    const cxy  = tf.logicalAnd(cx, cy)
-    tf.dispose([cx, cy])
-    await tf.nextFrame()
-
-    const mz = minPool3d(tensor, [1, 1, 2], 1, 'same')
-    await tf.nextFrame()
-
-    const Mz = tf.tidy(() => tf.maxPool3d(tensor2, [1, 1, 2], 1, 'same').slice([1, 1, 1, 0], shape))
-    await tf.nextFrame()
-
-    const cz   = tf.greaterEqual(mz, Mz)
-    tf.dispose([mz, Mz])
-    await tf.nextFrame()
-
-    tf.dispose([tensor, tensor2])
-    await tf.nextFrame()
-
-    const c = tf.logicalAnd(cxy, cz)
-    tf.dispose([cxy, cz])
-    await tf.nextFrame()
-
-    // // Propagate
-
-    // for (let i = 0; i < 1; i++)
-    // {
-    //     // Updates
-
-    //     // X
-    //     const sxx = shift(mx, 0, -1)
-    //     const sxy = shift(my, 0, -1)
-    //     const sxxy = tf.minimum(sxx, sxy)
-    //     tf.dispose([sxx, sxy])
-    //     await tf.nextFrame()
-
-    //     const sxz   = shift(mz, 0, -1)
-    //     const sxxyz = tf.minimum(sxxy, sxz)
-    //     tf.dispose([sxxy, sxz])
-    //     await tf.nextFrame()
-
-    //     const _mx = tf.maximum(sxxyz, mx)
-    //     tf.dispose([sxxyz])
-    //     await tf.nextFrame()
+            const mxyz = tf.maximum(sxyz, mx)
     
+            return mxyz
+        })
 
-    //     // Y
-    //     const syx  = shift(mx, 1, -1)
-    //     const syz  = shift(mz, 1, -1)
-    //     const syxz = tf.minimum(syx, syz)
-    //     tf.dispose([syx, syz])
-    //     await tf.nextFrame()
+        await tf.nextFrame()
 
-    //     const _my = tf.maximum(syxz, my)
-    //     tf.dispose([syxz])
-    //     await tf.nextFrame()
- 
-    //     // Z
-    //     const szx  = shift(mx, 2, -1)
-    //     const szy  = shift(my, 2, -1)
-    //     const szxy = tf.minimum(szx, szy)
-    //     tf.dispose([szx, szy])
-    //     await tf.nextFrame()
+        const _my = tf.tidy(() =>
+        {
+            const sx  = shift(mx, 1, -1)
+            const sz  = shift(mz, 1, -1)
+    
+            const sxz = tf.minimum(sx, sz)
 
-    //     const _mz = tf.maximum(szxy, mz)
-    //     tf.dispose([szxy])
-    //     await tf.nextFrame()
+            const mxyz = tf.maximum(sxz, my)
+            my.dispose()
+    
+            return mxyz
+        })
 
-    //     // Dispose
-    //     tf.dispose([mx, my, mz])
-    //     await tf.nextFrame()
+        await tf.nextFrame()
 
-    //     // Reassign
-    //     mx = _mx
-    //     my = _my
-    //     mz = _mz
-    // }
+        const _mz = tf.tidy(() =>
+        {
+            const sx  = shift(mx, 2, -1)
+            const sy  = shift(my, 2, -1)
+    
+            const sxy = tf.minimum(sx, sy)
+
+            const mxyz = tf.maximum(sxy, mz)
+            mz.dispose()
+    
+            return mxyz
+        })
+
+        await tf.nextFrame()
+
+        // Dispose
+        tf.dispose([mx, my, mz])
+        await tf.nextFrame()
+
+        // Reassign
+        mx = _mx
+        my = _my
+        mz = _mz
+
+    }
 
     // Max tensors
 
+    const tensor2 = tf.pad(intensityMap, [[1, 1], [1, 1], [1, 1], [0, 0]])
 
-    console.log(c.sum().arraySync() / c.length)
-    console.timeEnd('computeViewDependentCulling')
+    const Mx = tf.tidy(() => tf.maxPool3d(tensor2, [2, 1, 1], 1, 'same').slice([1, 1, 1, 0], shape))
+    const My = tf.tidy(() => tf.maxPool3d(tensor2, [1, 2, 1], 1, 'same').slice([1, 1, 1, 0], shape))
+    const Mz = tf.tidy(() => tf.maxPool3d(tensor2, [1, 1, 2], 1, 'same').slice([1, 1, 1, 0], shape))
+    tensor2.dispose()
+
+    await tf.nextFrame()
+
+    // Condition
+
+    const c = tf.tidy(() => 
+    {
+        const cx   = tf.greaterEqual(mx, Mx)
+        const cy   = tf.greaterEqual(my, My)
+        const cz   = tf.greaterEqual(mz, Mz)
+
+        const cxy  = tf.logicalAnd(cx,  cy)
+        const cxyz = tf.logicalAnd(cxy, cz)
+        c.dispose()
+
+        return cxyz
+    })
+
     return c
 }
