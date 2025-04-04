@@ -30,7 +30,7 @@ export default class Computes extends EventEmitter
 
         await tf.setBackend('webgl')
         await this.setIntensityMap()
-        await TENSOR.computeViewDependentCulling(this.intensityMap.tensor)
+        await TENSOR.computeViewDependentCullingPatches(this.intensityMap.tensor)
         // await this.setBinaryMap()
         // await this.downscaleIntensityMap()
         // await this.downscaleBinaryMap()
