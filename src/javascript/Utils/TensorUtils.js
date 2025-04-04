@@ -274,7 +274,6 @@ export function minPool3d(tensor, filterSize, strides, pad)
     return tf.tidy(() => tf.maxPool3d(tensor.neg(), filterSize, strides, pad).neg())
 } 
 
-
 export function shift(tensor, axis, amount) 
 {
     return tf.tidy(() =>
@@ -544,7 +543,7 @@ export async function computeViewDependentCullingPatches(tensor)
     console.time('computeViewDependentCullingPatches')
 
     const shape = tensor.shape
-    const patchDivisions = [2, 2, 2, 1]
+    const patchDivisions = [4, 4, 4, 1]
     
     const patchSize = shape.map((x, i) => Math.max(Math.ceil(x / patchDivisions[i]), 1))
     const stride = patchSize.map(x => Math.max(x - 1, 1))
@@ -586,51 +585,51 @@ export async function computeViewDependentCullingPatches(tensor)
     console.timeEnd('computeViewDependentCullingPatches')
 }
 
-export async function computeViewDependentCullingPatches2(tensor)
-{
-    console.time('computeViewDependentCullingPatches')
+// export async function computeViewDependentCullingPatches2(tensor)
+// {
+//     console.time('computeViewDependentCullingPatches')
 
-    const shape = tensor.shape
-    const patchDivisions = [8, 1, 1, 1]
+//     const shape = tensor.shape
+//     const patchDivisions = [8, 1, 1, 1]
 
-    const patchSize = shape.map((x, i) => Math.max(Math.ceil(x / patchDivisions[i]), 1))
-    const stride = patchSize.map(x => Math.max(x - 1, 1))
+//     const patchSize = shape.map((x, i) => Math.max(Math.ceil(x / patchDivisions[i]), 1))
+//     const stride = patchSize.map(x => Math.max(x - 1, 1))
 
-    const [shapeZ, shapeY, shapeX, shapeT] = shape
-    const [patchZ, patchY, patchX, patchT] = patchSize
-    const [strideZ, strideY, strideX, strideT] = stride
+//     const [shapeZ, shapeY, shapeX, shapeT] = shape
+//     const [patchZ, patchY, patchX, patchT] = patchSize
+//     const [strideZ, strideY, strideX, strideT] = stride
 
-    let map = tf.zeros(shape, 'bool')  
-    let count = 0
+//     let map = tf.zeros(shape, 'bool')  
+//     let count = 0
 
-    for (let beginZ = 0; beginZ <= shapeZ - patchZ; beginZ += strideZ) {
-        for (let beginY = 0; beginY <= shapeY - patchY; beginY += strideY) {
-            for (let beginX = 0; beginX <= shapeX - patchX; beginX += strideX) {
-                for (let beginT = 0; beginT <= shapeT - patchT; beginT += strideT) 
-                {
-                    const begin = [beginZ, beginY, beginT, beginT]
-                    const sliceSize = patchSize.map((x, i) => Math.min(shape[i] - begin[i], patchSize[i]))
+//     for (let beginZ = 0; beginZ <= shapeZ - patchZ; beginZ += strideZ) {
+//         for (let beginY = 0; beginY <= shapeY - patchY; beginY += strideY) {
+//             for (let beginX = 0; beginX <= shapeX - patchX; beginX += strideX) {
+//                 for (let beginT = 0; beginT <= shapeT - patchT; beginT += strideT) 
+//                 {
+//                     const begin = [beginZ, beginY, beginT, beginT]
+//                     const sliceSize = patchSize.map((x, i) => Math.min(shape[i] - begin[i], patchSize[i]))
                 
-                    const slice = tensor.slice(begin, sliceSize)
-                    const patch = await computeViewDependentCulling(slice)
-                    tf.dispose(slice)
+//                     const slice = tensor.slice(begin, sliceSize)
+//                     const patch = await computeViewDependentCulling(slice)
+//                     tf.dispose(slice)
 
-                    const patchIndices = await tf.whereAsync(patch)
-                    const offset = tf.tensor1d(begin, 'int32')
-                    const indices = patchIndices.add(offset)
-                    const updates = tf.ones([indices.shape[0]], 'bool')
-                    tf.dispose([offset, patchIndices])
+//                     const patchIndices = await tf.whereAsync(patch)
+//                     const offset = tf.tensor1d(begin, 'int32')
+//                     const indices = patchIndices.add(offset)
+//                     const updates = tf.ones([indices.shape[0]], 'bool')
+//                     tf.dispose([offset, patchIndices])
 
-                    const newMap = tf.tensorScatterUpdate(map, indices, updates)
-                    tf.dispose([map, indices, updates])
-                    map = newMap
+//                     const newMap = tf.tensorScatterUpdate(map, indices, updates)
+//                     tf.dispose([map, indices, updates])
+//                     map = newMap
 
-                    console.log(count)
-                    count++
-                }
-            }
-        }
-    }
+//                     console.log(count)
+//                     count++
+//                 }
+//             }
+//         }
+//     }
 
-    console.timeEnd('computeViewDependentCullingPatches')
-}
+//     console.timeEnd('computeViewDependentCullingPatches')
+// }
