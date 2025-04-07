@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import { int } from 'three/tsl'
+import { exp } from 'mathjs'
 
 /**
  * Computes a Chebyshev distance map from a 3D binary occupancy map.
@@ -305,108 +306,129 @@ export function mix(a, b, t)
     })
 }
 
-// export async function computeViewDependentCulling(intensityMap)
+// export async function computeViewDependentCulling(tensor)               
 // {
-//     // Min tensors
+//     //           (0,1,1)                       (1,1,1)
+//     //              +-----------------------------+  
+//     //             /|                            /|
+//     //            / |                           / |
+//     //           /  |         #6 z=1           /  |
+//     //  (0,0,1) /   |                       (1,0,1) 
+//     //         +-----------------------------+    |
+//     //         |    |            #5 y=1      |    |
+//     //         |    |                        |    |
+//     //         | #1 x=0                      | #4 x=1
+//     //         |    |                        |    |
+//     //         |    |        #2 y=0          |    |
+//     //  (0,1,0)|    +------------------------|----+ (1,1,0)
+//     //         |   /                         |   / 
+//     //         |  /           #3 z=0         |  /  
+//     //         | /                           | /   
+//     //         |/                            |/    
+//     //         +-----------------------------+    
+//     //    (0,0,0)                            (1,0,0)
+//     //    
 
-//     const tensor = tf.pad(intensityMap, [[1, 0], [1, 0], [1, 0], [0, 0]])
-//     const shape = tensor.shape
+//     const shape = tensor.shape.map((x) => x - 1)
+//     shape[3] = tensor.shape[3]
 
-//     let mx = minPool3d(tensor, [2, 1, 1], 1, 'same')
-//     let my = minPool3d(tensor, [1, 2, 1], 1, 'same')
-//     let mz = minPool3d(tensor, [1, 1, 2], 1, 'same')
+//     // Positive propagation
 
-//     tensor.dispose()
-
-//     // Propagate
-//     await tf.nextFrame()
-
-//     for (let i = 0; i < 1; i++)
+//     // min(face#1) >= max(face#4)
+//     const c14 = tf.tidy(() =>
 //     {
-//         // Updates
-
-//         const _mx = tf.tidy(() => 
-//         {
-//             const sx   = shift(mx, 0, -1)
-//             const sy   = shift(my, 0, -1)
-//             const sz   = shift(mz, 0, -1)
-
-//             const sxy  = tf.minimum(sx, sy)
-//             const sxyz = tf.minimum(sxy, sz)
-
-//             const mxyz = tf.maximum(sxyz, mx)
-    
-//             return mxyz
-//         })
-
-//         await tf.nextFrame()
-
-//         const _my = tf.tidy(() =>
-//         {
-//             const sx  = shift(mx, 1, -1)
-//             const sz  = shift(mz, 1, -1)
-    
-//             const sxz = tf.minimum(sx, sz)
-
-//             const mxyz = tf.maximum(sxz, my)
-//             my.dispose()
-    
-//             return mxyz
-//         })
-
-//         await tf.nextFrame()
-
-//         const _mz = tf.tidy(() =>
-//         {
-//             const sx  = shift(mx, 2, -1)
-//             const sy  = shift(my, 2, -1)
-    
-//             const sxy = tf.minimum(sx, sy)
-
-//             const mxyz = tf.maximum(sxy, mz)
-//             mz.dispose()
-    
-//             return mxyz
-//         })
-
-//         await tf.nextFrame()
-
-//         // Dispose
-//         tf.dispose([mx, my, mz])
-//         await tf.nextFrame()
-
-//         // Reassign
-//         mx = _mx
-//         my = _my
-//         mz = _mz
-
-//     }
-
-//     // Max tensors
-
-//     const tensor2 = tf.pad(intensityMap, [[1, 1], [1, 1], [1, 1], [0, 0]])
-
-//     const Mx = tf.tidy(() => tf.maxPool3d(tensor2, [2, 1, 1], 1, 'same').slice([1, 1, 1, 0], shape))
-//     const My = tf.tidy(() => tf.maxPool3d(tensor2, [1, 2, 1], 1, 'same').slice([1, 1, 1, 0], shape))
-//     const Mz = tf.tidy(() => tf.maxPool3d(tensor2, [1, 1, 2], 1, 'same').slice([1, 1, 1, 0], shape))
-//     tensor2.dispose()
-
-//     await tf.nextFrame()
-
-//     // Condition
-
-//     const c = tf.tidy(() => 
-//     {
-//         const cx   = tf.greaterEqual(mx, Mx)
-//         const cy   = tf.greaterEqual(my, My)
-//         const cz   = tf.greaterEqual(mz, Mz)
-
-//         const cxy  = tf.logicalAnd(cx,  cy)
-//         const cxyz = tf.logicalAnd(cxy, cz)
-//         c.dispose()
-
-//         return cxyz
+//         const m1 =    minPool3d(tensor, [1, 2, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
+//         const M4 = tf.maxPool3d(tensor, [1, 2, 2], 1, 'valid').slice([1, 0, 0, 0], shape)
+//         return tf.greaterEqual(m1, M4)
 //     })
+   
+//     await tf.nextFrame()
+
+//     // min(face#2) >= max(face#5)
+//     const c25 = tf.tidy(() =>
+//     {
+//         const m2 =    minPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
+//         const M5 = tf.maxPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 1, 0, 0], shape)
+//         return tf.greaterEqual(m2, M5)
+//     })
+   
+//     await tf.nextFrame()
+
+//     // min(face#1) >= max(face#4) && min(face#2) >= max(face#5)
+//     const c12 = tf.logicalAnd(c14, c25)
+//     tf.dispose([c14, c25])
+
+//     await tf.nextFrame()
+
+//     // min(face#3) >= max(face#6)
+//     const c36 = tf.tidy(() =>
+//     {
+//         const m3 =    minPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 0, 0], shape)
+//         const M6 = tf.maxPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 1, 0], shape)
+//         return tf.greaterEqual(m3, M6)
+    
+//     })
+   
+//     await tf.nextFrame()
+
+//     // min(face#1) >= max(face#4) && min(face#2) >= max(face#5) && min(face#3) >= max(face#6)
+//     const c123 =  tf.logicalAnd(c12, c36)
+//     tf.dispose([c12, c36])
+
+//     await tf.nextFrame()
+
+//     // Negative propagation
+
+//     // min(face#4) >= max(face#1)
+//     const c41 = tf.tidy(() =>
+//     {
+//         const m4 =    minPool3d(tensor, [1, 2, 2], 1, 'valid').slice([1, 0, 0, 0], shape)
+//         const M1 = tf.maxPool3d(tensor, [1, 2, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
+//         return tf.greaterEqual(m4, M1)
+//     })
+       
+//     await tf.nextFrame()
+
+//     // min(face#5) >= max(face#2)
+//     const c52 = tf.tidy(() =>
+//     {
+//         const m5 =    minPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 1, 0, 0], shape)
+//         const M2 = tf.maxPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
+//         return tf.greaterEqual(m5, M2)
+//     })
+       
+//     await tf.nextFrame()
+
+//     // min(face#4) >= max(face#1) && min(face#5) >= max(face#2)
+//     const c45 = tf.logicalAnd(c41, c52)
+//     tf.dispose([c41, c52])
+
+//     await tf.nextFrame()
+
+//     // min(face#6) >= max(face#3)
+//     const c63 = tf.tidy(() =>
+//     {
+//         const m6 =    minPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 1, 0], shape)
+//         const M3 = tf.maxPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 0, 0], shape)
+//         return tf.greaterEqual(m6, M3)
+//     })
+       
+//     await tf.nextFrame()
+
+//     // min(face#4) >= max(face#1) && min(face#5) >= max(face#2) && min(face#6) >= max(face#3)
+//     const c456 =  tf.logicalAnd(c45, c63)
+//     tf.dispose([c45, c63])
+
+//     await tf.nextFrame()
+
+//     // Combination
+
+//     // (min(face#1) >= max(face#4) && min(face#2) >= max(face#5) && min(face#3) >= max(face#6)) ||
+//     // (min(face#4) >= max(face#1) && min(face#5) >= max(face#2) && min(face#6) >= max(face#3))
+//     const c = tf.logicalOr(c123, c456)
+//     tf.dispose([c123, c456])
+
+//     await tf.nextFrame()
 
 //     return c
 // }
@@ -437,101 +459,188 @@ export async function computeViewDependentCulling(tensor)
     const shape = tensor.shape.map((x) => x - 1)
     shape[3] = tensor.shape[3]
 
-    // Positive propagation
-
-    // min(face#1) >= max(face#4)
-    const c14 = tf.tidy(() =>
+    let [mx, my, mz] = tf.tidy(() =>
     {
-        const m1 =    minPool3d(tensor, [1, 2, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
-        const M4 = tf.maxPool3d(tensor, [1, 2, 2], 1, 'valid').slice([1, 0, 0, 0], shape)
-        return tf.greaterEqual(m1, M4)
+        const mx = minPool3d(tensor, [1, 2, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
+        const my = minPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
+        const mz = minPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 0, 0], shape)
+        return [mx, my, mz]
     })
-   
-    await tf.nextFrame()
-
-    // min(face#2) >= max(face#5)
-    const c25 = tf.tidy(() =>
-    {
-        const m2 =    minPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
-        const M5 = tf.maxPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 1, 0, 0], shape)
-        return tf.greaterEqual(m2, M5)
-    })
-   
-    await tf.nextFrame()
-
-    // min(face#1) >= max(face#4) && min(face#2) >= max(face#5)
-    const c12 = tf.logicalAnd(c14, c25)
-    tf.dispose([c14, c25])
-
-    await tf.nextFrame()
-
-    // min(face#3) >= max(face#6)
-    const c36 = tf.tidy(() =>
-    {
-        const m3 =    minPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 0, 0], shape)
-        const M6 = tf.maxPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 1, 0], shape)
-        return tf.greaterEqual(m3, M6)
     
-    })
-   
     await tf.nextFrame()
 
-    // min(face#1) >= max(face#4) && min(face#2) >= max(face#5) && min(face#3) >= max(face#6)
-    const c123 =  tf.logicalAnd(c12, c36)
-    tf.dispose([c12, c36])
-
-    await tf.nextFrame()
-
-    // Negative propagation
-
-    // min(face#4) >= max(face#1)
-    const c41 = tf.tidy(() =>
+    for (let i = 0; i < 10; i++)
     {
-        const m4 =    minPool3d(tensor, [1, 2, 2], 1, 'valid').slice([1, 0, 0, 0], shape)
-        const M1 = tf.maxPool3d(tensor, [1, 2, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
-        return tf.greaterEqual(m4, M1)
-    })
-       
-    await tf.nextFrame()
+        const nx = tf.tidy(() =>
+        {
+            const sx = shift(mx, 0, -1)
+            const sy = shift(my, 0, -1)
+            const sz = shift(mz, 0, -1)
+            const sxy = tf.minimum(sx, sy)
+            const sxyz = tf.minimum(sxy, sz)
+            return tf.maximum(sxyz, mx)
+        })
+    
+        await tf.nextFrame()
+    
+        const ny = tf.tidy(() =>
+        {
+            const sx = shift(mx, 1, -1)
+            const sz = shift(mz, 1, -1)
+            const sxz = tf.minimum(sx, sz)
+            return tf.maximum(sxz, my)
+        })
+    
+        await tf.nextFrame()
+    
+        const nz = tf.tidy(() =>
+        {
+            const sx = shift(mx, 2, -1)
+            const sy = shift(my, 2, -1)
+            const sxy = tf.minimum(sx, sy)
+            return tf.maximum(sx, mz)
+        })
+            
+        await tf.nextFrame()
 
-    // min(face#5) >= max(face#2)
-    const c52 = tf.tidy(() =>
+        tf.dispose([mx, my, mz])
+        mx = nx
+        my = ny
+        mz = nz
+        
+        await tf.nextFrame()
+    }
+    
+    const [Mx, My, Mz] = tf.tidy(() =>
     {
-        const m5 =    minPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 1, 0, 0], shape)
-        const M2 = tf.maxPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
-        return tf.greaterEqual(m5, M2)
+        const Mx = tf.maxPool3d(tensor, [1, 2, 2], 1, 'valid').slice([1, 0, 0, 0], shape)
+        const My = tf.maxPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 1, 0, 0], shape)
+        const Mz = tf.maxPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 1, 0], shape)
+        return [Mx, My, Mz]
     })
-       
-    await tf.nextFrame()
-
-    // min(face#4) >= max(face#1) && min(face#5) >= max(face#2)
-    const c45 = tf.logicalAnd(c41, c52)
-    tf.dispose([c41, c52])
 
     await tf.nextFrame()
 
-    // min(face#6) >= max(face#3)
-    const c63 = tf.tidy(() =>
+    const c = tf.tidy(() =>
     {
-        const m6 =    minPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 1, 0], shape)
-        const M3 = tf.maxPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 0, 0], shape)
-        return tf.greaterEqual(m6, M3)
+        const cx = tf.greaterEqual(mx, Mx)
+        const cy = tf.greaterEqual(my, My)
+        const cz = tf.greaterEqual(mz, Mz)
+        const cxy = tf.logicalAnd(cx, cy)
+        const cxyz = tf.logicalAnd(cxy, cz)
+        tf.dispose([mx, my, mz]) 
+        tf.dispose([Mx, My, Mz])
+        return cxyz
     })
-       
-    await tf.nextFrame()
-
-    // min(face#4) >= max(face#1) && min(face#5) >= max(face#2) && min(face#6) >= max(face#3)
-    const c456 =  tf.logicalAnd(c45, c63)
-    tf.dispose([c45, c63])
 
     await tf.nextFrame()
 
-    // Combination
+    return c
+}
 
-    // (min(face#1) >= max(face#4) && min(face#2) >= max(face#5) && min(face#3) >= max(face#6)) ||
-    // (min(face#4) >= max(face#1) && min(face#5) >= max(face#2) && min(face#6) >= max(face#3))
-    const c = tf.logicalOr(c123, c456)
-    tf.dispose([c123, c456])
+export async function computeViewDependentCulling2(tensor)               
+{
+    //           (0,1,1)                       (1,1,1)
+    //              +-----------------------------+  
+    //             /|                            /|
+    //            / |                           / |
+    //           /  |         #6 z=1           /  |
+    //  (0,0,1) /   |                       (1,0,1) 
+    //         +-----------------------------+    |
+    //         |    |            #5 y=1      |    |
+    //         |    |                        |    |
+    //         | #1 x=0                      | #4 x=1
+    //         |    |                        |    |
+    //         |    |        #2 y=0          |    |
+    //  (0,1,0)|    +------------------------|----+ (1,1,0)
+    //         |   /                         |   / 
+    //         |  /           #3 z=0         |  /  
+    //         | /                           | /   
+    //         |/                            |/    
+    //         +-----------------------------+    
+    //    (0,0,0)                            (1,0,0)
+    //    
+
+    const shape = tensor.shape.map((x) => x - 1)
+    shape[3] = tensor.shape[3]
+
+    let [mx, my, mz] = tf.tidy(() =>
+    {
+        const mx = minPool3d(tensor, [1, 2, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
+        const my = minPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 0, 0, 0], shape)
+        const mz = minPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 0, 0], shape)
+        return [mx, my, mz]
+    })
+    
+    await tf.nextFrame()
+
+    for (let i = 0; i < 3; i++)
+    {
+        const nx = tf.tidy(() =>
+        {
+            const sx = shift(mx, 0, -1)
+            const sy = shift(my, 0, -1)
+            const sz = shift(mz, 0, -1)
+            const sxy = tf.minimum(sx, sy)
+            const sxyz = tf.minimum(sxy, sz)
+            return tf.maximum(sxyz, mx)
+        })
+    
+        await tf.nextFrame()
+    
+        const ny = tf.tidy(() =>
+        {
+            const sx = shift(mx, 1, -1)
+            const sy = shift(my, 1, -1)
+            const sz = shift(mz, 1, -1)
+            const sxy = tf.minimum(sx, sy)
+            const sxyz = tf.minimum(sxy, sz)
+            return tf.maximum(sxyz, my)
+        })
+    
+        await tf.nextFrame()
+    
+        const nz = tf.tidy(() =>
+        {
+            const sx = shift(mx, 2, -1)
+            const sy = shift(my, 2, -1)
+            const sz = shift(mz, 2, -1)
+            const sxy = tf.minimum(sx, sy)
+            const sxyz = tf.minimum(sxy, sz)
+            return tf.maximum(sxyz, mz)
+        })
+            
+        await tf.nextFrame()
+
+        tf.dispose([mx, my, mz])
+        mx = nx
+        my = ny
+        mz = nz
+        
+        await tf.nextFrame()
+    }
+    
+    const [Mx, My, Mz] = tf.tidy(() =>
+    {
+        const Mx = tf.maxPool3d(tensor, [1, 2, 2], 1, 'valid').slice([1, 0, 0, 0], shape)
+        const My = tf.maxPool3d(tensor, [2, 1, 2], 1, 'valid').slice([0, 1, 0, 0], shape)
+        const Mz = tf.maxPool3d(tensor, [2, 2, 1], 1, 'valid').slice([0, 0, 1, 0], shape)
+        return [Mx, My, Mz]
+    })
+
+    await tf.nextFrame()
+
+    const c = tf.tidy(() =>
+    {
+        const cx = tf.greaterEqual(mx, Mx)
+        const cy = tf.greaterEqual(my, My)
+        const cz = tf.greaterEqual(mz, Mz)
+        const cxy = tf.logicalAnd(cx, cy)
+        const cxyz = tf.logicalAnd(cxy, cz)
+        tf.dispose([mx, my, mz]) 
+        tf.dispose([Mx, My, Mz])
+        return cxyz
+    })
 
     await tf.nextFrame()
 
@@ -543,29 +652,34 @@ export async function computeViewDependentCullingPatches(tensor)
     console.time('computeViewDependentCullingPatches')
 
     const shape = tensor.shape
-    const patchDivisions = [4, 4, 4, 1]
+    const patchDivisions = [1, 1, 10, 1]
     
-    const patchSize = shape.map((x, i) => Math.max(Math.ceil(x / patchDivisions[i]), 1))
-    const stride = patchSize.map(x => Math.max(x - 1, 1))
+    const stride = shape.map((x, i) => Math.max(Math.ceil(x / patchDivisions[i]), 1))
+    const patchSize = stride.map((x, i) => Math.min(x + 1, shape[i]))
 
     const [shapeZ, shapeY, shapeX, shapeT] = shape
     const [patchZ, patchY, patchX, patchT] = patchSize
     const [strideZ, strideY, strideX, strideT] = stride
 
+    // console.log(shape)
+    // console.log(patchSize)
+    // console.log(stride)
+
     const mapShape = shape.map((x) => x - 1)
     mapShape[3] = shape[3]
     let map = tf.zeros(mapShape, 'bool')  
+    let count = 0
 
-    for (let beginZ = 0; beginZ <= shapeZ - patchZ; beginZ += strideZ) {
-        for (let beginY = 0; beginY <= shapeY - patchY; beginY += strideY) {
-            for (let beginX = 0; beginX <= shapeX - patchX; beginX += strideX) {
-                for (let beginT = 0; beginT <= shapeT - patchT; beginT += strideT) 
+    for (let beginZ = 0; beginZ < shapeZ; beginZ += strideZ) {
+        for (let beginY = 0; beginY < shapeY; beginY += strideY) {
+            for (let beginX = 0; beginX < shapeX; beginX += strideX) {
+                for (let beginT = 0; beginT < shapeT; beginT += strideT) 
                 {
-                    const begin = [beginZ, beginY, beginT, beginT]
+                    const begin = [beginZ, beginY, beginX, beginT]
                     const sliceSize = patchSize.map((x, i) => Math.min(shape[i] - begin[i], patchSize[i]))
                 
                     const slice = tensor.slice(begin, sliceSize)
-                    const patch = await computeViewDependentCulling(slice)
+                    const patch = await computeViewDependentCulling2(slice)
                     tf.dispose(slice)
 
                     const paddings = shape.map((x, i) => [begin[i],  shape[i] - begin[i] - sliceSize[i]])
@@ -575,6 +689,9 @@ export async function computeViewDependentCullingPatches(tensor)
                     const newMap = tf.logicalOr(map, paddedPatch)
                     tf.dispose([map, paddedPatch])
                     map = newMap                
+
+                    count++
+                    console.log(count, begin)
                 }
             }
         }
@@ -583,53 +700,26 @@ export async function computeViewDependentCullingPatches(tensor)
     tf.tidy(() => console.log(map.sum().arraySync()/map.size * 100))
 
     console.timeEnd('computeViewDependentCullingPatches')
+
+    return map
 }
 
-// export async function computeViewDependentCullingPatches2(tensor)
-// {
-//     console.time('computeViewDependentCullingPatches')
+export async function computeBidirectionalViewDependentCulling(tensor)
+{
+    const c1 = await computeViewDependentCullingPatches(tensor)
 
-//     const shape = tensor.shape
-//     const patchDivisions = [8, 1, 1, 1]
+    await tf.nextFrame()
 
-//     const patchSize = shape.map((x, i) => Math.max(Math.ceil(x / patchDivisions[i]), 1))
-//     const stride = patchSize.map(x => Math.max(x - 1, 1))
+    const t = tf.tidy(() => tensor.reverse(0).reverse(1).reverse(1))
+    const c2 = await computeViewDependentCullingPatches(t)
+    tf.dispose(t)
+    await tf.nextFrame()
 
-//     const [shapeZ, shapeY, shapeX, shapeT] = shape
-//     const [patchZ, patchY, patchX, patchT] = patchSize
-//     const [strideZ, strideY, strideX, strideT] = stride
+    const c = tf.logicalOr(c1, c2)
+    tf.dispose([c1, c2])
+    await tf.nextFrame()
 
-//     let map = tf.zeros(shape, 'bool')  
-//     let count = 0
+    tf.tidy(() => console.log(c.sum().arraySync()/c.size * 100))
 
-//     for (let beginZ = 0; beginZ <= shapeZ - patchZ; beginZ += strideZ) {
-//         for (let beginY = 0; beginY <= shapeY - patchY; beginY += strideY) {
-//             for (let beginX = 0; beginX <= shapeX - patchX; beginX += strideX) {
-//                 for (let beginT = 0; beginT <= shapeT - patchT; beginT += strideT) 
-//                 {
-//                     const begin = [beginZ, beginY, beginT, beginT]
-//                     const sliceSize = patchSize.map((x, i) => Math.min(shape[i] - begin[i], patchSize[i]))
-                
-//                     const slice = tensor.slice(begin, sliceSize)
-//                     const patch = await computeViewDependentCulling(slice)
-//                     tf.dispose(slice)
-
-//                     const patchIndices = await tf.whereAsync(patch)
-//                     const offset = tf.tensor1d(begin, 'int32')
-//                     const indices = patchIndices.add(offset)
-//                     const updates = tf.ones([indices.shape[0]], 'bool')
-//                     tf.dispose([offset, patchIndices])
-
-//                     const newMap = tf.tensorScatterUpdate(map, indices, updates)
-//                     tf.dispose([map, indices, updates])
-//                     map = newMap
-
-//                     console.log(count)
-//                     count++
-//                 }
-//             }
-//         }
-//     }
-
-//     console.timeEnd('computeViewDependentCullingPatches')
-// }
+    return c
+}

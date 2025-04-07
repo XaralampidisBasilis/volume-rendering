@@ -7,6 +7,7 @@ import Keyboard from './Utils/Keyboard'
 import Stats from './Utils/Stats'
 import Camera from './Camera'
 import Renderer from './Renderer'
+import Controls from './Utils/Controls'
 import World from './World/World'
 import Resources from './Utils/Resources'
 import XREnvironment from './XREnvironment/XREnvironment'
@@ -34,9 +35,9 @@ export default class Experience
         this.sizes = new Sizes()
         this.time = new Time()
         this.mouse = new Mouse()
-        this.keyboard = new Keyboard()
         this.camera = new Camera()
         this.renderer = new Renderer()
+        this.controls = new Controls()
         this.resources = new Resources(sources)
         this.world = new World()
         this.stats = new Stats(true)
@@ -81,7 +82,6 @@ export default class Experience
 
         // destroy components
         if (this.mouse) this.mouse.destroy()
-        if (this.keyboard) this.keyboard.destroy()
         if (this.world) this.world.destroy()
         if (this.camera) this.camera.destroy()
         if (this.renderer) this.renderer.destroy()
@@ -92,7 +92,6 @@ export default class Experience
         this.sizes = null
         this.time = null
         this.mouse = null
-        this.keyboard = null
         this.scene = null
         this.camera = null
         this.resources = null

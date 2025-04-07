@@ -63,6 +63,8 @@ export default class Surface
 
     update()
     {
+        this.updateSlicesUniforms()
+        this.updateBboxUniforms()
     }
 
     updateSlicesUniforms()

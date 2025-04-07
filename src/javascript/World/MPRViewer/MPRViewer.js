@@ -31,6 +31,7 @@ export default class MPRViewer extends EventEmitter
         this.camera = this.experience.camera
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
+        this.controls = this.experience.controls
         this.computes = new Computes()
         this.textures = new Textures()
 
@@ -41,6 +42,7 @@ export default class MPRViewer extends EventEmitter
         this.textures.on('ready', () =>
         {
             this.setGroup()
+
             // this.gui = new Gui()
             this.trigger('ready')
         })
@@ -56,10 +58,12 @@ export default class MPRViewer extends EventEmitter
         this.group = new THREE.Group()
         this.group.position.copy(this.parameters.size).divideScalar(-2)
         this.group.updateMatrixWorld(true)
+        
         this.group.add(this.slices.group)
         this.group.add(this.surface.mesh)
         this.scene.add(this.group)
 
+        this.controls.instance.attach(this.slices.group)
         this.camera.instance.position.copy(this.parameters.size).multiplyScalar(2)
     }
 

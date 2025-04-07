@@ -5,6 +5,7 @@ import MPRViewer from '../MPRViewer'
 import { OBB } from 'three/addons/math/OBB.js'
 
 const _plane = new THREE.Plane()
+const _box = new THREE.Box3()
 
 export default class Slices
 {
@@ -62,9 +63,10 @@ export default class Slices
 
         this.planes = normals.map((normal) =>
         {
-            const constant = 0
-            const plane = new THREE.Plane(normal, constant).applyMatrix4(this.group.matrixWorld) // world coords
-            plane.local = new THREE.Plane(normal, constant) // local coords
+            _plane.set(normal, 0)
+            
+            const plane = _plane.clone().applyMatrix4(this.group.matrixWorld) // world coords
+            plane.local = _plane.clone() // local coords
 
             return plane
         })
@@ -74,15 +76,16 @@ export default class Slices
     {
         const center = new THREE.Vector3()
         const size = new THREE.Vector3().copy(this.parameters.size)
-        const box = new THREE.Box3().setFromCenterAndSize(center, size)
+        _box.setFromCenterAndSize(center, size)
 
-        this.box = new OBB().fromBox3(box).applyMatrix4(this.group.matrixWorld) // world coords
-        this.box.local = new OBB().fromBox3(box) // local coords
+        this.box = new OBB().fromBox3(_box.clone()).applyMatrix4(this.group.matrixWorld) // world coords
+        this.box.local = new OBB().fromBox3(_box.clone()) // local coords
     }
 
     update()
     {
         this.group.updateMatrixWorld(true)
+        
         this.updatePlanesToWorld()
         this.updateBoxToWorld()
         this.updateSliceUniforms()

@@ -13,7 +13,7 @@ export default class Camera
         this.canvas = this.experience.canvas
 
         this.setInstance()
-        this.setControls()
+        this.setOrbit()
         this.setRaycaster()
     }
 
@@ -24,15 +24,13 @@ export default class Camera
         this.scene.add(this.instance)
     }
 
-    setControls()
+    setOrbit()
     {
-        this.controls = {}
-
-        this.controls = new OrbitControls(this.instance, this.canvas)
-        this.controls.enableDamping = true
-        this.controls.enableZoom = true
-        this.controls.zoomToCursor = true
-        this.controls.zoomSpeed = 2
+        this.orbit = new OrbitControls(this.instance, this.canvas)
+        this.orbit.enableDamping = true
+        this.orbit.enableZoom = true
+        this.orbit.zoomToCursor = true
+        this.orbit.zoomSpeed = 2
     }
 
     setRaycaster()
@@ -49,7 +47,7 @@ export default class Camera
 
     update()
     {
-        this.controls.update()
+        this.orbit.update()
         this.raycaster.setFromCamera(this.mouse.ndcPosition, this.instance)
     }
 
@@ -57,10 +55,10 @@ export default class Camera
     {
         this.scene.remove(this.instance);
 
-        if (this.controls) 
+        if (this.orbit) 
         {
-            this.controls.dispose()
-            this.controls = null
+            this.orbit.dispose()
+            this.orbit = null
         }
 
         if (this.raycaster)
