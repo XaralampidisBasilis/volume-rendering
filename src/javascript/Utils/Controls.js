@@ -30,7 +30,7 @@ export default class Controls
     setGizmo()
     {
         this.gizmo = this.instance.getHelper()
-        this.scene.add( this.gizmo )
+        this.scene.add(this.gizmo)
     }
 
     setKeybinds()
@@ -49,10 +49,6 @@ export default class Controls
 
                 case 'r':
                     this.instance.setMode( 'rotate' )
-                    break
-
-                case 's':
-                    this.instance.setMode( 'scale' )
                     break
 
                 case '+':
