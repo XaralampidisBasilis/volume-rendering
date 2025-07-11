@@ -41,17 +41,20 @@ disp([c_coeffs(:), t_terms(:)]);
 %% Mapping
 % Define the 8x8 transformation matrix T, f = T * d
 T = [
-    1 0 0 0 0 0 0 0;  % f000 = d000
-    1 1 0 0 0 0 0 0;  % f100 = d100 + d000
-    1 0 1 0 0 0 0 0;  % f010 = d010 + d000
-    1 0 0 1 0 0 0 0;  % f001 = d001 + d000
-    1 0 1 1 1 0 0 0;  % f011 = d011 + d001 + d010 + d000
-    1 1 0 1 0 1 0 0;  % f101 = d101 + d001 + d100 + d000
-    1 1 1 0 0 0 1 0;  % f110 = d110 + d010 + d100 + d000
-    1 1 1 1 1 1 1 1;  % f111 = d111 + d011 + d101 + d110 + d100 + d010 + d001 + d000
+    1 0 0 0;  % f00 = d00
+    1 1 0 0;  % f10 = d10 + d00
+    1 0 1 0;  % f01 = d01 + d00
+    1 1 1 1;  % f11 = d11 + d10 + d01 + d00
 ];
 
-a = simplify(subs(c, f, T * d));
+B = [
+    1, -1, -1,  1;  
+    1,  1, -1, -1;  
+    1, -1,  1, -1;  
+    1,  1,  1,  1;  
+];
+
+a = simplify(subs(c, f, inv(B) * d));
 [a_coeffs, t_terms] = coeffs(a, t);
 a_coeffs = simplify(a_coeffs);
 
@@ -61,48 +64,98 @@ disp([a_coeffs(:), t_terms(:)]);
 %% Efficient calculation of coefficients for glsl implementation
 % Define the inverse transformation matrix T_inv, d = T_inv * f
 T_inv = [
-    1  0  0  0  0  0  0  0;   % d000 = f000
-   -1  1  0  0  0  0  0  0;   % d100 = f100 - f000
-   -1  0  1  0  0  0  0  0;   % d010 = f010 - f000
-   -1  0  0  1  0  0  0  0;   % d001 = f001 - f000
-    1  0 -1 -1  1  0  0  0;   % d011 = f000 - f001 - f010 + f011
-    1 -1  0 -1  0  1  0  0;   % d101 = f000 - f001 - f100 + f101
-    1 -1 -1  0  0  0  1  0;   % d110 = f000 - f010 - f100 + f110
-   -1  1  1  1 -1 -1 -1  1;   % d111 = f001 - f000 + f010 - f011 + f100 - f101 - f110 + f111
+    1,  0,  0,  0;   % d00 = f00
+   -1,  1,  0,  0;   % d10 = f10 - f00
+   -1,  0,  1,  0;   % d01 = f01 - f00
+    1, -1, -1,  1;   % d11 = f00 - f10 - f01 + f11
 ];
+
+B_inv = [
+    1,  1,  1,  1;   % d00 = f11 + f10 + f01 + f00 
+   -1,  1, -1,  1;   % d10 = f11 + f10 - f01 - f00
+   -1, -1,  1,  1;   % d01 = f11 + f01 - f10 - f00
+    1, -1, -1,  1;   % d11 = f11 - f10 - f01 + f00
+] / 4;
 
 % Define the transformation matrix M, coeffs = M * d
 M = [
-    0, 0,  0,  0,   0,             0,             0,             bx*by*bz;
-    0, 0,  0,  0,   by*bz,         bx*bz,         bx*by,         bx*by*az + by*bz*ax + bx*bz*ay;
-    0, bx, by, bz,  by*az + bz*ay, bx*az + bz*ax, bx*ay + by*ax, bx*ay*az + by*ax*az + bz*ax*ay;
-    1, ax, ay, az,  ay*az,         ax*az,         ax*ay,         ax*ay*az
+    0, 0,  0,  bx*by;
+    0, bx, by, bx*ay + by*ax;
+    1, ax, ay, ax*ay
 ];
-aa_coeffs = sym(zeros(4,1));
 
-aa_coeffs(1) = bx * by * bz * d111;
+aa_coeffs = sym(zeros(3,1));
 
-aa_coeffs(2) = bx * by * (az * d111 + d110) ...
-             + by * bz * (ax * d111 + d011) ...
-             + bx * bz * (ay * d111 + d101);
+aa_coeffs(1) = bx * by * d11;
 
-aa_coeffs(3) = bx * (ay * az * d111 + ay * d110 + az * d101 + d100) ...
-             + by * (ax * az * d111 + ax * d110 + az * d011 + d010) ...
-             + bz * (ax * ay * d111 + ax * d101 + ay * d011 + d001);
+aa_coeffs(2) = bx * (d10 + ay * d11) ...
+             + by * (d01 + ax * d11);
 
-aa_coeffs(4) = ax * ay * az * d111 ...
-                  + ax * ay * d110 ...
-                  + ax * az * d101 ...
-                  + ay * az * d011 ...
-                       + ax * d100 ...
-                       + ay * d010 ...
-                       + az * d001 ...
-                            + d000;
+aa_coeffs(3) = ax * ay * d11 ...
+                  + ax * d10 ...
+                  + ay * d01 ...
+                       + d00;
 
-aa = simplify(dot(M * d, [t^3, t^2, t^1, t^0]));
+aa = simplify(dot(M * d, [t^2, t^1, t^0]));
 cc = simplify(subs(aa, d, T_inv * f));
 disp(simplify(aa - a))
 disp(simplify(cc - c))
+
+%% Compute D4-symmetric average of M matrix
+
+% Define corner permutations for each symmetry
+permutations = {
+    [1 2 3 4];  % identity
+    [2 1 4 3];  % horizontal flip
+    [3 4 1 2];  % vertical flip
+    [4 3 2 1];  % 180 rotation
+    [1 3 2 4];  % transpose
+    [4 2 3 1];  % anti-diagonal
+    [3 1 4 2];  % 90 ccw
+    [2 4 1 3];  % 270 cw
+};
+
+% Define transformation functions for (x, y)
+symmetries = {
+    @(x, y) [x, y];                    % identity
+    @(x, y) [1 - x, y];                % horizontal flip
+    @(x, y) [x, 1 - y];                % vertical flip
+    @(x, y) [1 - x, 1 - y];            % 180 rotation
+    @(x, y) [y, x];                    % transpose
+    @(x, y) [1 - y, 1 - x];            % anti-diagonal
+    @(x, y) [y, 1 - x];                % 90 ccw
+    @(x, y) [1 - y, x];                % 270 cw
+};
+
+Mavg = sym(zeros(3,4)); % accumulator
+
+% Loop over all 8 symmetries
+for i = 1:8
+
+    % Transform the ray endpoints under symmetry
+    a_new = symmetries{i}(ax, ay);
+    c_new = symmetries{i}(ax + bx, ay + by);
+    b_new = simplify(c_new - a_new);
+    
+    % Recompute the M matrix for this transformed ray
+    M_i = [
+        0,        0,        0, b_new(1) * b_new(2);
+        0, b_new(1), b_new(2), b_new(1) * a_new(2) + b_new(2) * a_new(1);
+        1, a_new(1), a_new(2), a_new(1) * a_new(2)
+    ];
+
+    % Apply the permutation matrix P_T to reorder d
+    P = eye(4);
+    P = P(permutations{i}, :);
+
+    % Accumulate the transformed matrix
+    Mavg = Mavg + M_i * P;
+end
+
+% Take the average over the 8 symmetries
+Mavg = simplify(Mavg / 8);
+disp('Symmetric average matrix Mavg:');
+disp(Mavg);
 
 %%
 syms px py pz 
@@ -116,8 +169,8 @@ assume([ux uy uz], 'real');
 % pz = az + bz*t
 
 % This describes the following equation f(t) = c0t^0 + c1t^1 + c2t^2 + c3t^3 = dot(M(t), d)
-Mt = simplify([t^3, t^2, t, 1] * M);
-Mt = simplify(subs(Mt, [ax, ay, az], [px - bx*t, py - by*t, pz - bz*t]));
+Mt = simplify([t^2, t, 1] * Mavg);
+Mt = simplify(subs(Mt, [ax, ay], [px - bx*t, py - by*t]));
 
 % Since c3 = bx*by*bz * d111 we need to find bounds for d111
 % We have f(t) = dot(M(t), d) =>
@@ -128,10 +181,4 @@ M0 = Mt(1:end-1);
 T0_inv = T_inv(1:end-1,:);
 W0 = M0 * T0_inv;
 
-
-%% Final maximal absolute bounds to the cubic coefficient based on a taken sample
-% p 3d point, f the sampled value there, c is the max bound for the coefficient c3
-v = abs(pout - pin);
-p = max(p, 1 - p);
-f = max(f, 1 - f);
-c = (f + dot(p * 2 - 1, p.yzx)) * prod(v) / prod(p); 
+disp(W0')
