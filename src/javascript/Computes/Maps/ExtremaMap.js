@@ -18,9 +18,7 @@ export default class ExtremaMap
     {
         console.time('computeExtremaMap') 
 
-        this.tensor?.dispose()
         this.tensor = computeExtremaMap(this.interpolationMap.tensor, this.interpolationMethod, this.blockSize)
-
         const dimensions = this.tensor.shape.slice(0, 3).toReversed()
         this.dimensions = new THREE.Vector3().fromArray(dimensions)
 
@@ -29,7 +27,6 @@ export default class ExtremaMap
 
     textureSync()
     {
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.textureDataSync(), ...this.dimensions)
         this.texture.format = THREE.RGFormat
         this.texture.type = THREE.HalfFloatType
@@ -52,7 +49,7 @@ export default class ExtremaMap
         return new Uint16Array(dataHalfFloat.buffer)
     }
 
-    destroy()
+    dispose()
     {
         this.tensor?.dispose()
         this.texture?.dispose()

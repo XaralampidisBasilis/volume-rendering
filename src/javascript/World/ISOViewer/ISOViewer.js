@@ -13,7 +13,7 @@ export default class ISOViewer extends EventEmitter
     constructor()
     {
         super()
-
+   
         // singleton
         if (ISOViewer.instance) 
         {
@@ -28,6 +28,7 @@ export default class ISOViewer extends EventEmitter
         this.camera = this.experience.camera
         this.sizes = this.experience.sizes
         this.debug = this.experience.debug
+        this.configs = this.experience.configs
         this.material = ISOMaterial()
         this.computes = new ISOComputes()
         this.textures = new ISOTextures()
@@ -43,6 +44,37 @@ export default class ISOViewer extends EventEmitter
             this.trigger('ready')
             console.log('ISOViewer', this)
         })
+    }
+
+    start()
+    {
+        this.setGeometry()
+        this.setMaterial()
+        this.setMesh()
+    }
+
+    startUniforms()
+    {
+        const uniforms = this.material.uniforms
+        uniforms.u_textures.value.interpolation_map = this.computes.interpolationMap.texturesSync()
+        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texturesSync()
+        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texturesSync()
+        
+        this.computes.interpolationMap.tensor.dispose()
+        this.computes.occupancyMap.tensor.dispose()
+        this.computes.distanceMap.tensor.dispose()
+    }
+
+    startDefines()
+    {
+        const defines = this.material.defines
+        defines.MAX_CELLS = this.computes.interpolationMap.dimensions.toArray().reduce((s, x) => s + x, 0)
+        defines.MAX_BLOCKS = this.computes.distanceMap.dimensions.toArray().reduce((s, x) => s + x, 0)
+        defines.MAX_TRACES = defines.MAX_CELLS * 5
+        defines.MAX_CELLS_PER_BLOCK = this.computes.distanceMap.blockSize * 3
+        defines.MAX_TRACES_PER_BLOCK = defines.MAX_CELLS_PER_BLOCK * 5
+        defines.MAX_GROUPS = Math.ceil(defines.MAX_CELLS / defines.MAX_CELLS_PER_BLOCK)
+        defines.MAX_BLOCKS_PER_GROUP = Math.ceil(defines.MAX_BLOCKS / defines.MAX_GROUPS)
     }
   
     setGeometry()

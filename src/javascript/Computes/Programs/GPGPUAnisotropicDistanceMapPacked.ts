@@ -304,7 +304,6 @@ function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]) : tf.Tensor
     return tf.engine().makeTensorFromTensorInfo(info) as tf.Tensor
 }
 
-
 export function computeAnisotropicDistanceMap(inputOccupancy: tf.Tensor3D, maxDistance: number): tf.Tensor4D 
 {
     const shape = inputOccupancy.shape

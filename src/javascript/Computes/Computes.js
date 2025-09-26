@@ -27,6 +27,7 @@ export default class Computes extends EventEmitter
         this.configs = this.experience.configs
         this.resources = this.experience.resources
         this.skippingMethod = this.configs.skippingMethod
+        
         this.setMaps()
     }
 
@@ -38,6 +39,7 @@ export default class Computes extends EventEmitter
         this.isotropicDistanceMap = new IsotropicDistanceMap()
         this.anisotropicDistanceMap = new AnisotropicDistanceMap()
         this.extendedAnisotropicDistanceMap = new ExtendedAnisotropicDistanceMap()
+        this.distanceMap = this.skippingMethod.endsWith('DistanceMap') ? this[this.skippingMethod] : null
     }
 
     start()
@@ -47,69 +49,67 @@ export default class Computes extends EventEmitter
         this.interpolationMap.compute()
         this.extremaMap.compute()
         this.occupancyMap.compute()
+        this.distanceMap?.compute()
         
-        if (this.skippingMethod.endsWith('DistanceMap'))
-        {
-            const distanceMap = this.skippingMethod
-            this[distanceMap].compute()
-        }
-
         console.timeEnd('startComputes') 
     }
 
     change(event)
     {
-        if (event.key === 'isosurfaceValue') this.onChangeIsosurfaceValue(event)
-        if (event.key === 'blockSize')  this.onChangeBlockSize(event)
+        if (event.key === 'isosurfaceValue'    ) this.onChangeIsosurfaceValue(event)
+        if (event.key === 'blockSize'          ) this.onChangeBlockSize(event)
         if (event.key === 'interpolationMethod') this.onChangeInterpolationMethod(event)
-        if (event.key === 'skippingMethod') this.onChangeSkippingMethod(event)
+        if (event.key === 'skippingMethod'     ) this.onChangeSkippingMethod(event)
     }
 
     onChangeIsosurfaceValue(event)
     {
+        this.occupancyMap.dispose()
         this.occupancyMap.compute()
 
-        if (this.skippingMethod.endsWith('DistanceMap'))
-        {
-            const distanceMap = this.skippingMethod
-            this[distanceMap].compute()
-        }
+        this.distanceMap?.dispose()
+        this.distanceMap?.compute()
     }
 
     onChangeBlockSize(event)
     {
+        this.extremaMap.dispose()
         this.extremaMap.compute()
-        this.occupancyMap.compute()
 
-        if (this.skippingMethod.endsWith('DistanceMap'))
-        {
-            const distanceMap = this.skippingMethod
-            this[distanceMap].compute()
-        }
+        this.occupancyMap.dispose()
+        this.occupancyMap.compute()
+        
+        this.distanceMap?.dispose()
+        this.distanceMap?.compute()
     }
 
     onChangeInterpolationMethod(event)
     {
+        this.extremaMap.dispose()
         this.extremaMap.compute()
+        
+        this.occupancyMap.dispose()
         this.occupancyMap.compute()
 
-        if (this.skippingMethod.endsWith('DistanceMap'))
-        {
-            const distanceMap = this.skippingMethod
-            this[distanceMap].compute()
-        }
+        this.distanceMap?.dispose()
+        this.distanceMap?.compute()
     }
 
     onChangeSkippingMethod(event)
     {
+        this.distanceMap?.dispose()
+        this.distanceMap = null
+
+        if (this.skippingMethod.endsWith('DistanceMap'))
+        {
+            this.distanceMap = this[this.skippingMethod]
+            this.distanceMap.compute()
+        }
+
         if (this.skippingMethod === 'occupancyMap')
         {
+            this.occupancyMap.dispose()
             this.occupancyMap.compute()
-        }
-        else if (this.skippingMethod.endsWith('DistanceMap'))
-        {
-            const distanceMap = this.skippingMethod
-            this[distanceMap].compute()
         }
     }
 

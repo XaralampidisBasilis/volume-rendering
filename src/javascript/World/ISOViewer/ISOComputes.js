@@ -42,12 +42,12 @@ export default class ISOComputes extends EventEmitter
         this.interpolationMethod = this.defines.INTERPOLATION_METHOD
         this.skippingMethod = this.defines.SKIPPING_METHOD
 
-        // Wait for resources
-        this.resources.on('ready', async () =>
-        {
-            await this.setComputes()
-            this.trigger('ready')
-        })
+        // // Wait for resources
+        // this.resources.on('ready', async () =>
+        // {
+        //     await this.setComputes()
+        //     this.trigger('ready')
+        // })
     }
 
     async setComputes()

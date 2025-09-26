@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
-import { computeAnisotropicDistanceMap } from '../Programs/GPGPUAnisotropicDistanceMapPacked'
+import { computeAnisotropicDistanceMap } from '../Programs/GPGPUAnisotropicDistanceMapFusedPacked'
 
 export default class AnisotropicDistanceMap
 {
@@ -17,7 +17,6 @@ export default class AnisotropicDistanceMap
     {
         console.time('computeAnisotropicDistanceMap') 
 
-        this.tensor?.dispose()
         this.tensor = computeAnisotropicDistanceMap(this.occupancyMap.tensor, this.maxDistance)
         this.dimensions = this.occupancyMap.dimensions
 
@@ -26,7 +25,6 @@ export default class AnisotropicDistanceMap
 
     textureSync()
     {
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.textureDataSync(), ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
         this.texture.type = THREE.UnsignedByteType
@@ -45,7 +43,7 @@ export default class AnisotropicDistanceMap
         return new Uint8Array(this.tensor.dataSync())
     }
 
-    destroy()
+    dispose()
     {
         this.tensor?.dispose()
         this.texture?.dispose()

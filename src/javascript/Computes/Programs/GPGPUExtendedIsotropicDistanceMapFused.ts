@@ -579,6 +579,7 @@ function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]) : tf.Tensor
     return tf.engine().makeTensorFromTensorInfo(backend.compileAndRun(prog, inputs))
 }
 
+
 export function computeExtendedAnisotropicDistanceMap(inputOccupancy: tf.Tensor3D, maxDistance: number): tf.Tensor4D 
 {
     // 1D 

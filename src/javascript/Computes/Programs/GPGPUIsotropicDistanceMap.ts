@@ -2,6 +2,84 @@ import * as tf from '@tensorflow/tfjs'
 import { GPGPUProgram } from '@tensorflow/tfjs-backend-webgl'
 import { MathBackendWebGL } from '@tensorflow/tfjs-backend-webgl'
 
+class IsotropicChebyshevDistancePass implements GPGPUProgram 
+{
+    variableNames = ['InputVariable']
+    outputShape: number[]
+    userCode: string
+    packedInputs = false
+    packedOutput = false
+
+    constructor
+    (
+        inputShape: [number, number, number], 
+        inputVariable: 'occupancy' | 'distance',
+        inputAxis: 'x' | 'y' | 'z',     
+        maxDistance: number,
+    ) 
+    {
+        const inIndex = ['z', 'y', 'x'].findIndex(x => x === inputAxis)
+        const [inDepth, inHeight, inWidth] = inputShape
+        const inDimension = inputShape[inIndex]
+        const maxSteps = Math.min(maxDistance, inDimension-1)
+        this.outputShape = [inDepth, inHeight, inWidth]
+        this.userCode = `
+        float getInputVariable(ivec3 coords) { return getInputVariable(coords.z, coords.y, coords.x); }
+
+        ${inputVariable == 'occupancy' ? `
+        int getInputDistance(ivec3 coords) { return int(getInputVariable(coords) < 0.5) * ${maxDistance}; }` : `
+        int getInputDistance(ivec3 coords) { return int(getInputVariable(coords)); }` }
+
+        void main() 
+        {
+            ivec3 outputCoords = getOutputCoords().zyx;
+            ivec3 inputCoords = outputCoords;
+            
+            int candidateDistance;
+            int inputDistance = getInputDistance(outputCoords);
+            int outputDistance = inputDistance;
+
+            if (outputDistance <= 1) 
+            {
+                setOutput(float(outputDistance));
+                return;
+            }
+
+            for (int stepDistance = 1; stepDistance <= ${maxSteps}; stepDistance++) 
+            {
+                inputCoords.${inputAxis} = outputCoords.${inputAxis} - stepDistance;
+                if (inputCoords.${inputAxis} >= 0) 
+                {
+                    inputDistance = getInputDistance(inputCoords);
+                    candidateDistance = max(inputDistance, stepDistance);
+                    outputDistance = min(outputDistance, candidateDistance);
+
+                    if (outputDistance <= stepDistance) 
+                    {
+                        break;
+                    }
+                }
+
+                inputCoords.${inputAxis} = outputCoords.${inputAxis} + stepDistance;
+                if (inputCoords.${inputAxis} <= ${inDimension-1}) 
+                {
+                    inputDistance = getInputDistance(inputCoords);
+                    candidateDistance = max(inputDistance, stepDistance);
+                    outputDistance = min(outputDistance, candidateDistance);
+
+                    if (outputDistance <= stepDistance) 
+                    {
+                        break;
+                    }
+                }
+            }
+
+            setOutput(float(outputDistance));
+        }
+        `
+    }
+}
+
 class FirstIsotropicChebyshevDistancePassX implements GPGPUProgram 
 {
     variableNames = ['InputOccupancy']

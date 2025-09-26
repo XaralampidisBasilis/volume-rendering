@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
-import { computeExtendedAnisotropicDistanceMap } from '../Programs/GPGPUExtendedAnisotropicDistanceMapPacked'
+import { computeExtendedAnisotropicDistanceMap } from '../Programs/GPGPUExtendedAnisotropicDistanceMapFusedPacked'
 
 export default class ExtendedAnisotropicDistanceMap 
 {
@@ -17,7 +17,6 @@ export default class ExtendedAnisotropicDistanceMap
     {
         console.time('computeExtendedAnisotropicDistanceMap') 
 
-        this.tensor?.dispose()
         this.tensor = computeExtendedAnisotropicDistanceMap(this.occupancyMap.tensor, this.maxDistance)
         this.dimensions = this.occupancyMap.dimensions
 
@@ -26,11 +25,10 @@ export default class ExtendedAnisotropicDistanceMap
 
     textureSync()
     {
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.textureDataSync(), ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
-        this.texture.type = THREE.UnsignedByteType
-        this.texture.internalFormat = 'R8UI'
+        this.texture.type = THREE.UnsignedShortType
+        this.texture.internalFormat = 'R16UI'
         this.texture.minFilter = THREE.NearestFilter
         this.texture.magFilter = THREE.NearestFilter
         this.texture.generateMipmaps = false
@@ -45,7 +43,7 @@ export default class ExtendedAnisotropicDistanceMap
         return new Uint8Array(this.tensor.dataSync())
     }
 
-    destroy()
+    dispose()
     {
         this.tensor?.dispose()
         this.texture?.dispose()

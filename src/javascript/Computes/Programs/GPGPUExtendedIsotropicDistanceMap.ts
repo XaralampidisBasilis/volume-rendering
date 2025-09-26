@@ -51,19 +51,19 @@ class ExtendedAnisotropicChebyshevDistancePass0 implements GPGPUProgram
                 return;
             }
 
-            for (int nStep = 1; nStep <= maxSteps; nStep++) 
+            for (int stepDistance = 1; stepDistance <= maxSteps; stepDistance++) 
             {
-                inputCoords.${inAxis} = outputCoords.${inAxis} ${inSign} nStep;
+                inputCoords.${inAxis} = outputCoords.${inAxis} ${inSign} stepDistance;
                 if (outsideBounds(inputCoords)) 
                 {
                     break;
                 }
 
                 inputDistance = getInputDistance(inputCoords);
-                candidateDistance = max(inputDistance, nStep);
-
+                candidateDistance = max(inputDistance, stepDistance);
                 outputDistance = min(outputDistance, candidateDistance);
-                if (outputDistance <= nStep)
+
+                if (outputDistance <= stepDistance)
                 {
                     break;
                 }

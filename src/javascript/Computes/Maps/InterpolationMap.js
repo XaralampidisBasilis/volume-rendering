@@ -17,7 +17,7 @@ export default class InterpolationMap
 
     setVolume()
     {
-        this.volume = this.resources.items.intensityMap
+        this.volume = this.resources.items.volume
         this.dimensions = new THREE.Vector3().fromArray(this.volume.dimensions)
         this.spacing = new THREE.Vector3().fromArray(this.volume.spacing)
         this.size = new THREE.Vector3().multiplyVectors(this.spacing, this.dimensions)
@@ -38,7 +38,6 @@ export default class InterpolationMap
         const resizedVolume = computeResizedMap(volume, newShape, false, true); volume.dispose()
         const normalizedVolume = computeNormalizedMap(resizedVolume); resizedVolume.dispose()
 
-        this.tensor?.dispose()
         this.tensor = computeInterpolationMap(normalizedVolume); normalizedVolume.dispose() 
         // this.data = this.tensor.dataSync()
 
@@ -47,7 +46,6 @@ export default class InterpolationMap
 
     textureSync()
     {
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.textureDataSync(), ...this.dimensions)
         this.texture.format = THREE.RGBAFormat
         this.texture.type = THREE.HalfFloatType
@@ -68,7 +66,7 @@ export default class InterpolationMap
         return new Uint16Array(dataHalfFloat.buffer)
     }
 
-    destroy()
+    dispose()
     {
         this.tensor?.dispose()
         this.texture?.dispose()

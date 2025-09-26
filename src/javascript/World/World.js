@@ -20,12 +20,12 @@ export default class World extends EventEmitter
         this.camera = this.experience.camera
         this.viewer = new ISOViewer()
 
-        // Wait for viewer to be ready before positioning the camera
-        this.viewer.on('ready', () =>
-        {
-            this.camera.instance.position.copy(this.viewer.computes.intensityMap.size)
-            this.trigger('ready')
-        })
+        // // Wait for viewer to be ready before positioning the camera
+        // this.viewer.on('ready', () =>
+        // {
+        //     this.camera.instance.position.copy(this.viewer.computes.intensityMap.size)
+        //     this.trigger('ready')
+        // })
     }
 
     start()

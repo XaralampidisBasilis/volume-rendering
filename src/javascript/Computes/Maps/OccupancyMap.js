@@ -17,7 +17,6 @@ export default class OccupancyMap
     {
         console.time('computeOccupancyMap') 
 
-        this.tensor?.dispose()
         this.tensor = computeOccupancyMap(this.extremaMap.tensor, this.isosurfaceValue)
         this.dimensions = this.extremaMap.dimensions
 
@@ -26,7 +25,6 @@ export default class OccupancyMap
 
     textureSync()
     {
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.textureDataSync(), ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
         this.texture.type = THREE.UnsignedByteType
@@ -45,7 +43,7 @@ export default class OccupancyMap
         return new Uint8Array(this.tensor.dataSync())
     }
 
-    destroy()
+    dispose()
     {
         this.tensor?.dispose()
         this.texture?.dispose()

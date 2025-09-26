@@ -44,7 +44,7 @@ export default class Experience
         this.renderer = new Renderer()
         this.world = new World()
         this.stats = new Stats(true)
-        // this.computes = new Computes()
+        this.computes = new Computes()
 
         // Size resize event
         this.sizes.on('resize', () => 
@@ -92,8 +92,8 @@ export default class Experience
 
     start()
     {
-        // this.computes.start()
-        // this.world.start()
+        this.computes.start()
+        this.world.start()
     }
 
     change(event)
