@@ -33,7 +33,6 @@ export default class VolumeMap
         const newShape = shape.map((x) => Math.ceil(this.downscaleFactor * x))
         const newSpacing = this.volume.spacing.toReversed().map((x, i) => shape[i]/newShape[i] * x)
 
-        this.tensor?.dispose()
         this.tensor = tf.tidy(() =>
         {
             let tensor = tf.tensor3d(data, shape)
@@ -41,8 +40,8 @@ export default class VolumeMap
             tensor = computeNormalizedMap(tensor)
             return tensor
         })
+        
         this.tensorData = this.tensor.dataSync()
-
         this.dimensions.fromArray(newShape.toReversed())
         this.spacing.fromArray(newSpacing.toReversed())
             
@@ -60,7 +59,6 @@ export default class VolumeMap
     computeTexture()
     {
         console.time('computeTexture@VolumeMap') 
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RedFormat
         this.texture.type = THREE.FloatType

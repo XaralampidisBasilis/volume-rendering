@@ -55,7 +55,7 @@ export default class Configs extends EventEmitter
 
         this.blockSize = 2
         this.downscaleFactor = 0.8
-        this.isosurfaceValue = 0.69
+        this.isosurfaceValue = 0.7
         this.colormap = 'pasteljet'
 
         this.interpolationMethod = 'tricubic'

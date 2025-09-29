@@ -15,23 +15,18 @@ export default class ExtremaMap
     computeTensor()
     {
         console.time('computeTensor@ExtremaMap') 
-
         this.interpolationMethod = this.configs.interpolationMethod
         this.blockSize = this.configs.blockSize
-
-        this.tensor?.dispose()
         this.tensor = computeExtremaMap(this.interpolationMap.tensor, this.interpolationMethod, this.blockSize)
         
         const dimensions = this.tensor.shape.slice(0, 3).toReversed()
         this.dimensions = new THREE.Vector3().fromArray(dimensions)
-
         console.timeEnd('computeTensor@ExtremaMap') 
     }
 
     computeTexture()
     {
         console.time('computeTexture@ExtremaMap') 
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RGFormat
         this.texture.type = THREE.HalfFloatType

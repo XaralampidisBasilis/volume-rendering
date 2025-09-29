@@ -14,10 +14,10 @@ class GPGPUExtremaMap implements GPGPUProgram
     (
         inputShape: [number, number, number, number, number], 
         interpolationMethod: 'trilinear' | 'tricubic',
-        inputStride: number
+        blockSize: number
     ) 
     {
-        const ceilDiv = (x: number) => Math.ceil((x + 1) / inputStride)
+        const ceilDiv = (x: number) => Math.ceil((x + 1) / blockSize)
         const [inDepth, inHeight, inWidth, , ] = inputShape
         const [outDepth, outHeight, outWidth] = [inDepth, inHeight, inWidth].map(ceilDiv)
         this.outputShape = [outDepth, outHeight, outWidth, 2, 2]     
@@ -125,11 +125,11 @@ class GPGPUExtremaMap implements GPGPUProgram
         vec2 getBlockExtrema(ivec3 blockCoords)
         {
             vec2 blockMinMax = vec2(1.0, 0.0);
-            ivec3 cellMinCoords = blockCoords * ${inputStride};
+            ivec3 cellMinCoords = blockCoords * ${blockSize};
 
-            for (int k = 0; k < ${inputStride}; k++) {
-            for (int j = 0; j < ${inputStride}; j++) {
-            for (int i = 0; i < ${inputStride}; i++) {
+            for (int k = 0; k < ${blockSize}; k++) {
+            for (int j = 0; j < ${blockSize}; j++) {
+            for (int i = 0; i < ${blockSize}; i++) {
 
                 ivec3 cellIndices = ivec3(i, j, k);
                 ivec3 cellCoords = cellMinCoords + cellIndices;
@@ -199,9 +199,9 @@ function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]): tf.Tensor
     return tf.engine().makeTensorFromTensorInfo(info) as tf.Tensor
 }
 
-export function computeExtremaMap(interpolationMap: tf.Tensor5D, interpolationMethod: 'trilinear' | 'tricubic', inputStride: number) : tf.Tensor
+export function computeExtremaMap(interpolationMap: tf.Tensor5D, interpolationMethod: 'trilinear' | 'tricubic', blockSize: number) : tf.Tensor
 {
-    const program = new GPGPUExtremaMap(interpolationMap.shape, interpolationMethod, inputStride)
+    const program = new GPGPUExtremaMap(interpolationMap.shape, interpolationMethod, blockSize)
     return runProgram(program, [interpolationMap]) as tf.Tensor4D
 }
 

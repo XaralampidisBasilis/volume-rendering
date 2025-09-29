@@ -15,13 +15,9 @@ export default class InterpolationMap
     computeTensor()
     {
         console.time('computeTensor@InterpolationMap') 
-    
         this.dimensions = this.volumeMap.dimensions
-
-        this.tensor?.dispose()
         this.tensor = computeInterpolationMap(this.volumeMap.tensor)
         this.tensorData = this.tensor.dataSync()
-
         console.timeEnd('computeTensor@InterpolationMap') 
     }
 
@@ -36,7 +32,6 @@ export default class InterpolationMap
     computeTexture()
     {
         console.time('computeTexture@InterpolationMap') 
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RGBAFormat
         this.texture.type = THREE.HalfFloatType

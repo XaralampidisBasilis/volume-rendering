@@ -16,18 +16,14 @@ export default class ExtendedAnisotropicDistanceMap
     computeTensor()
     {
         console.time('computeTensor@ExtendedAnisotropicDistanceMap') 
-
-        this.tensor?.dispose()
         this.tensor = computeExtendedAnisotropicDistanceMap(this.occupancyMap.tensor, this.maxDistance)
         this.dimensions = this.occupancyMap.dimensions
-
         console.timeEnd('computeTensor@ExtendedAnisotropicDistanceMap') 
     }
 
     computeTexture()
     {
         console.time('computeTexture@ExtendedAnisotropicDistanceMap') 
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
         this.texture.type = THREE.UnsignedShortType

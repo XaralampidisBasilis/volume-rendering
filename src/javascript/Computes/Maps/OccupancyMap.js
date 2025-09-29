@@ -15,20 +15,15 @@ export default class OccupancyMap
     computeTensor()
     {
         console.time('computeTensor@OccupancyMap') 
-
         this.dimensions = this.extremaMap.dimensions
         this.isosurfaceValue = this.configs.isosurfaceValue
-
-        this.tensor?.dispose()
         this.tensor = computeOccupancyMap(this.extremaMap.tensor, this.isosurfaceValue)
-
         console.timeEnd('computeTensor@OccupancyMap') 
     }
 
     computeTexture()
     {
         console.time('computeTexture@OccupancyMap') 
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
         this.texture.type = THREE.UnsignedByteType

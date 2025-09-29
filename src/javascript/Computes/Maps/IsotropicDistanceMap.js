@@ -16,7 +16,6 @@ export default class IsotropicDistanceMap
     computeTensor()
     {
         console.time('computeTensor@IsotropicDistanceMap') 
-        this.tensor?.dispose()
         this.tensor = computeIsotropicDistanceMap(this.occupancyMap.tensor, this.maxDistance)
         this.dimensions = this.occupancyMap.dimensions
         console.timeEnd('computeTensor@IsotropicDistanceMap') 
@@ -25,7 +24,6 @@ export default class IsotropicDistanceMap
     computeTexture()
     {
         console.time('computeTexture@IsotropicDistanceMap') 
-        this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
         this.texture.type = THREE.UnsignedByteType
