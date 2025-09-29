@@ -40,23 +40,41 @@ export default class Computes extends EventEmitter
         this.isotropicDistanceMap = new IsotropicDistanceMap()
         this.anisotropicDistanceMap = new AnisotropicDistanceMap()
         this.extendedAnisotropicDistanceMap = new ExtendedAnisotropicDistanceMap()
+        this.resolveDistanceMap()
+    }
+
+    resolveDistanceMap()
+    {
+        this.distanceMap = this.isotropicDistanceMap
+
+        if (this.skippingMethod === 'anisotropicDistance')
+            this.distanceMap = this.anisotropicDistanceMap
         
-        this.distanceMap = this.skippingMethod.endsWith('DistanceMap') ? this[this.skippingMethod] : null
+        if (this.skippingMethod === 'extendedAnisotropicDistance')
+            this.distanceMap = this.extendedAnisotropicDistanceMap
     }
 
     start()
     {
-        console.time('startComputes') 
+        console.time('start@Computes') 
 
         this.volumeMap.computeTensor()
         this.interpolationMap.computeTensor()
         this.extremaMap.computeTensor()
         this.occupancyMap.computeTensor()
-        this.distanceMap?.computeTensor()
+        this.distanceMap.computeTensor()
+
+        this.interpolationMap.computeTexture()
+        this.occupancyMap.computeTexture()
+        this.distanceMap.computeTexture()
 
         this.volumeMap.tensor.dispose()
+        this.interpolationMap.tensor.dispose()
+        this.occupancyMap.tensor.dispose()
+        this.distanceMap.tensor.dispose()
 
-        console.timeEnd('startComputes') 
+        console.timeEnd('start@Computes') 
+        console.log('')
     }
 
     change(event)
@@ -70,75 +88,98 @@ export default class Computes extends EventEmitter
 
     onChangeIsosurfaceValue(event)
     {
-        console.time('onChangeIsosurfaceValueComputes') 
+        console.time('onChangeIsosurfaceValue@Computes') 
 
         this.occupancyMap.computeTensor()
-        this.distanceMap?.computeTensor()
+        this.distanceMap.computeTensor()
 
-        console.timeEnd('onChangeIsosurfaceValueComputes') 
+        this.occupancyMap.updateTexture()
+        this.distanceMap.updateTexture()
+
+        this.occupancyMap.tensor.dispose()
+        this.distanceMap.tensor.dispose()
+
+        console.timeEnd('onChangeIsosurfaceValue@Computes')
+        console.log('') 
     }
 
     onChangeBlockSize(event)
     {
-        console.time('onChangeBlockSizeComputes') 
+        console.time('onChangeBlockSize@Computes') 
+
+        this.occupancyMap.texture.dispose()
+        this.distanceMap.texture.dispose()
 
         this.interpolationMap.restoreTensor()
         this.extremaMap.computeTensor()
         this.occupancyMap.computeTensor()
-        this.distanceMap?.computeTensor()
+        this.distanceMap.computeTensor()
+
+        this.occupancyMap.computeTexture()
+        this.distanceMap.computeTexture()
 
         this.interpolationMap.tensor.dispose()
+        this.occupancyMap.tensor.dispose()
+        this.distanceMap.tensor.dispose()
 
-        console.timeEnd('onChangeBlockSizeComputes') 
+        console.timeEnd('onChangeBlockSize@Computes')
+        console.log('') 
     }
 
     onChangeDownscaleFactor(event)
     {
-        console.time('onChangeDownscaleFactorComputes') 
+        console.time('onChangeDownscaleFactor@Computes') 
 
         this.volumeMap.computeTensor()
         this.interpolationMap.computeTensor()
         this.extremaMap.computeTensor()
         this.occupancyMap.computeTensor()
-        this.distanceMap?.computeTensor()
+        this.distanceMap.computeTensor()
 
         this.volumeMap.tensor.dispose()
 
-        console.timeEnd('onChangeDownscaleFactorComputes') 
+        console.timeEnd('onChangeDownscaleFactor@Computes') 
+        console.log('')
     }
 
     onChangeInterpolationMethod(event)
     {
-        console.time('onChangeInterpolationMethodComputes') 
+        console.time('onChangeInterpolationMethod@Computes') 
+
+        this.extremaMap.tensor.dispose()
 
         this.interpolationMap.restoreTensor()
         this.extremaMap.computeTensor()
         this.occupancyMap.computeTensor()
-        this.distanceMap?.computeTensor()
+        this.distanceMap.computeTensor()
+
+        this.occupancyMap.updateTexture()
+        this.distanceMap.updateTexture()
 
         this.interpolationMap.tensor.dispose()
+        this.occupancyMap.tensor.dispose()
+        this.distanceMap.tensor.dispose()
 
-        console.timeEnd('onChangeInterpolationMethodComputes') 
+        console.timeEnd('onChangeInterpolationMethod@Computes') 
+        console.log('')
     }
 
     onChangeSkippingMethod(event)
     {
-        console.time('onChangeSkippingMethodComputes') 
+        console.time('onChangeSkippingMethod@Computes') 
 
-        this.distanceMap?.dispose()
-        this.distanceMap = null
+        this.distanceMap.texture.dispose()
+        this.resolveDistanceMap()
+        
+        this.occupancyMap.computeTensor()
+        this.distanceMap.computeTensor()
+        this.distanceMap.computeTexture()
 
-        if (this.skippingMethod.endsWith('DistanceMap'))
-        {
-            this.distanceMap = this[this.skippingMethod]
-            this.distanceMap.computeTensor()
-        }
+        this.occupancyMap.tensor.dispose()
+        this.distanceMap.tensor.dispose()
 
-        if (this.skippingMethod === 'occupancyMap')
-        {
-            this.occupancyMap.computeTensor()
-        }
-        console.timeEnd('onChangeSkippingMethodComputes') 
+        console.timeEnd('onChangeSkippingMethod@Computes') 
+        console.log('')
     }
 
 }

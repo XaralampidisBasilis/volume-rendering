@@ -9,8 +9,12 @@ export default class Controls
     {
         this.experience = new Experience()
         this.configs = this.experience.configs
+        this.viewer = this.experience.world.viewer
         this.ui = new GUI() 
+    }
 
+    start()
+    {
         this.addFolders()
         this.addToggles()
         this.addControllers()
@@ -20,7 +24,7 @@ export default class Controls
     {
         this.folders = {}
         this.folders.configs = this.ui.addFolder('Configs').close()
-        // this.folders.debug = this.ui.addFolder('debug').close()
+        this.folders.debug = this.ui.addFolder('Debug').close()
     }
 
     addToggles()
@@ -49,22 +53,24 @@ export default class Controls
     addControllers()
     {
         this.controllers = {}
-        this.addConfigsControllers() 
+        this.addControllersConfigs() 
+        this.addControllersDebug() 
     }
 
-    addConfigsControllers() 
+    addControllersConfigs() 
     {
         const folder = this.folders.configs
         const objects = 
         { 
-            isosurfaceValue    : this.configs.isosurfaceValue,
-            blockSize          : this.configs.blockSize,
-            interpolationMethod: this.configs.interpolationMethod,
-            gradientsMethod    : this.configs.gradientsMethod,
-            marchingMethod     : this.configs.marchingMethod,
-            skippingMethod     : this.configs.skippingMethod,    
-            bernsteinEnabled   : this.configs.bernsteinEnabled,
-            skippingEnabled    : this.configs.skippingEnabled,  
+            isosurfaceValue     : this.configs.isosurfaceValue,
+            blockSize           : this.configs.blockSize,
+            downscaleFactor     : this.configs.downscaleFactor,
+            interpolationMethod : this.configs.interpolationMethod,
+            gradientsMethod     : this.configs.gradientsMethod,
+            marchingMethod      : this.configs.marchingMethod,
+            skippingMethod      : this.configs.skippingMethod,    
+            bernsteinEnabled    : this.configs.bernsteinEnabled,
+            skippingEnabled     : this.configs.skippingEnabled,  
         }
     
         this.controllers.configs = 
@@ -79,6 +85,12 @@ export default class Controls
             .onFinishChange((value) => 
             { 
                 this.configs.set('blockSize', value) 
+            }),
+
+            downscaleFactor : folder.add(objects, 'downscaleFactor').min(0).max(1).step(0.01)
+            .onFinishChange((value) => 
+            { 
+                this.configs.set('downscaleFactor', value) 
             }),
             
             marchingMethod: folder.add(objects, 'marchingMethod').options(Configs.MarchingMethods)
@@ -119,13 +131,17 @@ export default class Controls
         }
     }
     
-    addDebugControllers()
+    addControllersDebug()
     {
-        const folder = this.subfolders.debug
-        const uniforms = this.viewer.material.uniforms.u_debug.value
-        const defines = this.viewer.material.defines
         const material = this.viewer.material
-        const objects = { DISCARDING_ENABLED: Boolean(defines.DISCARDING_ENABLED) }
+        const uniforms = material.uniforms.u_debug.value
+        const defines = material.defines
+
+        const folder = this.folders.debug
+        const objects = 
+        { 
+            discardingEnabled: Boolean(defines.DISCARDING_ENABLED) 
+        }
 
         this.controllers.debug = 
         {
@@ -221,13 +237,20 @@ export default class Controls
                 debug_variable8         : 1008,
                 debug_variable9         : 1009,
             }),
+             
+            discardingEnabled: folder.add(objects, 'discardingEnabled')
+            .onFinishChange((value) => 
+            { 
+                defines.DISCARDING_ENABLED = Number(value)
+                material.needsUpdate = true 
+            }),
 
-            variable1 : folder.add(uniforms, 'variable1').min(0).max(1).step(0.001),
-            variable2 : folder.add(uniforms, 'variable2').min(0).max(1).step(0.001),
-            variable3 : folder.add(uniforms, 'variable3').min(0).max(1).step(0.001),
-            variable4 : folder.add(uniforms, 'variable4').min(0).max(1).step(0.001),
-            variable5 : folder.add(uniforms, 'variable5').min(0).max(1).step(0.001),
-            discarding: folder.add(objects, 'DISCARDING_ENABLED').name('enable_discarding').onFinishChange((value) => { defines.DISCARDING_ENABLED = Number(value), material.needsUpdate = true }),
+            // variable1 : folder.add(uniforms, 'variable1').min(0).max(1).step(0.001),
+            // variable2 : folder.add(uniforms, 'variable2').min(0).max(1).step(0.001),
+            // variable3 : folder.add(uniforms, 'variable3').min(0).max(1).step(0.001),
+            // variable4 : folder.add(uniforms, 'variable4').min(0).max(1).step(0.001),
+            // variable5 : folder.add(uniforms, 'variable5').min(0).max(1).step(0.001),
+           
         }
     }
     

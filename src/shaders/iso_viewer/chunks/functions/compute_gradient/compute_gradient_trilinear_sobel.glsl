@@ -77,7 +77,7 @@ vec3 compute_gradient_trilinear_sobel(in vec3 p)
     vec3 gradient = vec3(s_dxyz_xdyz, s_xydz);
 
     // Account for anisotropy in physical space
-    gradient /= u_volume.anisotropy;
+    gradient /= u_volume.spacing;
 
     return gradient;
 }
@@ -153,8 +153,8 @@ vec3 compute_gradient_trilinear_sobel(in vec3 p, out mat3 hessian)
     );
 
     // Account for anisotropy in physical space
-    hessian /= outerProduct(u_volume.anisotropy, u_volume.anisotropy);
-    gradient /= u_volume.anisotropy;
+    hessian /= outerProduct(u_volume.spacing, u_volume.spacing);
+    gradient /= u_volume.spacing;
 
     return gradient;
 }

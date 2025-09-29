@@ -12,7 +12,7 @@ vec4 debug_block_occupied = to_color(block.occupied);
 vec4 debug_block_terminated = to_color(block.terminated);
 
 // coords
-vec4 debug_block_coords = to_color(vec3(block.coords) / vec3(u_volume.blocks - 1));
+vec4 debug_block_coords = to_color(vec3(block.coords) / vec3(textureSize(u_textures.distance_map, 0) - 1));
 
 // exit_normal
 vec4 debug_block_exit_normal = to_color(vec3(block.exit_normal));

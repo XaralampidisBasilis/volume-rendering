@@ -10,13 +10,14 @@ export default class ExtremaMap
         this.computes = new Computes()
         this.configs = this.computes.configs
         this.interpolationMap = this.computes.interpolationMap
-        this.interpolationMethod = this.configs.interpolationMethod
-        this.blockSize = this.configs.blockSize
     }
 
     computeTensor()
     {
-        console.time('computeExtremaMap') 
+        console.time('computeTensor@ExtremaMap') 
+
+        this.interpolationMethod = this.configs.interpolationMethod
+        this.blockSize = this.configs.blockSize
 
         this.tensor?.dispose()
         this.tensor = computeExtremaMap(this.interpolationMap.tensor, this.interpolationMethod, this.blockSize)
@@ -24,11 +25,12 @@ export default class ExtremaMap
         const dimensions = this.tensor.shape.slice(0, 3).toReversed()
         this.dimensions = new THREE.Vector3().fromArray(dimensions)
 
-        console.timeEnd('computeExtremaMap') 
+        console.timeEnd('computeTensor@ExtremaMap') 
     }
 
-    getTexture()
+    computeTexture()
     {
+        console.time('computeTexture@ExtremaMap') 
         this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RGFormat
@@ -39,21 +41,20 @@ export default class ExtremaMap
         this.texture.generateMipmaps = false
         this.texture.needsUpdate = true
         this.texture.unpackAlignment = 2
-
-        return this.texture
+        console.timeEnd('computeTexture@ExtremaMap') 
     }   
+
+    updateTexture()
+    {
+        this.texture.image.data.set(this.getTextureData())
+        this.texture.needsUpdate = true
+    }
 
     getTextureData()
     {
         const tensor = toHalfFloat(this.tensor)
         const dataHalfFloat = tensor.dataSync(); tensor.dispose()
         return new Uint16Array(dataHalfFloat.buffer)
-    }
-
-    updateTextureData()
-    {
-        this.texture.image.data.set(this.getTextureData())
-        this.texture.needsUpdate = true
     }
 
     dispose()

@@ -15,17 +15,16 @@ export default class ExtendedIsotropicDistanceMap
 
     computeTensor()
     {
-        console.time('computeExtendedIsotropicDistanceMap') 
-
+        console.time('computeTensor@ExtendedIsotropicDistanceMap') 
         this.tensor?.dispose()
         this.tensor = computeExtendedIsotropicDistanceMap(this.occupancyMap.tensor, this.maxDistance)
         this.dimensions = this.occupancyMap.dimensions
-
-        console.timeEnd('computeExtendedIsotropicDistanceMap') 
+        console.timeEnd('computeTensor@ExtendedIsotropicDistanceMap') 
     }
 
-    getTexture()
+    computeTexture()
     {
+        console.time('computeTexture@ExtendedIsotropicDistanceMap') 
         this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
@@ -36,19 +35,18 @@ export default class ExtendedIsotropicDistanceMap
         this.texture.generateMipmaps = false
         this.texture.needsUpdate = true
         this.texture.unpackAlignment = 1
-
-        return this.texture
+        console.timeEnd('computeTexture@ExtendedIsotropicDistanceMap') 
     }   
+
+    updateTexture()
+    {
+        this.texture.image.data.set(this.getTextureData())
+        this.texture.needsUpdate = true
+    }
 
     getTextureData()
     {
         return new Uint32Array(this.tensor.dataSync())
-    }
-
-    updateTextureData()
-    {
-        this.texture.image.data.set(this.getTextureData())
-        this.texture.needsUpdate = true
     }
 
     dispose()

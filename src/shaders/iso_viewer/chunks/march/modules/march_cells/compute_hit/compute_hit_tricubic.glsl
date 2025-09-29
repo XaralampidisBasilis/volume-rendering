@@ -1,6 +1,6 @@
 
 // // Construct the quintic coefficients
-// mat4x3 residuals = transpose(quintic.biases) * quintic.features - u_rendering.isovalue;
+// mat4x3 residuals = transpose(quintic.biases) * quintic.features - u_volume.isovalue;
 // mat4x3 coeffs = quad_inv_vander * residuals * cubic_inv_vander;
 // sum_anti_diags(coeffs, quintic.coeffs);
 
@@ -21,7 +21,7 @@ hit.position = camera.position + ray.direction * hit.distance;
 
 // Sample value
 hit.value = sample_value_tricubic(hit.position);
-hit.residue = hit.value - u_rendering.isovalue;
+hit.residue = hit.value - u_volume.isovalue;
 
 // Compute gradients and hessian
 hit.gradient = compute_gradient(hit.position, hit.hessian);

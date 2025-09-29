@@ -10,22 +10,24 @@ export default class OccupancyMap
         this.computes = new Computes()
         this.configs = this.computes.configs
         this.extremaMap = this.computes.extremaMap
-        this.isosurfaceValue = this.configs.isosurfaceValue
     }
 
     computeTensor()
     {
-        console.time('computeOccupancyMap') 
+        console.time('computeTensor@OccupancyMap') 
+
+        this.dimensions = this.extremaMap.dimensions
+        this.isosurfaceValue = this.configs.isosurfaceValue
 
         this.tensor?.dispose()
         this.tensor = computeOccupancyMap(this.extremaMap.tensor, this.isosurfaceValue)
-        this.dimensions = this.extremaMap.dimensions
 
-        console.timeEnd('computeOccupancyMap') 
+        console.timeEnd('computeTensor@OccupancyMap') 
     }
 
-    getTexture()
+    computeTexture()
     {
+        console.time('computeTexture@OccupancyMap') 
         this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
@@ -36,19 +38,18 @@ export default class OccupancyMap
         this.texture.generateMipmaps = false
         this.texture.needsUpdate = true
         this.texture.unpackAlignment = 1
-
-        return this.texture
+        console.timeEnd('computeTexture@OccupancyMap') 
     }   
+
+    updateTexture()
+    {
+        this.texture.image.data.set(this.getTextureData())
+        this.texture.needsUpdate = true
+    }
 
     getTextureData()
     {
         return new Uint8Array(this.tensor.dataSync())
-    }
-
-    updateTextureData()
-    {
-        this.texture.image.data.set(this.getTextureData())
-        this.texture.needsUpdate = true
     }
 
     dispose()

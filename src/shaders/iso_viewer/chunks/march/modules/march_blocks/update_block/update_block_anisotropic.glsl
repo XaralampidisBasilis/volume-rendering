@@ -8,8 +8,8 @@ block.min_coords = (block.coords - block.skip_distance) + 1;
 block.max_coords = (block.coords + block.skip_distance);
 
 // compute min/max positions
-block.min_position = vec3(block.min_coords * u_volume.stride) - 0.5;
-block.max_position = vec3(block.max_coords * u_volume.stride) - 0.5;  
+block.min_position = vec3(block.min_coords * u_volume.block_size) - 0.5;
+block.max_position = vec3(block.max_coords * u_volume.block_size) - 0.5;  
 
 // inflate to avoid boundaries
 block.min_position -= 0.001;
@@ -28,7 +28,7 @@ block.span_distance = block.exit_distance - block.entry_distance;
 
 // compute next coordinates
 ivec3 coords = block.coords + block.skip_distance * ray.signs;
-block.coords = ivec3(round(block.exit_position)) / u_volume.stride;
+block.coords = ivec3(round(block.exit_position)) / u_volume.block_size;
 block.coords += block.exit_normal * (coords - block.coords);
 
 // compute termination condition

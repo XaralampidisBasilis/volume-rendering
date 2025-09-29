@@ -20,11 +20,33 @@ export default class Configs extends EventEmitter
         'approximate',
     ])
     static SkippingMethods = Object.freeze([
-        'occupancyMap',
-        'isotropicDistanceMap',
-        'anisotropicDistanceMap',
-        'extendedAnisotropicDistanceMap',
-        'extendedIsotropicDistanceMap',
+        'occupancy',
+        'isotropicDistance',
+        'anisotropicDistance',
+        'extendedAnisotropicDistance',
+        'extendedIsotropicDistance',
+    ])
+    static Colormaps = Object.freeze([
+        'parula',
+        'turbo',
+        'hsv',
+        'hot',
+        'cool',
+        'spring',
+        'summer',
+        'autumn',
+        'winter',
+        'gray',
+        'bone',
+        'copper',
+        'pink',
+        'jet',
+        'pasteljet',
+        'viridis',
+        'plasma',
+        'inferno',
+        'magma',
+        'cividis',
     ])
 
     constructor() 
@@ -34,11 +56,12 @@ export default class Configs extends EventEmitter
         this.blockSize = 2
         this.downscaleFactor = 0.8
         this.isosurfaceValue = 0.69
+        this.colormap = 'pasteljet'
 
         this.interpolationMethod = 'tricubic'
         this.gradientsMethod = 'bspline'
         this.marchingMethod = 'analytic'
-        this.skippingMethod = 'isotropicDistanceMap'
+        this.skippingMethod = 'isotropicDistance'
 
         this.bernsteinEnabled = true
         this.skippingEnabled = true

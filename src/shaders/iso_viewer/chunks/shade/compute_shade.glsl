@@ -1,13 +1,13 @@
 // Source: https://learnwebgl.brown37.net/09_lights/lights_combined.html
 
 // Compute shading vectors
-vec3 light_position = camera.position + u_lighting.position_offset * 100.0;
+vec3 light_position = camera.position;
 vec3 light_vector = light_position - hit.position;
 vec3 view_vector = camera.position - hit.position;
 
 // Compute shading directions
-vec3 light_direction = normalize(light_vector * u_volume.anisotropy);
-vec3 view_direction = normalize(view_vector * u_volume.anisotropy);
+vec3 light_direction = normalize(light_vector * u_volume.spacing);
+vec3 view_direction = normalize(view_vector * u_volume.spacing);
 vec3 halfway_direction = normalize(light_direction + view_direction);
 
 // Compute vector angles
@@ -41,7 +41,6 @@ frag.color_ambient *= curvature_modulation;
 
 // Compose colors
 frag.color = frag.color_ambient + frag.color_directional;
-frag.color *= u_lighting.intensity;
 
 // Assign frag color
 fragColor = vec4(frag.color, 1.0);

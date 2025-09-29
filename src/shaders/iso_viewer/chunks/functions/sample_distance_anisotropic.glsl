@@ -4,9 +4,11 @@
 // Samples the anisotropic distance texture at given coordinates and octant.
 ivec3 sample_distance_anisotropic(in ivec3 block_coords, in int octant, out bool occupancy)
 {    
+    ivec3 dimensions = textureSize(u_textures.distance_map, 0);
+    
     // Offset z to access the correct slab for the given octant.
     ivec3 slab_coords = block_coords;
-    slab_coords.z += octant * u_volume.blocks.z;
+    slab_coords.z += octant * dimensions.z;
 
     // Fetch red channel from 3D texture
     uint texture_sample = texelFetch(u_textures.distance_map, slab_coords, 0).r;

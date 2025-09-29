@@ -8,7 +8,7 @@
 
 float sample_residue_trilinear(in vec3 coords)
 {
-    return sample_value_trilinear(coords) - u_rendering.isovalue;
+    return sample_value_trilinear(coords) - u_volume.isovalue;
 }
 
 #endif

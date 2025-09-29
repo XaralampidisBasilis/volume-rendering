@@ -11,7 +11,6 @@ export default class VolumeMap
         this.computes = new Computes()
         this.configs = this.computes.configs
         this.resources = this.computes.resources
-        this.downscaleFactor = this.configs.downscaleFactor
     }
 
     setVolume()
@@ -24,9 +23,10 @@ export default class VolumeMap
 
     computeTensor()
     {
-        console.time('computeVolumeMap') 
+        console.time('computeTensor@VolumeMap') 
         
         this.setVolume()
+        this.downscaleFactor = this.configs.downscaleFactor
 
         const data = new Float32Array(this.volume.data)
         const shape = this.volume.dimensions.toReversed()
@@ -46,7 +46,7 @@ export default class VolumeMap
         this.dimensions.fromArray(newShape.toReversed())
         this.spacing.fromArray(newSpacing.toReversed())
             
-        console.timeEnd('computeVolumeMap') 
+        console.timeEnd('computeTensor@VolumeMap') 
     }
 
     restoreTensor()
@@ -57,8 +57,9 @@ export default class VolumeMap
         }
     }
 
-    getTexture()
+    computeTexture()
     {
+        console.time('computeTexture@VolumeMap') 
         this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RedFormat
@@ -69,19 +70,18 @@ export default class VolumeMap
         this.texture.generateMipmaps = false
         this.texture.needsUpdate = true
         this.texture.unpackAlignment = 1
+        console.timeEnd('computeTexture@VolumeMap') 
+    }
 
-        return this.texture
+    updateTexture()
+    {
+        this.texture.image.data.set(this.getTextureData())
+        this.texture.needsUpdate = true
     }
 
     getTextureData()
     {
         return new Float32Array(this.tensor.dataSync())
-    }
-
-    updateTextureData()
-    {
-        this.texture.image.data.set(this.getTextureData())
-        this.texture.needsUpdate = true
     }
 
     dispose()

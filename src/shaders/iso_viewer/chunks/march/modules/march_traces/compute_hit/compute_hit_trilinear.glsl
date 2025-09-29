@@ -12,7 +12,7 @@ for (int i = 0; i < 10; ++i)
     hit.position = camera.position + ray.direction * hit.distance; 
 
     // evaluate polynomial
-    hit.residue = sample_value_trilinear(hit.position) - u_rendering.isovalue;
+    hit.residue = sample_value_trilinear(hit.position) - u_volume.isovalue;
     
     // determine bracket based on sign
     if (sign_change(residues.x, hit.residue))
@@ -28,7 +28,7 @@ for (int i = 0; i < 10; ++i)
 }
 
 // Compute value
-hit.value = hit.residue + u_rendering.isovalue;
+hit.value = hit.residue + u_volume.isovalue;
 
 // Compute orientation
 hit.orientation = -ssign(hit.derivative);

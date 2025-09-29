@@ -17,7 +17,7 @@ for (int i = 1; i < 4; i++)
 
 // Construct the residual matrix: subtract isovalue from interpolated samples
 // Resulting residuals encode scalar deviation from the isovalue at each sample point
-mat4x3 residuals = transpose(quintic.biases) * quintic.features - u_rendering.isovalue;
+mat4x3 residuals = transpose(quintic.biases) * quintic.features - u_volume.isovalue;
 
 // Extract the residual values along the diagonal
 // Also propagate the initial sample from the previous cell

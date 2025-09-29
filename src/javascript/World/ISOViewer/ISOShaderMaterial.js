@@ -7,16 +7,18 @@ export default function()
 {
     const uniforms = 
     {
+        uCustomModelMatrix: new THREE.Uniform
+        (
+            new THREE.Matrix4()
+        ),
+
         u_volume: new THREE.Uniform
         ({
-            size          : new THREE.Vector3(),
-            spacing       : new THREE.Vector3(),
+            isovalue      : 0.69,
             dimensions    : new THREE.Vector3(),
             inv_dimensions: new THREE.Vector3(),
-            anisotropy    : new THREE.Vector3(),
-            blocks        : new THREE.Vector3(),
-            stride        : 0,
-            grid_matrix   : new THREE.Matrix4(),
+            spacing       : new THREE.Vector3(),
+            block_size    : 0,
         }),
 
         u_textures: new THREE.Uniform
@@ -24,11 +26,6 @@ export default function()
             interpolation_map : null,
             occupancy_map : null,
             distance_map  : null,
-        }),
-
-        u_rendering: new THREE.Uniform
-        ({
-            isovalue : 0.69,
         }),
 
         u_shading: new THREE.Uniform
@@ -40,16 +37,6 @@ export default function()
             modulate_edges    : 1.0,
             modulate_gradient : 1.0,
             modulate_curvature: 1.0,
-        }),
-        
-        u_lighting: new THREE.Uniform
-        ({
-            intensity          : 1.0,                         // overall light intensity
-            shadows            : 0.0,                         // threshold for shadow casting
-            color_ambient      : new THREE.Color(0xffffff),   // ambient light color
-            color_diffuse      : new THREE.Color(0xffffff),   // diffuse light color
-            color_specular     : new THREE.Color(0xffffff),   // specular light color
-            position_offset    : new THREE.Vector3(),         // offset position for light source
         }),
 
         u_debug: new THREE.Uniform
@@ -68,14 +55,14 @@ export default function()
 
     const defines = 
     {           
-        VARIATION_ENABLED: 1,
-        BERNSTEIN_ENABLED: 1,
-        SKIPPING_ENABLED : 1,
-
+    
         MARCHING_METHOD     : 1,
         INTERPOLATION_METHOD: 2,
         SKIPPING_METHOD     : 2,
         GRADIENTS_METHOD    : 3,
+
+        BERNSTEIN_ENABLED: 1,
+        SKIPPING_ENABLED : 1,
 
         STATS_ENABLED     : 1,
         DEBUG_ENABLED     : 1,

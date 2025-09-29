@@ -19,7 +19,7 @@ hit.position = camera.position + ray.direction * hit.distance;
 
 // Sample value/residue
 hit.value = sample_value_trilinear(hit.position);
-hit.residue = hit.value - u_rendering.isovalue;
+hit.residue = hit.value - u_volume.isovalue;
 
 // Compute gradients and hessian
 hit.gradient = compute_gradient(hit.position, hit.hessian);

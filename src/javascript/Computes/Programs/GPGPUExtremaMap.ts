@@ -125,7 +125,7 @@ class GPGPUExtremaMap implements GPGPUProgram
 
         ${interpolationMethod === 'trilinear' 
         ? getCellExtremaTrilinear 
-        : getCellExtremaTrilinear}
+        : getCellExtremaTricubic}
 
         // Compute extrema over all cells in the block
         vec2 getBlockExtrema(ivec3 blockCoords)

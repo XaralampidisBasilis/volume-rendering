@@ -3,12 +3,11 @@
 
 struct UniformsVolume 
 {
+    float isovalue;
     ivec3 dimensions;    
     vec3  inv_dimensions;   
-    vec3  anisotropy;           
-    int   stride;
-    ivec3 blocks;        
-    mat4  grid_matrix;                 
+    vec3  spacing;           
+    int   block_size;
 };
 
 uniform UniformsVolume u_volume;

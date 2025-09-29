@@ -10,19 +10,19 @@ export default class InterpolationMap
         this.computes = new Computes()
         this.configs = this.computes.configs
         this.volumeMap = this.computes.volumeMap
-        this.downscaleFactor = this.configs.downscaleFactor
     }
 
     computeTensor()
     {
-        console.time('computeInterpolationMap') 
+        console.time('computeTensor@InterpolationMap') 
     
+        this.dimensions = this.volumeMap.dimensions
+
         this.tensor?.dispose()
         this.tensor = computeInterpolationMap(this.volumeMap.tensor)
         this.tensorData = this.tensor.dataSync()
-        this.dimensions = this.volumeMap.dimensions
 
-        console.timeEnd('computeInterpolationMap') 
+        console.timeEnd('computeTensor@InterpolationMap') 
     }
 
     restoreTensor()
@@ -33,8 +33,9 @@ export default class InterpolationMap
         }
     }
 
-    getTexture()
+    computeTexture()
     {
+        console.time('computeTexture@InterpolationMap') 
         this.texture?.dispose()
         this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RGBAFormat
@@ -45,8 +46,13 @@ export default class InterpolationMap
         this.texture.generateMipmaps = false
         this.texture.needsUpdate = true
         this.texture.unpackAlignment = 4
+        console.timeEnd('computeTexture@InterpolationMap') 
+    }
 
-        return this.texture
+    updateTexture()
+    {
+        this.texture.image.data.set(this.getTextureData())
+        this.texture.needsUpdate = true
     }
 
     getTextureData()
@@ -54,12 +60,6 @@ export default class InterpolationMap
         const tensor = toHalfFloat(this.tensor)
         const dataHalfFloat = tensor.dataSync(); tensor.dispose()
         return new Uint16Array(dataHalfFloat.buffer)
-    }
-
-    updateTextureData()
-    {
-        this.texture.image.data.set(this.getTextureData())
-        this.texture.needsUpdate = true
     }
 
     dispose()
