@@ -143,10 +143,6 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
 
         this.material.needsUpdate = true
-
-        console.log(event)
-        console.log(this.defines)
-        console.log(this.configs)
     }
 
     onChangeSkippingMethod(event)
