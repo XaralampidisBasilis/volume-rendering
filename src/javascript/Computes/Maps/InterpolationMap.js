@@ -51,40 +51,27 @@ export default class InterpolationMap
         this.texture.needsUpdate = true
     }
 
- 
-
     getTextureData()
     {
-        const tensor = getHalfFloat(this.tensor)
+        const tensor = toHalfFloat(this.tensor)
         const dataHalfFloat = new Uint16Array(tensor.dataSync())
         tensor.dispose()
 
         return dataHalfFloat
     }
 
-    // getTextureData()
-    // {
-    //     const tensor = toHalfFloat2x16(this.tensor)
-    //     const dataHalfFloat2x16 = tensor.dataSync()
-    //     tensor.dispose()
+    /*getTextureData()
+    {
+        const dataFloat = this.tensor.dataSync()
+        const dataHalfFloat = new Uint16Array(this.tensor.size)
 
-    //     const dataHalfFloat = new Uint16Array(dataHalfFloat2x16.buffer, dataHalfFloat2x16.byteOffset, this.tensor.size)
+        for (let i = 0; i < dataFloat.length; ++i) 
+        {
+            dataHalfFloat[i] = toHalfFloat(dataFloat[i])
+        }
 
-    //     return dataHalfFloat
-    // }
-
-    // getTextureData()
-    // {
-    //     const dataFloat = this.tensor.dataSync()
-    //     const dataHalfFloat = new Uint16Array(this.tensor.size)
-
-    //     for (let i = 0; i < dataFloat.length; ++i) 
-    //     {
-    //         dataHalfFloat[i] = toHalfFloat(dataFloat[i])
-    //     }
-
-    //     return dataHalfFloat
-    // }
+        return dataHalfFloat
+    }*/
 
     dispose()
     {
