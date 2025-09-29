@@ -169,8 +169,15 @@ class GPGPUToHalfFloat implements GPGPUProgram
     constructor(inputShape: [number, number, number, number, number]) 
     {
         const [inDepth, inHeight, inWidth, , ] = inputShape
-        this.outputShape = [inDepth, inHeight, inWidth]
+        this.outputShape = [inDepth, inHeight, inWidth, 2]
         this.userCode = `   
+        // Returns the IEEE-754 half-float bit pattern (lower 16 bits of the uint).
+        float toHalfFloat(float x) 
+        {
+            uint packed = packHalf2x16(vec2(x, 0.0));
+            return float(packed & 0xFFFFu); 
+        }
+
         vec4 clampToHalfRange(vec4 values) 
         {
             return clamp(values, -65504.0, 65504.0);
@@ -178,14 +185,16 @@ class GPGPUToHalfFloat implements GPGPUProgram
 
         void main() 
         {
-            ivec3 outputCoords = getOutputCoords();
+            ivec4 outputCoords = getOutputCoords();
             ivec3 blockCoords = outputCoords.zyx;
 
             vec4 blockMinMax = getExtremaMap(blockCoords.z, blockCoords.y, blockCoords.x, 0, 0);
             blockMinMax = clampToHalfRange(blockMinMax);
 
-            uint packed = packHalf2x16(vec2(blockMinMax.r, blockMinMax.g)
-            setOutput(uintBitsToFloat(packed));
+            setOutput(outputCoords.w == 0 
+                ? toHalfFloat(blockMinMax.r) 
+                : toHalfFloat(blockMinMax.g)
+            );
         }
     `
     }
@@ -208,5 +217,5 @@ export function computeExtremaMap(interpolationMap: tf.Tensor5D, interpolationMe
 export function toHalfFloat(extremaMap: tf.Tensor5D): tf.Tensor 
 {
   const program = new GPGPUToHalfFloat(extremaMap.shape)
-  return runProgram(program, [extremaMap]) as tf.Tensor3D
+  return runProgram(program, [extremaMap]) as tf.Tensor4D
 }

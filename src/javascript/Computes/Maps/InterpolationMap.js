@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
 import { computeInterpolationMap, toHalfFloat } from '../Programs/GPGPUInterpolationMapPacked'
+// import { toHalfFloat, fromHalfFloat } from 'three/src/extras/DataUtils.js'
 
 export default class InterpolationMap
 {
@@ -50,12 +51,40 @@ export default class InterpolationMap
         this.texture.needsUpdate = true
     }
 
+ 
+
     getTextureData()
     {
-        const tensor = toHalfFloat(this.tensor)
-        const dataHalfFloat = tensor.dataSync(); tensor.dispose()
-        return new Uint16Array(dataHalfFloat.buffer)
+        const tensor = getHalfFloat(this.tensor)
+        const dataHalfFloat = new Uint16Array(tensor.dataSync())
+        tensor.dispose()
+
+        return dataHalfFloat
     }
+
+    // getTextureData()
+    // {
+    //     const tensor = toHalfFloat2x16(this.tensor)
+    //     const dataHalfFloat2x16 = tensor.dataSync()
+    //     tensor.dispose()
+
+    //     const dataHalfFloat = new Uint16Array(dataHalfFloat2x16.buffer, dataHalfFloat2x16.byteOffset, this.tensor.size)
+
+    //     return dataHalfFloat
+    // }
+
+    // getTextureData()
+    // {
+    //     const dataFloat = this.tensor.dataSync()
+    //     const dataHalfFloat = new Uint16Array(this.tensor.size)
+
+    //     for (let i = 0; i < dataFloat.length; ++i) 
+    //     {
+    //         dataHalfFloat[i] = toHalfFloat(dataFloat[i])
+    //     }
+
+    //     return dataHalfFloat
+    // }
 
     dispose()
     {

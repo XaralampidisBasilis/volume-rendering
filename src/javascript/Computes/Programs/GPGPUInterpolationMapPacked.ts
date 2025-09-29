@@ -50,13 +50,20 @@ class GPGPUToHalfFloat implements GPGPUProgram
     outputShape: number[]
     userCode: string
     packedInputs = true
-    packedOutput = false
-
+    packedOutput = true
+    
     constructor(inputShape: [number, number, number, number, number]) 
     {
-        const [inDepth, inHeight, inWidth, , ] = inputShape
-        this.outputShape = [inDepth, inHeight, inWidth, 2]
+        this.outputShape = inputShape
         this.userCode = `   
+
+        // Returns the IEEE-754 half-float bit pattern (lower 16 bits of the uint).
+        float toHalfFloat(float x) 
+        {
+            uint packed = packHalf2x16(vec2(x, 0.0));
+            return float(packed & 0xFFFFu); 
+        }
+
         vec4 clampToHalfRange(vec4 values) 
         {
             return clamp(values, -65504.0, 65504.0);
@@ -64,64 +71,21 @@ class GPGPUToHalfFloat implements GPGPUProgram
 
         void main() 
         {
-            ivec4 outputCoords = getOutputCoords();
-            ivec3 voxelCoords = outputCoords.zyx;
-            int lane = outputCoords.w;
-
-            vec4 voxelSamples = getInterpolationMap(voxelCoords.z, voxelCoords.y, voxelCoords.x, 0, 0);
+            vec4 voxelSamples = getInterpolationMapAtOutCoords();
             voxelSamples = clampToHalfRange(voxelSamples);
 
-            uint packed = (lane == 0)
-            ? packHalf2x16(vec2(voxelSamples.r, voxelSamples.g))  
-            : packHalf2x16(vec2(voxelSamples.b, voxelSamples.a)); 
+            voxelSamples.r = toHalfFloat(voxelSamples.r);
+            voxelSamples.g = toHalfFloat(voxelSamples.g);
+            voxelSamples.b = toHalfFloat(voxelSamples.b);
+            voxelSamples.a = toHalfFloat(voxelSamples.a);
 
-            setOutput(uintBitsToFloat(packed));
+            // WORKS WITH F16 TEXTURES
+            setOutput(voxelSamples);
         }
     `
     }
 }
 
-
-class GPGPUFromHalfFloat implements GPGPUProgram 
-{
-    variableNames = ['InterpolationMap']
-    outputShape: number[]
-    userCode: string
-    packedInputs = false
-    packedOutput = true
-
-    constructor(inputShape: [number, number, number, number]) 
-    {
-        const [inDepth, inHeight, inWidth, ] = inputShape
-        this.outputShape = [inDepth, inHeight, inWidth, 2, 2]
-        this.userCode = `   
-        vec4 clampToHalfRange(vec4 values) 
-        {
-            return clamp(values, -65504.0, 65504.0);
-        }
-
-        void main() 
-        {
-            ivec5 outputCoords = getOutputCoords();
-            ivec3 voxelCoords = ivec3(outputCoords.z, outputCoords.y, outputCoords.x);
-            int lane = outputCoords.w;
-
-            float packedRG = getInterpolationMap(voxelCoords.z, voxelCoords.y, voxelCoords.x, 0);
-            float packedHalfFloats = getInterpolationMap(voxelCoords.z, voxelCoords.y, voxelCoords.x, 1);
-
-            uint packed = floatBitsToUInt(packedHalfFloats);
-
-            vec4(unpackHalf2x16())
-
-            uint packed = (lane == 0)
-            ? packHalf2x16(vec2(voxelSamples.r, voxelSamples.g))  
-            : packHalf2x16(vec2(voxelSamples.b, voxelSamples.a)); 
-
-            setOutput(uintBitsToFloat(packed));
-        }
-    `
-    }
-}
 
 function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]): tf.Tensor
 {
@@ -141,3 +105,4 @@ export function toHalfFloat(InterpolationMap: tf.Tensor5D): tf.Tensor
   const program = new GPGPUToHalfFloat(InterpolationMap.shape)
   return runProgram(program, [InterpolationMap]) as tf.Tensor4D
 }
+
