@@ -1,5 +1,5 @@
-#ifndef WINTER
-#define WINTER 8
+#ifndef COLORMAP_WINTER
+#define COLORMAP_WINTER 8
 
 #ifndef PALETTE
 #include "../palette"

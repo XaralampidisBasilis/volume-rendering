@@ -1,5 +1,5 @@
-#ifndef BONE
-#define BONE 10
+#ifndef COLORMAP_BONE
+#define COLORMAP_BONE 10
 
 #ifndef PALETTE
 #include "../palette"

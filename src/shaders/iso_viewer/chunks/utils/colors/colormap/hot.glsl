@@ -1,5 +1,5 @@
-#ifndef HOT
-#define HOT 3
+#ifndef COLORMAP_HOT
+#define COLORMAP_HOT 3
 
 #ifndef PALETTE
 #include "../palette"

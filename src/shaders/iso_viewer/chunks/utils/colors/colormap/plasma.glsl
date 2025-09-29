@@ -1,5 +1,5 @@
-#ifndef PLASMA
-#define PLASMA 16
+#ifndef COLORMAP_PLASMA
+#define COLORMAP_PLASMA 16
 
 #ifndef PALETTE
 #include "../palette"

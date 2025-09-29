@@ -13,19 +13,21 @@ export default class OccupancyMap
         this.isosurfaceValue = this.configs.isosurfaceValue
     }
 
-    compute()
+    computeTensor()
     {
         console.time('computeOccupancyMap') 
 
+        this.tensor?.dispose()
         this.tensor = computeOccupancyMap(this.extremaMap.tensor, this.isosurfaceValue)
         this.dimensions = this.extremaMap.dimensions
 
         console.timeEnd('computeOccupancyMap') 
     }
 
-    textureSync()
+    getTexture()
     {
-        this.texture = new THREE.Data3DTexture(this.textureDataSync(), ...this.dimensions)
+        this.texture?.dispose()
+        this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
         this.texture.type = THREE.UnsignedByteType
         this.texture.internalFormat = 'R8UI'
@@ -38,9 +40,15 @@ export default class OccupancyMap
         return this.texture
     }   
 
-    textureDataSync()
+    getTextureData()
     {
         return new Uint8Array(this.tensor.dataSync())
+    }
+
+    updateTextureData()
+    {
+        this.texture.image.data.set(this.getTextureData())
+        this.texture.needsUpdate = true
     }
 
     dispose()

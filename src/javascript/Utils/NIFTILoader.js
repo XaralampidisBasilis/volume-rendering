@@ -109,7 +109,7 @@ class NIFTILoader extends Loader
         }        
             
         // Compute min and max intensities
-        volume.computeMinMax()
+        // volume.computeMinMax()
       
         // Dimensions and spacing
         volume.dimensions = [header.dims[1], header.dims[2], header.dims[3]]

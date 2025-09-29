@@ -20,33 +20,35 @@ export default class InterpolationMap
         this.volume = this.resources.items.volume
         this.dimensions = new THREE.Vector3().fromArray(this.volume.dimensions)
         this.spacing = new THREE.Vector3().fromArray(this.volume.spacing)
-        this.size = new THREE.Vector3().multiplyVectors(this.spacing, this.dimensions)
+        this.size = new THREE.Vector3().fromArray(this.volume.size)
     }
 
-    compute()
+    computeTensor()
     {
-        console.time('computeInterpolationMap') 
-        
         this.setVolume()
+
+        console.time('computeInterpolationMap') 
+    
         const shape = this.volume.dimensions.toReversed()
         const newShape = shape.map((x) => Math.ceil(this.downscaleFactor * x))
         const newSpacing = this.volume.spacing.toReversed().map((x, i) => shape[i]/newShape[i] * x)
-        this.dimensions.copy(newShape.toReversed())
-        this.spacing.copy(newSpacing.toReversed())
+        this.dimensions.fromArray(newShape.toReversed())
+        this.spacing.fromArray(newSpacing.toReversed())
 
         const volume = tf.tensor3d(new Float32Array(this.volume.data), shape)
         const resizedVolume = computeResizedMap(volume, newShape, false, true); volume.dispose()
         const normalizedVolume = computeNormalizedMap(resizedVolume); resizedVolume.dispose()
 
+        this.tensor?.dispose()
         this.tensor = computeInterpolationMap(normalizedVolume); normalizedVolume.dispose() 
-        // this.data = this.tensor.dataSync()
 
         console.timeEnd('computeInterpolationMap') 
     }
 
-    textureSync()
+    getTexture()
     {
-        this.texture = new THREE.Data3DTexture(this.textureDataSync(), ...this.dimensions)
+        this.texture?.dispose()
+        this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RGBAFormat
         this.texture.type = THREE.HalfFloatType
         this.texture.internalFormat = 'RGBA16F'
@@ -59,11 +61,17 @@ export default class InterpolationMap
         return this.texture
     }
 
-    textureDataSync()
+    getTextureData()
     {
         const tensor = toHalfFloat(this.tensor)
         const dataHalfFloat = tensor.dataSync(); tensor.dispose()
         return new Uint16Array(dataHalfFloat.buffer)
+    }
+
+    updateTextureData()
+    {
+        this.texture.image.data.set(this.getTextureData())
+        this.texture.needsUpdate = true
     }
 
     dispose()

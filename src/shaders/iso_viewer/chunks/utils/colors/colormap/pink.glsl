@@ -1,5 +1,5 @@
-#ifndef PINK
-#define PINK 12
+#ifndef COLORMAP_PINK
+#define COLORMAP_PINK 12
 
 #ifndef PALETTE
 #include "../palette"

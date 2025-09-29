@@ -1,5 +1,5 @@
-#ifndef GRAY
-#define GRAY 9
+#ifndef COLORMAP_GRAY
+#define COLORMAP_GRAY 9
 
 #ifndef PALETTE
 #include "../palette"

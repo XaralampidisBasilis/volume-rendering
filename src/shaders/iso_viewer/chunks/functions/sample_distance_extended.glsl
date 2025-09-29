@@ -21,7 +21,7 @@ ivec3 sample_distance_extended(in ivec3 block_coords, in int octant, out bool oc
     slab_coords.z += octant * u_volume.blocks.z;
 
     // Sample packed data from the 3D texture
-    uint packed_sample = texelFetch(u_textures.extended_distance, slab_coords, 0).r;
+    uint packed_sample = texelFetch(u_textures.distance_map, slab_coords, 0).r;
 
     // Unpack into 3 distances and 1 occupancy flag
     uvec4 unpacked_sample = unpack_sample(packed_sample);

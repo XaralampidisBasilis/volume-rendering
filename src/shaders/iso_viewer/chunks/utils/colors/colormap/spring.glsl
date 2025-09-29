@@ -1,5 +1,5 @@
-#ifndef SPRING
-#define SPRING 5
+#ifndef COLORMAP_SPRING
+#define COLORMAP_SPRING 5
 
 #ifndef PALETTE
 #include "../palette"

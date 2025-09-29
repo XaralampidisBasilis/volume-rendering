@@ -1,5 +1,5 @@
-#ifndef COPPER
-#define COPPER 11
+#ifndef COLORMAP_COPPER
+#define COLORMAP_COPPER 11
 
 #ifndef PALETTE
 #include "../palette"

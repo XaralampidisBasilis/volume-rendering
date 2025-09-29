@@ -1,5 +1,5 @@
-#ifndef CIVIDIS
-#define CIVIDIS 19
+#ifndef COLORMAP_CIVIDIS
+#define COLORMAP_CIVIDIS 19
 
 #ifndef PALETTE
 #include "../palette"

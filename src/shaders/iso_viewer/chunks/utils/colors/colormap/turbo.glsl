@@ -1,5 +1,5 @@
-#ifndef TURBO
-#define TURBO 1
+#ifndef COLORMAP_TURBO
+#define COLORMAP_TURBO 1
 
 #ifndef PALETTE
 #include "../palette"

@@ -21,7 +21,7 @@ float specular = clamp(halfway_angle, 0.0, 1.0);
 specular = pow(specular, u_shading.shininess);
 
 // Colors 
-frag.color_material = sample_colormap(hit.value);
+frag.color_material = colormap(hit.value, COLORMAP_PASTELJET);
 frag.color_ambient = frag.color_material * u_shading.reflect_ambient;
 frag.color_diffuse = frag.color_material * u_shading.reflect_diffuse  * lambertian;
 frag.color_specular = frag.color_material + (1.0 - frag.color_material) * u_shading.reflect_specular * specular;

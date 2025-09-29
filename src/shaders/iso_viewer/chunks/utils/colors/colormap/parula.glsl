@@ -1,5 +1,5 @@
-#ifndef PARULA
-#define PARULA 0
+#ifndef COLORMAP_PARULA
+#define COLORMAP_PARULA 0
 
 #ifndef PALETTE
 #include "../palette"

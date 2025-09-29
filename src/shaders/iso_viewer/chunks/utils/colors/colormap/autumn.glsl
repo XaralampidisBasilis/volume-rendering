@@ -1,5 +1,5 @@
-#ifndef AUTUMN
-#define AUTUMN 7
+#ifndef COLORMAP_AUTUMN
+#define COLORMAP_AUTUMN 7
 
 #ifndef PALETTE
 #include "../palette"

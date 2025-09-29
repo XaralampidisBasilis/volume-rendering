@@ -1,5 +1,5 @@
-#ifndef SUMMER
-#define SUMMER 6
+#ifndef COLORMAP_SUMMER
+#define COLORMAP_SUMMER 6
 
 #ifndef PALETTE
 #include "../palette"

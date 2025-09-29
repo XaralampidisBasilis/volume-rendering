@@ -1,5 +1,5 @@
-#ifndef PASTELJET
-#define PASTELJET 14
+#ifndef COLORMAP_PASTELJET
+#define COLORMAP_PASTELJET 14
 
 #ifndef PALETTE
 #include "../palette"

@@ -1,5 +1,5 @@
-#ifndef VIRIDIS
-#define VIRIDIS 15
+#ifndef COLORMAP_VIRIDIS
+#define COLORMAP_VIRIDIS 15
 
 #ifndef PALETTE
 #include "../palette"

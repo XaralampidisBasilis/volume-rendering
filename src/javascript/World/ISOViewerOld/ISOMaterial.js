@@ -21,9 +21,13 @@ export default function()
 
         u_textures: new THREE.Uniform
         ({
-            interpolation_map : null,
-            occupancy_map : null,
-            distance_map  : null,
+            colormaps    : null,
+            trilinear_volume : null,
+            tricubic_volume : null,
+            occupancy : null,
+            isotropic_distance  : null,
+            anisotropic_distance : null,
+            extended_distance : null,
         }),
 
         u_intensity_map : new THREE.Uniform

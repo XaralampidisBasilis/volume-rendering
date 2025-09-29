@@ -9,7 +9,7 @@ ivec3 sample_distance_anisotropic(in ivec3 block_coords, in int octant, out bool
     slab_coords.z += octant * u_volume.blocks.z;
 
     // Fetch red channel from 3D texture
-    uint texture_sample = texelFetch(u_textures.anisotropic_distance, slab_coords, 0).r;
+    uint texture_sample = texelFetch(u_textures.distance_map, slab_coords, 0).r;
 
     // Convert to integer distance
     int distance = int(texture_sample);

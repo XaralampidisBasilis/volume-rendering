@@ -19,18 +19,14 @@ export default class World extends EventEmitter
         this.resources = this.experience.resources
         this.camera = this.experience.camera
         this.viewer = new ISOViewer()
-
-        // // Wait for viewer to be ready before positioning the camera
-        // this.viewer.on('ready', () =>
-        // {
-        //     this.camera.instance.position.copy(this.viewer.computes.intensityMap.size)
-        //     this.trigger('ready')
-        // })
     }
 
     start()
     {
-        
+        this.viewer.start()
+        this.scene.add(this.viewer.mesh)
+
+        this.camera.instance.position.copy(this.viewer.size)
     }
 
     change(event)
@@ -40,17 +36,12 @@ export default class World extends EventEmitter
 
     destroy()
     {
-        this.disposeScene()
+        this.destroyScene()
 
-        // Clean up the viewer
-        if (this.viewer)
-        {
-            this.viewer.destroy()
-            this.viewer = null
-        }
+        this.viewer?.destroy()
+        this.viewer = null
 
         // Nullify references for cleanup
-        this.scene = null
         this.camera = null
         this.resources = null
         this.experience = null
@@ -58,7 +49,7 @@ export default class World extends EventEmitter
         console.log('World destroyed')
     }
 
-    disposeScene()
+    destroyScene()
     {
         // Dispose of all meshes and their resources in the scene
         this.scene.traverse((child) =>
@@ -81,6 +72,8 @@ export default class World extends EventEmitter
                 }
             }
         })
+
+        this.scene = null
     }
 
 }

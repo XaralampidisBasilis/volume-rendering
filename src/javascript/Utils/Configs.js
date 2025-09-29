@@ -31,14 +31,14 @@ export default class Configs extends EventEmitter
     {
         super()
 
-        this.blockSize = 4
-        this.downscaleFactor = 0.5
+        this.blockSize = 2
+        this.downscaleFactor = 0.8
         this.isosurfaceValue = 0.69
 
         this.interpolationMethod = 'tricubic'
         this.gradientsMethod = 'bspline'
         this.marchingMethod = 'analytic'
-        this.skippingMethod = 'extendedAnisotropicDistanceMap'
+        this.skippingMethod = 'isotropicDistanceMap'
 
         this.bernsteinEnabled = true
         this.skippingEnabled = true

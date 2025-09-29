@@ -1,4 +1,4 @@
-#include "./sample_colormaps"
+// #include "./sample_colormaps"
 #include "./sample_occupancy"
 #include "./sample_value_trilinear"
 #include "./sample_value_tricubic"

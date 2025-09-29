@@ -1,5 +1,5 @@
-#ifndef HSV
-#define HSV 2
+#ifndef COLORMAP_HSV
+#define COLORMAP_HSV 2
 
 #ifndef PALETTE
 #include "../palette"

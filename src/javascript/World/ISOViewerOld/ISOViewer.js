@@ -2,6 +2,9 @@ import * as THREE from 'three'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
 import ISOMaterial from './ISOMaterial'
+import ISOGui from './ISOGui'
+import ISOComputes from './ISOComputes'
+import ISOTextures from './ISOTextures'
 
 export default class ISOViewer extends EventEmitter
 {
@@ -11,6 +14,7 @@ export default class ISOViewer extends EventEmitter
     {
         super()
    
+        // singleton
         if (ISOViewer.instance) 
         {
             return ISOViewer.instance
@@ -21,78 +25,114 @@ export default class ISOViewer extends EventEmitter
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.renderer = this.experience.renderer
-        this.computes = this.experience.computes
+        this.camera = this.experience.camera
+        this.sizes = this.experience.sizes
         this.debug = this.experience.debug
         this.configs = this.experience.configs
-        
+        this.material = ISOMaterial()
+        this.computes = new ISOComputes()
+        this.textures = new ISOTextures()
+
+        // Wait for textures
+        this.textures.on('ready', () =>
+        {
+            this.setGeometry()
+            this.setMaterial()
+            this.setMesh()
+
+            this.gui = new ISOGui()
+            this.trigger('ready')
+            console.log('ISOViewer', this)
+        })
+    }
+
+    start()
+    {
+        this.setGeometry()
+        this.setMaterial()
         this.setMesh()
     }
 
     setMesh()
     {   
-        this.geometry = new THREE.BoxGeometry(1, 1, 1)
-        this.material = ISOMaterial()
+        const size = this.computes.intensityMap.size
+
         this.mesh = new THREE.Mesh(this.geometry, this.material)
+        this.mesh.scale.copy(size)
+        this.scene.add(this.mesh)
     }
 
-    start()
+    setGeometry()
     {
-        this.startTextureUniforms()
-        this.startVolumeUniforms()
-        this.startDefines()
-
-        this.size = this.computes.interpolationMap.size
-        this.mesh.scale.copy(this.size)
+        this.geometry = new THREE.BoxGeometry(1, 1, 1)
     }
 
-    startTextureUniforms()
+
+    setUniforms()
     {
-        const computes = this.computes
         const uniforms = this.material.uniforms
+        uniforms.u_textures.value.interpolation_map = this.computes.interpolationMap.texturesSync()
+        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texturesSync()
+        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texturesSync()
 
-        uniforms.u_textures.value.interpolation_map = computes.interpolationMap.getTexture()
-        uniforms.u_textures.value.occupancy_map = computes.occupancyMap.getTexture()
-        uniforms.u_textures.value.distance_map = computes.distanceMap?.getTexture()
-
-        computes.interpolationMap.tensor.dispose()
-        computes.occupancyMap.tensor.dispose()
-        computes.distanceMap?.tensor.dispose()
+        this.computes.interpolationMap.tensor.dispose()
+        this.computes.occupancyMap.tensor.dispose()
+        this.computes.distanceMap.tensor.dispose()
     }
 
-    startVolumeUniforms()
+    setDefines()
     {
-        const computes = this.computes
-        const uniforms = this.material.uniforms
-
-        const scale = new THREE.Matrix4().makeScale(...computes.interpolationMap.dimensions)
-        const translate = new THREE.Matrix4().makeTranslation(0.5, 0.5, 0.5)
-
-        uniforms.u_volume.value.grid_matrix.multiplyMatrices(scale, translate)
-        uniforms.u_volume.value.dimensions.copy(computes.interpolationMap.dimensions)
-        uniforms.u_volume.value.spacing.copy(computes.interpolationMap.spacing)
-        uniforms.u_volume.value.size.copy(computes.interpolationMap.size)
-        uniforms.u_volume.value.blocks.copy(computes.extremaMap.dimensions)
-        uniforms.u_volume.value.inv_dimensions.fromArray(uniforms.u_volume.value.dimensions.toArray().map(x => 1/x))
-        uniforms.u_volume.value.anisotropy.copy(uniforms.u_volume.value.spacing).normalize()
-        uniforms.u_volume.value.stride = this.configs.blockSize
-    }
-
-    startDefines()
-    {
-        const computes = this.computes
         const defines = this.material.defines
-
-        const sum = (y, x) => y + x
-        defines.MAX_CELLS = computes.interpolationMap.dimensions.toArray().reduce(sum, 0)
-        defines.MAX_BLOCKS = computes.occupancyMap.dimensions.toArray().reduce(sum, 0)
+        defines.MAX_CELLS = this.computes.interpolationMap.dimensions.toArray().reduce((s, x) => s + x, 0)
+        defines.MAX_BLOCKS = this.computes.distanceMap.dimensions.toArray().reduce((s, x) => s + x, 0)
         defines.MAX_TRACES = defines.MAX_CELLS * 5
-
-        defines.MAX_CELLS_PER_BLOCK = this.configs.blockSize * 3
+        defines.MAX_CELLS_PER_BLOCK = this.computes.distanceMap.blockSize * 3
         defines.MAX_TRACES_PER_BLOCK = defines.MAX_CELLS_PER_BLOCK * 5
         defines.MAX_GROUPS = Math.ceil(defines.MAX_CELLS / defines.MAX_CELLS_PER_BLOCK)
         defines.MAX_BLOCKS_PER_GROUP = Math.ceil(defines.MAX_BLOCKS / defines.MAX_GROUPS)
     }
   
+  
+    setMaterial()
+    {        
+        // Uniforms
+        const uniforms = this.material.uniforms
+        const intensityMap = this.computes.intensityMap
+        const distanceMap =  this.computes.distanceMap
+
+        uniforms.u_textures.value.colormaps = this.textures.colorMaps   
+        uniforms.u_textures.value.trilinear_volume = this.textures.intensityMap
+        uniforms.u_textures.value.tricubic_volume = this.textures.trilaplacianIntensityMap
+        uniforms.u_textures.value.occupancy = this.textures.occupancyMap
+        uniforms.u_textures.value.isotropic_distance = this.textures.distanceMap
+        uniforms.u_textures.value.anisotropic_distance = this.textures.anisotropicDistanceMap
+        uniforms.u_textures.value.extended_distance = this.textures.extendedAnisotropicDistanceMap
+        
+        uniforms.u_volume.value.dimensions.copy(intensityMap.dimensions)
+        uniforms.u_volume.value.inv_dimensions.copy(intensityMap.invDimensions)
+        uniforms.u_volume.value.blocks.copy(distanceMap.dimensions)
+        uniforms.u_volume.value.spacing.copy(intensityMap.spacing)
+        uniforms.u_volume.value.size.copy(intensityMap.dimensions).multiply(intensityMap.spacing)
+        uniforms.u_volume.value.anisotropy.copy(intensityMap.spacing).normalize()
+        uniforms.u_volume.value.stride = distanceMap.stride
+
+        const scale = new THREE.Matrix4().makeScale(...intensityMap.dimensions);
+        const translate = new THREE.Matrix4().makeTranslation(0.5, 0.5, 0.5)
+        uniforms.u_volume.value.grid_matrix.multiplyMatrices(scale, translate);
+
+        // Defines
+        const defines = this.material.defines
+        defines.MAX_CELLS = intensityMap.dimensions.toArray().reduce((s, x) => s + x, 0)
+        defines.MAX_BLOCKS = distanceMap.dimensions.toArray().reduce((s, x) => s + x, 0)
+        defines.MAX_TRACES = defines.MAX_CELLS * 5
+        defines.MAX_CELLS_PER_BLOCK = distanceMap.stride * 3
+        defines.MAX_TRACES_PER_BLOCK = defines.MAX_CELLS_PER_BLOCK * 5
+        defines.MAX_GROUPS = Math.ceil(defines.MAX_CELLS / defines.MAX_CELLS_PER_BLOCK)
+        defines.MAX_BLOCKS_PER_GROUP = Math.ceil(defines.MAX_BLOCKS / defines.MAX_GROUPS)
+    }
+
+
+
     async onThresholdChange(threshold)
     {
         const uniforms = this.material.uniforms

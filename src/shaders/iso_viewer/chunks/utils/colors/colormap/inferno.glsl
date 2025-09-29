@@ -1,5 +1,5 @@
-#ifndef INFERNO
-#define INFERNO 17
+#ifndef COLORMAP_INFERNO
+#define COLORMAP_INFERNO 17
 
 #ifndef PALETTE
 #include "../palette"

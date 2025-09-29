@@ -1,5 +1,5 @@
-#ifndef COOL
-#define COOL 4
+#ifndef COLORMAP_COOL
+#define COLORMAP_COOL 4
 
 #ifndef PALETTE
 #include "../palette"

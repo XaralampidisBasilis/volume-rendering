@@ -24,26 +24,26 @@
 
 vec3 colormap(in float t, in int type)
 {
-    if (type == PARULA) return parula(t);
-    else if (type == TURBO) return turbo(t);
-    else if (type == HSV) return hsv(t);
-    else if (type == HOT) return hot(t);
-    else if (type == COOL) return cool(t);
-    else if (type == SPRING) return spring(t);
-    else if (type == SUMMER) return summer(t);
-    else if (type == AUTUMN) return autumn(t);
-    else if (type == WINTER) return winter(t);
-    else if (type == GRAY) return gray(t);
-    else if (type == BONE) return bone(t);
-    else if (type == COPPER) return copper(t);
-    else if (type == PINK) return pink(t);
-    else if (type == JET) return jet(t);
-    else if (type == PASTELJET) return pasteljet(t);
-    else if (type == VIRIDIS) return viridis(t);
-    else if (type == PLASMA) return plasma(t);
-    else if (type == INFERNO) return inferno(t);
-    else if (type == MAGMA) return magma(t);
-    else if (type == CIVIDIS) return cividis(t);
+    if (type == COLORMAP_PARULA) return parula(t);
+    else if (type == COLORMAP_TURBO) return turbo(t);
+    else if (type == COLORMAP_HSV) return hsv(t);
+    else if (type == COLORMAP_HOT) return hot(t);
+    else if (type == COLORMAP_COOL) return cool(t);
+    else if (type == COLORMAP_SPRING) return spring(t);
+    else if (type == COLORMAP_SUMMER) return summer(t);
+    else if (type == COLORMAP_AUTUMN) return autumn(t);
+    else if (type == COLORMAP_WINTER) return winter(t);
+    else if (type == COLORMAP_GRAY) return gray(t);
+    else if (type == COLORMAP_BONE) return bone(t);
+    else if (type == COLORMAP_COPPER) return copper(t);
+    else if (type == COLORMAP_PINK) return pink(t);
+    else if (type == COLORMAP_JET) return jet(t);
+    else if (type == COLORMAP_PASTELJET) return pasteljet(t);
+    else if (type == COLORMAP_VIRIDIS) return viridis(t);
+    else if (type == COLORMAP_PLASMA) return plasma(t);
+    else if (type == COLORMAP_INFERNO) return inferno(t);
+    else if (type == COLORMAP_MAGMA) return magma(t);
+    else if (type == COLORMAP_CIVIDIS) return cividis(t);
 
     else return vec3(0.0); 
 }

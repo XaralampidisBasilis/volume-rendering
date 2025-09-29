@@ -16,7 +16,6 @@ export default class Computes extends EventEmitter
     {
         super()
 
-        // singleton
         if (Computes.instance) 
         {
             return Computes.instance
@@ -39,6 +38,7 @@ export default class Computes extends EventEmitter
         this.isotropicDistanceMap = new IsotropicDistanceMap()
         this.anisotropicDistanceMap = new AnisotropicDistanceMap()
         this.extendedAnisotropicDistanceMap = new ExtendedAnisotropicDistanceMap()
+        
         this.distanceMap = this.skippingMethod.endsWith('DistanceMap') ? this[this.skippingMethod] : null
     }
 
@@ -46,10 +46,10 @@ export default class Computes extends EventEmitter
     {
         console.time('startComputes') 
 
-        this.interpolationMap.compute()
-        this.extremaMap.compute()
-        this.occupancyMap.compute()
-        this.distanceMap?.compute()
+        this.interpolationMap.computeTensor()
+        this.extremaMap.computeTensor()
+        this.occupancyMap.computeTensor()
+        this.distanceMap?.computeTensor()
         
         console.timeEnd('startComputes') 
     }
@@ -64,35 +64,22 @@ export default class Computes extends EventEmitter
 
     onChangeIsosurfaceValue(event)
     {
-        this.occupancyMap.dispose()
-        this.occupancyMap.compute()
-
-        this.distanceMap?.dispose()
-        this.distanceMap?.compute()
+        this.occupancyMap.computeTensor()
+        this.distanceMap?.computeTensor()
     }
 
     onChangeBlockSize(event)
     {
-        this.extremaMap.dispose()
-        this.extremaMap.compute()
-
-        this.occupancyMap.dispose()
-        this.occupancyMap.compute()
-        
-        this.distanceMap?.dispose()
-        this.distanceMap?.compute()
+        this.extremaMap.computeTensor()
+        this.occupancyMap.computeTensor()
+        this.distanceMap?.computeTensor()
     }
 
     onChangeInterpolationMethod(event)
     {
-        this.extremaMap.dispose()
-        this.extremaMap.compute()
-        
-        this.occupancyMap.dispose()
-        this.occupancyMap.compute()
-
-        this.distanceMap?.dispose()
-        this.distanceMap?.compute()
+        this.extremaMap.computeTensor()
+        this.occupancyMap.computeTensor()
+        this.distanceMap?.computeTensor()
     }
 
     onChangeSkippingMethod(event)
@@ -103,13 +90,12 @@ export default class Computes extends EventEmitter
         if (this.skippingMethod.endsWith('DistanceMap'))
         {
             this.distanceMap = this[this.skippingMethod]
-            this.distanceMap.compute()
+            this.distanceMap.computeTensor()
         }
 
         if (this.skippingMethod === 'occupancyMap')
         {
-            this.occupancyMap.dispose()
-            this.occupancyMap.compute()
+            this.occupancyMap.computeTensor()
         }
     }
 

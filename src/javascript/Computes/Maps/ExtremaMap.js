@@ -14,20 +14,23 @@ export default class ExtremaMap
         this.blockSize = this.configs.blockSize
     }
 
-    compute()
+    computeTensor()
     {
         console.time('computeExtremaMap') 
 
+        this.tensor?.dispose()
         this.tensor = computeExtremaMap(this.interpolationMap.tensor, this.interpolationMethod, this.blockSize)
+        
         const dimensions = this.tensor.shape.slice(0, 3).toReversed()
         this.dimensions = new THREE.Vector3().fromArray(dimensions)
 
         console.timeEnd('computeExtremaMap') 
     }
 
-    textureSync()
+    getTexture()
     {
-        this.texture = new THREE.Data3DTexture(this.textureDataSync(), ...this.dimensions)
+        this.texture?.dispose()
+        this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RGFormat
         this.texture.type = THREE.HalfFloatType
         this.texture.internalFormat = 'RG16F'
@@ -40,13 +43,19 @@ export default class ExtremaMap
         return this.texture
     }   
 
-    textureDataSync()
+    getTextureData()
     {
         const tensor = toHalfFloat(this.tensor)
         const dataHalfFloat = tensor.dataSync()
         tensor.dispose()
         
         return new Uint16Array(dataHalfFloat.buffer)
+    }
+
+    updateTextureData()
+    {
+        this.texture.image.data.set(this.getTextureData())
+        this.texture.needsUpdate = true
     }
 
     dispose()

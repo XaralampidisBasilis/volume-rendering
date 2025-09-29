@@ -1,5 +1,5 @@
-#ifndef JET
-#define JET 13
+#ifndef COLORMAP_JET
+#define COLORMAP_JET 13
 
 #ifndef PALETTE
 #include "../palette"

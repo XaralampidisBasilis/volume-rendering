@@ -1,5 +1,5 @@
-#ifndef MAGMA
-#define MAGMA 18
+#ifndef COLORMAP_MAGMA
+#define COLORMAP_MAGMA 18
 
 #ifndef PALETTE
 #include "../palette"
