@@ -32,9 +32,10 @@ export default class ISOViewer extends EventEmitter
     setMesh()
     {   
         this.material = ISOShaderMaterial()
-        this.uniforms = this.material.uniform
         this.geometry = new THREE.BoxGeometry(1, 1, 1)
         this.mesh = new THREE.Mesh(this.geometry, this.material)
+        this.uniforms = this.material.uniforms
+        this.defines = this.material.defines
     }
 
     start()
@@ -106,6 +107,8 @@ export default class ISOViewer extends EventEmitter
         if (event.key === 'downscaleFactor'    ) this.onChangeDownscaleFactor(event)
         if (event.key === 'interpolationMethod') this.onChangeInterpolationMethod(event)
         if (event.key === 'skippingMethod'     ) this.onChangeSkippingMethod(event)
+        if (event.key === 'gradientsMethod'    ) this.onChangeGradientsMethod(event)
+        if (event.key === 'marchingMethod'     ) this.onChangeMarchingMethod(event)
     }
 
     onChangeIsosurfaceValue(event)
@@ -133,7 +136,23 @@ export default class ISOViewer extends EventEmitter
     onChangeInterpolationMethod(event)
     {
         const defines = this.material.defines
-        defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === this.configs.interpolationMethod) + 1
+        defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === event.newValue) + 1
+
+        const uniforms = this.material.uniforms
+        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
+        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
+
+        this.material.needsUpdate = true
+
+        console.log(event)
+        console.log(this.defines)
+        console.log(this.configs)
+    }
+
+    onChangeSkippingMethod(event)
+    {
+        const defines = this.material.defines
+        defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === event.newValue) + 1
 
         const uniforms = this.material.uniforms
         uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
@@ -142,15 +161,17 @@ export default class ISOViewer extends EventEmitter
         this.material.needsUpdate = true
     }
 
-    onChangeSkippingMethod(event)
+    onChangeGradientsMethod(event)
     {
         const defines = this.material.defines
-        defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === this.configs.skippingMethod) + 1
+        defines.GRADIENTS_METHOD = Configs.GradientsMethods.findIndex((x) => x === event.newValue) + 1
+        this.material.needsUpdate = true
+    }
 
-        const uniforms = this.material.uniforms
-        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
-        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
-
+    onChangeMarchingMethod(event)
+    {
+        const defines = this.material.defines
+        defines.MARCHING_METHOD = Configs.MarchingMethods.findIndex((x) => x === event.newValue) + 1
         this.material.needsUpdate = true
     }
 

@@ -146,19 +146,19 @@ export default class Computes extends EventEmitter
     {
         console.time('onChangeInterpolationMethod@Computes') 
 
-        this.extremaMap.tensor.dispose()
+        // this.extremaMap.tensor.dispose()
 
-        this.interpolationMap.restoreTensor()
-        this.extremaMap.computeTensor()
-        this.occupancyMap.computeTensor()
-        this.distanceMap.computeTensor()
+        // this.interpolationMap.restoreTensor()
+        // this.extremaMap.computeTensor()
+        // this.occupancyMap.computeTensor()
+        // this.distanceMap.computeTensor()
 
-        this.occupancyMap.updateTexture()
-        this.distanceMap.updateTexture()
+        // this.occupancyMap.updateTexture()
+        // this.distanceMap.updateTexture()
 
-        this.interpolationMap.tensor.dispose()
-        this.occupancyMap.tensor.dispose()
-        this.distanceMap.tensor.dispose()
+        // this.interpolationMap.tensor.dispose()
+        // this.occupancyMap.tensor.dispose()
+        // this.distanceMap.tensor.dispose()
 
         console.timeEnd('onChangeInterpolationMethod@Computes') 
         console.log('')
