@@ -26,57 +26,9 @@ export default function()
             distance_map  : null,
         }),
 
-        u_intensity_map : new THREE.Uniform
-        ({
-            dimensions            : new THREE.Vector3(),
-            spacing               : new THREE.Vector3(),
-            size                  : new THREE.Vector3(),
-            spacing_length        : 0.0,
-            size_length           : 0.0,
-            inv_dimensions        : new THREE.Vector3(),
-            inv_spacing           : new THREE.Vector3(),
-            inv_size              : new THREE.Vector3(),
-        }),
-
-        u_bbox : new THREE.Uniform
-        ({
-            min_cell_coords : new THREE.Vector3(),
-            max_cell_coords : new THREE.Vector3(),
-            min_block_coords: new THREE.Vector3(),
-            max_block_coords: new THREE.Vector3(),
-            min_position    : new THREE.Vector3(),
-            max_position    : new THREE.Vector3(),
-        }),
-
-        u_distance_map : new THREE.Uniform
-        ({
-            max_distance    : 0,
-            max_iterations  : 31,
-            stride          : 2,
-            dimensions      : new THREE.Vector3(),
-            spacing         : new THREE.Vector3(),
-            size            : new THREE.Vector3(),
-            inv_stride      : 1/4,
-            inv_dimensions  : new THREE.Vector3(),
-            inv_spacing     : new THREE.Vector3(),
-            inv_size        : new THREE.Vector3(),
-        }),
-
-        u_colormap: new THREE.Uniform
-        ({
-            levels      : 255,
-            name        : 'cet_d9',
-            thresholds  : new THREE.Vector2(0, 1),
-            start_coords: new THREE.Vector2(colormapLocations['cet_d9'].x_start, colormapLocations['cet_d9'].y),
-            end_coords  : new THREE.Vector2(colormapLocations['cet_d9'].x_end,   colormapLocations['cet_d9'].y),
-        }),
-        
         u_rendering: new THREE.Uniform
         ({
             isovalue : 0.69,
-            max_groups : 0,
-            max_cells : 0,
-            max_blocks: 0,
         }),
 
         u_shading: new THREE.Uniform
@@ -103,6 +55,9 @@ export default function()
         u_debug: new THREE.Uniform
         ({
             option    : 0,
+            max_groups : 0,
+            max_cells : 0,
+            max_blocks: 0,
             variable1 : 0,
             variable2 : 0,
             variable3 : 0,

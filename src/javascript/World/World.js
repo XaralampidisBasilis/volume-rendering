@@ -31,7 +31,7 @@ export default class World extends EventEmitter
 
     change(event)
     {
-
+        this.viewer.change(event)
     }
 
     destroy()

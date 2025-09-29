@@ -1,8 +1,6 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
-import { computeResizedMap } from '../Programs/GPGPUResizeMap'
-import { computeNormalizedMap } from '../Programs/GPGPUNormalizeMapPacked'
 import { computeInterpolationMap, toHalfFloat } from '../Programs/GPGPUInterpolationMapPacked'
 
 export default class InterpolationMap
@@ -11,38 +9,28 @@ export default class InterpolationMap
     {
         this.computes = new Computes()
         this.configs = this.computes.configs
-        this.resources = this.computes.resources
+        this.volumeMap = this.computes.volumeMap
         this.downscaleFactor = this.configs.downscaleFactor
-    }
-
-    setVolume()
-    {
-        this.volume = this.resources.items.volume
-        this.dimensions = new THREE.Vector3().fromArray(this.volume.dimensions)
-        this.spacing = new THREE.Vector3().fromArray(this.volume.spacing)
-        this.size = new THREE.Vector3().fromArray(this.volume.size)
     }
 
     computeTensor()
     {
-        this.setVolume()
-
         console.time('computeInterpolationMap') 
     
-        const shape = this.volume.dimensions.toReversed()
-        const newShape = shape.map((x) => Math.ceil(this.downscaleFactor * x))
-        const newSpacing = this.volume.spacing.toReversed().map((x, i) => shape[i]/newShape[i] * x)
-        this.dimensions.fromArray(newShape.toReversed())
-        this.spacing.fromArray(newSpacing.toReversed())
-
-        const volume = tf.tensor3d(new Float32Array(this.volume.data), shape)
-        const resizedVolume = computeResizedMap(volume, newShape, false, true); volume.dispose()
-        const normalizedVolume = computeNormalizedMap(resizedVolume); resizedVolume.dispose()
-
         this.tensor?.dispose()
-        this.tensor = computeInterpolationMap(normalizedVolume); normalizedVolume.dispose() 
+        this.tensor = computeInterpolationMap(this.volumeMap.tensor)
+        this.tensorData = this.tensor.dataSync()
+        this.dimensions = this.volumeMap.dimensions
 
         console.timeEnd('computeInterpolationMap') 
+    }
+
+    restoreTensor()
+    {
+        if (this.tensor.isDisposed)
+        {
+            this.tensor = tf.tensor5d(this.tensorData, [...this.dimensions, 2, 2])
+        }
     }
 
     getTexture()

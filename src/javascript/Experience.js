@@ -10,6 +10,7 @@ import Renderer from './Renderer'
 import World from './World/World'
 import Resources from './Utils/Resources'
 import Computes from './Computes/Computes'
+import Controls from './Controls'
 import sources from './sources'
 
 export default class Experience
@@ -43,6 +44,7 @@ export default class Experience
         this.renderer = new Renderer()
         this.resources = new Resources(sources)
         this.computes = new Computes()
+        this.controls = new Controls()
         this.world = new World()
         this.stats = new Stats(true)
 
@@ -98,7 +100,7 @@ export default class Experience
 
     change(event)
     {
-        
+        this.computes.change(event)
     }
 
     destroy()

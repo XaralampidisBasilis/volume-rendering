@@ -23,8 +23,8 @@ export default class Configs extends EventEmitter
         'occupancyMap',
         'isotropicDistanceMap',
         'anisotropicDistanceMap',
-        'extendedIsotropicDistanceMap',
         'extendedAnisotropicDistanceMap',
+        'extendedIsotropicDistanceMap',
     ])
 
     constructor() 
@@ -42,6 +42,7 @@ export default class Configs extends EventEmitter
 
         this.bernsteinEnabled = true
         this.skippingEnabled = true
+
         this.debugEnabled = true
         this.statsEnabled = true
         this.discardingEnabled = true
@@ -97,7 +98,7 @@ export default class Configs extends EventEmitter
             const oldValue = this[key] 
             this[key] = newValue 
 
-            this.trigger('change', { key, oldValue, newValue }) 
+            this.trigger('change', [{ key, oldValue, newValue }]) 
         } 
         else 
         { 

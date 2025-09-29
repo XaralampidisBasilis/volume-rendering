@@ -46,9 +46,7 @@ export default class ExtremaMap
     getTextureData()
     {
         const tensor = toHalfFloat(this.tensor)
-        const dataHalfFloat = tensor.dataSync()
-        tensor.dispose()
-        
+        const dataHalfFloat = tensor.dataSync(); tensor.dispose()
         return new Uint16Array(dataHalfFloat.buffer)
     }
 

@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
-import ISOMaterial from './ISOMaterial'
+import Configs from '../../Utils/Configs'
+import IsosurfaceShaderMaterial from './IsosurfaceShaderMaterial'
 
 export default class ISOViewer extends EventEmitter
 {
@@ -30,8 +31,8 @@ export default class ISOViewer extends EventEmitter
 
     setMesh()
     {   
+        this.material = IsosurfaceShaderMaterial()
         this.geometry = new THREE.BoxGeometry(1, 1, 1)
-        this.material = ISOMaterial()
         this.mesh = new THREE.Mesh(this.geometry, this.material)
     }
 
@@ -39,9 +40,10 @@ export default class ISOViewer extends EventEmitter
     {
         this.startTextureUniforms()
         this.startVolumeUniforms()
-        this.startDefines()
+        this.startMethodsDefines()
+        this.startIteratorDefines()
 
-        this.size = this.computes.interpolationMap.size
+        this.size = this.computes.volumeMap.size
         this.mesh.scale.copy(this.size)
     }
 
@@ -64,20 +66,31 @@ export default class ISOViewer extends EventEmitter
         const computes = this.computes
         const uniforms = this.material.uniforms
 
-        const scale = new THREE.Matrix4().makeScale(...computes.interpolationMap.dimensions)
+        const scale = new THREE.Matrix4().makeScale(...computes.volumeMap.dimensions)
         const translate = new THREE.Matrix4().makeTranslation(0.5, 0.5, 0.5)
 
         uniforms.u_volume.value.grid_matrix.multiplyMatrices(scale, translate)
-        uniforms.u_volume.value.dimensions.copy(computes.interpolationMap.dimensions)
-        uniforms.u_volume.value.spacing.copy(computes.interpolationMap.spacing)
-        uniforms.u_volume.value.size.copy(computes.interpolationMap.size)
-        uniforms.u_volume.value.blocks.copy(computes.extremaMap.dimensions)
+        uniforms.u_volume.value.dimensions.copy(computes.volumeMap.dimensions)
+        uniforms.u_volume.value.spacing.copy(computes.volumeMap.spacing)
+        uniforms.u_volume.value.size.copy(computes.volumeMap.size)
+        uniforms.u_volume.value.blocks.copy(computes.occupancyMap.dimensions)
         uniforms.u_volume.value.inv_dimensions.fromArray(uniforms.u_volume.value.dimensions.toArray().map(x => 1/x))
         uniforms.u_volume.value.anisotropy.copy(uniforms.u_volume.value.spacing).normalize()
         uniforms.u_volume.value.stride = this.configs.blockSize
     }
 
-    startDefines()
+    startMethodsDefines()
+    {
+        const configs = this.configs
+        const defines = this.material.defines
+
+        defines.MARCHING_METHOD = Configs.MarchingMethods.findIndex((x) => x === configs.marchingMethod) + 1
+        defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === configs.interpolationMethod) + 1
+        defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === configs.skippingMethod) + 1
+        defines.GRADIENTS_METHOD = Configs.GradientsMethods.findIndex((x) => x === configs.gradientsMethod) + 1    
+    }
+
+    startIteratorDefines()
     {
         const computes = this.computes
         const defines = this.material.defines
