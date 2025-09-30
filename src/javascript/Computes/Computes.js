@@ -24,6 +24,7 @@ export default class Computes extends EventEmitter
         Computes.instance = this
 
         this.experience = new Experience()
+        this.renderer = this.experience.renderer
         this.configs = this.experience.configs
         this.resources = this.experience.resources
         
@@ -60,42 +61,50 @@ export default class Computes extends EventEmitter
 
         this.volumeMap.computeTensor()
         this.interpolationMap.computeTensor()
+        this.volumeMap.tensor.dispose()
+
         this.extremaMap.computeTensor()
+        this.interpolationMap.computeTexture()
+        this.interpolationMap.tensor.dispose()
+
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
 
-        this.interpolationMap.computeTexture()
         this.occupancyMap.computeTexture()
-        this.distanceMap.computeTexture()
-
-        this.volumeMap.tensor.dispose()
-        this.interpolationMap.tensor.dispose()
         this.occupancyMap.tensor.dispose()
+
+        this.distanceMap.computeTexture()
         this.distanceMap.tensor.dispose()
 
         console.timeEnd('start@Computes') 
+        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
         console.log('')
     }
 
     change(event)
     {
-        if (event.key === 'isosurfaceValue'    ) this.onChangeIsosurfaceValue(event)
-        if (event.key === 'blockSize'          ) this.onChangeBlockSize(event)
-        if (event.key === 'downscaleFactor'    ) this.onChangeDownscaleFactor(event)
-        if (event.key === 'interpolationMethod') this.onChangeInterpolationMethod(event)
-        if (event.key === 'skippingMethod'     ) this.onChangeSkippingMethod(event)
+        if      (event.key === 'isosurfaceValue'    ) this.onChangeIsosurfaceValue(event)
+        else if (event.key === 'blockSize'          ) this.onChangeBlockSize(event)
+        else if (event.key === 'downscaleFactor'    ) this.onChangeDownscaleFactor(event)
+        else if (event.key === 'interpolationMethod') this.onChangeInterpolationMethod(event)
+        else if (event.key === 'skippingMethod'     ) this.onChangeSkippingMethod(event)
     }
 
     onChangeIsosurfaceValue(event)
     {
         console.time('onChangeIsosurfaceValue@Computes') 
+
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
+
         this.occupancyMap.updateTexture()
-        this.distanceMap.updateTexture()
         this.occupancyMap.tensor.dispose()
+        
+        this.distanceMap.updateTexture()
         this.distanceMap.tensor.dispose()
+
         console.timeEnd('onChangeIsosurfaceValue@Computes')
+        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
         console.log('') 
     }
 
@@ -109,17 +118,19 @@ export default class Computes extends EventEmitter
 
         this.interpolationMap.restoreTensor()
         this.extremaMap.computeTensor()
+        this.interpolationMap.tensor.dispose()
+
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
 
         this.occupancyMap.computeTexture()
-        this.distanceMap.computeTexture()
-
-        this.interpolationMap.tensor.dispose()
         this.occupancyMap.tensor.dispose()
+        
+        this.distanceMap.computeTexture()
         this.distanceMap.tensor.dispose()
 
         console.timeEnd('onChangeBlockSize@Computes')
+        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
         console.log('') 
     }
 
@@ -134,47 +145,60 @@ export default class Computes extends EventEmitter
 
         this.volumeMap.computeTensor()
         this.interpolationMap.computeTensor()
+        this.volumeMap.tensor.dispose()
+
         this.extremaMap.computeTensor()
+        this.interpolationMap.computeTexture()
+        this.interpolationMap.tensor.dispose()
+
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
 
-        this.interpolationMap.computeTexture()
         this.occupancyMap.computeTexture()
         this.distanceMap.computeTexture()
 
-        this.volumeMap.tensor.dispose()
-        this.interpolationMap.tensor.dispose()
         this.occupancyMap.tensor.dispose()
         this.distanceMap.tensor.dispose()
 
         console.timeEnd('onChangeDownscaleFactor@Computes') 
+        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
         console.log('')
     }
 
     onChangeInterpolationMethod(event)
     {
         console.time('onChangeInterpolationMethod@Computes') 
+
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
+
         this.occupancyMap.updateTexture()
-        this.distanceMap.updateTexture()
         this.occupancyMap.tensor.dispose()
+
+        this.distanceMap.updateTexture()
         this.distanceMap.tensor.dispose()
+
         console.timeEnd('onChangeInterpolationMethod@Computes') 
+        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
         console.log('')
     }
 
     onChangeSkippingMethod(event)
     {
         console.time('onChangeSkippingMethod@Computes') 
+
         this.distanceMap.texture.dispose()
         this.resolveDistanceMap()
+
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
-        this.distanceMap.computeTexture()
         this.occupancyMap.tensor.dispose()
+
+        this.distanceMap.computeTexture()
         this.distanceMap.tensor.dispose()
+        
         console.timeEnd('onChangeSkippingMethod@Computes') 
+        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
         console.log('')
     }
 

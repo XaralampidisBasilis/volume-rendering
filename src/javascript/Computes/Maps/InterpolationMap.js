@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
-import { computeInterpolationMap, toHalfFloat } from '../Programs/GPGPUInterpolationMapPacked'
-// import { toHalfFloat, fromHalfFloat } from 'three/src/extras/DataUtils.js'
+import { computeInterpolationMap } from '../Programs/GPGPUInterpolationMapPacked'
+import { toHalfFloat, fromHalfFloat } from 'three/src/extras/DataUtils.js'
 
 export default class InterpolationMap
 {
@@ -48,16 +48,23 @@ export default class InterpolationMap
         this.texture.needsUpdate = true
     }
 
+    
+    /*
+        Really fast but produces small artifacts due to numeral instabilities 
+    */
+    // getTextureData()
+    // {
+    //     const tensor = toHalfFloat(this.tensor)
+    //     const dataHalfFloat = new Uint16Array(tensor.dataSync())
+    //     tensor.dispose()
+
+    //     return dataHalfFloat
+    // }
+
+    /*
+        More numerically stable, but significantly slower
+    */
     getTextureData()
-    {
-        const tensor = toHalfFloat(this.tensor)
-        const dataHalfFloat = new Uint16Array(tensor.dataSync())
-        tensor.dispose()
-
-        return dataHalfFloat
-    }
-
-    /*getTextureData()
     {
         const dataFloat = this.tensor.dataSync()
         const dataHalfFloat = new Uint16Array(this.tensor.size)
@@ -68,7 +75,7 @@ export default class InterpolationMap
         }
 
         return dataHalfFloat
-    }*/
+    }
 
     dispose()
     {

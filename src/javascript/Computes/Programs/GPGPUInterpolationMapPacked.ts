@@ -64,6 +64,20 @@ class GPGPUToHalfFloat implements GPGPUProgram
             return float(packed & 0xFFFFu); 
         }
 
+        // Returns the IEEE-754 half-float bit pattern 
+        vec4 toHalfFloat(vec4 v) 
+        {
+            uint p0 = packHalf2x16(v.xy);
+            uint p1 = packHalf2x16(v.zw);
+
+            uint xBits = p0 & 0xFFFFu;
+            uint yBits = p0 >> 16;
+            uint zBits = p1 & 0xFFFFu;
+            uint wBits = p1 >> 16;
+
+            return vec4(xBits, yBits, zBits, wBits);
+        }
+
         vec4 clampToHalfRange(vec4 values) 
         {
             return clamp(values, -65504.0, 65504.0);
@@ -74,13 +88,8 @@ class GPGPUToHalfFloat implements GPGPUProgram
             vec4 voxelSamples = getInterpolationMapAtOutCoords();
             voxelSamples = clampToHalfRange(voxelSamples);
 
-            voxelSamples.r = toHalfFloat(voxelSamples.r);
-            voxelSamples.g = toHalfFloat(voxelSamples.g);
-            voxelSamples.b = toHalfFloat(voxelSamples.b);
-            voxelSamples.a = toHalfFloat(voxelSamples.a);
-
             // WORKS WITH F16 TEXTURES
-            setOutput(voxelSamples);
+            setOutput(toHalfFloat(voxelSamples));
         }
     `
     }
