@@ -35,7 +35,7 @@ export default class Experience
 
         // Setup
         this.configs = new Configs()
-        this.debug = new Debug()
+        // this.debug = new Debug()
         this.sizes = new Sizes()
         this.time = new Time()
         this.mouse = new Mouse()

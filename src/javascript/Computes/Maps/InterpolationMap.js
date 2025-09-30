@@ -16,9 +16,9 @@ export default class InterpolationMap
     computeTensor()
     {
         console.time('computeTensor@InterpolationMap') 
-        this.dimensions = this.volumeMap.dimensions
         this.tensor = computeInterpolationMap(this.volumeMap.tensor)
         this.tensorData = this.tensor.dataSync()
+        this.dimensions = new THREE.Vector3(...this.volumeMap.dimensions)
         console.timeEnd('computeTensor@InterpolationMap') 
     }
 

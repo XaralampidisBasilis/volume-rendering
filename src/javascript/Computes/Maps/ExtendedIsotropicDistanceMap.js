@@ -17,7 +17,7 @@ export default class ExtendedIsotropicDistanceMap
     {
         console.time('computeTensor@ExtendedIsotropicDistanceMap') 
         this.tensor = computeExtendedIsotropicDistanceMap(this.occupancyMap.tensor, this.maxDistance)
-        this.dimensions = this.occupancyMap.dimensions
+        this.dimensions = new THREE.Vector3(...this.occupancyMap.dimensions)
         console.timeEnd('computeTensor@ExtendedIsotropicDistanceMap') 
     }
 

@@ -36,8 +36,8 @@ export default class VolumeMap
         this.tensor = tf.tidy(() =>
         {
             let tensor = tf.tensor3d(data, shape)
-            tensor = computeResizedMap(tensor, newShape, false, true)
             tensor = computeNormalizedMap(tensor)
+            tensor = computeResizedMap(tensor, newShape, false, true)
             return tensor
         })
         

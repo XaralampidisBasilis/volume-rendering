@@ -26,7 +26,6 @@ export default class Computes extends EventEmitter
         this.experience = new Experience()
         this.configs = this.experience.configs
         this.resources = this.experience.resources
-        this.skippingMethod = this.configs.skippingMethod
         
         this.setMaps()
     }
@@ -45,6 +44,7 @@ export default class Computes extends EventEmitter
 
     resolveDistanceMap()
     {
+        this.skippingMethod = this.configs.skippingMethod
         this.distanceMap = this.isotropicDistanceMap
 
         if (this.skippingMethod === 'anisotropicDistance')

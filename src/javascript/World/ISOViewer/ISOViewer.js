@@ -112,6 +112,8 @@ export default class ISOViewer extends EventEmitter
         else if (event.key === 'marchingMethod'     ) this.onChangeMarchingMethod(event)
         else if (event.key === 'skippingEnabled'    ) this.onChangeSkippingEnabled(event)
         else if (event.key === 'bernsteinEnabled'   ) this.onChangeBernsteinEnabled(event)
+        
+        console.log(this)
     }
 
     onChangeIsosurfaceValue(event)
@@ -124,6 +126,7 @@ export default class ISOViewer extends EventEmitter
     {
         const uniforms = this.material.uniforms
         uniforms.u_volume.value.block_size = this.configs.blockSize
+        uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
         uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
         uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
 
@@ -146,7 +149,6 @@ export default class ISOViewer extends EventEmitter
     onChangeSkippingMethod(event)
     {
         const uniforms = this.material.uniforms
-        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
         uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
 
         this.material.defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === event.newValue) + 1
