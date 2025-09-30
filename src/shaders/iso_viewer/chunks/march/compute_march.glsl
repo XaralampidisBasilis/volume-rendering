@@ -1,5 +1,5 @@
 
-#if MARCHING_METHOD == 1
+#if MARCHING_METHOD == 0
 
     #if SKIPPING_ENABLED == 1
 
@@ -13,7 +13,7 @@
 
 #endif
 
-#if MARCHING_METHOD == 2
+#if MARCHING_METHOD == 1
 
     #if SKIPPING_ENABLED == 1
 

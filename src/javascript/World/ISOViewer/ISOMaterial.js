@@ -20,6 +20,7 @@ export default function()
             inv_dimensions    : new THREE.Vector3(),
             blocked_dimensions: new THREE.Vector3(),
             block_size        : 0,
+            colormap          : 0,
         }),
 
         u_textures: new THREE.Uniform

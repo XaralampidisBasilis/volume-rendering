@@ -92,6 +92,9 @@ export function computeResizedMap
     halfPixelCenters = false
 ): tf.Tensor 
 {
+    const compareArrays = (a: number[], b: number[]) => JSON.stringify(a) === JSON.stringify(b);
+    if (compareArrays(inputTensor.shape, outputShape)) return inputTensor
+
     const program = new GPGPUResizeMap(inputTensor.shape, outputShape, alignCorners, halfPixelCenters);
     return runProgram(program, [inputTensor]) as tf.Tensor3D;
 }

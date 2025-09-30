@@ -33,9 +33,9 @@ export default class Configs extends EventEmitter
     {
         super()
 
-        this.blockSize = 2
-        this.downscaleFactor = 0.8
-        this.isosurfaceValue = 0.678
+        this.blockSize = 4
+        this.downscaleFactor = 1
+        this.isosurfaceValue = 0.7
         
         this.colormap = 'pasteljet'
         this.interpolationMethod = 'tricubic'
@@ -53,6 +53,30 @@ export default class Configs extends EventEmitter
 
     set(key, value) 
     {
+        this.check(key, value)
+
+        if (key in this) 
+        { 
+            const newValue = value
+            const oldValue = this[key] 
+            this[key] = newValue 
+
+            this.trigger('change', [{ key, oldValue, newValue }]) 
+        } 
+        else 
+        { 
+            console.warn(`Unknown config key: ${key}`)
+        }
+    }
+
+    check(key, value)
+    {
+        if (key === 'colormap' && !Configs.Colormaps.includes(value)) 
+        {
+            console.warn(`Invalid Colormap: "${value}"`)
+            return
+        }
+
         if (key === 'interpolationMethod' && !Configs.InterpolationMethods.includes(value)) 
         {
             console.warn(`Invalid InterpolationMethod: "${value}"`)
@@ -93,19 +117,6 @@ export default class Configs extends EventEmitter
         {
             console.warn(`${key} must be boolean (got ${typeof value})`)
             return
-        }
-
-        if (key in this) 
-        { 
-            const newValue = value
-            const oldValue = this[key] 
-            this[key] = newValue 
-
-            this.trigger('change', [{ key, oldValue, newValue }]) 
-        } 
-        else 
-        { 
-            console.warn(`Unknown config key: ${key}`)
         }
     }
 

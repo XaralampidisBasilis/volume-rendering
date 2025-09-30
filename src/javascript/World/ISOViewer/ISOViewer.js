@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import Experience from '../../Experience'
 import EventEmitter from '../../Utils/EventEmitter'
 import Configs from '../../Utils/Configs'
-import ISOShaderMaterial from './ISOShaderMaterial'
+import ISOMaterial from './ISOMaterial'
 
 export default class ISOViewer extends EventEmitter
 {
@@ -31,11 +31,13 @@ export default class ISOViewer extends EventEmitter
 
     setMesh()
     {   
-        this.material = ISOShaderMaterial()
-        this.geometry = new THREE.BoxGeometry(1, 1, 1)
-        this.mesh = new THREE.Mesh(this.geometry, this.material)
+        this.material = ISOMaterial()
         this.uniforms = this.material.uniforms
         this.defines = this.material.defines
+
+        this.geometry = new THREE.BoxGeometry(1, 1, 1)
+        this.mesh = new THREE.Mesh(this.geometry, this.material)
+       
     }
 
     start()
@@ -77,15 +79,17 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_volume.value.block_size = this.configs.blockSize
         uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
         uniforms.u_volume.value.inv_dimensions.fromArray(uniforms.u_volume.value.dimensions.toArray().map(x => 1/x))
+        uniforms.u_volume.value.colormap = Configs.Colormaps.findIndex((x) => x === this.configs.colormap)
     }
 
     startDefinesMethods()
     {
+        const configs = this.configs
         const defines = this.material.defines
-        defines.MARCHING_METHOD = Configs.MarchingMethods.findIndex((x) => x === this.configs.marchingMethod) + 1
-        defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === this.configs.interpolationMethod) + 1
-        defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === this.configs.skippingMethod) + 1
-        defines.GRADIENTS_METHOD = Configs.GradientsMethods.findIndex((x) => x === this.configs.gradientsMethod) + 1    
+        defines.MARCHING_METHOD = Configs.MarchingMethods.findIndex((x) => x === configs.marchingMethod)
+        defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === configs.interpolationMethod)
+        defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === configs.skippingMethod)
+        defines.GRADIENTS_METHOD = Configs.GradientsMethods.findIndex((x) => x === configs.gradientsMethod)  
     }
 
     startDefinesIterators()
@@ -112,25 +116,23 @@ export default class ISOViewer extends EventEmitter
         else if (event.key === 'marchingMethod'     ) this.onChangeMarchingMethod(event)
         else if (event.key === 'skippingEnabled'    ) this.onChangeSkippingEnabled(event)
         else if (event.key === 'bernsteinEnabled'   ) this.onChangeBernsteinEnabled(event)
+        else if (event.key === 'colormap'           ) this.onChangeColormap(event)
         
         // console.log(this)
     }
 
     onChangeIsosurfaceValue(event)
     {
-        const uniforms = this.material.uniforms
-        uniforms.u_volume.value.isovalue = this.configs.isosurfaceValue
+        this.material.uniforms.u_volume.value.isovalue = this.configs.isosurfaceValue
     }
 
     onChangeBlockSize(event)
     {
-        const uniforms = this.material.uniforms
-        uniforms.u_volume.value.block_size = this.configs.blockSize
-        uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
-        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
-        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
-
         this.startDefinesIterators()
+        this.material.uniforms.u_volume.value.block_size = this.configs.blockSize
+        this.material.uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
+        this.material.uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
+        this.material.uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
         this.material.needsUpdate = true
     }
 
@@ -142,41 +144,44 @@ export default class ISOViewer extends EventEmitter
 
     onChangeInterpolationMethod(event)
     {
-        this.material.defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === event.newValue) + 1
+        this.material.defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === this.configs.interpolationMethod)
         this.material.needsUpdate = true
     }
 
     onChangeSkippingMethod(event)
     {
-        const uniforms = this.material.uniforms
-        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
-
-        this.material.defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === event.newValue) + 1
+        this.material.uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
+        this.material.defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === this.configs.skippingMethod)
         this.material.needsUpdate = true
     }
 
     onChangeGradientsMethod(event)
     {
-        this.material.defines.GRADIENTS_METHOD = Configs.GradientsMethods.findIndex((x) => x === event.newValue) + 1
+        this.material.defines.GRADIENTS_METHOD = Configs.GradientsMethods.findIndex((x) => x === this.configs.gradientsMethod)
         this.material.needsUpdate = true
     }
 
     onChangeMarchingMethod(event)
     {
-        this.material.defines.MARCHING_METHOD = Configs.MarchingMethods.findIndex((x) => x === event.newValue) + 1
+        this.material.defines.MARCHING_METHOD = Configs.MarchingMethods.findIndex((x) => x === this.configs.marchingMethod)
         this.material.needsUpdate = true
     }
 
     onChangeSkippingEnabled(event)
     {
-        this.material.defines.SKIPPING_ENABLED = Number(event.newValue)
+        this.material.defines.SKIPPING_ENABLED = Number(this.configs.skippingEnabled)
         this.material.needsUpdate = true
     }
 
     onChangeBernsteinEnabled(event)
     {
-        this.material.defines.BERNSTEIN_ENABLED = Number(event.newValue)
+        this.material.defines.BERNSTEIN_ENABLED = Number(this.configs.bernsteinEnabled)
         this.material.needsUpdate = true
+    }
+
+    onChangeColormap(event)
+    {
+        this.material.uniforms.u_volume.value.colormap = Configs.Colormaps.findIndex((x) => x === this.configs.colormap)
     }
 
     destroy() 

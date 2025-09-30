@@ -71,6 +71,7 @@ export default class Controls
             skippingMethod      : this.configs.skippingMethod,    
             bernsteinEnabled    : this.configs.bernsteinEnabled,
             skippingEnabled     : this.configs.skippingEnabled,  
+            colormap            : this.configs.colormap,
         }
     
         this.controllers.configs = 
@@ -79,18 +80,6 @@ export default class Controls
             .onFinishChange((value) => 
             { 
                 this.configs.set('isosurfaceValue', value) 
-            }),
-            
-            blockSize : folder.add(objects, 'blockSize').min(2).max(8).step(1)
-            .onFinishChange((value) => 
-            { 
-                this.configs.set('blockSize', value) 
-            }),
-
-            downscaleFactor : folder.add(objects, 'downscaleFactor').min(0).max(1).step(0.01)
-            .onFinishChange((value) => 
-            { 
-                this.configs.set('downscaleFactor', value) 
             }),
             
             marchingMethod: folder.add(objects, 'marchingMethod').options(Configs.MarchingMethods)
@@ -117,6 +106,12 @@ export default class Controls
                 this.configs.set('gradientsMethod', option) 
             }),
 
+            colormap : folder.add(objects, 'colormap').options(Configs.Colormaps)
+            .onFinishChange((option) => 
+            { 
+                this.configs.set('colormap', option) 
+            }),
+
             skippingEnabled : folder.add(objects, 'skippingEnabled')
             .onFinishChange((boolean) => 
             { 
@@ -128,6 +123,19 @@ export default class Controls
             { 
                 this.configs.set('bernsteinEnabled', boolean) 
             }),
+
+            blockSize : folder.add(objects, 'blockSize').min(2).max(8).step(1)
+            .onFinishChange((value) => 
+            { 
+                this.configs.set('blockSize', value) 
+            }),
+
+            downscaleFactor : folder.add(objects, 'downscaleFactor').min(0).max(1).step(0.01)
+            .onFinishChange((value) => 
+            { 
+                this.configs.set('downscaleFactor', value) 
+            }),
+           
         }
     }
     

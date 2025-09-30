@@ -9,6 +9,7 @@ struct UniformsVolume
     vec3  inv_dimensions;   
     int   block_size;
     ivec3 blocked_dimensions;
+    int   colormap;
 };
 
 uniform UniformsVolume u_volume;

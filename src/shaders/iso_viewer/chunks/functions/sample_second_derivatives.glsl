@@ -7,7 +7,7 @@
 
 vec3 sample_second_derivatives(in vec3 p)
 {
-    #if INTERPOLATION_METHOD == 1
+    #if INTERPOLATION_METHOD == 0
 
         // Central differencing samples
         vec3 s_x0yz_xy0z_xyz0 = vec3(
@@ -27,7 +27,7 @@ vec3 sample_second_derivatives(in vec3 p)
 
     #endif
 
-    #if INTERPOLATION_METHOD == 2
+    #if INTERPOLATION_METHOD == 1
 
         return tricubic_features(p).xyz;
 

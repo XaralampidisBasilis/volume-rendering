@@ -1,5 +1,5 @@
 
-#if INTERPOLATION_METHOD == 1
+#if INTERPOLATION_METHOD == 0
 
     #if BERNSTEIN_ENABLED == 1
 
@@ -12,7 +12,7 @@
     #endif
 
 #endif
-#if INTERPOLATION_METHOD == 2
+#if INTERPOLATION_METHOD == 1
 
     #if BERNSTEIN_ENABLED == 1
 

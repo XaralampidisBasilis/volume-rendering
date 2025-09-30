@@ -24,7 +24,7 @@
 
 vec3 colormap(in float t, in int type)
 {
-    if (type == COLORMAP_PARULA) return parula(t);
+    if      (type == COLORMAP_PARULA) return parula(t);
     else if (type == COLORMAP_TURBO) return turbo(t);
     else if (type == COLORMAP_HSV) return hsv(t);
     else if (type == COLORMAP_HOT) return hot(t);

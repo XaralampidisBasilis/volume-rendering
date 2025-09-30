@@ -18,6 +18,7 @@ export default class InterpolationMap
         console.time('computeTensor@InterpolationMap') 
         this.tensor = computeInterpolationMap(this.volumeMap.tensor)
         this.tensorData = this.tensor.dataSync()
+        this.textureData = this.getTextureData()
         this.dimensions = new THREE.Vector3(...this.volumeMap.dimensions)
         console.timeEnd('computeTensor@InterpolationMap') 
     }
@@ -30,7 +31,7 @@ export default class InterpolationMap
     computeTexture()
     {
         console.time('computeTexture@InterpolationMap') 
-        this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
+        this.texture = new THREE.Data3DTexture(this.textureData, ...this.dimensions)
         this.texture.format = THREE.RGBAFormat
         this.texture.type = THREE.HalfFloatType
         this.texture.internalFormat = 'RGBA16F'
@@ -44,10 +45,9 @@ export default class InterpolationMap
 
     updateTexture()
     {
-        this.texture.image.data.set(this.getTextureData())
+        this.texture.image.data.set(this.textureData)
         this.texture.needsUpdate = true
     }
-
     
     /*
         Really fast but produces small artifacts due to numeral instabilities 

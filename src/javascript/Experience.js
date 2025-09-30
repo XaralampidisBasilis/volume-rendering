@@ -92,16 +92,16 @@ export default class Experience
         this.renderer.update()
     }
 
-    start()
+    async start()
     {
-        this.computes.start()
+        await this.computes.start()
         this.world.start()
         this.controls.start()
     }
 
-    change(event)
+    async change(event)
     {
-        this.computes.change(event)
+        await this.computes.change(event)
         this.world.change(event)
     }
 
@@ -112,30 +112,14 @@ export default class Experience
         this.configs.off('change')
 
         // destroy components
-        if (this.configs) 
-            this.configs.destroy()
-
-        if (this.debug)
-            this.debug.destroy()
-
-        if (this.sizes) 
-            this.sizes.destroy()
-
-        if (this.time) 
-            this.time.destroy()
-
-        if (this.mouse) 
-            this.mouse.destroy()
-
-        if (this.world) 
-            this.world.destroy()
-
-        if (this.camera)
-            this.camera.destroy()
-
-        if (this.renderer) 
-            this.renderer.destroy()
-
+        this.configs?.destroy()
+        this.debug?.destroy()
+        this.sizes?.destroy()
+        this.time?.destroy()
+        this.mouse?.destroy()
+        this.world?.destroy()
+        this.camera?.destroy()
+        this.renderer?.destroy()
 
         // Nullify properties for cleanup
         this.configs = null

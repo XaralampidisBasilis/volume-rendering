@@ -13,12 +13,12 @@
 #endif
 
 // start interpolant
-#if INTERPOLATION_METHOD == 1
+#if INTERPOLATION_METHOD == 0
 
     trace.residue = sample_residue_trilinear(trace.position);
 
 #endif
-#if INTERPOLATION_METHOD == 2
+#if INTERPOLATION_METHOD == 1
 
     trace.residue = sample_residue_tricubic(trace.position);
 

@@ -18,6 +18,7 @@ export default class OccupancyMap
         this.isosurfaceValue = this.configs.isosurfaceValue
         this.interpolationMethod = this.configs.interpolationMethod
         this.tensor = computeOccupancyMap(this.extremaMap.tensor, this.interpolationMethod, this.isosurfaceValue)
+        this.textureData = this.getTextureData()
         this.dimensions = this.extremaMap.dimensions
         console.timeEnd('computeTensor@OccupancyMap') 
     }
@@ -25,7 +26,7 @@ export default class OccupancyMap
     computeTexture()
     {
         console.time('computeTexture@OccupancyMap') 
-        this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
+        this.texture = new THREE.Data3DTexture(this.textureData, ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
         this.texture.type = THREE.UnsignedByteType
         this.texture.internalFormat = 'R8UI'
@@ -39,7 +40,7 @@ export default class OccupancyMap
 
     updateTexture()
     {
-        this.texture.image.data.set(this.getTextureData())
+        this.texture.image.data.set(this.textureData)
         this.texture.needsUpdate = true
     }
 

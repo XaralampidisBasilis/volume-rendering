@@ -59,7 +59,7 @@ export default class VolumeMap
     computeTexture()
     {
         console.time('computeTexture@VolumeMap') 
-        this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
+        this.texture = new THREE.Data3DTexture(this.tensorData, ...this.dimensions)
         this.texture.format = THREE.RedFormat
         this.texture.type = THREE.FloatType
         this.texture.internalFormat = 'R32F'

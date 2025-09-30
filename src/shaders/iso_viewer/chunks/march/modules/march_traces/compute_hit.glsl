@@ -1,10 +1,10 @@
 
-#if INTERPOLATION_METHOD == 1
+#if INTERPOLATION_METHOD == 0
 
     #include "./compute_hit/compute_hit_trilinear"
 
 #endif
-#if INTERPOLATION_METHOD == 2
+#if INTERPOLATION_METHOD == 1
 
     #include "./compute_hit/compute_hit_tricubic"
 
