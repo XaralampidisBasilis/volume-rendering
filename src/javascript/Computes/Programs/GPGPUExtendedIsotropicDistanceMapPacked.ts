@@ -3,7 +3,7 @@ import { GPGPUProgram } from '@tensorflow/tfjs-backend-webgl'
 import { MathBackendWebGL } from '@tensorflow/tfjs-backend-webgl'
 
 
-class FirstExtendedAnisotropicChebyshevDistancePassX implements GPGPUProgram 
+class FirstExtendedIsotropicChebyshevDistancePassX implements GPGPUProgram 
 {
     variableNames = ['InputOccupancies']
     outputShape: number[]
@@ -115,7 +115,7 @@ class FirstExtendedAnisotropicChebyshevDistancePassX implements GPGPUProgram
     }
 }
 
-class FirstExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram 
+class FirstExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram 
 {
     variableNames = ['InputOccupancies']
     outputShape: number[]
@@ -226,7 +226,7 @@ class FirstExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram
     }
 }
 
-class SecondExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram 
+class SecondExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram 
 {
     variableNames = ['InputDistances']
     outputShape: number[]
@@ -332,7 +332,7 @@ class SecondExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram
     }
 }
 
-class SecondExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram 
+class SecondExtendedIsotropicChebyshevDistancePassZ implements GPGPUProgram 
 {
     variableNames = ['InputDistances']
     outputShape: number[]
@@ -408,7 +408,7 @@ class SecondExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram
     }
 }
 
-class ThirdExtendedAnisotropicChebyshevDistancePassX implements GPGPUProgram 
+class ThirdExtendedIsotropicChebyshevDistancePassX implements GPGPUProgram 
 {
     variableNames = ['InputDistances']
     outputShape: number[]
@@ -495,7 +495,7 @@ class ThirdExtendedAnisotropicChebyshevDistancePassX implements GPGPUProgram
     }
 }
 
-class ThirdExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram 
+class ThirdExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram 
 {
     variableNames = ['InputDistances']
     outputShape: number[]
@@ -582,7 +582,7 @@ class ThirdExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram
     }
 }
 
-class ThirdExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram 
+class ThirdExtendedIsotropicChebyshevDistancePassZ implements GPGPUProgram 
 {
     variableNames = ['InputDistances']
     outputShape: number[]
@@ -658,7 +658,7 @@ class ThirdExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram
     }
 }
 
-class FourthExtendedAnisotropicChessDistancePass implements GPGPUProgram 
+class FourthExtendedIsotropicChessDistancePass implements GPGPUProgram 
 {
     variableNames = ['InputXDistances', 'InputYDistances', 'InputZDistances', 'InputOccupancies']
     outputShape: number[]
@@ -696,26 +696,26 @@ function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]) : tf.Tensor
     return tf.engine().makeTensorFromTensorInfo(backend.compileAndRun(prog, inputs))
 }
 
-export function computeExtendedAnisotropicDistanceMap(inputOccupancy: tf.Tensor3D, maxDistance: number): tf.Tensor4D 
+export function computeExtendedIsotropicDistanceMap(inputOccupancy: tf.Tensor3D, maxDistance: number): tf.Tensor4D 
 {
     const shape = inputOccupancy.shape
 
     // Programs
-    const firstPassX0  = new FirstExtendedAnisotropicChebyshevDistancePassX(shape, '-', maxDistance)
-    const firstPassX1  = new FirstExtendedAnisotropicChebyshevDistancePassX(shape, '+', maxDistance)
-    const firstPassY0  = new FirstExtendedAnisotropicChebyshevDistancePassY(shape, '-', maxDistance)
-    const firstPassY1  = new FirstExtendedAnisotropicChebyshevDistancePassY(shape, '+', maxDistance)
-    const secondPassY0 = new SecondExtendedAnisotropicChebyshevDistancePassY(shape, '-', maxDistance)
-    const secondPassY1 = new SecondExtendedAnisotropicChebyshevDistancePassY(shape, '+', maxDistance)
-    const secondPassZ0 = new SecondExtendedAnisotropicChebyshevDistancePassZ(shape, '-', maxDistance)
-    const secondPassZ1 = new SecondExtendedAnisotropicChebyshevDistancePassZ(shape, '+', maxDistance)
-    const thirdPassX0  = new ThirdExtendedAnisotropicChebyshevDistancePassX(shape, '-', maxDistance)
-    const thirdPassX1  = new ThirdExtendedAnisotropicChebyshevDistancePassX(shape, '+', maxDistance)
-    const thirdPassY0  = new ThirdExtendedAnisotropicChebyshevDistancePassY(shape, '-', maxDistance)
-    const thirdPassY1  = new ThirdExtendedAnisotropicChebyshevDistancePassY(shape, '+', maxDistance)
-    const thirdPassZ0  = new ThirdExtendedAnisotropicChebyshevDistancePassZ(shape, '-', maxDistance)
-    const thirdPassZ1  = new ThirdExtendedAnisotropicChebyshevDistancePassZ(shape, '+', maxDistance)
-    const fourthPass   = new FourthExtendedAnisotropicChessDistancePass(shape)
+    const firstPassX0  = new FirstExtendedIsotropicChebyshevDistancePassX(shape, '-', maxDistance)
+    const firstPassX1  = new FirstExtendedIsotropicChebyshevDistancePassX(shape, '+', maxDistance)
+    const firstPassY0  = new FirstExtendedIsotropicChebyshevDistancePassY(shape, '-', maxDistance)
+    const firstPassY1  = new FirstExtendedIsotropicChebyshevDistancePassY(shape, '+', maxDistance)
+    const secondPassY0 = new SecondExtendedIsotropicChebyshevDistancePassY(shape, '-', maxDistance)
+    const secondPassY1 = new SecondExtendedIsotropicChebyshevDistancePassY(shape, '+', maxDistance)
+    const secondPassZ0 = new SecondExtendedIsotropicChebyshevDistancePassZ(shape, '-', maxDistance)
+    const secondPassZ1 = new SecondExtendedIsotropicChebyshevDistancePassZ(shape, '+', maxDistance)
+    const thirdPassX0  = new ThirdExtendedIsotropicChebyshevDistancePassX(shape, '-', maxDistance)
+    const thirdPassX1  = new ThirdExtendedIsotropicChebyshevDistancePassX(shape, '+', maxDistance)
+    const thirdPassY0  = new ThirdExtendedIsotropicChebyshevDistancePassY(shape, '-', maxDistance)
+    const thirdPassY1  = new ThirdExtendedIsotropicChebyshevDistancePassY(shape, '+', maxDistance)
+    const thirdPassZ0  = new ThirdExtendedIsotropicChebyshevDistancePassZ(shape, '-', maxDistance)
+    const thirdPassZ1  = new ThirdExtendedIsotropicChebyshevDistancePassZ(shape, '+', maxDistance)
+    const fourthPass   = new FourthExtendedIsotropicChessDistancePass(shape)
 
     // 1D
     const distance_X0 = runProgram(firstPassX0, [inputOccupancy])

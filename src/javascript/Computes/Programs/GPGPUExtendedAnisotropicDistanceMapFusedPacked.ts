@@ -729,7 +729,7 @@ class ThirdExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram
 
 class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram 
 {
-    variableNames = ['InputXDistances', 'InputYDistances', 'InputZDistances', 'InputOccupancies']
+    variableNames = ['XDistances', 'YDistances', 'ZDistances', 'Occupancies']
     outputShape: number[]
     userCode: string
     packedInputs = true
@@ -740,20 +740,26 @@ class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram
         const [inBatch, inDepth, inHeight, inWidth] = inputShape; if (inBatch != 8) throw new Error('Batch dimension needs to be 8')
         this.outputShape = [8, inDepth, inHeight, inWidth]
         this.userCode = `
+        uvec4 pack5551(uvec4 x, uvec4 y, uvec4 z, uvec4 o) 
+        {
+            uvec4 up16 = 
+            (clamp(x, 0u, 31u) * 2048u) |
+            (clamp(y, 0u, 31u) *   64u) |
+            (clamp(z, 0u, 31u) *    2u) |
+            (clamp(o, 0u,  1u) *    1u);
+
+            return up16;
+        }
+            
         void main() 
         {
-            ivec4 xDistances  = ivec4(getInputXDistancesAtOutCoords());
-            ivec4 yDistances  = ivec4(getInputYDistancesAtOutCoords());
-            ivec4 zDistances  = ivec4(getInputZDistancesAtOutCoords());
-            ivec4 occupancies = ivec4(getInputOccupanciesAtOutCoords());
+            uvec4 xDistances  = uvec4(getXDistancesAtOutCoords());
+            uvec4 yDistances  = uvec4(getYDistancesAtOutCoords());
+            uvec4 zDistances  = uvec4(getZDistancesAtOutCoords());
+            uvec4 occupancies = uvec4(getOccupanciesAtOutCoords());
     
-            ivec4 outputDistances = 
-                clamp(xDistances,  0, 31) * 2048 + 
-                clamp(yDistances,  0, 31) * 64   + 
-                clamp(zDistances,  0, 31) * 2    + 
-                clamp(occupancies, 0,  1);
-
-            setOutput(vec4(outputDistances));
+            uvec4 packedOutput = pack5551(xDistances, yDistances, zDistances, occupancies);
+            setOutput(vec4(packedOutput));
         }
         `
     }

@@ -186,23 +186,11 @@ export default class ISOViewer extends EventEmitter
 
     destroy() 
     {
-        if (this.computes)
-        {
-            this.computes.destroy()
-            this.computes = null
-        }
-
         if (this.mesh) 
         {
             this.mesh.geometry.dispose()
             this.mesh.material.dispose()
             this.mesh = null
-        }
-    
-        if (this.gui) 
-        {
-            this.gui.destroy()
-            this.gui = null
         }
 
         // Clean up references

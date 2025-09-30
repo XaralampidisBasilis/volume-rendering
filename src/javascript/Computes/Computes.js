@@ -207,4 +207,31 @@ export default class Computes extends EventEmitter
         console.log('')
     }
 
+    destroy()
+    {
+        this.volumeMap.dispose()
+        this.interpolationMap.dispose()
+        this.extremaMap.dispose()
+        this.occupancyMap.dispose()
+        this.isotropicDistanceMap.dispose()
+        this.anisotropicDistanceMap.dispose()
+        this.extendedAnisotropicDistanceMap.dispose()
+
+        this.volumeMap = null
+        this.interpolationMap = null
+        this.extremaMap = null
+        this.occupancyMap = null
+        this.isotropicDistanceMap = null
+        this.anisotropicDistanceMap = null
+        this.extendedAnisotropicDistanceMap = null
+
+        this.experience = null
+        this.renderer = null
+        this.configs = null
+        this.resources = null
+
+        instance = null
+
+        console.log('Computes destroyed')
+    }
 }

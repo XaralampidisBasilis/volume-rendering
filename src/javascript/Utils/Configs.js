@@ -33,15 +33,15 @@ export default class Configs extends EventEmitter
     {
         super()
 
-        this.blockSize = 4
-        this.downscaleFactor = 1
+        this.blockSize = 2
+        this.downscaleFactor = 0.7
         this.isosurfaceValue = 0.7
         
         this.colormap = 'pasteljet'
         this.interpolationMethod = 'tricubic'
         this.gradientsMethod = 'bspline'
         this.marchingMethod = 'analytic'
-        this.skippingMethod = 'anisotropicDistance'
+        this.skippingMethod = 'extendedAnisotropicDistance'
 
         this.bernsteinEnabled = true
         this.skippingEnabled = true
@@ -127,5 +127,6 @@ export default class Configs extends EventEmitter
 
     destroy() 
     {
+        console.log('Configs destroyed')
     }
 }

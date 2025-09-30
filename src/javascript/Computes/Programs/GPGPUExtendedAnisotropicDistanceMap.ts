@@ -142,7 +142,7 @@ class ExtendedAnisotropicChebyshevDistancePass1 implements GPGPUProgram
 
 class ExtendedAnisotropicChebyshevDistancePass2 implements GPGPUProgram 
 {
-    variableNames = ['InputXDistance', 'InputYDistance', 'InputZDistance', 'InputOccupancy']
+    variableNames = ['XDistance', 'YDistance', 'ZDistance', 'Occupancy']
     outputShape: number[]
     userCode: string
     packedInputs = false
@@ -153,20 +153,26 @@ class ExtendedAnisotropicChebyshevDistancePass2 implements GPGPUProgram
         const [inDepth, inHeight, inWidth] = inputShape
         this.outputShape = [inDepth, inHeight, inWidth]
         this.userCode = `
+        uint pack5551(uint x, uint y, uint z, uint o)
+        {
+            uint up16 = 
+            ((x & 0x1Fu) << 11) |
+            ((y & 0x1Fu) <<  6) |
+            ((z & 0x1Fu) <<  1) |
+            ((o & 0x01u) <<  0);
+
+            return up16;
+        }
+
         void main() 
         {
-            int xDistance = int(getInputXDistanceAtOutCoords());
-            int yDistance = int(getInputYDistanceAtOutCoords());
-            int zDistance = int(getInputZDistanceAtOutCoords());
-            int occupancy = int(getInputOccupancyAtOutCoords());
+            uint xDistance = uint(getXDistanceAtOutCoords());
+            uint yDistance = uint(getYDistanceAtOutCoords());
+            uint zDistance = uint(getZDistanceAtOutCoords());
+            uint occupancy = uint(getOccupancyAtOutCoords());
             
-            int outputDistance = 
-                clamp(xDistance, 0, 31) * 2048 + 
-                clamp(yDistance, 0, 31) * 64   + 
-                clamp(zDistance, 0, 31) * 2    + 
-                clamp(occupancy, 0,  1);
-
-            setOutput(float(outputDistance));
+            uint packedOutput = pack5551(xDistance, yDistance, zDistance, occupancy);
+            setOutput(float(packedOutput));
         }
         `
     }

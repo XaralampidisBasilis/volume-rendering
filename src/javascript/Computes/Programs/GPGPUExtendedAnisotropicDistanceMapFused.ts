@@ -543,7 +543,7 @@ class ThirdExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram
 
 class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram 
 {
-    variableNames = ['InputXDistance', 'InputYDistance', 'InputZDistance', 'InputOccupancy']
+    variableNames = ['XDistance', 'YDistance', 'ZDistance', 'Occupancy']
     outputShape: number[]
     userCode: string
     packedInputs = false
@@ -554,20 +554,26 @@ class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram
         const [inBatch, inDepth, inHeight, inWidth] = inputShape; if (inBatch != 8) throw new Error('Batch dimension needs to be 8')
         this.outputShape = [8, inDepth, inHeight, inWidth]
         this.userCode = `
+        uint pack5551(uint x, uint y, uint z, uint o)
+        {
+            uint up16 = 
+            ((x & 0x1Fu) << 11) |
+            ((y & 0x1Fu) <<  6) |
+            ((z & 0x1Fu) <<  1) |
+            ((o & 0x01u) <<  0);
+
+            return up16;
+        }
+
         void main() 
         {
-            int xDistance = int(getInputXDistanceAtOutCoords());
-            int yDistance = int(getInputYDistanceAtOutCoords());
-            int zDistance = int(getInputZDistanceAtOutCoords());
-            int occupancy = int(getInputOccupancyAtOutCoords());
-            
-            int outputDistance = 
-                clamp(xDistance, 0, 31) * 2048 + 
-                clamp(yDistance, 0, 31) * 64   + 
-                clamp(zDistance, 0, 31) * 2    + 
-                clamp(occupancy, 0,  1);
+            uint xDistance = uint(getXDistanceAtOutCoords());
+            uint yDistance = uint(getYDistanceAtOutCoords());
+            uint zDistance = uint(getZDistanceAtOutCoords());
+            uint occupancy = uint(getOccupancyAtOutCoords());
 
-            setOutput(float(outputDistance));
+            uint packedOutput = pack5551(xDistance, yDistance, zDistance, occupancy);
+            setOutput(float(packedOutput));
         }
         `
     }

@@ -35,7 +35,6 @@ export default class Experience
 
         // Setup
         this.configs = new Configs()
-        // this.debug = new Debug()
         this.sizes = new Sizes()
         this.time = new Time()
         this.mouse = new Mouse()
@@ -45,8 +44,8 @@ export default class Experience
         this.resources = new Resources(sources)
         this.computes = new Computes()
         this.world = new World()
-        this.controls = new Controls()
         this.stats = new Stats(true)
+        this.controls = new Controls()
 
         // Size resize event
         this.sizes.on('resize', () => 
@@ -113,17 +112,16 @@ export default class Experience
 
         // destroy components
         this.configs?.destroy()
-        this.debug?.destroy()
         this.sizes?.destroy()
         this.time?.destroy()
         this.mouse?.destroy()
         this.world?.destroy()
         this.camera?.destroy()
         this.renderer?.destroy()
+        this.computes?.destroy()
 
         // Nullify properties for cleanup
         this.configs = null
-        this.debug = null
         this.sizes = null
         this.time = null
         this.mouse = null
@@ -133,6 +131,7 @@ export default class Experience
         this.renderer = null
         this.world = null
         this.stats = null
+        this.computes = null
         this.canvas = null
 
         // Clear the singleton instance

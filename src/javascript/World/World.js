@@ -39,9 +39,9 @@ export default class World extends EventEmitter
         this.destroyScene()
 
         this.viewer?.destroy()
-        this.viewer = null
 
         // Nullify references for cleanup
+        this.viewer = null
         this.camera = null
         this.resources = null
         this.experience = null

@@ -3,7 +3,7 @@ import { GPGPUProgram } from '@tensorflow/tfjs-backend-webgl'
 import { MathBackendWebGL } from '@tensorflow/tfjs-backend-webgl'
 
 
-class FirstExtendedAnisotropicChebyshevDistancePassX implements GPGPUProgram 
+class FirstExtendedIsotropicChebyshevDistancePassX implements GPGPUProgram 
 {
     variableNames = ['InputOccupancy']
     outputShape: number[]
@@ -79,7 +79,7 @@ class FirstExtendedAnisotropicChebyshevDistancePassX implements GPGPUProgram
     }
 }
 
-class FirstExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram 
+class FirstExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram 
 {
     variableNames = ['InputOccupancy']
     outputShape: number[]
@@ -155,7 +155,7 @@ class FirstExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram
     }
 }
 
-class SecondExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram 
+class SecondExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram 
 {
     variableNames = ['InputDistance']
     outputShape: number[]
@@ -234,7 +234,7 @@ class SecondExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram
     }
 }
 
-class SecondExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram 
+class SecondExtendedIsotropicChebyshevDistancePassZ implements GPGPUProgram 
 {
     variableNames = ['InputDistance']
     outputShape: number[]
@@ -313,7 +313,7 @@ class SecondExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram
     }
 }
 
-class ThirdExtendedAnisotropicChebyshevDistancePassX implements GPGPUProgram 
+class ThirdExtendedIsotropicChebyshevDistancePassX implements GPGPUProgram 
 {
     variableNames = ['InputDistance']
     outputShape: number[]
@@ -389,7 +389,7 @@ class ThirdExtendedAnisotropicChebyshevDistancePassX implements GPGPUProgram
     }
 }
 
-class ThirdExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram 
+class ThirdExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram 
 {
     variableNames = ['InputDistance']
     outputShape: number[]
@@ -465,7 +465,7 @@ class ThirdExtendedAnisotropicChebyshevDistancePassY implements GPGPUProgram
     }
 }
 
-class ThirdExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram 
+class ThirdExtendedIsotropicChebyshevDistancePassZ implements GPGPUProgram 
 {
     variableNames = ['InputDistance']
     outputShape: number[]
@@ -541,7 +541,7 @@ class ThirdExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram
     }
 }
 
-class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram 
+class FourthExtendedIsotropicChessDistancePassXYZ implements GPGPUProgram 
 {
     variableNames = ['InputXDistance', 'InputYDistance', 'InputZDistance', 'InputOccupancy']
     outputShape: number[]
@@ -580,19 +580,19 @@ function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]) : tf.Tensor
 }
 
 
-export function computeExtendedAnisotropicDistanceMap(inputOccupancy: tf.Tensor3D, maxDistance: number): tf.Tensor4D 
+export function computeExtendedIsotropicDistanceMap(inputOccupancy: tf.Tensor3D, maxDistance: number): tf.Tensor4D 
 {
     // 1D 
-    const firstPassX = new FirstExtendedAnisotropicChebyshevDistancePassX(inputOccupancy.shape, maxDistance)
-    const firstPassY = new FirstExtendedAnisotropicChebyshevDistancePassY(inputOccupancy.shape, maxDistance)
+    const firstPassX = new FirstExtendedIsotropicChebyshevDistancePassX(inputOccupancy.shape, maxDistance)
+    const firstPassY = new FirstExtendedIsotropicChebyshevDistancePassY(inputOccupancy.shape, maxDistance)
     const distance_X0_X1 = runProgram(firstPassX, [inputOccupancy]) as tf.Tensor4D
     const distance_Y0_Y1 = runProgram(firstPassY, [inputOccupancy]) as tf.Tensor4D
 
     // 2D
-    const secondPassY = new SecondExtendedAnisotropicChebyshevDistancePassY(distance_X0_X1.shape, maxDistance)
+    const secondPassY = new SecondExtendedIsotropicChebyshevDistancePassY(distance_X0_X1.shape, maxDistance)
     const distance_XY00_XY10_XY01_XY11 = runProgram(secondPassY, [distance_X0_X1]) as tf.Tensor4D; 
     
-    const secondPassZ = new SecondExtendedAnisotropicChebyshevDistancePassZ(distance_Y0_Y1.shape, maxDistance)
+    const secondPassZ = new SecondExtendedIsotropicChebyshevDistancePassZ(distance_Y0_Y1.shape, maxDistance)
     const distance_XZ00_XZ10_XZ01_XZ11 = runProgram(secondPassZ, [distance_X0_X1]) as tf.Tensor4D
     tf.dispose(distance_X0_X1)
     
@@ -600,20 +600,20 @@ export function computeExtendedAnisotropicDistanceMap(inputOccupancy: tf.Tensor3
     tf.dispose(distance_Y0_Y1)
 
     // 3D
-    const thirdPassX = new ThirdExtendedAnisotropicChebyshevDistancePassX(distance_YZ00_YZ10_YZ01_YZ11.shape, maxDistance)
+    const thirdPassX = new ThirdExtendedIsotropicChebyshevDistancePassX(distance_YZ00_YZ10_YZ01_YZ11.shape, maxDistance)
     const distanceX_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111 = runProgram(thirdPassX, [distance_YZ00_YZ10_YZ01_YZ11]) as tf.Tensor4D
     tf.dispose(distance_YZ00_YZ10_YZ01_YZ11)
 
-    const thirdPassY = new ThirdExtendedAnisotropicChebyshevDistancePassY(distance_XZ00_XZ10_XZ01_XZ11.shape, maxDistance)
+    const thirdPassY = new ThirdExtendedIsotropicChebyshevDistancePassY(distance_XZ00_XZ10_XZ01_XZ11.shape, maxDistance)
     const distanceY_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111 = runProgram(thirdPassY, [distance_XZ00_XZ10_XZ01_XZ11]) as tf.Tensor4D 
     tf.dispose(distance_XZ00_XZ10_XZ01_XZ11)
     
-    const thirdPassZ = new ThirdExtendedAnisotropicChebyshevDistancePassZ(distance_XY00_XY10_XY01_XY11.shape, maxDistance)
+    const thirdPassZ = new ThirdExtendedIsotropicChebyshevDistancePassZ(distance_XY00_XY10_XY01_XY11.shape, maxDistance)
     const distanceZ_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111 = runProgram(thirdPassZ, [distance_XY00_XY10_XY01_XY11]) as tf.Tensor4D
     tf.dispose(distance_XY00_XY10_XY01_XY11)
 
     // Pack
-    const fourthPassXYZ = new FourthExtendedAnisotropicChessDistancePassXYZ(distanceX_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111.shape)
+    const fourthPassXYZ = new FourthExtendedIsotropicChessDistancePassXYZ(distanceX_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111.shape)
     const distancesXYZ_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111 = runProgram(fourthPassXYZ, [
         distanceX_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111,
         distanceY_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111,

@@ -1,12 +1,5 @@
 export default [     
     
-    // Colormaps
-    {
-        name: 'colorMaps',
-        type: 'texture',
-        path: 'textures/colormaps/colormaps.png',
-    },
-
     // NIFTI    
     {
         name: 'volume',
