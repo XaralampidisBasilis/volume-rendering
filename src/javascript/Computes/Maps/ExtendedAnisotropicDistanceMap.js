@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
 import { computeExtendedAnisotropicDistanceMap } from '../Programs/GPGPUExtendedAnisotropicDistanceMapFusedPacked'
+import { toHalfFloat, fromHalfFloat } from '../../Utils/DataUtils'
 
 export default class ExtendedAnisotropicDistanceMap 
 {
@@ -46,7 +47,8 @@ export default class ExtendedAnisotropicDistanceMap
 
     getTextureData()
     {
-        return new Uint16Array(this.tensor.dataSync())
+        const data = this.tensor.dataSync()
+        return new Uint16Array(data.map(toHalfFloat))
     }
 
     dispose()

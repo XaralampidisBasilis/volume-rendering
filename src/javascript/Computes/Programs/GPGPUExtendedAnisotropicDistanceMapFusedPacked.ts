@@ -727,7 +727,7 @@ class ThirdExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram
     }
 }
 
-class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram 
+class FourthExtendedAnisotropicChessDistancePass implements GPGPUProgram 
 {
     variableNames = ['XDistances', 'YDistances', 'ZDistances', 'Occupancies']
     outputShape: number[]
@@ -751,6 +751,16 @@ class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram
             return up16;
         }
             
+        vec4 uintBitsToHalfFloat(uvec4 packed)
+        {
+            return vec4(
+                unpackHalf2x16(packed.x).r,
+                unpackHalf2x16(packed.y).r,
+                unpackHalf2x16(packed.z).r,
+                unpackHalf2x16(packed.w).r
+            );
+        }
+
         void main() 
         {
             uvec4 xDistances  = uvec4(getXDistancesAtOutCoords());
@@ -759,7 +769,11 @@ class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram
             uvec4 occupancies = uvec4(getOccupanciesAtOutCoords());
     
             uvec4 packedOutput = pack5551(xDistances, yDistances, zDistances, occupancies);
-            setOutput(vec4(packedOutput));
+            setOutput(uintBitsToHalfFloat(packedOutput));
+
+            // Since we use float16 textures to represent tensor values
+            // the uint16 values are rounded to fit the float16 integer representations
+            // setOutput(vec4(packedOutput)); 
         }
         `
     }
@@ -804,8 +818,8 @@ export function computeExtendedAnisotropicDistanceMap(inputOccupancy: tf.Tensor3
     tf.dispose(distance_XY00_XY10_XY01_XY11)
 
     // Pack
-    const fourthPassXYZ = new FourthExtendedAnisotropicChessDistancePassXYZ(distanceX_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111.shape)
-    const distancesXYZ_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111 = runProgram(fourthPassXYZ, [
+    const fourthPass = new FourthExtendedAnisotropicChessDistancePass(distanceX_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111.shape)
+    const distancesXYZ_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111 = runProgram(fourthPass, [
         distanceX_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111,
         distanceY_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111,
         distanceZ_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111,
