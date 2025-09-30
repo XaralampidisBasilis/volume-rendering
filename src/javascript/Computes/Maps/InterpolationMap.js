@@ -24,10 +24,7 @@ export default class InterpolationMap
 
     restoreTensor()
     {
-        if (this.tensor.isDisposed)
-        {
-            this.tensor = tf.tensor5d(this.tensorData, [...this.dimensions, 2, 2])
-        }
+        this.tensor = tf.tensor5d(this.tensorData, this.tensor.shape)
     }
 
     computeTexture()

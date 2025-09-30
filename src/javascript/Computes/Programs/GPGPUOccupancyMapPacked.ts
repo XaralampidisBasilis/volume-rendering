@@ -4,7 +4,7 @@ import { MathBackendWebGL } from '@tensorflow/tfjs-backend-webgl'
 
 class GPGPUOccupancyMap implements GPGPUProgram 
 {
-    variableNames = ['InputExtrema']
+    variableNames = ['ExtremaMap']
     outputShape: number[]
     userCode: string
     packedInputs = true
@@ -13,22 +13,25 @@ class GPGPUOccupancyMap implements GPGPUProgram
     constructor
     (
         inputShape: [number, number, number, number, number], 
-        inputValue: number
+        interpolationMethod: 'trilinear' | 'tricubic',
+        isosurfaceValue: number
     ) 
     {
         const [inDepth, inHeight, inWidth] = inputShape
         this.outputShape = [inDepth, inHeight, inWidth] 
         this.userCode = `
-        const float inputValue = float(${inputValue});
+        const float isosurfaceValue = float(${isosurfaceValue});
 
-        vec2 getInputExtrema(ivec3 coords) { return getInputExtrema(coords.z, coords.y, coords.x, 0, 0).rg; }
+        ${interpolationMethod === 'trilinear' ? `
+        vec2 getExtremaMap(ivec3 coords) { return getExtremaMap(coords.z, coords.y, coords.x, 0, 0).rg; }` : `
+        vec2 getExtremaMap(ivec3 coords) { return getExtremaMap(coords.z, coords.y, coords.x, 0, 0).ba; }`}
 
         bool getOccupancy(ivec3 coords, int innerX, int innerY) 
         {
             coords.x += innerX;
             coords.y += innerY;
-            vec2 minMax = getInputExtrema(coords);
-            return (inputValue >= minMax.x) && (inputValue <= minMax.y);
+            vec2 minMax = getExtremaMap(coords);
+            return (isosurfaceValue >= minMax.x) && (isosurfaceValue <= minMax.y);
         }
 
         void main() 
@@ -60,8 +63,8 @@ function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]): tf.Tensor
     return tf.engine().makeTensorFromTensorInfo(info) as tf.Tensor
 }
 
-export function computeOccupancyMap(extremaMap: tf.Tensor5D, inputValue: number): tf.Tensor
+export function computeOccupancyMap(extremaMap: tf.Tensor5D, interpolationMethod: 'trilinear' | 'tricubic', isosurfaceValue: number): tf.Tensor
 {
-  const program = new GPGPUOccupancyMap(extremaMap.shape as any, inputValue)
+  const program = new GPGPUOccupancyMap(extremaMap.shape, interpolationMethod, isosurfaceValue)
   return runProgram(program, [extremaMap]) as tf.Tensor3D
 }

@@ -17,7 +17,8 @@ export default class ExtendedAnisotropicDistanceMap
     {
         console.time('computeTensor@ExtendedAnisotropicDistanceMap') 
         this.tensor = computeExtendedAnisotropicDistanceMap(this.occupancyMap.tensor, this.maxDistance)
-        this.dimensions = this.occupancyMap.dimensions
+        this.dimensions = new THREE.Vector3().copy(this.occupancyMap.dimensions)
+        this.dimensions.z *= 8
         console.timeEnd('computeTensor@ExtendedAnisotropicDistanceMap') 
     }
 

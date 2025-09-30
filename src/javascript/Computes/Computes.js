@@ -89,16 +89,12 @@ export default class Computes extends EventEmitter
     onChangeIsosurfaceValue(event)
     {
         console.time('onChangeIsosurfaceValue@Computes') 
-
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
-
         this.occupancyMap.updateTexture()
         this.distanceMap.updateTexture()
-
         this.occupancyMap.tensor.dispose()
         this.distanceMap.tensor.dispose()
-
         console.timeEnd('onChangeIsosurfaceValue@Computes')
         console.log('') 
     }
@@ -107,9 +103,9 @@ export default class Computes extends EventEmitter
     {
         console.time('onChangeBlockSize@Computes') 
 
-        this.extremaMap.tensor.dispose()
         this.occupancyMap.texture.dispose()
         this.distanceMap.texture.dispose()
+        this.extremaMap.tensor.dispose()
 
         this.interpolationMap.restoreTensor()
         this.extremaMap.computeTensor()
@@ -131,6 +127,9 @@ export default class Computes extends EventEmitter
     {
         console.time('onChangeDownscaleFactor@Computes') 
 
+        this.interpolationMap.texture.dispose()
+        this.occupancyMap.texture.dispose()
+        this.distanceMap.texture.dispose()
         this.extremaMap.tensor.dispose()
 
         this.volumeMap.computeTensor()
@@ -139,7 +138,14 @@ export default class Computes extends EventEmitter
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
 
+        this.interpolationMap.computeTexture()
+        this.occupancyMap.computeTexture()
+        this.distanceMap.computeTexture()
+
         this.volumeMap.tensor.dispose()
+        this.interpolationMap.tensor.dispose()
+        this.occupancyMap.tensor.dispose()
+        this.distanceMap.tensor.dispose()
 
         console.timeEnd('onChangeDownscaleFactor@Computes') 
         console.log('')
@@ -148,23 +154,12 @@ export default class Computes extends EventEmitter
     onChangeInterpolationMethod(event)
     {
         console.time('onChangeInterpolationMethod@Computes') 
-
-        this.extremaMap.tensor.dispose()
-        this.occupancyMap.texture.dispose()
-        this.distanceMap.texture.dispose()
-
-        this.interpolationMap.restoreTensor()
-        this.extremaMap.computeTensor()
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
-
-        this.occupancyMap.computeTexture()
-        this.distanceMap.computeTexture()
-
-        this.interpolationMap.tensor.dispose()
+        this.occupancyMap.updateTexture()
+        this.distanceMap.updateTexture()
         this.occupancyMap.tensor.dispose()
         this.distanceMap.tensor.dispose()
-
         console.timeEnd('onChangeInterpolationMethod@Computes') 
         console.log('')
     }
@@ -172,17 +167,13 @@ export default class Computes extends EventEmitter
     onChangeSkippingMethod(event)
     {
         console.time('onChangeSkippingMethod@Computes') 
-
         this.distanceMap.texture.dispose()
         this.resolveDistanceMap()
-        
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
         this.distanceMap.computeTexture()
-
         this.occupancyMap.tensor.dispose()
         this.distanceMap.tensor.dispose()
-
         console.timeEnd('onChangeSkippingMethod@Computes') 
         console.log('')
     }

@@ -16,11 +16,9 @@ uvec4 unpack_sample(in uint packed_sample)
 // Returns 3-component distance vector and sets occupancy flag.
 ivec3 sample_distance_extended(in ivec3 block_coords, in int octant, out bool occupancy)
 {
-    ivec3 dimensions = textureSize(u_textures.distance_map, 0);
-
     // Offset z to access the correct slab for the given octant.
     ivec3 slab_coords = block_coords;
-    slab_coords.z += octant * dimensions.z;
+    slab_coords.z += octant * u_volume.blocked_dimensions.z;
 
     // Sample packed data from the 3D texture
     uint packed_sample = texelFetch(u_textures.distance_map, slab_coords, 0).r;

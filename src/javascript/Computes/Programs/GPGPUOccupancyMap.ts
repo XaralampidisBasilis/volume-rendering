@@ -13,16 +13,22 @@ class GPGPUOccupancyMap implements GPGPUProgram
     constructor
     (
         inputShape: [number, number, number, number], 
-        inputValue: number
+        interpolationMethod: 'trilinear' | 'tricubic',
+        isosurfaceValue: number
     ) 
     {
         const [inDepth, inHeight, inWidth] = inputShape
         this.outputShape = [inDepth, inHeight, inWidth]
         this.userCode = `
-        const float inputValue = float(${inputValue});
+        const float isosurfaceValue = float(${isosurfaceValue});
 
-        vec2 getInputMinima(ivec3 coords) { return getInputExtrema(coords.z, coords.y, coords.x, 0); }
-        vec2 getInputMaxima(ivec3 coords) { return getInputExtrema(coords.z, coords.y, coords.x, 1); }
+        ${interpolationMethod === 'trilinear' ? `
+        float getInputMinima(ivec3 coords) { return getExtremaMap(coords.z, coords.y, coords.x, 0); }` : `
+        float getInputMinima(ivec3 coords) { return getExtremaMap(coords.z, coords.y, coords.x, 2); }`}
+
+        ${interpolationMethod === 'trilinear' ? `
+        float getInputMaxima(ivec3 coords) { return getExtremaMap(coords.z, coords.y, coords.x, 1); }` : `
+        float getInputMaxima(ivec3 coords) { return getExtremaMap(coords.z, coords.y, coords.x, 3); }`}
 
         void main() 
         {
@@ -31,7 +37,7 @@ class GPGPUOccupancyMap implements GPGPUProgram
             float minValue = getInputMinima(inputCoords);
             float maxValue = getInputMaxima(inputCoords);
 
-            bool occupied = (inputValue >= minValue) && (inputValue <= maxValue);
+            bool occupied = (isosurfaceValue >= minValue) && (isosurfaceValue <= maxValue);
 
             setOutput(occupied ? 1.0 : 0.0);
         }
@@ -46,8 +52,8 @@ function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]): tf.Tensor
     return tf.engine().makeTensorFromTensorInfo(info) as tf.Tensor
 }
 
-export function computeOccupancyMap(extremaMap: tf.Tensor4D, inputValue: number): tf.Tensor
+export function computeOccupancyMap(extremaMap: tf.Tensor4D, interpolationMethod: 'trilinear' | 'tricubic', isosurfaceValue: number): tf.Tensor
 {
-  const program = new GPGPUOccupancyMap(extremaMap.shape as any, inputValue)
+  const program = new GPGPUOccupancyMap(extremaMap.shape, interpolationMethod, isosurfaceValue)
   return runProgram(program, [extremaMap]) as tf.Tensor3D
 }

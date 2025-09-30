@@ -6,6 +6,8 @@ import EventEmitter from './EventEmitter'
  */
 export default class Configs extends EventEmitter 
 {
+    static Colormaps = Object.freeze([ 'parula', 'turbo', 'hsv', 'hot', 'cool', 'spring', 'summer', 'autumn', 'winter', 'gray', 'bone', 'copper', 'pink', 'jet', 'pasteljet', 'viridis', 'plasma', 'inferno', 'magma', 'cividis' ])
+
     static InterpolationMethods = Object.freeze([
         'trilinear',
         'tricubic',
@@ -26,42 +28,20 @@ export default class Configs extends EventEmitter
         'extendedAnisotropicDistance',
         'extendedIsotropicDistance',
     ])
-    static Colormaps = Object.freeze([
-        'parula',
-        'turbo',
-        'hsv',
-        'hot',
-        'cool',
-        'spring',
-        'summer',
-        'autumn',
-        'winter',
-        'gray',
-        'bone',
-        'copper',
-        'pink',
-        'jet',
-        'pasteljet',
-        'viridis',
-        'plasma',
-        'inferno',
-        'magma',
-        'cividis',
-    ])
 
     constructor() 
     {
         super()
 
         this.blockSize = 2
-        this.downscaleFactor = 0.5
+        this.downscaleFactor = 0.8
         this.isosurfaceValue = 0.7
+        
         this.colormap = 'pasteljet'
-
-        this.interpolationMethod = 'trilinear'
+        this.interpolationMethod = 'tricubic'
         this.gradientsMethod = 'bspline'
         this.marchingMethod = 'analytic'
-        this.skippingMethod = 'occupancy'
+        this.skippingMethod = 'anisotropicDistance'
 
         this.bernsteinEnabled = true
         this.skippingEnabled = true

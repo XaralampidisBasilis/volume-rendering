@@ -75,6 +75,7 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_volume.value.dimensions.copy(this.computes.volumeMap.dimensions)
         uniforms.u_volume.value.spacing.copy(this.computes.volumeMap.spacing).normalize()
         uniforms.u_volume.value.block_size = this.configs.blockSize
+        uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
         uniforms.u_volume.value.inv_dimensions.fromArray(uniforms.u_volume.value.dimensions.toArray().map(x => 1/x))
     }
 
@@ -91,7 +92,7 @@ export default class ISOViewer extends EventEmitter
     {        
         const sum = (y, x) => y + x
         const defines = this.material.defines
-        defines.MAX_CELLS = this.computes.interpolationMap.dimensions.toArray().reduce(sum, 0)
+        defines.MAX_CELLS = this.computes.volumeMap.dimensions.toArray().reduce(sum, 0)
         defines.MAX_BLOCKS = this.computes.occupancyMap.dimensions.toArray().reduce(sum, 0)
         defines.MAX_TRACES = defines.MAX_CELLS * 5
         defines.MAX_CELLS_PER_BLOCK = this.configs.blockSize * 3
@@ -102,21 +103,21 @@ export default class ISOViewer extends EventEmitter
 
     change(event)
     {
-        if (event.key === 'isosurfaceValue'    ) this.onChangeIsosurfaceValue(event)
-        if (event.key === 'blockSize'          ) this.onChangeBlockSize(event)
-        if (event.key === 'downscaleFactor'    ) this.onChangeDownscaleFactor(event)
-        if (event.key === 'interpolationMethod') this.onChangeInterpolationMethod(event)
-        if (event.key === 'skippingMethod'     ) this.onChangeSkippingMethod(event)
-        if (event.key === 'gradientsMethod'    ) this.onChangeGradientsMethod(event)
-        if (event.key === 'marchingMethod'     ) this.onChangeMarchingMethod(event)
+        if      (event.key === 'isosurfaceValue'    ) this.onChangeIsosurfaceValue(event)
+        else if (event.key === 'blockSize'          ) this.onChangeBlockSize(event)
+        else if (event.key === 'downscaleFactor'    ) this.onChangeDownscaleFactor(event)
+        else if (event.key === 'interpolationMethod') this.onChangeInterpolationMethod(event)
+        else if (event.key === 'skippingMethod'     ) this.onChangeSkippingMethod(event)
+        else if (event.key === 'gradientsMethod'    ) this.onChangeGradientsMethod(event)
+        else if (event.key === 'marchingMethod'     ) this.onChangeMarchingMethod(event)
+        else if (event.key === 'skippingEnabled'    ) this.onChangeSkippingEnabled(event)
+        else if (event.key === 'bernsteinEnabled'   ) this.onChangeBernsteinEnabled(event)
     }
 
     onChangeIsosurfaceValue(event)
     {
         const uniforms = this.material.uniforms
         uniforms.u_volume.value.isovalue = this.configs.isosurfaceValue
-        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
-        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
     }
 
     onChangeBlockSize(event)
@@ -125,6 +126,9 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_volume.value.block_size = this.configs.blockSize
         uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
         uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
+
+        this.startDefinesIterators()
+        this.material.needsUpdate = true
     }
 
     onChangeDownscaleFactor(event)
@@ -135,39 +139,41 @@ export default class ISOViewer extends EventEmitter
 
     onChangeInterpolationMethod(event)
     {
-        const defines = this.material.defines
-        defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === event.newValue) + 1
-
-        const uniforms = this.material.uniforms
-        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
-        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
-
+        this.material.defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === event.newValue) + 1
         this.material.needsUpdate = true
     }
 
     onChangeSkippingMethod(event)
     {
-        const defines = this.material.defines
-        defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === event.newValue) + 1
-
         const uniforms = this.material.uniforms
         uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
         uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
 
+        this.material.defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === event.newValue) + 1
         this.material.needsUpdate = true
     }
 
     onChangeGradientsMethod(event)
     {
-        const defines = this.material.defines
-        defines.GRADIENTS_METHOD = Configs.GradientsMethods.findIndex((x) => x === event.newValue) + 1
+        this.material.defines.GRADIENTS_METHOD = Configs.GradientsMethods.findIndex((x) => x === event.newValue) + 1
         this.material.needsUpdate = true
     }
 
     onChangeMarchingMethod(event)
     {
-        const defines = this.material.defines
-        defines.MARCHING_METHOD = Configs.MarchingMethods.findIndex((x) => x === event.newValue) + 1
+        this.material.defines.MARCHING_METHOD = Configs.MarchingMethods.findIndex((x) => x === event.newValue) + 1
+        this.material.needsUpdate = true
+    }
+
+    onChangeSkippingEnabled(event)
+    {
+        this.material.defines.SKIPPING_ENABLED = Number(event.newValue)
+        this.material.needsUpdate = true
+    }
+
+    onChangeBernsteinEnabled(event)
+    {
+        this.material.defines.BERNSTEIN_ENABLED = Number(event.newValue)
         this.material.needsUpdate = true
     }
 
