@@ -147,7 +147,7 @@ class ExtendedIsotropicChebyshevDistancePass1 implements GPGPUProgram
 
 class ExtendedIsotropicChebyshevDistancePass2 implements GPGPUProgram 
 {
-    variableNames = ['InputX0Distance', 'InputY0Distance', 'InputZ0Distance', 'InputX1Distance', 'InputY1Distance', 'InputZ1Distance', 'InputOccupancy']
+    variableNames = ['XDistance', 'YDistance', 'ZDistance', 'Occupancy']
     outputShape: number[]
     userCode: string
     packedInputs = false
@@ -156,36 +156,33 @@ class ExtendedIsotropicChebyshevDistancePass2 implements GPGPUProgram
     constructor(inputShape: [number, number, number]) 
     {
         const [inDepth, inHeight, inWidth] = inputShape
-        this.outputShape = [inDepth, inHeight, inWidth, 2]
+        this.outputShape = [inDepth, inHeight, inWidth]
         this.userCode = `
-
-        uint pack5552(int x, int y, int z, int o)
+        uint pack5551(uint x, uint y, uint z, uint o)
         {
-            uint ux = uint(clamp(x, 0, 31));
-            uint uy = uint(clamp(x, 0, 31));
-            uint uz = uint(clamp(x, 0, 31));
-            uint uo = uint(clamp(o, 0,  1)); 
+            uint up16 = 
+            ((x & 0x1Fu) << 11) |
+            ((y & 0x1Fu) <<  6) |
+            ((z & 0x1Fu) <<  1) |
+            ((o & 0x01u) <<  0);
 
-            return (ux << 11) |
-                   (uy <<  6) |
-                   (uz <<  1) |
-                   (uo <<  0);
+            return up16;
+        }
+
+        float uintHalfBitsToHalfFloat(uint packed)
+        {
+            return unpackHalf2x16(packed).r;
         }
 
         void main() 
         {
-            int x0 = int(getInputX0DistanceAtOutCoords());
-            int y0 = int(getInputY0DistanceAtOutCoords());
-            int z0 = int(getInputZ0DistanceAtOutCoords());
-            int x1 = int(getInputX1DistanceAtOutCoords());
-            int y1 = int(getInputY1DistanceAtOutCoords());
-            int z1 = int(getInputZ1DistanceAtOutCoords());
-            int oc = int(getInputOccupancyAtOutCoords());
-
-            uint p0 = pack5552(x0, y0, z0, oc)
-            uint p1 = pack5552(x1, y1, z1, oc)
-
-            setOutput(vec4(float(lo), float(hi), 0.0, 0.0));
+            uint xDistance = uint(getXDistanceAtOutCoords());
+            uint yDistance = uint(getYDistanceAtOutCoords());
+            uint zDistance = uint(getZDistanceAtOutCoords());
+            uint occupancy = uint(getOccupancyAtOutCoords());
+            
+            uint packedOutput = pack5551(xDistance, yDistance, zDistance, occupancy);
+            setOutput(uintHalfBitsToHalfFloat(packedOutput));
         }
         `
     }
@@ -207,13 +204,13 @@ export function computeExtendedIsotropicDistanceMap(inputOccupancy: tf.Tensor3D,
     const firstPassY  = new ExtendedIsotropicChebyshevDistancePass0(shape, 'occupancy', 'y', maxDistance)
     const secondPassY = new ExtendedIsotropicChebyshevDistancePass0(shape, 'distance',  'y', maxDistance)
     const secondPassZ = new ExtendedIsotropicChebyshevDistancePass0(shape, 'distance',  'z', maxDistance)
-    const thirdPassX0  = new ExtendedIsotropicChebyshevDistancePass1(shape, '-x', maxDistance)
-    const thirdPassX1  = new ExtendedIsotropicChebyshevDistancePass1(shape, '+x', maxDistance)
-    const thirdPassY0  = new ExtendedIsotropicChebyshevDistancePass1(shape, '-y', maxDistance)
-    const thirdPassY1  = new ExtendedIsotropicChebyshevDistancePass1(shape, '+y', maxDistance)
-    const thirdPassZ0  = new ExtendedIsotropicChebyshevDistancePass1(shape, '-z', maxDistance)
-    const thirdPassZ1  = new ExtendedIsotropicChebyshevDistancePass1(shape, '+z', maxDistance)
-    const fourthPass   = new ExtendedIsotropicChebyshevDistancePass2(shape)
+    const thirdPassX0 = new ExtendedIsotropicChebyshevDistancePass1(shape, '-x', maxDistance)
+    const thirdPassX1 = new ExtendedIsotropicChebyshevDistancePass1(shape, '+x', maxDistance)
+    const thirdPassY0 = new ExtendedIsotropicChebyshevDistancePass1(shape, '-y', maxDistance)
+    const thirdPassY1 = new ExtendedIsotropicChebyshevDistancePass1(shape, '+y', maxDistance)
+    const thirdPassZ0 = new ExtendedIsotropicChebyshevDistancePass1(shape, '-z', maxDistance)
+    const thirdPassZ1 = new ExtendedIsotropicChebyshevDistancePass1(shape, '+z', maxDistance)
+    const fourthPass  = new ExtendedIsotropicChebyshevDistancePass2(shape)
 
     // 1D
     const distance_X = runProgram(firstPassX, [inputOccupancy])
@@ -233,9 +230,11 @@ export function computeExtendedIsotropicDistanceMap(inputOccupancy: tf.Tensor3D,
     const distanceZ1_XYZ = runProgram(thirdPassZ1, [distance_XY]); tf.dispose(distance_XY)
 
     // Packing
-    const distances_X0_Y0_Z0_X1_Y1_Z1_XYZ = runProgram(fourthPass, [distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy]);  
-    tf.dispose([distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy])
+    const distances_X0_Y0_Z0_XYZ = runProgram(fourthPass, [distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, inputOccupancy]); tf.dispose([distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, inputOccupancy])
+    const distances_X1_Y1_Z1_XYZ = runProgram(fourthPass, [distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy]); tf.dispose([distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy])
 
-            
+    const distances_X0_Y0_Z0_X1_Y1_Z1_XYZ = tf.stack([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ], -1)
+    tf.dispose([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ])
+    
     return distances_X0_Y0_Z0_X1_Y1_Z1_XYZ as tf.Tensor3D
 }

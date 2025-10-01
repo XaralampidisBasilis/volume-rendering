@@ -47,8 +47,15 @@ export default class ExtendedAnisotropicDistanceMap
 
     getTextureData()
     {
-        const data = this.tensor.dataSync()
-        return new Uint16Array(data.map(toHalfFloat))
+        const dataFloat = this.tensor.dataSync()
+        const dataHalfFloat = new Uint16Array(this.tensor.size)
+
+        for (let i = 0; i < dataFloat.length; ++i) 
+        {
+            dataHalfFloat[i] = toHalfFloat(dataFloat[i])
+        }
+
+        return dataHalfFloat
     }
 
     dispose()

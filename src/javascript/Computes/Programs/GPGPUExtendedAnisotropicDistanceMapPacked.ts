@@ -681,6 +681,16 @@ class FourthExtendedAnisotropicChessDistancePass implements GPGPUProgram
 
             return up16;
         }
+            
+        vec4 uintHalfBitsToHalfFloat(uvec4 packed)
+        {
+            return vec4(
+                unpackHalf2x16(packed.x).r,
+                unpackHalf2x16(packed.y).r,
+                unpackHalf2x16(packed.z).r,
+                unpackHalf2x16(packed.w).r
+            );
+        }
 
         void main() 
         {
@@ -690,7 +700,7 @@ class FourthExtendedAnisotropicChessDistancePass implements GPGPUProgram
             uvec4 occupancies = uvec4(getOccupanciesAtOutCoords());
     
             uvec4 packedOutput = pack5551(xDistances, yDistances, zDistances, occupancies);
-            setOutput(vec4(packedOutput));
+            setOutput(uintHalfBitsToHalfFloat(packedOutput));
         }
         `
     }

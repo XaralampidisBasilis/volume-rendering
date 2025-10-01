@@ -751,7 +751,7 @@ class FourthExtendedAnisotropicChessDistancePass implements GPGPUProgram
             return up16;
         }
             
-        vec4 uintBitsToHalfFloat(uvec4 packed)
+        vec4 uintHalfBitsToHalfFloat(uvec4 packed)
         {
             return vec4(
                 unpackHalf2x16(packed.x).r,
@@ -767,13 +767,11 @@ class FourthExtendedAnisotropicChessDistancePass implements GPGPUProgram
             uvec4 yDistances  = uvec4(getYDistancesAtOutCoords());
             uvec4 zDistances  = uvec4(getZDistancesAtOutCoords());
             uvec4 occupancies = uvec4(getOccupanciesAtOutCoords());
-    
-            uvec4 packedOutput = pack5551(xDistances, yDistances, zDistances, occupancies);
-            setOutput(uintBitsToHalfFloat(packedOutput));
 
-            // Since we use float16 textures to represent tensor values
-            // the uint16 values are rounded to fit the float16 integer representations
-            // setOutput(vec4(packedOutput)); 
+            uvec4 packedOutput = pack5551(xDistances, yDistances, zDistances, occupancies);
+            setOutput(uintHalfBitsToHalfFloat(packedOutput));
+            // Since we use float16 textures, we don't want uint values to get rounded
+            // Thats why we need to encode the bits of uint16 as float16 values
         }
         `
     }

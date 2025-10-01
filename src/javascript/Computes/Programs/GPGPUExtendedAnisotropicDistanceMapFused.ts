@@ -565,6 +565,11 @@ class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram
             return up16;
         }
 
+        float uintHalfBitsToHalfFloat(uint packed)
+        {
+            return unpackHalf2x16(packed).r;
+        }
+
         void main() 
         {
             uint xDistance = uint(getXDistanceAtOutCoords());
@@ -573,7 +578,7 @@ class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram
             uint occupancy = uint(getOccupancyAtOutCoords());
 
             uint packedOutput = pack5551(xDistance, yDistance, zDistance, occupancy);
-            setOutput(float(packedOutput));
+            setOutput(uintHalfBitsToHalfFloat(packedOutput));
         }
         `
     }

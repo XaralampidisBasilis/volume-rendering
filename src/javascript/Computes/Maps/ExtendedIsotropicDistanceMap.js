@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
 import { computeExtendedIsotropicDistanceMap } from '../Programs/GPGPUExtendedIsotropicDistanceMapPacked'
+import { toHalfFloat, fromHalfFloat } from '../../Utils/DataUtils'
 
 export default class ExtendedIsotropicDistanceMap
 {
@@ -26,14 +27,14 @@ export default class ExtendedIsotropicDistanceMap
     {
         console.time('computeTexture@ExtendedIsotropicDistanceMap') 
         this.texture = new THREE.Data3DTexture(this.textureData, ...this.dimensions)
-        this.texture.format = THREE.RedIntegerFormat
+        this.texture.format = THREE.RGIntegerFormat
         this.texture.type = THREE.UnsignedIntType
-        this.texture.internalFormat = 'R32UI'
+        this.texture.internalFormat = 'RG16UI'
         this.texture.minFilter = THREE.NearestFilter
         this.texture.magFilter = THREE.NearestFilter
         this.texture.generateMipmaps = false
         this.texture.needsUpdate = true
-        this.texture.unpackAlignment = 1
+        this.texture.unpackAlignment = 2
         console.timeEnd('computeTexture@ExtendedIsotropicDistanceMap') 
     }   
 
@@ -45,7 +46,15 @@ export default class ExtendedIsotropicDistanceMap
 
     getTextureData()
     {
-        return new Uint32Array(this.tensor.dataSync())
+        const dataFloat = this.tensor.dataSync()
+        const dataHalfFloat = new Uint16Array(this.tensor.size)
+
+        for (let i = 0; i < dataFloat.length; ++i) 
+        {
+            dataHalfFloat[i] = toHalfFloat(dataFloat[i])
+        }
+
+        return dataHalfFloat
     }
 
     dispose()

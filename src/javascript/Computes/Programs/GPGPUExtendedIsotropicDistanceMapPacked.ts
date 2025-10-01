@@ -2,7 +2,6 @@ import * as tf from '@tensorflow/tfjs'
 import { GPGPUProgram } from '@tensorflow/tfjs-backend-webgl'
 import { MathBackendWebGL } from '@tensorflow/tfjs-backend-webgl'
 
-
 class FirstExtendedIsotropicChebyshevDistancePassX implements GPGPUProgram 
 {
     variableNames = ['InputOccupancies']
@@ -14,15 +13,14 @@ class FirstExtendedIsotropicChebyshevDistancePassX implements GPGPUProgram
     constructor
     (
         inputShape: [number, number, number], 
-        inputSign: '-' | '+',
         maxDistance: number,
     ) 
     {
         const [inDepth, inHeight, inWidth] = inputShape
         const ceilToEven = (x: number) => Math.ceil(x / 2) * 2
-        const maxSteps = ceilToEven(Math.min(maxDistance, inWidth - 1))
+        const maxSteps = ceilToEven(Math.min(maxDistance, inWidth-1))
         this.outputShape = [inDepth, inHeight, inWidth]
-        this.userCode = `        
+        this.userCode = `
         ivec4 getDistancesFromOccupancies(vec4 occupancies)
         {
             return ivec4(lessThan(occupancies, vec4(0.5))) * ${maxDistance};
@@ -33,75 +31,71 @@ class FirstExtendedIsotropicChebyshevDistancePassX implements GPGPUProgram
             return getDistancesFromOccupancies(getInputOccupancies(coords.z, coords.y, coords.x));
         }
 
-        bool outsideWidth(ivec3 coords)
-        {
-            return (coords.x < 0) || (coords.x > ${inWidth-1});
-        }
-
         int mmax(ivec4 distances) 
         { 
             return max(max(distances.x, distances.y), max(distances.z, distances.w)); 
         }
 
-        const int xSign = ${inputSign} 1;
-
         void main() 
         {
             ivec3 outputCoords = getOutputCoords().zyx;
-            ivec3 inputCoords = outputCoords;
+            ivec3 inputCoords = outputCoords;    
 
+            ivec4 xSteps, neighborDistances, candidateDistances;
             ivec4 inputDistances = getInputDistances(inputCoords);
             ivec4 outputDistances = inputDistances;
-            ivec4 neighborDistances, candidateDistances, xSteps;
-
-            ${inputSign == '-' ? 
-            `
-                xSteps.rb = ivec2(0 - xSign);
-                xSteps.ga = ivec2(0);
-
-                neighborDistances = max(inputDistances, xSteps);
-                candidateDistances.ga = min(neighborDistances.rb, neighborDistances.ga);
-                candidateDistances.rb = neighborDistances.rb;
-
-            `:`
-                xSteps.rb = ivec2(0);
-                xSteps.ga = ivec2(0 + xSign);
-
-                neighborDistances = max(inputDistances, xSteps);
-                candidateDistances.ga = neighborDistances.ga;
-                candidateDistances.rb = min(neighborDistances.rb, neighborDistances.ga);
-            `}
-
+            
+            candidateDistances = max(inputDistances.grab, 1);
             outputDistances = min(outputDistances, candidateDistances);
+
             if (mmax(outputDistances) <= 1) 
             {
                 setOutput(vec4(outputDistances));
                 return;
             }
-            
+
             for (int xStep = 2; xStep <= ${maxSteps}; xStep += 2) 
             {
-                inputCoords.x = outputCoords.x + xStep * xSign;
-                if (outsideWidth(inputCoords)) 
+                inputCoords.x = outputCoords.x - xStep;
+                if (inputCoords.x >= 0) 
+                {                    
+                    inputDistances = getInputDistances(inputCoords);
+
+                    xSteps.rb = ivec2(xStep);
+                    xSteps.ga = ivec2(xStep - 1);
+
+                    neighborDistances = max(inputDistances, xSteps);
+                    candidateDistances.rb = min(neighborDistances.rb, neighborDistances.ga);
+
+                    xSteps.rb = ivec2(xStep + 1);
+                    xSteps.ga = ivec2(xStep);
+
+                    neighborDistances = max(inputDistances, xSteps);
+                    candidateDistances.ga = min(neighborDistances.rb, neighborDistances.ga); 
+
+                    outputDistances = min(outputDistances, candidateDistances);
+                }
+                
+                inputCoords.x = outputCoords.x + xStep;
+                if (inputCoords.x <= ${inWidth-1}) 
                 {
-                    break;                    
+                    inputDistances = getInputDistances(inputCoords);
+                 
+                    xSteps.rb = ivec2(xStep);
+                    xSteps.ga = ivec2(xStep + 1);
+
+                    neighborDistances = max(inputDistances, xSteps);
+                    candidateDistances.rb = min(neighborDistances.rb, neighborDistances.ga); 
+
+                    xSteps.rb = ivec2(xStep - 1);
+                    xSteps.ga = ivec2(xStep);
+
+                    neighborDistances = max(inputDistances, xSteps);
+                    candidateDistances.ga = min(neighborDistances.rb, neighborDistances.ga);
+
+                    outputDistances = min(outputDistances, candidateDistances);
                 }
 
-                inputDistances = getInputDistances(inputCoords);
-
-                xSteps.rb = ivec2(xStep - xSign);
-                xSteps.ga = ivec2(xStep);
-
-                neighborDistances = max(inputDistances, xSteps);
-                candidateDistances.ga = min(neighborDistances.rb, neighborDistances.ga); 
-
-                xSteps.rb = ivec2(xStep);
-                xSteps.ga = ivec2(xStep + xSign);
-
-                neighborDistances = max(inputDistances, xSteps);
-                candidateDistances.rb = min(neighborDistances.rb, neighborDistances.ga);
-
-                outputDistances = min(outputDistances, candidateDistances);
                 if (mmax(outputDistances) <= xStep + 1) 
                 {
                     break;
@@ -126,13 +120,13 @@ class FirstExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram
     constructor
     (
         inputShape: [number, number, number], 
-        inputSign: '-' | '+',
         maxDistance: number,
     ) 
-    {
-        const [inDepth, inHeight, inWidth] = inputShape; 
+    {        
+        const [inDepth, inHeight, inWidth] = inputShape
         const ceilToEven = (x: number) => Math.ceil(x / 2) * 2
-        const maxSteps = ceilToEven(Math.min(maxDistance, inHeight - 1))
+        const maxSteps = ceilToEven(Math.min(maxDistance, inHeight-1))
+        this.outputShape = [inDepth, inHeight, inWidth]
         this.outputShape = [inDepth, inHeight, inWidth]
         this.userCode = `        
         ivec4 getDistancesFromOccupancies(vec4 occupancies)
@@ -145,45 +139,23 @@ class FirstExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram
             return getDistancesFromOccupancies(getInputOccupancies(coords.z, coords.y, coords.x));
         }
 
-        bool outsideHeight(ivec3 coords)
-        {
-            return (coords.y < 0) || (coords.y > ${inHeight-1});
-        }
-
         int mmax(ivec4 distances) 
         { 
             return max(max(distances.x, distances.y), max(distances.z, distances.w)); 
         }
 
-        const int ySign = ${inputSign} 1;
-
         void main() 
         {
             ivec3 outputCoords = getOutputCoords().zyx;
-            ivec3 inputCoords = outputCoords;    
-
+            ivec3 inputCoords = outputCoords;
+            
+            ivec4 ySteps, neighborDistances, candidateDistances;
             ivec4 inputDistances = getInputDistances(inputCoords);
             ivec4 outputDistances = inputDistances;
-            ivec4 neighborDistances, candidateDistances, ySteps;
-
-            ${inputSign == '-' ? 
-            `   
-                ySteps.rg = ivec2(0 - ySign);
-                ySteps.ba = ivec2(0);
-
-                neighborDistances = max(inputDistances, ySteps);
-                candidateDistances.ba = min(neighborDistances.rg, neighborDistances.ba);
-                candidateDistances.rg = neighborDistances.rg;
-            `:`
-                ySteps.rg = ivec2(0);
-                ySteps.ba = ivec2(0 + ySign);
-
-                neighborDistances = max(inputDistances, ySteps);
-                candidateDistances.ba = neighborDistances.ba;
-                candidateDistances.rg = min(neighborDistances.rg, neighborDistances.ba);
-            `}
-
+            
+            candidateDistances = max(inputDistances.barg, 1);
             outputDistances = min(outputDistances, candidateDistances);
+
             if (mmax(outputDistances) <= 1) 
             {
                 setOutput(vec4(outputDistances));
@@ -192,27 +164,46 @@ class FirstExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram
 
             for (int yStep = 2; yStep <= ${maxSteps}; yStep += 2) 
             {
-                inputCoords.y = outputCoords.y + yStep * ySign;
-                if (outsideHeight(inputCoords)) 
-                {
-                    break;   
+                inputCoords.y = outputCoords.y - yStep;
+                if (inputCoords.y >= 0) 
+                {   
+                    inputDistances = getInputDistances(inputCoords);
+
+                    ySteps.rg = ivec2(yStep);
+                    ySteps.ba = ivec2(yStep - 1);
+                    
+                    neighborDistances = max(inputDistances, ySteps);
+                    candidateDistances.rg = min(neighborDistances.rg, neighborDistances.ba);
+
+                    ySteps.rg = ivec2(yStep + 1);
+                    ySteps.ba = ivec2(yStep);
+
+                    neighborDistances = max(inputDistances, ySteps);
+                    candidateDistances.ba = min(neighborDistances.rg, neighborDistances.ba);
+                    
+                    outputDistances = min(outputDistances, candidateDistances);
                 }
                 
-                inputDistances = getInputDistances(inputCoords);
+                inputCoords.y = outputCoords.y + yStep;
+                if (inputCoords.y <= ${inHeight-1}) 
+                {
+                    inputDistances = getInputDistances(inputCoords);
 
-                ySteps.rg = ivec2(yStep - ySign);
-                ySteps.ba = ivec2(yStep);
+                    ySteps.rg = ivec2(yStep - 1);
+                    ySteps.ba = ivec2(yStep);
 
-                neighborDistances = max(inputDistances, ySteps);
-                candidateDistances.ba = min(neighborDistances.rg, neighborDistances.ba);
+                    neighborDistances = max(inputDistances, ySteps);
+                    candidateDistances.ba = min(neighborDistances.rg, neighborDistances.ba);
 
-                ySteps.rg = ivec2(yStep);
-                ySteps.ba = ivec2(yStep + ySign);
+                    ySteps.rg = ivec2(yStep);
+                    ySteps.ba = ivec2(yStep + 1);
 
-                neighborDistances = max(inputDistances, ySteps);
-                candidateDistances.rg = min(neighborDistances.rg, neighborDistances.ba);
-                
-                outputDistances = min(outputDistances, candidateDistances);
+                    neighborDistances = max(inputDistances, ySteps);
+                    candidateDistances.rg = min(neighborDistances.rg, neighborDistances.ba);
+                 
+                    outputDistances = min(outputDistances, candidateDistances);
+                }
+
                 if (mmax(outputDistances) <= yStep + 1) 
                 {
                     break;
@@ -237,13 +228,13 @@ class SecondExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram
     constructor
     (
         inputShape: [number, number, number], 
-        inputSign: '-' | '+',
         maxDistance: number,
     ) 
-    {
-        const [inDepth, inHeight, inWidth] = inputShape; 
+    {        
+        const [inDepth, inHeight, inWidth] = inputShape
         const ceilToEven = (x: number) => Math.ceil(x / 2) * 2
-        const maxSteps = ceilToEven(Math.min(maxDistance, inHeight - 1))
+        const maxSteps = ceilToEven(Math.min(maxDistance, inHeight-1))
+        this.outputShape = [inDepth, inHeight, inWidth]
         this.outputShape = [inDepth, inHeight, inWidth]
         this.userCode = `        
         ivec4 getInputDistances(ivec3 coords) 
@@ -251,45 +242,23 @@ class SecondExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram
             return ivec4(getInputDistances(coords.z, coords.y, coords.x)); 
         }
 
-        bool outsideHeight(ivec3 coords)
-        {
-            return (coords.y < 0) || (coords.y > ${inHeight-1});
-        }
-
         int mmax(ivec4 distances) 
         { 
             return max(max(distances.x, distances.y), max(distances.z, distances.w)); 
         }
 
-        const int ySign = ${inputSign} 1;
-
         void main() 
         {
             ivec3 outputCoords = getOutputCoords().zyx;
-            ivec3 inputCoords = outputCoords;    
-
+            ivec3 inputCoords = outputCoords;
+            
+            ivec4 ySteps, neighborDistances, candidateDistances;
             ivec4 inputDistances = getInputDistances(inputCoords);
             ivec4 outputDistances = inputDistances;
-            ivec4 neighborDistances, candidateDistances, ySteps;
-
-            ${inputSign == '-' ? 
-            `   
-                ySteps.rg = ivec2(0 - ySign);
-                ySteps.ba = ivec2(0);
-
-                neighborDistances = max(inputDistances, ySteps);
-                candidateDistances.ba = min(neighborDistances.rg, neighborDistances.ba);
-                candidateDistances.rg = neighborDistances.rg;
-            `:`
-                ySteps.rg = ivec2(0);
-                ySteps.ba = ivec2(0 + ySign);
-
-                neighborDistances = max(inputDistances, ySteps);
-                candidateDistances.ba = neighborDistances.ba;
-                candidateDistances.rg = min(neighborDistances.rg, neighborDistances.ba);
-            `}
-
+            
+            candidateDistances = max(inputDistances.barg, 1);
             outputDistances = min(outputDistances, candidateDistances);
+
             if (mmax(outputDistances) <= 1) 
             {
                 setOutput(vec4(outputDistances));
@@ -298,27 +267,46 @@ class SecondExtendedIsotropicChebyshevDistancePassY implements GPGPUProgram
 
             for (int yStep = 2; yStep <= ${maxSteps}; yStep += 2) 
             {
-                inputCoords.y = outputCoords.y + yStep * ySign;
-                if (outsideHeight(inputCoords)) 
-                {
-                    break;   
+                inputCoords.y = outputCoords.y - yStep;
+                if (inputCoords.y >= 0) 
+                {   
+                    inputDistances = getInputDistances(inputCoords);
+
+                    ySteps.rg = ivec2(yStep);
+                    ySteps.ba = ivec2(yStep - 1);
+                    
+                    neighborDistances = max(inputDistances, ySteps);
+                    candidateDistances.rg = min(neighborDistances.rg, neighborDistances.ba);
+
+                    ySteps.rg = ivec2(yStep + 1);
+                    ySteps.ba = ivec2(yStep);
+
+                    neighborDistances = max(inputDistances, ySteps);
+                    candidateDistances.ba = min(neighborDistances.rg, neighborDistances.ba);
+                    
+                    outputDistances = min(outputDistances, candidateDistances);
                 }
                 
-                inputDistances = getInputDistances(inputCoords);
+                inputCoords.y = outputCoords.y + yStep;
+                if (inputCoords.y <= ${inHeight-1}) 
+                {
+                    inputDistances = getInputDistances(inputCoords);
 
-                ySteps.rg = ivec2(yStep - ySign);
-                ySteps.ba = ivec2(yStep);
+                    ySteps.rg = ivec2(yStep - 1);
+                    ySteps.ba = ivec2(yStep);
 
-                neighborDistances = max(inputDistances, ySteps);
-                candidateDistances.ba = min(neighborDistances.rg, neighborDistances.ba);
+                    neighborDistances = max(inputDistances, ySteps);
+                    candidateDistances.ba = min(neighborDistances.rg, neighborDistances.ba);
 
-                ySteps.rg = ivec2(yStep);
-                ySteps.ba = ivec2(yStep + ySign);
+                    ySteps.rg = ivec2(yStep);
+                    ySteps.ba = ivec2(yStep + 1);
 
-                neighborDistances = max(inputDistances, ySteps);
-                candidateDistances.rg = min(neighborDistances.rg, neighborDistances.ba);
-                
-                outputDistances = min(outputDistances, candidateDistances);
+                    neighborDistances = max(inputDistances, ySteps);
+                    candidateDistances.rg = min(neighborDistances.rg, neighborDistances.ba);
+                 
+                    outputDistances = min(outputDistances, candidateDistances);
+                }
+
                 if (mmax(outputDistances) <= yStep + 1) 
                 {
                     break;
@@ -343,12 +331,11 @@ class SecondExtendedIsotropicChebyshevDistancePassZ implements GPGPUProgram
     constructor
     (
         inputShape: [number, number, number], 
-        inputSign: '-' | '+',
         maxDistance: number,
     ) 
     {
         const [inDepth, inHeight, inWidth] = inputShape
-        const maxSteps = Math.min(maxDistance, inDepth - 1)
+        const maxSteps = Math.min(maxDistance, inDepth-1)
         this.outputShape = [inDepth, inHeight, inWidth]
         this.userCode = `
         ivec4 getInputDistances(ivec3 coords) 
@@ -356,17 +343,10 @@ class SecondExtendedIsotropicChebyshevDistancePassZ implements GPGPUProgram
             return ivec4(getInputDistances(coords.z, coords.y, coords.x)); 
         }
 
-        bool outsideDepth(ivec3 coords)
-        {
-            return (coords.z < 0) || (coords.z > ${inDepth-1});
-        }
-
         int mmax(ivec4 distances) 
         { 
             return max(max(distances.x, distances.y), max(distances.z, distances.w)); 
         }
-
-        const int zSign = ${inputSign} 1;
 
         void main() 
         {
@@ -385,19 +365,30 @@ class SecondExtendedIsotropicChebyshevDistancePassZ implements GPGPUProgram
 
             for (int zStep = 1; zStep <= ${maxSteps}; zStep++) 
             {
-                inputCoords.z = outputCoords.z + zStep * zSign;
-                if (outsideDepth(inputCoords))
+                inputCoords.z = outputCoords.z - zStep;
+                if (inputCoords.z >= 0) 
                 {
-                    break;
+                    inputDistances = getInputDistances(inputCoords);
+                    candidateDistances = max(inputDistances, zStep);
+                    outputDistances = min(outputDistances, candidateDistances);
+
+                    if (mmax(outputDistances) <= zStep) 
+                    {
+                        break;
+                    }
                 }
 
-                inputDistances = getInputDistances(inputCoords);
-                candidateDistances = max(inputDistances, zStep);
-
-                outputDistances = min(outputDistances, candidateDistances); 
-                if (mmax(outputDistances) <= zStep + 1) 
+                inputCoords.z = outputCoords.z + zStep;
+                if (inputCoords.z < ${inDepth}) 
                 {
-                    break;
+                    inputDistances = getInputDistances(inputCoords);
+                    candidateDistances = max(inputDistances, zStep);
+                    outputDistances = min(outputDistances, candidateDistances);
+                    
+                    if (mmax(outputDistances) <= zStep) 
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -658,33 +649,44 @@ class ThirdExtendedIsotropicChebyshevDistancePassZ implements GPGPUProgram
     }
 }
 
-class FourthExtendedIsotropicChessDistancePass implements GPGPUProgram 
+class ExtendedIsotropicChebyshevDistancePass2 implements GPGPUProgram 
 {
-    variableNames = ['InputXDistances', 'InputYDistances', 'InputZDistances', 'InputOccupancies']
+    variableNames = ['XDistance', 'YDistance', 'ZDistance', 'Occupancy']
     outputShape: number[]
     userCode: string
-    packedInputs = true
-    packedOutput = true
+    packedInputs = false
+    packedOutput = false
 
     constructor(inputShape: [number, number, number]) 
     {
         const [inDepth, inHeight, inWidth] = inputShape
         this.outputShape = [inDepth, inHeight, inWidth]
         this.userCode = `
+        uint pack5551(uint x, uint y, uint z, uint o)
+        {
+            uint up16 = 
+            ((x & 0x1Fu) << 11) |
+            ((y & 0x1Fu) <<  6) |
+            ((z & 0x1Fu) <<  1) |
+            ((o & 0x01u) <<  0);
+
+            return up16;
+        }
+
+        float uintHalfBitsToHalfFloat(uint packed)
+        {
+            return unpackHalf2x16(packed).r;
+        }
+
         void main() 
         {
-            ivec4 xDistances  = ivec4(getInputXDistancesAtOutCoords());
-            ivec4 yDistances  = ivec4(getInputYDistancesAtOutCoords());
-            ivec4 zDistances  = ivec4(getInputZDistancesAtOutCoords());
-            ivec4 occupancies = ivec4(getInputOccupanciesAtOutCoords());
-    
-            ivec4 outputDistances = 
-                clamp(xDistances,  0, 31) * 2048 + 
-                clamp(yDistances,  0, 31) * 64   + 
-                clamp(zDistances,  0, 31) * 2    + 
-                clamp(occupancies, 0,  1);
-
-            setOutput(vec4(outputDistances));
+            uint xDistance = uint(getXDistanceAtOutCoords());
+            uint yDistance = uint(getYDistanceAtOutCoords());
+            uint zDistance = uint(getZDistanceAtOutCoords());
+            uint occupancy = uint(getOccupancyAtOutCoords());
+            
+            uint packedOutput = pack5551(xDistance, yDistance, zDistance, occupancy);
+            setOutput(uintHalfBitsToHalfFloat(packedOutput));
         }
         `
     }
@@ -693,108 +695,50 @@ class FourthExtendedIsotropicChessDistancePass implements GPGPUProgram
 function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]) : tf.Tensor 
 {
     const backend = tf.backend() as MathBackendWebGL
-    return tf.engine().makeTensorFromTensorInfo(backend.compileAndRun(prog, inputs))
+    const info = backend.compileAndRun(prog, inputs)
+    return tf.engine().makeTensorFromTensorInfo(info) as tf.Tensor
 }
 
-export function computeExtendedIsotropicDistanceMap(inputOccupancy: tf.Tensor3D, maxDistance: number): tf.Tensor4D 
+export function computeExtendedIsotropicDistanceMap(inputOccupancy: tf.Tensor3D, maxDistance: number): tf.Tensor
 {
     const shape = inputOccupancy.shape
 
     // Programs
-    const firstPassX0  = new FirstExtendedIsotropicChebyshevDistancePassX(shape, '-', maxDistance)
-    const firstPassX1  = new FirstExtendedIsotropicChebyshevDistancePassX(shape, '+', maxDistance)
-    const firstPassY0  = new FirstExtendedIsotropicChebyshevDistancePassY(shape, '-', maxDistance)
-    const firstPassY1  = new FirstExtendedIsotropicChebyshevDistancePassY(shape, '+', maxDistance)
-    const secondPassY0 = new SecondExtendedIsotropicChebyshevDistancePassY(shape, '-', maxDistance)
-    const secondPassY1 = new SecondExtendedIsotropicChebyshevDistancePassY(shape, '+', maxDistance)
-    const secondPassZ0 = new SecondExtendedIsotropicChebyshevDistancePassZ(shape, '-', maxDistance)
-    const secondPassZ1 = new SecondExtendedIsotropicChebyshevDistancePassZ(shape, '+', maxDistance)
-    const thirdPassX0  = new ThirdExtendedIsotropicChebyshevDistancePassX(shape, '-', maxDistance)
-    const thirdPassX1  = new ThirdExtendedIsotropicChebyshevDistancePassX(shape, '+', maxDistance)
-    const thirdPassY0  = new ThirdExtendedIsotropicChebyshevDistancePassY(shape, '-', maxDistance)
-    const thirdPassY1  = new ThirdExtendedIsotropicChebyshevDistancePassY(shape, '+', maxDistance)
-    const thirdPassZ0  = new ThirdExtendedIsotropicChebyshevDistancePassZ(shape, '-', maxDistance)
-    const thirdPassZ1  = new ThirdExtendedIsotropicChebyshevDistancePassZ(shape, '+', maxDistance)
-    const fourthPass   = new FourthExtendedIsotropicChessDistancePass(shape)
+    const firstPassX  = new FirstExtendedIsotropicChebyshevDistancePassX(shape, maxDistance)
+    const firstPassY  = new FirstExtendedIsotropicChebyshevDistancePassY(shape, maxDistance)
+    const secondPassY = new SecondExtendedIsotropicChebyshevDistancePassY(shape, maxDistance)
+    const secondPassZ = new SecondExtendedIsotropicChebyshevDistancePassZ(shape,  maxDistance)
+    const thirdPassX0 = new ThirdExtendedIsotropicChebyshevDistancePassX(shape, '-', maxDistance)
+    const thirdPassX1 = new ThirdExtendedIsotropicChebyshevDistancePassX(shape, '+', maxDistance)
+    const thirdPassY0 = new ThirdExtendedIsotropicChebyshevDistancePassY(shape, '-', maxDistance)
+    const thirdPassY1 = new ThirdExtendedIsotropicChebyshevDistancePassY(shape, '+', maxDistance)
+    const thirdPassZ0 = new ThirdExtendedIsotropicChebyshevDistancePassZ(shape, '-', maxDistance)
+    const thirdPassZ1 = new ThirdExtendedIsotropicChebyshevDistancePassZ(shape, '+', maxDistance)
+    const fourthPass  = new ExtendedIsotropicChebyshevDistancePass2(shape)
 
     // 1D
-    const distance_X0 = runProgram(firstPassX0, [inputOccupancy])
-    const distance_X1 = runProgram(firstPassX1, [inputOccupancy])
-    const distance_Y0 = runProgram(firstPassY0, [inputOccupancy])
-    const distance_Y1 = runProgram(firstPassY1, [inputOccupancy])
+    const distance_X = runProgram(firstPassX, [inputOccupancy])
+    const distance_Y = runProgram(firstPassY, [inputOccupancy])
 
     // 2D
-    const distance_XY00 = runProgram(secondPassY0, [distance_X0]);
-    const distance_XY01 = runProgram(secondPassY1, [distance_X0]); 
-    const distance_XZ00 = runProgram(secondPassZ0, [distance_X0]);
-    const distance_XZ01 = runProgram(secondPassZ1, [distance_X0]); tf.dispose(distance_X0)
-    const distance_XY10 = runProgram(secondPassY0, [distance_X1]);
-    const distance_XY11 = runProgram(secondPassY1, [distance_X1]); 
-    const distance_XZ10 = runProgram(secondPassZ0, [distance_X1]);
-    const distance_XZ11 = runProgram(secondPassZ1, [distance_X1]); tf.dispose(distance_X1)
-    const distance_YZ00 = runProgram(secondPassZ0, [distance_Y0]);
-    const distance_YZ01 = runProgram(secondPassZ1, [distance_Y0]); tf.dispose(distance_Y0)
-    const distance_YZ10 = runProgram(secondPassZ0, [distance_Y1]);
-    const distance_YZ11 = runProgram(secondPassZ1, [distance_Y1]); tf.dispose(distance_Y1)
+    const distance_XY = runProgram(secondPassY, [distance_X]);
+    const distance_XZ = runProgram(secondPassZ, [distance_X]); tf.dispose(distance_X)
+    const distance_YZ = runProgram(secondPassZ, [distance_Y]); tf.dispose(distance_Y)
 
     // 3D
-    const distanceX_XYZ000 = runProgram(thirdPassX0, [distance_YZ00]);
-    const distanceX_XYZ100 = runProgram(thirdPassX1, [distance_YZ00]); tf.dispose(distance_YZ00)
-    const distanceX_XYZ001 = runProgram(thirdPassX0, [distance_YZ01]);
-    const distanceX_XYZ101 = runProgram(thirdPassX1, [distance_YZ01]); tf.dispose(distance_YZ01)
-    const distanceX_XYZ010 = runProgram(thirdPassX0, [distance_YZ10]);
-    const distanceX_XYZ110 = runProgram(thirdPassX1, [distance_YZ10]); tf.dispose(distance_YZ10)
-    const distanceX_XYZ011 = runProgram(thirdPassX0, [distance_YZ11]);
-    const distanceX_XYZ111 = runProgram(thirdPassX1, [distance_YZ11]); tf.dispose(distance_YZ11)
-    const distanceY_XYZ000 = runProgram(thirdPassY0, [distance_XZ00]);
-    const distanceY_XYZ010 = runProgram(thirdPassY1, [distance_XZ00]); tf.dispose(distance_XZ00)
-    const distanceY_XYZ001 = runProgram(thirdPassY0, [distance_XZ01]);
-    const distanceY_XYZ011 = runProgram(thirdPassY1, [distance_XZ01]); tf.dispose(distance_XZ01)
-    const distanceY_XYZ100 = runProgram(thirdPassY0, [distance_XZ10]);
-    const distanceY_XYZ110 = runProgram(thirdPassY1, [distance_XZ10]); tf.dispose(distance_XZ10)
-    const distanceY_XYZ101 = runProgram(thirdPassY0, [distance_XZ11]);
-    const distanceY_XYZ111 = runProgram(thirdPassY1, [distance_XZ11]); tf.dispose(distance_XZ11)
-    const distanceZ_XYZ000 = runProgram(thirdPassZ0, [distance_XY00]);
-    const distanceZ_XYZ001 = runProgram(thirdPassZ1, [distance_XY00]); tf.dispose(distance_XY00)
-    const distanceZ_XYZ010 = runProgram(thirdPassZ0, [distance_XY01]);
-    const distanceZ_XYZ011 = runProgram(thirdPassZ1, [distance_XY01]); tf.dispose(distance_XY01)
-    const distanceZ_XYZ100 = runProgram(thirdPassZ0, [distance_XY10]);
-    const distanceZ_XYZ101 = runProgram(thirdPassZ1, [distance_XY10]); tf.dispose(distance_XY10)
-    const distanceZ_XYZ110 = runProgram(thirdPassZ0, [distance_XY11]);
-    const distanceZ_XYZ111 = runProgram(thirdPassZ1, [distance_XY11]); tf.dispose(distance_XY11)
+    const distanceX0_XYZ = runProgram(thirdPassX0, [distance_YZ]);
+    const distanceX1_XYZ = runProgram(thirdPassX1, [distance_YZ]); tf.dispose(distance_YZ)
+    const distanceY0_XYZ = runProgram(thirdPassY0, [distance_XZ]);
+    const distanceY1_XYZ = runProgram(thirdPassY1, [distance_XZ]); tf.dispose(distance_XZ)
+    const distanceZ0_XYZ = runProgram(thirdPassZ0, [distance_XY]);
+    const distanceZ1_XYZ = runProgram(thirdPassZ1, [distance_XY]); tf.dispose(distance_XY)
 
     // Packing
-    const distancesXYZ_XYZ000 = runProgram(fourthPass, [distanceX_XYZ000, distanceY_XYZ000, distanceZ_XYZ000, inputOccupancy]);  tf.dispose([distanceX_XYZ000, distanceY_XYZ000, distanceZ_XYZ000])
-    const distancesXYZ_XYZ001 = runProgram(fourthPass, [distanceX_XYZ001, distanceY_XYZ001, distanceZ_XYZ001, inputOccupancy]);  tf.dispose([distanceX_XYZ001, distanceY_XYZ001, distanceZ_XYZ001])
-    const distancesXYZ_XYZ010 = runProgram(fourthPass, [distanceX_XYZ010, distanceY_XYZ010, distanceZ_XYZ010, inputOccupancy]);  tf.dispose([distanceX_XYZ010, distanceY_XYZ010, distanceZ_XYZ010])
-    const distancesXYZ_XYZ011 = runProgram(fourthPass, [distanceX_XYZ011, distanceY_XYZ011, distanceZ_XYZ011, inputOccupancy]);  tf.dispose([distanceX_XYZ011, distanceY_XYZ011, distanceZ_XYZ011])
-    const distancesXYZ_XYZ100 = runProgram(fourthPass, [distanceX_XYZ100, distanceY_XYZ100, distanceZ_XYZ100, inputOccupancy]);  tf.dispose([distanceX_XYZ100, distanceY_XYZ100, distanceZ_XYZ100])
-    const distancesXYZ_XYZ101 = runProgram(fourthPass, [distanceX_XYZ101, distanceY_XYZ101, distanceZ_XYZ101, inputOccupancy]);  tf.dispose([distanceX_XYZ101, distanceY_XYZ101, distanceZ_XYZ101])
-    const distancesXYZ_XYZ110 = runProgram(fourthPass, [distanceX_XYZ110, distanceY_XYZ110, distanceZ_XYZ110, inputOccupancy]);  tf.dispose([distanceX_XYZ110, distanceY_XYZ110, distanceZ_XYZ110])
-    const distancesXYZ_XYZ111 = runProgram(fourthPass, [distanceX_XYZ111, distanceY_XYZ111, distanceZ_XYZ111, inputOccupancy]);  tf.dispose([distanceX_XYZ111, distanceY_XYZ111, distanceZ_XYZ111])
+    const distances_X0_Y0_Z0_XYZ = runProgram(fourthPass, [distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, inputOccupancy]); tf.dispose([distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, inputOccupancy])
+    const distances_X1_Y1_Z1_XYZ = runProgram(fourthPass, [distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy]); tf.dispose([distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy])
 
-    // Concatenate 
-    const distancesXYZ_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111 = tf.stack([
-        distancesXYZ_XYZ000,
-        distancesXYZ_XYZ100,
-        distancesXYZ_XYZ010,
-        distancesXYZ_XYZ110,
-        distancesXYZ_XYZ001,
-        distancesXYZ_XYZ101,
-        distancesXYZ_XYZ011,
-        distancesXYZ_XYZ111,
-    ], 0)
-
-    tf.dispose([
-        distancesXYZ_XYZ000,
-        distancesXYZ_XYZ100,
-        distancesXYZ_XYZ010,
-        distancesXYZ_XYZ110,
-        distancesXYZ_XYZ001,
-        distancesXYZ_XYZ101,
-        distancesXYZ_XYZ011,
-        distancesXYZ_XYZ111,
-    ])
-            
-    return distancesXYZ_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111 as tf.Tensor4D
+    const distances_X0_Y0_Z0_X1_Y1_Z1_XYZ = tf.stack([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ], -1)
+    tf.dispose([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ])
+    
+    return distances_X0_Y0_Z0_X1_Y1_Z1_XYZ as tf.Tensor3D
 }
