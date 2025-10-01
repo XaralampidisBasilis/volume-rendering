@@ -80,6 +80,7 @@ class ExtendedIsotropicChebyshevDistancePass0 implements GPGPUProgram
     }
 }
 
+
 class ExtendedIsotropicChebyshevDistancePass1 implements GPGPUProgram 
 {
     variableNames = ['InputDistance']
@@ -144,6 +145,7 @@ class ExtendedIsotropicChebyshevDistancePass1 implements GPGPUProgram
         `
     }
 }
+
 
 class ExtendedIsotropicChebyshevDistancePass2 implements GPGPUProgram 
 {
@@ -229,12 +231,11 @@ export function computeExtendedIsotropicDistanceMap(inputOccupancy: tf.Tensor3D,
     const distanceZ0_XYZ = runProgram(thirdPassZ0, [distance_XY]);
     const distanceZ1_XYZ = runProgram(thirdPassZ1, [distance_XY]); tf.dispose(distance_XY)
 
-    // Packing
-    const distances_X0_Y0_Z0_XYZ = runProgram(fourthPass, [distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, inputOccupancy]); tf.dispose([distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, inputOccupancy])
-    const distances_X1_Y1_Z1_XYZ = runProgram(fourthPass, [distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy]); tf.dispose([distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy])
+    // Pack distances
+    const distances_X0_Y0_Z0_XYZ = runProgram(fourthPass, [distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, inputOccupancy]); tf.dispose([distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ])
+    const distances_X1_Y1_Z1_XYZ = runProgram(fourthPass, [distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy]); tf.dispose([distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ])
 
-    const distances_X0_Y0_Z0_X1_Y1_Z1_XYZ = tf.stack([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ], -1)
-    tf.dispose([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ])
-    
+    // Stack channels
+    const distances_X0_Y0_Z0_X1_Y1_Z1_XYZ = tf.stack([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ], 3); tf.dispose([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ])
     return distances_X0_Y0_Z0_X1_Y1_Z1_XYZ as tf.Tensor3D
 }

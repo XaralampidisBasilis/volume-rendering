@@ -649,43 +649,48 @@ class ThirdExtendedIsotropicChebyshevDistancePassZ implements GPGPUProgram
     }
 }
 
-class ExtendedIsotropicChebyshevDistancePass2 implements GPGPUProgram 
+class FourthExtendedAnisotropicChessDistancePass implements GPGPUProgram 
 {
-    variableNames = ['XDistance', 'YDistance', 'ZDistance', 'Occupancy']
+    variableNames = ['XDistances', 'YDistances', 'ZDistances', 'Occupancies']
     outputShape: number[]
     userCode: string
-    packedInputs = false
-    packedOutput = false
+    packedInputs = true
+    packedOutput = true
 
     constructor(inputShape: [number, number, number]) 
     {
         const [inDepth, inHeight, inWidth] = inputShape
         this.outputShape = [inDepth, inHeight, inWidth]
         this.userCode = `
-        uint pack5551(uint x, uint y, uint z, uint o)
+        uvec4 pack5551(uvec4 x, uvec4 y, uvec4 z, uvec4 o) 
         {
-            uint up16 = 
-            ((x & 0x1Fu) << 11) |
-            ((y & 0x1Fu) <<  6) |
-            ((z & 0x1Fu) <<  1) |
-            ((o & 0x01u) <<  0);
+            uvec4 up16 = 
+            (clamp(x, 0u, 31u) * 2048u) |
+            (clamp(y, 0u, 31u) *   64u) |
+            (clamp(z, 0u, 31u) *    2u) |
+            (clamp(o, 0u,  1u) *    1u);
 
             return up16;
         }
-
-        float uintHalfBitsToHalfFloat(uint packed)
+            
+        vec4 uintHalfBitsToHalfFloat(uvec4 packed)
         {
-            return unpackHalf2x16(packed).r;
+            return vec4(
+                unpackHalf2x16(packed.x).r,
+                unpackHalf2x16(packed.y).r,
+                unpackHalf2x16(packed.z).r,
+                unpackHalf2x16(packed.w).r
+            );
         }
 
         void main() 
         {
-            uint xDistance = uint(getXDistanceAtOutCoords());
-            uint yDistance = uint(getYDistanceAtOutCoords());
-            uint zDistance = uint(getZDistanceAtOutCoords());
-            uint occupancy = uint(getOccupancyAtOutCoords());
-            
-            uint packedOutput = pack5551(xDistance, yDistance, zDistance, occupancy);
+            uvec4 xDistances  = uvec4(getXDistancesAtOutCoords());
+            uvec4 yDistances  = uvec4(getYDistancesAtOutCoords());
+            uvec4 zDistances  = uvec4(getZDistancesAtOutCoords());
+            uvec4 occupancies = uvec4(getOccupanciesAtOutCoords());
+    
+            uvec4 packedOutput = pack5551(xDistances, yDistances, zDistances, occupancies);
             setOutput(uintHalfBitsToHalfFloat(packedOutput));
         }
         `
@@ -714,7 +719,7 @@ export function computeExtendedIsotropicDistanceMap(inputOccupancy: tf.Tensor3D,
     const thirdPassY1 = new ThirdExtendedIsotropicChebyshevDistancePassY(shape, '+', maxDistance)
     const thirdPassZ0 = new ThirdExtendedIsotropicChebyshevDistancePassZ(shape, '-', maxDistance)
     const thirdPassZ1 = new ThirdExtendedIsotropicChebyshevDistancePassZ(shape, '+', maxDistance)
-    const fourthPass  = new ExtendedIsotropicChebyshevDistancePass2(shape)
+    const fourthPass  = new FourthExtendedAnisotropicChessDistancePass(shape)
 
     // 1D
     const distance_X = runProgram(firstPassX, [inputOccupancy])
@@ -733,12 +738,11 @@ export function computeExtendedIsotropicDistanceMap(inputOccupancy: tf.Tensor3D,
     const distanceZ0_XYZ = runProgram(thirdPassZ0, [distance_XY]);
     const distanceZ1_XYZ = runProgram(thirdPassZ1, [distance_XY]); tf.dispose(distance_XY)
 
-    // Packing
-    const distances_X0_Y0_Z0_XYZ = runProgram(fourthPass, [distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, inputOccupancy]); tf.dispose([distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, inputOccupancy])
-    const distances_X1_Y1_Z1_XYZ = runProgram(fourthPass, [distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy]); tf.dispose([distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy])
-
-    const distances_X0_Y0_Z0_X1_Y1_Z1_XYZ = tf.stack([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ], -1)
-    tf.dispose([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ])
+    // Pack distances
+    const distances_X0_Y0_Z0_XYZ = runProgram(fourthPass, [distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ, inputOccupancy]); tf.dispose([distanceX0_XYZ, distanceY0_XYZ, distanceZ0_XYZ])
+    const distances_X1_Y1_Z1_XYZ = runProgram(fourthPass, [distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy]); tf.dispose([distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ])
     
+    // Stack channels
+    const distances_X0_Y0_Z0_X1_Y1_Z1_XYZ = tf.stack([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ], -1); tf.dispose([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ])
     return distances_X0_Y0_Z0_X1_Y1_Z1_XYZ as tf.Tensor3D
 }

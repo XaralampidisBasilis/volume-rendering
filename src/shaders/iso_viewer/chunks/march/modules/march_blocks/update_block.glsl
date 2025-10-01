@@ -19,3 +19,8 @@
     #include "./update_block/update_block_extended"
 
 #endif    
+#if SKIPPING_METHOD == 4
+
+    #include "./update_block/update_block_extended_isotropic"
+
+#endif    

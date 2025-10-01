@@ -7,6 +7,7 @@ import ExtremaMap from './Maps/ExtremaMap'
 import OccupancyMap from './Maps/OccupancyMap'
 import IsotropicDistanceMap from './Maps/IsotropicDistanceMap'
 import AnisotropicDistanceMap from './Maps/AnisotropicDistanceMap'
+import ExtendedIsotropicDistanceMap from './Maps/ExtendedIsotropicDistanceMap'
 import ExtendedAnisotropicDistanceMap from './Maps/ExtendedAnisotropicDistanceMap'
 
 export default class Computes extends EventEmitter
@@ -39,6 +40,7 @@ export default class Computes extends EventEmitter
         this.occupancyMap = new OccupancyMap()
         this.isotropicDistanceMap = new IsotropicDistanceMap()
         this.anisotropicDistanceMap = new AnisotropicDistanceMap()
+        this.extendedIsotropicDistanceMap = new ExtendedIsotropicDistanceMap()
         this.extendedAnisotropicDistanceMap = new ExtendedAnisotropicDistanceMap()
         this.resolveDistanceMap()
     }
@@ -51,6 +53,9 @@ export default class Computes extends EventEmitter
         if (this.skippingMethod === 'anisotropicDistance')
             this.distanceMap = this.anisotropicDistanceMap
         
+        if (this.skippingMethod === 'extendedIsotropicDistance')
+            this.distanceMap = this.extendedIsotropicDistanceMap
+
         if (this.skippingMethod === 'extendedAnisotropicDistance')
             this.distanceMap = this.extendedAnisotropicDistanceMap
     }

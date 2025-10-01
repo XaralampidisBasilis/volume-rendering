@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
-import { computeExtendedIsotropicDistanceMap } from '../Programs/GPGPUExtendedIsotropicDistanceMapPacked'
+import { computeExtendedIsotropicDistanceMap } from '../Programs/GPGPUExtendedIsotropicDistanceMap'
 import { toHalfFloat, fromHalfFloat } from '../../Utils/DataUtils'
 
 export default class ExtendedIsotropicDistanceMap
@@ -28,7 +28,7 @@ export default class ExtendedIsotropicDistanceMap
         console.time('computeTexture@ExtendedIsotropicDistanceMap') 
         this.texture = new THREE.Data3DTexture(this.textureData, ...this.dimensions)
         this.texture.format = THREE.RGIntegerFormat
-        this.texture.type = THREE.UnsignedIntType
+        this.texture.type = THREE.UnsignedShortType
         this.texture.internalFormat = 'RG16UI'
         this.texture.minFilter = THREE.NearestFilter
         this.texture.magFilter = THREE.NearestFilter

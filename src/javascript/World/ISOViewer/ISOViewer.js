@@ -118,7 +118,7 @@ export default class ISOViewer extends EventEmitter
         else if (event.key === 'bernsteinEnabled'   ) this.onChangeBernsteinEnabled(event)
         else if (event.key === 'colormap'           ) this.onChangeColormap(event)
         
-        // console.log(this)
+        console.log(this)
     }
 
     onChangeIsosurfaceValue(event)

@@ -38,7 +38,6 @@ float mmax(float v[6])
     r = max(r, v[5]);
     return r;
 }
-
 vec2 mmax(mat2 A)
 {
     vec2 r;
