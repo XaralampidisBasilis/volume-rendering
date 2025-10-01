@@ -1,4 +1,3 @@
-// #include "./sample_colormaps"
 #include "./unpack_uint_5551"
 #include "./sample_occupancy"
 #include "./sample_value_trilinear"
@@ -7,6 +6,6 @@
 #include "./sample_residue_tricubic"
 #include "./sample_distance_isotropic"
 #include "./sample_distance_anisotropic"
-#include "./sample_distance_extended"
 #include "./sample_distance_extended_isotropic"
+#include "./sample_distance_extended_anisotropic"
 #include "./compute_gradient"

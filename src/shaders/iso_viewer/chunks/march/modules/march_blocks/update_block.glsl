@@ -16,11 +16,11 @@
 #endif
 #if SKIPPING_METHOD == 3
 
-    #include "./update_block/update_block_extended"
+    #include "./update_block/update_block_extended_isotropic"
 
 #endif    
 #if SKIPPING_METHOD == 4
 
-    #include "./update_block/update_block_extended_isotropic"
+    #include "./update_block/update_block_extended_anisotropic"
 
 #endif    

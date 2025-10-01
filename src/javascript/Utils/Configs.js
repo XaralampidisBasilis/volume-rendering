@@ -25,8 +25,8 @@ export default class Configs extends EventEmitter
         'occupancy',
         'isotropicDistance',
         'anisotropicDistance',
-        'extendedAnisotropicDistance',
         'extendedIsotropicDistance',
+        'extendedAnisotropicDistance',
     ])
 
     constructor() 

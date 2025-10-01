@@ -7,7 +7,7 @@
 
 // Samples the extended distance texture at given coordinates and octant.
 // Returns 3-component distance vector and sets occupancy flag.
-ivec3 sample_distance_extended(in ivec3 block_coords, in int octant, out bool occupancy)
+ivec3 sample_distance_extended_anisotropic(in ivec3 block_coords, in int octant, out bool occupancy)
 {
     // Offset z to access the correct slab for the given octant.
     ivec3 slab_coords = block_coords;
