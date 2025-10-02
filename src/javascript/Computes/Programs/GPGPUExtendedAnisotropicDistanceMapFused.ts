@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs'
 import { GPGPUProgram } from '@tensorflow/tfjs-backend-webgl'
 import { MathBackendWebGL } from '@tensorflow/tfjs-backend-webgl'
-
+import { packUnsignedShort5551 } from './GPGPUPackUnsignedShort5551'
 
 class FirstExtendedAnisotropicChebyshevDistancePassX implements GPGPUProgram 
 {
@@ -541,49 +541,6 @@ class ThirdExtendedAnisotropicChebyshevDistancePassZ implements GPGPUProgram
     }
 }
 
-class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram 
-{
-    variableNames = ['XDistance', 'YDistance', 'ZDistance', 'Occupancy']
-    outputShape: number[]
-    userCode: string
-    packedInputs = false
-    packedOutput = false
-
-    constructor(inputShape: [number, number, number, number]) 
-    {
-        const [inBatch, inDepth, inHeight, inWidth] = inputShape; if (inBatch != 8) throw new Error('Batch dimension needs to be 8')
-        this.outputShape = [8, inDepth, inHeight, inWidth]
-        this.userCode = `
-        uint pack5551(uint x, uint y, uint z, uint o)
-        {
-            uint up16 = 
-            ((x & 0x1Fu) << 11) |
-            ((y & 0x1Fu) <<  6) |
-            ((z & 0x1Fu) <<  1) |
-            ((o & 0x01u) <<  0);
-
-            return up16;
-        }
-
-        float uintHalfBitsToHalfFloat(uint packed)
-        {
-            return unpackHalf2x16(packed).r;
-        }
-
-        void main() 
-        {
-            uint xDistance = uint(getXDistanceAtOutCoords());
-            uint yDistance = uint(getYDistanceAtOutCoords());
-            uint zDistance = uint(getZDistanceAtOutCoords());
-            uint occupancy = uint(getOccupancyAtOutCoords());
-
-            uint packedOutput = pack5551(xDistance, yDistance, zDistance, occupancy);
-            setOutput(float(packedOutput));
-        }
-        `
-    }
-}
-
 function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]) : tf.Tensor 
 {
     const backend = tf.backend() as MathBackendWebGL
@@ -623,13 +580,12 @@ export function computeExtendedAnisotropicDistanceMap(inputOccupancy: tf.Tensor3
     tf.dispose(distance_XY00_XY10_XY01_XY11)
 
     // Pack
-    const fourthPassXYZ = new FourthExtendedAnisotropicChessDistancePassXYZ(distanceX_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111.shape)
-    const distancesXYZ_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111 = runProgram(fourthPassXYZ, [
+    const distancesXYZ_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111 = packUnsignedShort5551(
         distanceX_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111,
         distanceY_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111,
         distanceZ_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111,
         inputOccupancy
-    ]) 
+    ) 
     tf.dispose([
         distanceX_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111,
         distanceY_XYZ000_XYZ100_XYZ010_XYZ110_XYZ001_XYZ101_XYZ011_XYZ111,
