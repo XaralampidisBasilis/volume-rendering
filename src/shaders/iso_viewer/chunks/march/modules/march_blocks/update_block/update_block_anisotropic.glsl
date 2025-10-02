@@ -4,12 +4,12 @@ block.skip_distance = sample_distance_anisotropic(block.coords, ray.octant, bloc
 block.skip_distance = max(block.skip_distance, 1);
 
 // compute min/max coords
-block.min_coords = (block.coords - block.skip_distance) + 1;
-block.max_coords = (block.coords + block.skip_distance);
+block.min_coords = block.coords - (block.skip_distance - 1);
+block.max_coords = block.coords + (block.skip_distance - 1);
 
 // compute min/max positions
-block.min_position = vec3(block.min_coords * u_volume.block_size) - 0.5;
-block.max_position = vec3(block.max_coords * u_volume.block_size) - 0.5;  
+block.min_position = vec3((block.min_coords + 0) * u_volume.block_size) - 0.5;
+block.max_position = vec3((block.max_coords + 1) * u_volume.block_size) - 0.5;  
 
 // inflate to avoid boundaries
 block.min_position -= 0.001;
@@ -27,9 +27,9 @@ block.exit_position = camera.position + ray.direction * block.exit_distance;
 block.span_distance = block.exit_distance - block.entry_distance;
 
 // compute next coordinates
-ivec3 coords = block.coords + block.skip_distance * ray.signs;
-block.coords = ivec3(round(block.exit_position)) / u_volume.block_size;
-block.coords += block.exit_normal * (coords - block.coords);
+ivec3 skip_coords = block.coords + block.skip_distance * ray.signs;
+ivec3 exit_coords = ivec3(round(block.exit_position)) / u_volume.block_size;
+block.coords = mmix(exit_coords, skip_coords, block.exit_normal);
 
 // compute termination condition
 block.terminated = block.exit_distance > ray.end_distance;

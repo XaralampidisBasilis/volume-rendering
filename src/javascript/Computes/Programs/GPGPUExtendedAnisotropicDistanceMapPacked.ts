@@ -700,7 +700,7 @@ class FourthExtendedAnisotropicChessDistancePass implements GPGPUProgram
             uvec4 occupancies = uvec4(getOccupanciesAtOutCoords());
     
             uvec4 packedOutput = pack5551(xDistances, yDistances, zDistances, occupancies);
-            setOutput(uintHalfBitsToHalfFloat(packedOutput));
+            setOutput(float(packedOutput));
         }
         `
     }

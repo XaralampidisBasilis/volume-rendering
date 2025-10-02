@@ -769,9 +769,7 @@ class FourthExtendedAnisotropicChessDistancePass implements GPGPUProgram
             uvec4 occupancies = uvec4(getOccupanciesAtOutCoords());
 
             uvec4 packedOutput = pack5551(xDistances, yDistances, zDistances, occupancies);
-            setOutput(uintHalfBitsToHalfFloat(packedOutput));
-            // Since we use float16 textures, we don't want uint values to get rounded
-            // Thats why we need to encode the bits of uint16 as float16 values
+            setOutput(float(packedOutput));
         }
         `
     }

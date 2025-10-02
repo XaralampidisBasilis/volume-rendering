@@ -97,16 +97,17 @@ class ExtendedIsotropicChebyshevDistancePass1 implements GPGPUProgram
     ) 
     {
         const [inSign, inAxis] = inputDirection
+        const inIndex = ['z', 'y', 'x'].findIndex(x => x === inAxis)
         const [inDepth, inHeight, inWidth] = inputShape
+        const inDimension = inputShape[inIndex]
+        const maxSteps = Math.min(maxDistance, inDimension-1)
         this.outputShape = [inDepth, inHeight, inWidth]
 
         this.userCode = `
-        const ivec3 maxCoords = ivec3(${inWidth-1}, ${inHeight-1}, ${inDepth-1});
-        const int maxSteps = min(${maxDistance}, maxCoords.${inAxis}); 
-        
-        ${inSign == '-' ? `
-        bool outsideBounds(ivec3 coords) { return coords.${inAxis} < 0; }` : `
-        bool outsideBounds(ivec3 coords) { return coords.${inAxis} > maxCoords.${inAxis}; }`}
+        bool insideBounds(ivec3 coords) 
+        { 
+            return coords.${inAxis} >= 0 && coords.${inAxis} <= ${inDimension-1}; 
+        }
         
         int getInputDistance(ivec3 coords) { return int(getInputDistance(coords.z, coords.y, coords.x)); }
 
@@ -124,19 +125,17 @@ class ExtendedIsotropicChebyshevDistancePass1 implements GPGPUProgram
                 return;
             }
             
-            for (int nStep = 1; nStep <= maxSteps; nStep++) 
+            for (int nStep = 1; nStep <= ${maxSteps}; nStep++) 
             {
                 inputCoords.${inAxis} = outputCoords.${inAxis} ${inSign} nStep;
-                if (outsideBounds(inputCoords)) 
+                if (insideBounds(inputCoords)) 
                 {
-                    break;
-                }
-
-                inputDistance = getInputDistance(inputCoords);
-                if (inputDistance <= nStep)
-                {
-                    outputDistance = nStep;
-                    break;
+                    inputDistance = getInputDistance(inputCoords);
+                    if (inputDistance <= nStep)
+                    {
+                        outputDistance = nStep;
+                        break;
+                    }
                 }
             }
 
@@ -163,10 +162,10 @@ class ExtendedIsotropicChebyshevDistancePass2 implements GPGPUProgram
         uint pack5551(uint x, uint y, uint z, uint o)
         {
             uint up16 = 
-            ((x & 0x1Fu) << 11) |
-            ((y & 0x1Fu) <<  6) |
-            ((z & 0x1Fu) <<  1) |
-            ((o & 0x01u) <<  0);
+            (clamp(x, 0u, 31u) << 11) |
+            (clamp(y, 0u, 31u) <<  6) |
+            (clamp(z, 0u, 31u) <<  1) |
+            (clamp(o, 0u,  1u) <<  0);
 
             return up16;
         }
@@ -184,7 +183,7 @@ class ExtendedIsotropicChebyshevDistancePass2 implements GPGPUProgram
             uint occupancy = uint(getOccupancyAtOutCoords());
             
             uint packedOutput = pack5551(xDistance, yDistance, zDistance, occupancy);
-            setOutput(uintHalfBitsToHalfFloat(packedOutput));
+            setOutput(float(packedOutput));
         }
         `
     }
@@ -236,6 +235,6 @@ export function computeExtendedIsotropicDistanceMap(inputOccupancy: tf.Tensor3D,
     const distances_X1_Y1_Z1_XYZ = runProgram(fourthPass, [distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ, inputOccupancy]); tf.dispose([distanceX1_XYZ, distanceY1_XYZ, distanceZ1_XYZ])
 
     // Stack channels
-    const distances_X0_Y0_Z0_X1_Y1_Z1_XYZ = tf.stack([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ], 3); tf.dispose([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ])
+    const distances_X0_Y0_Z0_X1_Y1_Z1_XYZ = tf.stack([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ], -1); tf.dispose([distances_X0_Y0_Z0_XYZ, distances_X1_Y1_Z1_XYZ])
     return distances_X0_Y0_Z0_X1_Y1_Z1_XYZ as tf.Tensor3D
 }

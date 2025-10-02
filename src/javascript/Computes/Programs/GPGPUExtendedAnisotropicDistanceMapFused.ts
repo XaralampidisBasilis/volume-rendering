@@ -578,7 +578,7 @@ class FourthExtendedAnisotropicChessDistancePassXYZ implements GPGPUProgram
             uint occupancy = uint(getOccupancyAtOutCoords());
 
             uint packedOutput = pack5551(xDistance, yDistance, zDistance, occupancy);
-            setOutput(uintHalfBitsToHalfFloat(packedOutput));
+            setOutput(float(packedOutput));
         }
         `
     }

@@ -12,15 +12,15 @@ void sample_distance_extended_isotropic(in ivec3 block_coords, out ivec3 min_dis
     uvec2 packed_samples = texelFetch(u_textures.distance_map, block_coords, 0).rg;
 
     // Unpack into 3 distances and 1 occupancy flag
-    uvec4 r_sample = unpack_uint_5551(packed_samples.r);
-    uvec4 g_sample = unpack_uint_5551(packed_samples.g);
+    uvec4 min_unpacked_samples = unpack_uint_5551(packed_samples.r);
+    uvec4 max_unpacked_samples = unpack_uint_5551(packed_samples.g);
 
     // Get integer distances
-    min_distances = ivec3(r_sample.rgb);
-    max_distances = ivec3(g_sample.rgb);
+    min_distances = ivec3(min_unpacked_samples.rgb);
+    max_distances = ivec3(max_unpacked_samples.rgb);
 
     // Get block occupancy
-    occupancy = bool(r_sample.a);
+    occupancy = bool(min_unpacked_samples.a);
 }
 
 #endif

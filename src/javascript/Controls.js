@@ -148,12 +148,44 @@ export default class Controls
         const folder = this.folders.debug
         const objects = 
         { 
-            discardingEnabled: Boolean(defines.DISCARDING_ENABLED) 
+            discardingEnabled: Boolean(defines.DISCARDING_ENABLED),
+            debugEnabled     : Boolean(defines.DEBUG_ENABLED),
+            statsEnabled     : Boolean(defines.STATS_ENABLED),
         }
 
         this.controllers.debug = 
         {
-            option: folder.add(uniforms, 'option').options(
+            maxGroups: folder.add(uniforms, 'max_groups').min(0).max(defines.MAX_GROUPS).step(1),
+            maxBlocks: folder.add(uniforms, 'max_blocks').min(0).max(defines.MAX_BLOCKS_PER_GROUP).step(1),
+            maxCells : folder.add(uniforms, 'max_cells').min(0).max(defines.MAX_CELLS_PER_BLOCK).step(1),
+            variable1 : folder.add(uniforms, 'variable1').min(0).max(1).step(0.001),
+            variable2 : folder.add(uniforms, 'variable2').min(0).max(1).step(0.001),
+            variable3 : folder.add(uniforms, 'variable3').min(0).max(1).step(0.001),
+            variable4 : folder.add(uniforms, 'variable4').min(0).max(1).step(0.001),
+            variable5 : folder.add(uniforms, 'variable5').min(0).max(1).step(0.001),
+            
+            discardingEnabled: folder.add(objects, 'discardingEnabled')
+            .onFinishChange((value) => 
+            { 
+                defines.DISCARDING_ENABLED = Number(value)
+                material.needsUpdate = true 
+            }),
+
+            statsEnabled: folder.add(objects, 'statsEnabled')
+            .onFinishChange((value) => 
+            { 
+                defines.STATS_ENABLED = Number(value)
+                material.needsUpdate = true 
+            }),
+
+            debugEnabled: folder.add(objects, 'debugEnabled')
+            .onFinishChange((value) => 
+            { 
+                defines.DEBUG_ENABLED = Number(value)
+                material.needsUpdate = true 
+            }),
+
+              option: folder.add(uniforms, 'option').options(
             { 
                 default                 : 0,
                  
@@ -244,21 +276,7 @@ export default class Controls
                 debug_variable7         : 1007,
                 debug_variable8         : 1008,
                 debug_variable9         : 1009,
-            }),
-             
-            discardingEnabled: folder.add(objects, 'discardingEnabled')
-            .onFinishChange((value) => 
-            { 
-                defines.DISCARDING_ENABLED = Number(value)
-                material.needsUpdate = true 
-            }),
-
-            // variable1 : folder.add(uniforms, 'variable1').min(0).max(1).step(0.001),
-            // variable2 : folder.add(uniforms, 'variable2').min(0).max(1).step(0.001),
-            // variable3 : folder.add(uniforms, 'variable3').min(0).max(1).step(0.001),
-            // variable4 : folder.add(uniforms, 'variable4').min(0).max(1).step(0.001),
-            // variable5 : folder.add(uniforms, 'variable5').min(0).max(1).step(0.001),
-           
+            }),       
         }
     }
     

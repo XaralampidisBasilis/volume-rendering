@@ -55,31 +55,12 @@ export default class ISOViewer extends EventEmitter
         const scale = new THREE.Matrix4().makeScale(...this.computes.volumeMap.dimensions)
         this.material.uniforms.uCustomModelMatrix.value.multiplyMatrices(scale, translation)
 
-        this.startUniformsTextures()
-        this.startUniformsVolume()
         this.startDefinesMethods()
         this.startDefinesIterators()
+        this.startUniformsTextures()
+        this.startUniformsVolume()
+        this.startUniformsDebug()
         this.material.needsUpdate = true
-    }
-
-    startUniformsTextures()
-    {
-        const uniforms = this.material.uniforms
-        uniforms.u_textures.value.interpolation_map = this.computes.interpolationMap.texture
-        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
-        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
-    }
-
-    startUniformsVolume()
-    {
-        const uniforms = this.material.uniforms
-        uniforms.u_volume.value.isovalue = this.configs.isosurfaceValue
-        uniforms.u_volume.value.dimensions.copy(this.computes.volumeMap.dimensions)
-        uniforms.u_volume.value.spacing.copy(this.computes.volumeMap.spacing).normalize()
-        uniforms.u_volume.value.block_size = this.configs.blockSize
-        uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
-        uniforms.u_volume.value.inv_dimensions.fromArray(uniforms.u_volume.value.dimensions.toArray().map(x => 1/x))
-        uniforms.u_volume.value.colormap = Configs.Colormaps.findIndex((x) => x === this.configs.colormap)
     }
 
     startDefinesMethods()
@@ -104,6 +85,35 @@ export default class ISOViewer extends EventEmitter
         defines.MAX_GROUPS = Math.ceil(defines.MAX_CELLS / defines.MAX_CELLS_PER_BLOCK)
         defines.MAX_BLOCKS_PER_GROUP = Math.ceil(defines.MAX_BLOCKS / defines.MAX_GROUPS)
     }
+
+    startUniformsTextures()
+    {
+        const uniforms = this.material.uniforms
+        uniforms.u_textures.value.interpolation_map = this.computes.interpolationMap.texture
+        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
+        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
+    }
+
+    startUniformsVolume()
+    {
+        const uniforms = this.material.uniforms
+        uniforms.u_volume.value.isovalue = this.configs.isosurfaceValue
+        uniforms.u_volume.value.dimensions.copy(this.computes.volumeMap.dimensions)
+        uniforms.u_volume.value.spacing.copy(this.computes.volumeMap.spacing).normalize()
+        uniforms.u_volume.value.block_size = this.configs.blockSize
+        uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
+        uniforms.u_volume.value.inv_dimensions.fromArray(uniforms.u_volume.value.dimensions.toArray().map(x => 1/x))
+        uniforms.u_volume.value.colormap = Configs.Colormaps.findIndex((x) => x === this.configs.colormap)
+    }
+
+    startUniformsDebug()
+    {
+        const uniforms = this.material.uniforms
+        uniforms.u_debug.value.max_groups = this.material.defines.MAX_GROUPS
+        uniforms.u_debug.value.max_blocks = this.material.defines.MAX_BLOCKS_PER_GROUP 
+        uniforms.u_debug.value.max_cells  = this.material.defines.MAX_CELLS_PER_BLOCK  
+    }
+
 
     change(event)
     {

@@ -3,16 +3,16 @@
 // compute skip distances
 ivec3 min_distances, max_distances;
 sample_distance_extended_isotropic(block.coords, min_distances, max_distances, block.occupied);
-min_distances = max(min_distances, 1);
-max_distances = max(max_distances, 1);
+block.skip_distance = mmix(min_distances, max_distances, clamp(ray.signs, 0, 1));
+block.skip_distance = max(block.skip_distance , 1);
 
 // compute min/max coords
-block.min_coords = (block.coords - min_distances) + 1;
-block.max_coords = (block.coords + max_distances);
+block.min_coords = block.coords - (block.skip_distance - 1);
+block.max_coords = block.coords + (block.skip_distance - 1);
 
 // compute min/max positions
-block.min_position = vec3(block.min_coords * u_volume.block_size) - 0.5;
-block.max_position = vec3(block.max_coords * u_volume.block_size) - 0.5;  
+block.min_position = vec3((block.min_coords + 0) * u_volume.block_size) - 0.5;
+block.max_position = vec3((block.max_coords + 1) * u_volume.block_size) - 0.5;   
 
 // inflate to avoid boundaries
 block.min_position -= 0.001;
@@ -29,14 +29,10 @@ block.exit_position = camera.position + ray.direction * block.exit_distance;
 // compute span distance
 block.span_distance = block.exit_distance - block.entry_distance;
 
-// compute skip distance
-ivec3 ray_signs = (ray.signs + 1) / 2; ;
-block.skip_distance = ray_signs * (max_distances - min_distances) + min_distances;
-
 // compute next coordinates
-ivec3 coords = block.coords + block.skip_distance * ray.signs;
-block.coords = ivec3(round(block.exit_position)) / u_volume.block_size;
-block.coords += block.exit_normal * (coords - block.coords);
+ivec3 skip_coords = block.coords + block.skip_distance * ray.signs;
+ivec3 exit_coords = ivec3(round(block.exit_position)) / u_volume.block_size;
+block.coords = mmix(exit_coords, skip_coords, block.exit_normal);
 
 // compute termination condition
 block.terminated = block.exit_distance > ray.end_distance;

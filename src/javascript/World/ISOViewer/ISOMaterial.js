@@ -44,9 +44,9 @@ export default function()
         u_debug: new THREE.Uniform
         ({
             option    : 0,
-            max_groups : 0,
-            max_cells : 0,
+            max_groups: 0,
             max_blocks: 0,
+            max_cells : 0,
             variable1 : 0,
             variable2 : 0,
             variable3 : 0,
