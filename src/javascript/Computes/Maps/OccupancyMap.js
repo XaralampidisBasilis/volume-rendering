@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
 import { computeOccupancyMap } from '../Programs/GPGPUOccupancyMapPacked'
-import { computeBoundingBox as _computeBoundingBox } from '../Programs/GPGPUBoundingBox'
+import { computeBoundingBox as getBoundingBox } from '../Programs/GPGPUBoundingBox'
 
 export default class OccupancyMap
 {
@@ -26,8 +26,7 @@ export default class OccupancyMap
     computeBoundingBox()
     {
         console.time('computeBoundingBox@OccupancyMap') 
-        this.boundingBox = _computeBoundingBox(this.tensor)
-        console.log(this.boundingBox)
+        this.boundingBox = getBoundingBox(this.tensor)
         console.timeEnd('computeBoundingBox@OccupancyMap') 
     }
 

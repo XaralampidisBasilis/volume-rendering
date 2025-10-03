@@ -105,7 +105,22 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_volume.value.block_size = this.configs.blockSize
         uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
         uniforms.u_volume.value.inv_dimensions.fromArray(uniforms.u_volume.value.dimensions.toArray().map(x => 1/x))
-        uniforms.u_volume.value.colormap = Configs.Colormaps.findIndex((x) => x === this.configs.colormap)
+        this.startUniformsVolumeBoundingBox()
+    }
+
+    startUniformsVolumeBoundingBox()
+    {
+        const blockSize = this.configs.blockSize
+        const minCoords = new THREE.Vector3(0)
+        const maxCoords = new THREE.Vector3(...this.computes.volumeMap.dimensions).subScalar(1)
+        const minBlockCoords = this.computes.occupancyMap.boundingBox.minCoords
+        const maxBlockCoords = this.computes.occupancyMap.boundingBox.maxCoords
+
+        const uniforms = this.material.uniforms
+        uniforms.u_volume.value.min_coords.fromArray(minBlockCoords).multiplyScalar(blockSize).clamp(minCoords, maxCoords)
+        uniforms.u_volume.value.max_coords.fromArray(maxBlockCoords).multiplyScalar(blockSize+1).subScalar(1).clamp(minCoords, maxCoords)
+
+        console.log(uniforms.u_volume.value.min_coords, uniforms.u_volume.value.max_coords)
     }
 
     startUniformsShading()
@@ -148,7 +163,9 @@ export default class ISOViewer extends EventEmitter
 
     onChangeIsosurfaceValue(event)
     {
-        this.material.uniforms.u_volume.value.isovalue = this.configs.isosurfaceValue
+        const uniforms = this.material.uniforms
+        uniforms.u_volume.value.isovalue = this.configs.isosurfaceValue
+        this.startUniformsVolumeBoundingBox()
     }
 
     onChangeBlockSize(event)
@@ -162,6 +179,7 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_textures.value.distance_map.dispose()
         uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
         uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
+        this.startUniformsVolumeBoundingBox()
     }
 
     onChangeDownscaleFactor(event)
@@ -177,6 +195,11 @@ export default class ISOViewer extends EventEmitter
 
     onChangeInterpolationMethod(event)
     {
+        const uniforms = this.material.uniforms
+        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
+        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
+        this.startUniformsVolumeBoundingBox()
+
         this.material.defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === this.configs.interpolationMethod)
         this.material.needsUpdate = true
     }

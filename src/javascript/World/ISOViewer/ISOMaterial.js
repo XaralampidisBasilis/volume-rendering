@@ -18,8 +18,11 @@ export default function()
             dimensions        : new THREE.Vector3(),
             spacing           : new THREE.Vector3(),
             inv_dimensions    : new THREE.Vector3(),
+            min_coords        : new THREE.Vector3(),
+            max_coords        : new THREE.Vector3(),
             blocked_dimensions: new THREE.Vector3(),
             block_size        : 0,
+
         }),
 
         u_textures: new THREE.Uniform
