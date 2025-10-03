@@ -124,13 +124,18 @@ export default class Computes extends EventEmitter
         this.extremaMap.tensor.dispose()
         await tf.nextFrame()
 
-        this.interpolationMap.restoreTensor()
+        this.volumeMap.computeTensor()
+        this.interpolationMap.computeTensor()
+        this.volumeMap.tensor.dispose()
+        await tf.nextFrame()
+
         this.extremaMap.computeTensor()
         this.interpolationMap.tensor.dispose()
         await tf.nextFrame()
 
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
+
         this.occupancyMap.tensor.dispose()
         this.distanceMap.tensor.dispose()
         await tf.nextFrame()
@@ -160,12 +165,13 @@ export default class Computes extends EventEmitter
 
         this.extremaMap.computeTensor()
         this.interpolationMap.tensor.dispose()
+        await tf.nextFrame()
 
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
+
         this.occupancyMap.tensor.dispose()
         this.distanceMap.tensor.dispose()
-        await tf.nextFrame()
 
         this.interpolationMap.computeTexture()
         this.occupancyMap.computeTexture()

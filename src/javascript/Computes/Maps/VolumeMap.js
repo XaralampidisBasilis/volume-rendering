@@ -41,25 +41,16 @@ export default class VolumeMap
             return tensor
         })
         
-        this.tensorData = this.tensor.dataSync()
         this.dimensions.fromArray(newShape.toReversed())
         this.spacing.fromArray(newSpacing.toReversed())
             
         console.timeEnd('computeTensor@VolumeMap') 
     }
 
-    restoreTensor()
-    {
-        if (this.tensor.isDisposed)
-        {
-            this.tensor = tf.tensor5d(this.tensorData, [...this.dimensions, 2, 2])
-        }
-    }
-
     computeTexture()
     {
         console.time('computeTexture@VolumeMap') 
-        this.texture = new THREE.Data3DTexture(this.tensorData, ...this.dimensions)
+        this.texture = new THREE.Data3DTexture(this.getTextureData, ...this.dimensions)
         this.texture.format = THREE.RedFormat
         this.texture.type = THREE.FloatType
         this.texture.internalFormat = 'R32F'

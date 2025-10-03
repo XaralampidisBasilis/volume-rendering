@@ -60,7 +60,6 @@ export default class ISOViewer extends EventEmitter
         this.startUniformsTextures()
         this.startUniformsVolume()
         this.startUniformsDebug()
-        this.material.needsUpdate = true
     }
 
     startDefinesMethods()
@@ -71,6 +70,7 @@ export default class ISOViewer extends EventEmitter
         defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === configs.interpolationMethod)
         defines.SKIPPING_METHOD = Configs.SkippingMethods.findIndex((x) => x === configs.skippingMethod)
         defines.GRADIENTS_METHOD = Configs.GradientsMethods.findIndex((x) => x === configs.gradientsMethod)  
+        this.material.needsUpdate = true
     }
 
     startDefinesIterators()
@@ -84,6 +84,7 @@ export default class ISOViewer extends EventEmitter
         defines.MAX_TRACES_PER_BLOCK = defines.MAX_CELLS_PER_BLOCK * 5
         defines.MAX_GROUPS = Math.ceil(defines.MAX_CELLS / defines.MAX_CELLS_PER_BLOCK)
         defines.MAX_BLOCKS_PER_GROUP = Math.ceil(defines.MAX_BLOCKS / defines.MAX_GROUPS)
+        this.material.needsUpdate = true
     }
 
     startUniformsTextures()
@@ -139,17 +140,25 @@ export default class ISOViewer extends EventEmitter
     onChangeBlockSize(event)
     {
         this.startDefinesIterators()
-        this.material.uniforms.u_volume.value.block_size = this.configs.blockSize
-        this.material.uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
-        this.material.uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
-        this.material.uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
-        this.material.needsUpdate = true
+
+        const uniforms = this.material.uniforms
+        uniforms.u_volume.value.block_size = this.configs.blockSize
+        uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
+        uniforms.u_textures.value.occupancy_map.dispose()
+        uniforms.u_textures.value.distance_map.dispose()
+        uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
+        uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
     }
 
     onChangeDownscaleFactor(event)
     {
-       this.material.dispose()
-       this.startMaterial()
+        const uniforms = this.material.uniforms
+        uniforms.u_textures.value.interpolation_map.dispose()
+        uniforms.u_textures.value.occupancy_map.dispose()
+        uniforms.u_textures.value.distance_map.dispose()
+
+        this.material.dispose()
+        this.startMaterial()
     }
 
     onChangeInterpolationMethod(event)

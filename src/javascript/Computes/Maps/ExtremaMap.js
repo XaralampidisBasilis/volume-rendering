@@ -17,7 +17,6 @@ export default class ExtremaMap
         console.time('computeTensor@ExtremaMap') 
         this.blockSize = this.configs.blockSize
         this.tensor = computeExtremaMap(this.interpolationMap.tensor, this.blockSize)
-        this.textureData = this.getTextureData()
         const dimensions = this.tensor.shape.slice(0, 3).toReversed()
         this.dimensions = new THREE.Vector3(...dimensions)
         console.timeEnd('computeTensor@ExtremaMap') 
@@ -26,7 +25,7 @@ export default class ExtremaMap
     computeTexture()
     {
         console.time('computeTexture@ExtremaMap') 
-        this.texture = new THREE.Data3DTexture(this.textureData, ...this.dimensions)
+        this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RGBAFormat
         this.texture.type = THREE.HalfFloatType
         this.texture.internalFormat = 'RGBA16F'
@@ -40,7 +39,7 @@ export default class ExtremaMap
 
     updateTexture()
     {
-        this.texture.image.data.set(this.textureData)
+        this.texture.image.data.set(this.getTextureData)
         this.texture.needsUpdate = true
     }
 

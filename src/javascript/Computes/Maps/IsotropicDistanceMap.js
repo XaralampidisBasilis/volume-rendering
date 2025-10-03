@@ -34,6 +34,7 @@ export default class IsotropicDistanceMap
         this.texture.generateMipmaps = false
         this.texture.needsUpdate = true
         this.texture.unpackAlignment = 1
+        this.textureData = null
         console.timeEnd('computeTexture@IsotropicDistanceMap') 
     }  
 
@@ -41,6 +42,7 @@ export default class IsotropicDistanceMap
     {
         this.texture.image.data.set(this.textureData)
         this.texture.needsUpdate = true
+        this.textureData = null
     }
     
     getTextureData()

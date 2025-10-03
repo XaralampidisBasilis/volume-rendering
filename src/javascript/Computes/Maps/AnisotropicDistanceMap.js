@@ -33,8 +33,9 @@ export default class AnisotropicDistanceMap
         this.texture.minFilter = THREE.NearestFilter
         this.texture.magFilter = THREE.NearestFilter
         this.texture.generateMipmaps = false
-        this.texture.needsUpdate = true
         this.texture.unpackAlignment = 1
+        this.texture.needsUpdate = true
+        this.textureData = null
         console.timeEnd('computeTexture@AnisotropicDistanceMap') 
     }   
 
@@ -42,6 +43,7 @@ export default class AnisotropicDistanceMap
     {
         this.texture.image.data.set(this.textureData)
         this.texture.needsUpdate = true
+        this.textureData = null
     }
 
     getTextureData()

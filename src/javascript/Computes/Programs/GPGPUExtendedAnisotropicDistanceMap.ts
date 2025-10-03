@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs'
 import { GPGPUProgram } from '@tensorflow/tfjs-backend-webgl'
 import { MathBackendWebGL } from '@tensorflow/tfjs-backend-webgl'
-import { packUnsignedShort5551 } from './GPGPUPackUnsignedShort5551'
+import { packUnsignedShort5551 } from './GPGPUToUnsignedShort5551'
 
 class ExtendedAnisotropicChebyshevDistancePass0 implements GPGPUProgram 
 {

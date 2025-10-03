@@ -32,8 +32,9 @@ export default class ExtendedIsotropicDistanceMap
         this.texture.minFilter = THREE.NearestFilter
         this.texture.magFilter = THREE.NearestFilter
         this.texture.generateMipmaps = false
-        this.texture.needsUpdate = true
         this.texture.unpackAlignment = 2
+        this.texture.needsUpdate = true
+        this.textureData = null
         console.timeEnd('computeTexture@ExtendedIsotropicDistanceMap') 
     }   
 
@@ -41,6 +42,7 @@ export default class ExtendedIsotropicDistanceMap
     {
         this.texture.image.data.set(this.textureData)
         this.texture.needsUpdate = true
+        this.textureData = null
     }
 
     getTextureData()
