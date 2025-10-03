@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
 import { computeOccupancyMap } from '../Programs/GPGPUOccupancyMapPacked'
+import { computeBoundingBox as _computeBoundingBox } from '../Programs/GPGPUBoundingBox'
 
 export default class OccupancyMap
 {
@@ -20,6 +21,14 @@ export default class OccupancyMap
         this.tensor = computeOccupancyMap(this.extremaMap.tensor, this.interpolationMethod, this.isosurfaceValue)
         this.dimensions = this.extremaMap.dimensions
         console.timeEnd('computeTensor@OccupancyMap') 
+    }
+
+    computeBoundingBox()
+    {
+        console.time('computeBoundingBox@OccupancyMap') 
+        this.boundingBox = _computeBoundingBox(this.tensor)
+        console.log(this.boundingBox)
+        console.timeEnd('computeBoundingBox@OccupancyMap') 
     }
 
     computeTexture()

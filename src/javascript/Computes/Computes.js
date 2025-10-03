@@ -75,6 +75,7 @@ export default class Computes extends EventEmitter
         await tf.nextFrame()
 
         this.occupancyMap.computeTensor()
+        this.occupancyMap.computeBoundingBox()
         this.distanceMap.computeTensor()
         await tf.nextFrame()
 
@@ -105,6 +106,7 @@ export default class Computes extends EventEmitter
         console.time('onChangeIsosurfaceValue@Computes') 
 
         this.occupancyMap.computeTensor()
+        this.occupancyMap.computeBoundingBox()
         this.distanceMap.computeTensor()
 
         this.occupancyMap.updateTexture()
