@@ -82,6 +82,19 @@ export default class Controls
             { 
                 this.configs.set('isosurfaceValue', value) 
             }),
+
+            blockSize : folder.add(objects, 'blockSize').min(2).max(8).step(1)
+            .onFinishChange((value) => 
+            { 
+                this.configs.set('blockSize', value) 
+            }),
+
+            // DANGEROUS for WebGL Context Loss
+            downscaleFactor : folder.add(objects, 'downscaleFactor').min(0).max(1).step(0.01)
+            .onFinishChange((value) => 
+            { 
+                this.configs.set('downscaleFactor', value) 
+            }),
             
             marchingMethod: folder.add(objects, 'marchingMethod').options(Configs.MarchingMethods)
             .onFinishChange((option) => 
@@ -118,19 +131,6 @@ export default class Controls
             { 
                 this.configs.set('bernsteinEnabled', boolean) 
             }),
-
-            blockSize : folder.add(objects, 'blockSize').min(2).max(8).step(1)
-            .onFinishChange((value) => 
-            { 
-                this.configs.set('blockSize', value) 
-            }),
-
-            downscaleFactor : folder.add(objects, 'downscaleFactor').min(0).max(1).step(0.01)
-            .onFinishChange((value) => 
-            { 
-                this.configs.set('downscaleFactor', value) 
-            }),
-           
         }
     }
 

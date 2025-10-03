@@ -17,7 +17,6 @@ export default class ExtendedAnisotropicDistanceMap
     {
         console.time('computeTensor@ExtendedAnisotropicDistanceMap') 
         this.tensor = computeExtendedAnisotropicDistanceMap(this.occupancyMap.tensor, this.maxDistance)
-        this.textureData = this.getTextureData()
         this.dimensions = new THREE.Vector3(...this.occupancyMap.dimensions)
         this.dimensions.z *= 8
         console.timeEnd('computeTensor@ExtendedAnisotropicDistanceMap') 
@@ -26,7 +25,7 @@ export default class ExtendedAnisotropicDistanceMap
     computeTexture()
     {
         console.time('computeTexture@ExtendedAnisotropicDistanceMap') 
-        this.texture = new THREE.Data3DTexture(this.textureData, ...this.dimensions)
+        this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
         this.texture.format = THREE.RedIntegerFormat
         this.texture.type = THREE.UnsignedShortType
         this.texture.internalFormat = 'R16UI'
@@ -35,15 +34,13 @@ export default class ExtendedAnisotropicDistanceMap
         this.texture.generateMipmaps = false
         this.texture.unpackAlignment = 1
         this.texture.needsUpdate = true
-        this.textureData = null
         console.timeEnd('computeTexture@ExtendedAnisotropicDistanceMap') 
     }   
 
     updateTexture()
     {
-        this.texture.image.data.set(this.textureData)
+        this.texture.image.data.set(this.getTextureData())
         this.texture.needsUpdate = true
-        this.textureData = null
     }
 
     getTextureData()

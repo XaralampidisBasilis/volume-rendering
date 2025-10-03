@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
-import { computeResizedMap } from '../Programs/GPGPUResizeMap'
-import { computeNormalizedMap } from '../Programs/GPGPUNormalizeMapPacked'
+import { resizeTrilinear } from '../Programs/GPGPUResizeTrilinear'
+import { normalize } from '../Programs/GPGPUNormalizePacked'
 
 export default class VolumeMap
 {
@@ -36,14 +36,13 @@ export default class VolumeMap
         {
             let data = new Float32Array(this.volume.data)
             let tensor = tf.tensor3d(data, shape)
-            tensor = computeResizedMap(tensor, newShape, false, true)
-            tensor = computeNormalizedMap(tensor)
+            tensor = resizeTrilinear(tensor, newShape, false, true)
+            tensor = normalize(tensor)
             return tensor
         })
         
         this.dimensions.fromArray(newShape.toReversed())
         this.spacing.fromArray(newSpacing.toReversed())
-        this.tensorData = this.tensor.dataSync()
             
         console.timeEnd('computeTensor@VolumeMap') 
     }
@@ -61,11 +60,6 @@ export default class VolumeMap
         this.texture.needsUpdate = true
         this.texture.unpackAlignment = 1
         console.timeEnd('computeTexture@VolumeMap') 
-    }
-
-    restoreTensor()
-    {
-        this.tensor = tf.tensor3d(this.tensorData, this.tensor.shape)
     }
 
     updateTexture()

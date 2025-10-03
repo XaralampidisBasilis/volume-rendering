@@ -2,13 +2,13 @@ import * as tf from '@tensorflow/tfjs'
 import { GPGPUProgram } from '@tensorflow/tfjs-backend-webgl'
 import { MathBackendWebGL } from '@tensorflow/tfjs-backend-webgl'
 
-class GPGPUNormalizeMap implements GPGPUProgram 
+class GPGPUNormalize implements GPGPUProgram 
 {
     variableNames = ['Input']
     outputShape: number[]
     userCode: string
-    packedInputs = true
-    packedOutput = true
+    packedInputs = false
+    packedOutput = false
 
     constructor
     (
@@ -21,7 +21,7 @@ class GPGPUNormalizeMap implements GPGPUProgram
         this.userCode = `
         void main() 
         {
-            setOutput((getInputAtOutCoords() - vec4(${globalMin})) / vec4(${globalMax - globalMin}));
+            setOutput((getInputAtOutCoords() - ${globalMin}) / ${globalMax - globalMin});
         }
         `
     }
@@ -34,10 +34,10 @@ function runProgram(prog: GPGPUProgram, inputs: tf.Tensor[]): tf.Tensor
     return tf.engine().makeTensorFromTensorInfo(info) as tf.Tensor
 }
 
-export function computeNormalizedMap(inputTensor: tf.Tensor3D): tf.Tensor3D 
+export function normalize(inputTensor: tf.Tensor3D): tf.Tensor3D 
 {
     const globalMin = tf.min(inputTensor).arraySync() as number
     const globalMax = tf.max(inputTensor).arraySync() as number
-    const program = new GPGPUNormalizeMap(inputTensor.shape , globalMin , globalMax)
+    const program = new GPGPUNormalize(inputTensor.shape , globalMin , globalMax)
     return runProgram(program, [inputTensor]) as tf.Tensor3D
 }

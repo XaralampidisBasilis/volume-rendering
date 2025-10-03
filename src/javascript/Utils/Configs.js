@@ -34,7 +34,7 @@ export default class Configs extends EventEmitter
         super()
 
         this.blockSize = 2
-        this.downscaleFactor = 0.8
+        this.downscaleFactor = 0.7
         this.isosurfaceValue = 0.7
         
         this.colormap = 'pasteljet'

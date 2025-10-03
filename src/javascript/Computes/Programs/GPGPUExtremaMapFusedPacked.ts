@@ -280,7 +280,6 @@ class GPGPUExtremaMap_v2 implements GPGPUProgram
             
             return cellMinMax;
         }
-        
 
         // Compute extrema over all cells in the block
         vec4 getBlockExtrema(ivec3 blockCoords)

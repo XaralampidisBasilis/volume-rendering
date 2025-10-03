@@ -70,18 +70,21 @@ export default class Computes extends EventEmitter
         await tf.nextFrame()
 
         this.extremaMap.computeTensor()
+        this.interpolationMap.computeTexture()
         this.interpolationMap.tensor.dispose()
         await tf.nextFrame()
 
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
+        await tf.nextFrame()
 
-        this.occupancyMap.tensor.dispose()
-        this.distanceMap.tensor.dispose()
-
-        this.interpolationMap.computeTexture()
         this.occupancyMap.computeTexture()
+        this.occupancyMap.tensor.dispose()
+        await tf.nextFrame()
+
         this.distanceMap.computeTexture()
+        this.distanceMap.tensor.dispose()
+        await tf.nextFrame()
 
         console.timeEnd('start@Computes') 
         console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
@@ -104,11 +107,11 @@ export default class Computes extends EventEmitter
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
 
-        this.occupancyMap.tensor.dispose()
-        this.distanceMap.tensor.dispose()
-
         this.occupancyMap.updateTexture()
+        this.occupancyMap.tensor.dispose()
+
         this.distanceMap.updateTexture()
+        this.distanceMap.tensor.dispose()
 
         console.timeEnd('onChangeIsosurfaceValue@Computes')
         console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
@@ -119,16 +122,12 @@ export default class Computes extends EventEmitter
     {
         console.time('onChangeBlockSize@Computes') 
 
+        this.extremaMap.tensor.dispose()
         this.occupancyMap.texture.dispose()
         this.distanceMap.texture.dispose()
-        this.extremaMap.tensor.dispose()
         await tf.nextFrame()
 
-        this.volumeMap.restoreTensor()
-        this.interpolationMap.computeTensor()
-        this.volumeMap.tensor.dispose()
-        await tf.nextFrame()
-
+        this.interpolationMap.restoreTensor()
         this.extremaMap.computeTensor()
         this.interpolationMap.tensor.dispose()
         await tf.nextFrame()
@@ -136,12 +135,13 @@ export default class Computes extends EventEmitter
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
 
+        this.occupancyMap.computeTexture()
         this.occupancyMap.tensor.dispose()
-        this.distanceMap.tensor.dispose()
         await tf.nextFrame()
 
-        this.occupancyMap.computeTexture()
         this.distanceMap.computeTexture()
+        this.distanceMap.tensor.dispose()
+        await tf.nextFrame()
 
         console.timeEnd('onChangeBlockSize@Computes')
         console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
@@ -152,10 +152,10 @@ export default class Computes extends EventEmitter
     {
         console.time('onChangeDownscaleFactor@Computes') 
 
+        this.extremaMap.tensor.dispose()
         this.interpolationMap.texture.dispose()
         this.occupancyMap.texture.dispose()
         this.distanceMap.texture.dispose()
-        this.extremaMap.tensor.dispose()
         await tf.nextFrame()
 
         this.volumeMap.computeTensor()
@@ -164,18 +164,21 @@ export default class Computes extends EventEmitter
         await tf.nextFrame()
 
         this.extremaMap.computeTensor()
+        this.interpolationMap.computeTexture()
         this.interpolationMap.tensor.dispose()
         await tf.nextFrame()
 
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
+        await tf.nextFrame()
 
-        this.occupancyMap.tensor.dispose()
-        this.distanceMap.tensor.dispose()
-
-        this.interpolationMap.computeTexture()
         this.occupancyMap.computeTexture()
+        this.occupancyMap.tensor.dispose()
+        await tf.nextFrame()
+
         this.distanceMap.computeTexture()
+        this.distanceMap.tensor.dispose()
+        await tf.nextFrame()
 
         console.timeEnd('onChangeDownscaleFactor@Computes') 
         console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
@@ -188,11 +191,12 @@ export default class Computes extends EventEmitter
 
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
-        this.distanceMap.tensor.dispose()
-        this.occupancyMap.tensor.dispose()
 
         this.occupancyMap.updateTexture()
+        this.occupancyMap.tensor.dispose()
+
         this.distanceMap.updateTexture()
+        this.distanceMap.tensor.dispose()
 
         console.timeEnd('onChangeInterpolationMethod@Computes') 
         console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
@@ -209,10 +213,10 @@ export default class Computes extends EventEmitter
         this.occupancyMap.computeTensor()
         this.distanceMap.computeTensor()
         this.occupancyMap.tensor.dispose()
-        this.distanceMap.tensor.dispose()
 
         this.distanceMap.computeTexture()
-        
+        this.distanceMap.tensor.dispose()
+
         console.timeEnd('onChangeSkippingMethod@Computes') 
         console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
         console.log('')
