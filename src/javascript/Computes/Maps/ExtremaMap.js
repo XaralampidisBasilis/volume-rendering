@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import * as tf from '@tensorflow/tfjs'
 import Computes from '../Computes'
-import { computeExtremaMap, toHalfFloat } from '../Programs/GPGPUExtremaMapFusedPacked'
+import { computeExtremaMap } from '../Programs/GPGPUExtremaMapFusedPacked'
+import { toHalfFloat } from '../Programs/GPGPUToHalfFloatPacked'
 
 export default class ExtremaMap
 {
@@ -17,38 +18,44 @@ export default class ExtremaMap
         console.time('computeTensor@ExtremaMap') 
         this.blockSize = this.configs.blockSize
         this.tensor = computeExtremaMap(this.interpolationMap.tensor, this.blockSize)
-        const dimensions = this.tensor.shape.slice(0, 3).toReversed()
-        this.dimensions = new THREE.Vector3(...dimensions)
+        this.textureData = this.getTextureData()
+        
+        const shape = this.tensor.shape
+        this.dimensions = new THREE.Vector3(...shape.slice(0,3).toReversed())
+
         console.timeEnd('computeTensor@ExtremaMap') 
     }
 
     computeTexture()
     {
         console.time('computeTexture@ExtremaMap') 
-        this.texture = new THREE.Data3DTexture(this.getTextureData(), ...this.dimensions)
+        this.texture = new THREE.Data3DTexture(this.textureData, ...this.dimensions)
         this.texture.format = THREE.RGBAFormat
         this.texture.type = THREE.HalfFloatType
         this.texture.internalFormat = 'RGBA16F'
         this.texture.minFilter = THREE.NearestFilter
         this.texture.magFilter = THREE.NearestFilter
         this.texture.generateMipmaps = false
-        this.texture.needsUpdate = true
         this.texture.unpackAlignment = 4
+        this.texture.needsUpdate = true
+        this.textureData = null
         console.timeEnd('computeTexture@ExtremaMap') 
     }   
 
     updateTexture()
     {
-        this.texture.image.data.set(this.getTextureData)
+        this.texture.image.data.set(this.textureData)
         this.texture.needsUpdate = true
+        this.textureData = null
     }
 
     getTextureData()
     {
         const tensor = toHalfFloat(this.tensor)
-        const dataHalfFloat = new Uint16Array(tensor.dataSync())
+        const dataFloat = tensor.dataSync()
+        const dataHalfFloat = new Uint16Array(dataFloat)
         tensor.dispose()
-        
+
         return dataHalfFloat
     }
 

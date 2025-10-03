@@ -124,7 +124,7 @@ export default class Computes extends EventEmitter
         this.extremaMap.tensor.dispose()
         await tf.nextFrame()
 
-        this.volumeMap.computeTensor()
+        this.volumeMap.restoreTensor()
         this.interpolationMap.computeTensor()
         this.volumeMap.tensor.dispose()
         await tf.nextFrame()

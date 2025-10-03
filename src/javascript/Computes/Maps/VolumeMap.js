@@ -28,13 +28,13 @@ export default class VolumeMap
         this.setVolume()
         this.downscaleFactor = this.configs.downscaleFactor
 
-        const data = new Float32Array(this.volume.data)
         const shape = this.volume.dimensions.toReversed()
         const newShape = shape.map((x) => Math.ceil(this.downscaleFactor * x))
         const newSpacing = this.volume.spacing.toReversed().map((x, i) => shape[i]/newShape[i] * x)
 
         this.tensor = tf.tidy(() =>
         {
+            let data = new Float32Array(this.volume.data)
             let tensor = tf.tensor3d(data, shape)
             tensor = computeResizedMap(tensor, newShape, false, true)
             tensor = computeNormalizedMap(tensor)
@@ -43,6 +43,7 @@ export default class VolumeMap
         
         this.dimensions.fromArray(newShape.toReversed())
         this.spacing.fromArray(newSpacing.toReversed())
+        this.tensorData = this.tensor.dataSync()
             
         console.timeEnd('computeTensor@VolumeMap') 
     }
@@ -60,6 +61,11 @@ export default class VolumeMap
         this.texture.needsUpdate = true
         this.texture.unpackAlignment = 1
         console.timeEnd('computeTexture@VolumeMap') 
+    }
+
+    restoreTensor()
+    {
+        this.tensor = tf.tensor3d(this.tensorData, this.tensor.shape)
     }
 
     updateTexture()

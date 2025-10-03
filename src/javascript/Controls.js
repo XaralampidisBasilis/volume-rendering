@@ -17,13 +17,14 @@ export default class Controls
     {
         this.addFolders()
         this.addToggles()
-        this.addControllers()
+        this.addControls()
     }
 
     addFolders()
     {
         this.folders = {}
         this.folders.configs = this.ui.addFolder('Configs').close()
+        this.folders.shading = this.ui.addFolder('Shading').close()
         this.folders.debug = this.ui.addFolder('Debug').close()
     }
 
@@ -50,14 +51,15 @@ export default class Controls
 
     // controllers
     
-    addControllers()
+    addControls()
     {
         this.controllers = {}
-        this.addControllersConfigs() 
-        this.addControllersDebug() 
+        this.addControlsConfigs() 
+        this.addControlsShading()
+        this.addControlsDebug() 
     }
 
-    addControllersConfigs() 
+    addControlsConfigs() 
     {
         const folder = this.folders.configs
         const objects = 
@@ -71,7 +73,6 @@ export default class Controls
             skippingMethod      : this.configs.skippingMethod,    
             bernsteinEnabled    : this.configs.bernsteinEnabled,
             skippingEnabled     : this.configs.skippingEnabled,  
-            colormap            : this.configs.colormap,
         }
     
         this.controllers.configs = 
@@ -105,13 +106,7 @@ export default class Controls
             { 
                 this.configs.set('gradientsMethod', option) 
             }),
-
-            colormap : folder.add(objects, 'colormap').options(Configs.Colormaps)
-            .onFinishChange((option) => 
-            { 
-                this.configs.set('colormap', option) 
-            }),
-
+    
             skippingEnabled : folder.add(objects, 'skippingEnabled')
             .onFinishChange((boolean) => 
             { 
@@ -138,8 +133,37 @@ export default class Controls
            
         }
     }
+
+    addControlsShading()
+    {
+        const material = this.viewer.material
+        const uniforms = material.uniforms.u_shading.value
+
+        const folder = this.folders.shading
+        const objects = 
+        {
+            colormap : this.configs.colormap,
+        }
+
+        this.controllers.shading =
+        {
+            colormap : folder.add(objects, 'colormap').options(Configs.Colormaps)
+            .onFinishChange((option) => 
+            { 
+                this.configs.set('colormap', option) 
+            }),
+
+            // shininess        : folder.add(uniforms, 'shininess').min(0).max(40.0).step(0.2),
+            reflectAmbient   : folder.add(uniforms, 'reflect_ambient').min(0).max(1).step(0.001),
+            reflectDiffuse   : folder.add(uniforms, 'reflect_diffuse').min(0).max(1).step(0.001),
+            reflectSpecular  : folder.add(uniforms, 'reflect_specular').min(0).max(1).step(0.001),
+            modulateEdges    : folder.add(uniforms, 'modulate_edges').min(0).max(1).step(0.001),
+            modulateGradient : folder.add(uniforms, 'modulate_gradient').min(0).max(1).step(0.001),
+            modulateCurvature: folder.add(uniforms, 'modulate_curvature').min(0).max(1).step(0.001),
+        } 
+    }
     
-    addControllersDebug()
+    addControlsDebug()
     {
         const material = this.viewer.material
         const uniforms = material.uniforms.u_debug.value
@@ -158,11 +182,11 @@ export default class Controls
             maxGroups: folder.add(uniforms, 'max_groups').min(0).max(defines.MAX_GROUPS).step(1),
             maxBlocks: folder.add(uniforms, 'max_blocks').min(0).max(defines.MAX_BLOCKS_PER_GROUP).step(1),
             maxCells : folder.add(uniforms, 'max_cells').min(0).max(defines.MAX_CELLS_PER_BLOCK).step(1),
-            variable1 : folder.add(uniforms, 'variable1').min(0).max(1).step(0.001),
-            variable2 : folder.add(uniforms, 'variable2').min(0).max(1).step(0.001),
-            variable3 : folder.add(uniforms, 'variable3').min(0).max(1).step(0.001),
-            variable4 : folder.add(uniforms, 'variable4').min(0).max(1).step(0.001),
-            variable5 : folder.add(uniforms, 'variable5').min(0).max(1).step(0.001),
+            // variable1 : folder.add(uniforms, 'variable1').min(0).max(1).step(0.001),
+            // variable2 : folder.add(uniforms, 'variable2').min(0).max(1).step(0.001),
+            // variable3 : folder.add(uniforms, 'variable3').min(0).max(1).step(0.001),
+            // variable4 : folder.add(uniforms, 'variable4').min(0).max(1).step(0.001),
+            // variable5 : folder.add(uniforms, 'variable5').min(0).max(1).step(0.001),
             
             discardingEnabled: folder.add(objects, 'discardingEnabled')
             .onFinishChange((value) => 

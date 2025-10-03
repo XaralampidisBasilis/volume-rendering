@@ -60,6 +60,7 @@ export default class ISOViewer extends EventEmitter
         this.startUniformsTextures()
         this.startUniformsVolume()
         this.startUniformsDebug()
+        this.startUniformsShading()
     }
 
     startDefinesMethods()
@@ -105,6 +106,19 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
         uniforms.u_volume.value.inv_dimensions.fromArray(uniforms.u_volume.value.dimensions.toArray().map(x => 1/x))
         uniforms.u_volume.value.colormap = Configs.Colormaps.findIndex((x) => x === this.configs.colormap)
+    }
+
+    startUniformsShading()
+    {
+        const uniforms = this.material.uniforms
+        uniforms.u_shading.value.colormap = Configs.Colormaps.findIndex((x) => x === this.configs.colormap)
+        uniforms.u_shading.value.shininess = 40.0,
+        uniforms.u_shading.value.reflect_ambient = 0.2
+        uniforms.u_shading.value.reflect_diffuse = 1.0
+        uniforms.u_shading.value.reflect_specular = 0.6
+        uniforms.u_shading.value.modulate_edges = 1.0,
+        uniforms.u_shading.value.modulate_gradient  = 1.0
+        uniforms.u_shading.value.modulate_curvature = 1.0
     }
 
     startUniformsDebug()
@@ -200,7 +214,7 @@ export default class ISOViewer extends EventEmitter
 
     onChangeColormap(event)
     {
-        this.material.uniforms.u_volume.value.colormap = Configs.Colormaps.findIndex((x) => x === this.configs.colormap)
+        this.material.uniforms.u_shading.value.colormap = Configs.Colormaps.findIndex((x) => x === this.configs.colormap)
     }
 
     destroy() 
