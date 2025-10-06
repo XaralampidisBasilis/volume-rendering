@@ -10,10 +10,10 @@ quintic.root = mmin(quintic.roots);
 
 // Compute derivative at root
 eval_poly(quintic.coeffs, quintic.root, hit.derivative);
-hit.derivative /= cell.span_distance;
 
 // Compute orientation
 hit.orientation = -ssign(hit.derivative); 
+hit.derivative /= cell.span_distance;
 
 // Compute intersection distance
 hit.distance = mix(cell.entry_distance, cell.exit_distance, quintic.root);

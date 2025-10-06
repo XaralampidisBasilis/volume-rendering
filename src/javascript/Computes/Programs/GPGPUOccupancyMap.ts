@@ -37,7 +37,7 @@ class GPGPUOccupancyMap implements GPGPUProgram
             float minValue = getInputMinima(inputCoords);
             float maxValue = getInputMaxima(inputCoords);
 
-            bool occupied = (isosurfaceValue >= minValue) && (isosurfaceValue < maxValue);
+            bool occupied = (isosurfaceValue >= minValue) && (isosurfaceValue <= maxValue);
 
             setOutput(occupied ? 1.0 : 0.0);
         }

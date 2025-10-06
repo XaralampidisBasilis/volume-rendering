@@ -31,8 +31,8 @@ export default class Renderer
         })       
 
         // Set clear color for the background
-        // this.instance.setClearColor('#211d20', 1)
-        this.instance.setClearColor('#000000', 1)
+        this.instance.setClearColor('#211d20', 1)
+        // this.instance.setClearColor('#000000', 1)
 
         // Set renderer size and pixel ratio
         this.instance.setSize(this.sizes.width, this.sizes.height)

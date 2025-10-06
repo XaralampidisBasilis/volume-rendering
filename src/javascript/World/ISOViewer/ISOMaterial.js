@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { colormapLocations } from '../../../../static/textures/colormaps/colormaps.js'
 import vertexShader from '../../../shaders/iso_viewer/vertex.glsl'
 import fragmentShader from '../../../shaders/iso_viewer/fragment.glsl'
 
@@ -45,6 +44,8 @@ export default function()
             modulate_edges    : 1.0,
             modulate_gradient : 1.0,
             modulate_curvature: 1.0,
+            altitude_angle    : 0.0,
+            azimuth_angle     : 0.0,
         }),
 
         u_debug: new THREE.Uniform
