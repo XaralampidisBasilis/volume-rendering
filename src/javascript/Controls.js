@@ -73,6 +73,7 @@ export default class Controls
             skippingMethod      : this.configs.skippingMethod,    
             bernsteinEnabled    : this.configs.bernsteinEnabled,
             skippingEnabled     : this.configs.skippingEnabled,  
+            boundingBoxEnabled  : this.configs.boundingBoxEnabled,  
         }
     
         this.controllers.configs = 
@@ -119,17 +120,23 @@ export default class Controls
             { 
                 this.configs.set('gradientsMethod', option) 
             }),
-    
-            skippingEnabled : folder.add(objects, 'skippingEnabled')
-            .onFinishChange((boolean) => 
-            { 
-                this.configs.set('skippingEnabled', boolean) 
-            }),
 
             bernsteinEnabled : folder.add(objects, 'bernsteinEnabled')
             .onFinishChange((boolean) => 
             { 
                 this.configs.set('bernsteinEnabled', boolean) 
+            }),
+
+            skippingEnabled : folder.add(objects, 'skippingEnabled')
+            .onFinishChange((boolean) => 
+            { 
+                this.configs.set('skippingEnabled', boolean) 
+            }),
+            
+            boundingBoxEnabled : folder.add(objects, 'boundingBoxEnabled')
+            .onFinishChange((boolean) => 
+            { 
+                this.configs.set('boundingBoxEnabled', boolean) 
             }),
         }
     }
@@ -223,7 +230,7 @@ export default class Controls
                 ray_start_position      : 108,
                 ray_end_position        : 109,
 
-                block_skip_distance     : 401,
+                block_skip_coords       : 401,
                 block_occupied          : 402,
                 block_terminated        : 403,
                 block_coords            : 404,

@@ -29,6 +29,14 @@ export default class ISOViewer extends EventEmitter
         this.setMesh()
     }
 
+    start()
+    {
+        this.setMaterial()
+        this.size = this.computes.volumeMap.size
+        this.mesh.scale.copy(this.size)
+        console.log(this)
+    }
+
     setMesh()
     {   
         this.material = ISOMaterial()
@@ -40,30 +48,23 @@ export default class ISOViewer extends EventEmitter
        
     }
 
-    start()
-    {
-        this.startMaterial()
-        this.size = this.computes.volumeMap.size
-        this.mesh.scale.copy(this.size)
-
-        console.log(this)
-    }
-
-    startMaterial()
+    setMaterial()
     {
         const translation = new THREE.Matrix4().makeTranslation(0.5, 0.5, 0.5)
         const scale = new THREE.Matrix4().makeScale(...this.computes.volumeMap.dimensions)
         this.material.uniforms.uCustomModelMatrix.value.multiplyMatrices(scale, translation)
 
-        this.startDefinesMethods()
-        this.startDefinesIterators()
-        this.startUniformsTextures()
-        this.startUniformsVolume()
-        this.startUniformsDebug()
-        this.startUniformsShading()
+        this.setDefinesMethods()
+        this.setDefinesIterators()
+        this.setUniformsTextures()
+        this.setUniformsVolume()
+        this.setUniformsBoundingBox()
+        this.setUniformsDebug()
+        this.setUniformsShading()
+
     }
 
-    startDefinesMethods()
+    setDefinesMethods()
     {
         const configs = this.configs
         const defines = this.material.defines
@@ -74,7 +75,7 @@ export default class ISOViewer extends EventEmitter
         this.material.needsUpdate = true
     }
 
-    startDefinesIterators()
+    setDefinesIterators()
     {        
         const sum = (y, x) => y + x
         const defines = this.material.defines
@@ -88,7 +89,7 @@ export default class ISOViewer extends EventEmitter
         this.material.needsUpdate = true
     }
 
-    startUniformsTextures()
+    setUniformsTextures()
     {
         const uniforms = this.material.uniforms
         uniforms.u_textures.value.interpolation_map = this.computes.interpolationMap.texture
@@ -96,7 +97,7 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
     }
 
-    startUniformsVolume()
+    setUniformsVolume()
     {
         const uniforms = this.material.uniforms
         uniforms.u_volume.value.isovalue = this.configs.isosurfaceValue
@@ -105,25 +106,23 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_volume.value.block_size = this.configs.blockSize
         uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
         uniforms.u_volume.value.inv_dimensions.fromArray(uniforms.u_volume.value.dimensions.toArray().map(x => 1/x))
-        this.startUniformsVolumeBoundingBox()
     }
 
-    startUniformsVolumeBoundingBox()
+    setUniformsBoundingBox()
     {
-        const blockSize = this.configs.blockSize
         const minCoords = new THREE.Vector3(0)
-        const maxCoords = new THREE.Vector3(...this.computes.volumeMap.dimensions).subScalar(1)
+        const maxCoords = new THREE.Vector3(...this.computes.volumeMap.dimensions)
+
+        const blockSize = this.configs.blockSize
         const minBlockCoords = this.computes.occupancyMap.boundingBox.minCoords
         const maxBlockCoords = this.computes.occupancyMap.boundingBox.maxCoords
 
         const uniforms = this.material.uniforms
-        uniforms.u_volume.value.min_coords.fromArray(minBlockCoords).multiplyScalar(blockSize).clamp(minCoords, maxCoords)
-        uniforms.u_volume.value.max_coords.fromArray(maxBlockCoords).multiplyScalar(blockSize+1).subScalar(1).clamp(minCoords, maxCoords)
-
-        console.log(uniforms.u_volume.value.min_coords, uniforms.u_volume.value.max_coords)
+        uniforms.u_bbox.value.min_position.fromArray(minBlockCoords).addScalar(0).multiplyScalar(blockSize).subScalar(0.5).clamp(minCoords, maxCoords)
+        uniforms.u_bbox.value.max_position.fromArray(maxBlockCoords).addScalar(1).multiplyScalar(blockSize).subScalar(0.5).clamp(minCoords, maxCoords)
     }
 
-    startUniformsShading()
+    setUniformsShading()
     {
         const uniforms = this.material.uniforms
         uniforms.u_shading.value.colormap = Configs.Colormaps.findIndex((x) => x === this.configs.colormap)
@@ -136,14 +135,13 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_shading.value.modulate_curvature = 1.0
     }
 
-    startUniformsDebug()
+    setUniformsDebug()
     {
         const uniforms = this.material.uniforms
         uniforms.u_debug.value.max_groups = this.material.defines.MAX_GROUPS
         uniforms.u_debug.value.max_blocks = this.material.defines.MAX_BLOCKS_PER_GROUP 
         uniforms.u_debug.value.max_cells  = this.material.defines.MAX_CELLS_PER_BLOCK  
     }
-
 
     change(event)
     {
@@ -156,6 +154,7 @@ export default class ISOViewer extends EventEmitter
         else if (event.key === 'marchingMethod'     ) this.onChangeMarchingMethod(event)
         else if (event.key === 'skippingEnabled'    ) this.onChangeSkippingEnabled(event)
         else if (event.key === 'bernsteinEnabled'   ) this.onChangeBernsteinEnabled(event)
+        else if (event.key === 'boundingBoxEnabled' ) this.onChangeBoundingBoxEnabled(event)
         else if (event.key === 'colormap'           ) this.onChangeColormap(event)
         
         console.log(this)
@@ -165,13 +164,11 @@ export default class ISOViewer extends EventEmitter
     {
         const uniforms = this.material.uniforms
         uniforms.u_volume.value.isovalue = this.configs.isosurfaceValue
-        this.startUniformsVolumeBoundingBox()
+        this.setUniformsBoundingBox()
     }
 
     onChangeBlockSize(event)
     {
-        this.startDefinesIterators()
-
         const uniforms = this.material.uniforms
         uniforms.u_volume.value.block_size = this.configs.blockSize
         uniforms.u_volume.value.blocked_dimensions.copy(this.computes.occupancyMap.dimensions)
@@ -179,7 +176,8 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_textures.value.distance_map.dispose()
         uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
         uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
-        this.startUniformsVolumeBoundingBox()
+        this.setUniformsBoundingBox()
+        this.setDefinesIterators()
     }
 
     onChangeDownscaleFactor(event)
@@ -190,7 +188,7 @@ export default class ISOViewer extends EventEmitter
         uniforms.u_textures.value.distance_map.dispose()
 
         this.material.dispose()
-        this.startMaterial()
+        this.setMaterial()
     }
 
     onChangeInterpolationMethod(event)
@@ -198,7 +196,7 @@ export default class ISOViewer extends EventEmitter
         const uniforms = this.material.uniforms
         uniforms.u_textures.value.occupancy_map = this.computes.occupancyMap.texture
         uniforms.u_textures.value.distance_map = this.computes.distanceMap.texture
-        this.startUniformsVolumeBoundingBox()
+        this.setUniformsBoundingBox()
 
         this.material.defines.INTERPOLATION_METHOD = Configs.InterpolationMethods.findIndex((x) => x === this.configs.interpolationMethod)
         this.material.needsUpdate = true
@@ -232,6 +230,12 @@ export default class ISOViewer extends EventEmitter
     onChangeBernsteinEnabled(event)
     {
         this.material.defines.BERNSTEIN_ENABLED = Number(this.configs.bernsteinEnabled)
+        this.material.needsUpdate = true
+    }
+
+    onChangeBoundingBoxEnabled(event)
+    {
+        this.material.defines.BBOX_ENABLED = Number(this.configs.boundingBoxEnabled)
         this.material.needsUpdate = true
     }
 

@@ -3,7 +3,7 @@
 // COMPUTE DEBUG 
 
 // skip distance
-vec4 debug_block_skip_distance = to_color(vec3(block.skip_distance) / 31.0);
+vec4 debug_block_skip_coords = to_color(vec3(block.skip_coords) / 31.0);
 
 // occupied
 vec4 debug_block_occupied = to_color(block.occupied);
@@ -36,7 +36,7 @@ vec4 debug_block_max_position = to_color(map(box.min_position, box.max_position,
 
 switch (u_debug.option - 400)
 {
-    case  1: fragColor = debug_block_skip_distance;  break;
+    case  1: fragColor = debug_block_skip_coords;  break;
     case  2: fragColor = debug_block_occupied;       break;
     case  3: fragColor = debug_block_terminated;     break;
     case  4: fragColor = debug_block_coords;         break;

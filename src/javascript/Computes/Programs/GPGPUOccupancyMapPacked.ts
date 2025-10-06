@@ -31,7 +31,7 @@ class GPGPUOccupancyMap implements GPGPUProgram
             coords.x += innerX;
             coords.y += innerY;
             vec2 minMax = getExtremaMap(coords);
-            return (isosurfaceValue >= minMax.x) && (isosurfaceValue <= minMax.y);
+            return (isosurfaceValue >= minMax.x) && (isosurfaceValue < minMax.y);
         }
 
         void main() 

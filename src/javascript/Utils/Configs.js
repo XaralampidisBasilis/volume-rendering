@@ -34,7 +34,7 @@ export default class Configs extends EventEmitter
         super()
 
         this.blockSize = 2
-        this.downscaleFactor = 0.7
+        this.downscaleFactor = 0.95
         this.isosurfaceValue = 0.7
         
         this.colormap = 'pasteljet'
@@ -45,6 +45,7 @@ export default class Configs extends EventEmitter
 
         this.bernsteinEnabled = true
         this.skippingEnabled = true
+        this.boundingBoxEnabled = true
 
         this.debugEnabled = true
         this.statsEnabled = true

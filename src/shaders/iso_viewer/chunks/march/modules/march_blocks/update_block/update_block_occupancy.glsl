@@ -3,8 +3,8 @@
 block.occupied = sample_occupancy(block.coords);
 
 // compute min/max coords
-block.min_coords = block.coords - (block.skip_distance - 1);
-block.max_coords = block.coords + (block.skip_distance - 1);
+block.min_coords = block.coords - (block.skip_coords - 1);
+block.max_coords = block.coords + (block.skip_coords - 1);
 
 // compute min/max positions
 block.min_position = vec3((block.min_coords + 0) * u_volume.block_size) - 0.5;

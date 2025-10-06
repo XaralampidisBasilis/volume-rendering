@@ -7,14 +7,14 @@
  * @return float    The min distance from the point to the box.
  */
 
-#ifndef BOX_BOUNDS
-#define BOX_BOUNDS
+#ifndef POINT_BOX_BOUNDS
+#define POINT_BOX_BOUNDS
 
 #ifndef MMAX
 #include "../math/mmax"
 #endif
 
-vec2 box_bounds(vec2 b_min, vec2 b_max, vec2 p) 
+vec2 point_box_bounds(vec2 b_min, vec2 b_max, vec2 p) 
 {
     vec2 c = (b_max + b_min) * 0.5;
     vec2 s = (b_max - b_min) * 0.5;
@@ -24,7 +24,7 @@ vec2 box_bounds(vec2 b_min, vec2 b_max, vec2 p)
     return vec2(length(max(d_min, 0.0) + min(mmax(d_min), 0.0)), length(d_max));
 }
 
-vec2 box_bounds(vec2 b_min, vec2 b_max, vec2 p, out vec2 v_min, out vec2 v_max) 
+vec2 point_box_bounds(vec2 b_min, vec2 b_max, vec2 p, out vec2 v_min, out vec2 v_max) 
 {
     vec2 c = (b_max + b_min) * 0.5;
     vec2 s = (b_max - b_min) * 0.5;
@@ -40,7 +40,7 @@ vec2 box_bounds(vec2 b_min, vec2 b_max, vec2 p, out vec2 v_min, out vec2 v_max)
     return vec2(length(v_min), length(v_max));
 }
 
-vec2 box_bounds(vec3 b_min, vec3 b_max, vec3 p) 
+vec2 point_box_bounds(vec3 b_min, vec3 b_max, vec3 p) 
 {
     vec3 c = (b_max + b_min) * 0.5;
     vec3 s = (b_max - b_min) * 0.5;
@@ -50,7 +50,7 @@ vec2 box_bounds(vec3 b_min, vec3 b_max, vec3 p)
     return vec2(length(max(d_min, 0.0) + min(mmax(d_min), 0.0)), length(d_max));
 }
 
-vec2 box_bounds(vec3 b_min, vec3 b_max, vec3 p, out vec3 v_min, out vec3 v_max) 
+vec2 point_box_bounds(vec3 b_min, vec3 b_max, vec3 p, out vec3 v_min, out vec3 v_max) 
 {
     vec3 c = (b_max + b_min) * 0.5;
     vec3 s = (b_max - b_min) * 0.5;

@@ -67,14 +67,14 @@ export function computeBoundingBox(occupancyMap: tf.Tensor3D): Object
 
     const minCoords = [
         xMinCoord.arraySync(),
-        xMinCoord.arraySync(),
         yMinCoord.arraySync(),
+        zMinCoord.arraySync(),
     ]
     tf.dispose([xMinCoord, yMinCoord, zMinCoord])
 
     const maxCoords = [
+        xMaxCoord.arraySync(),
         yMaxCoord.arraySync(),
-        zMaxCoord.arraySync(),
         zMaxCoord.arraySync(),
     ]
     tf.dispose([xMaxCoord, yMaxCoord, zMaxCoord])

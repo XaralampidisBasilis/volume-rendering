@@ -1,29 +1,22 @@
 
 // start cell
 #if SKIPPING_ENABLED == 1
-
-    cell.exit_distance = block.entry_distance;
-    cell.exit_position = block.entry_position;
-    cell.coords = ivec3(round(cell.exit_position));
+cell.exit_distance = block.entry_distance;
+cell.exit_position = block.entry_position;
+cell.coords = ivec3(round(cell.exit_position));
 
 #else
-
-    cell.exit_distance = ray.start_distance;
-    cell.exit_position = ray.start_position;
-    cell.coords = ivec3(round(cell.exit_position)); 
-
+cell.exit_distance = ray.start_distance;
+cell.exit_position = ray.start_position;
+cell.coords = ivec3(round(cell.exit_position)); 
 #endif
 
 // start interpolant
 #if INTERPOLATION_METHOD == 0
+cubic.residuals[3] = sample_residue_trilinear(cell.exit_position);
 
-    cubic.residuals[3] = sample_residue_trilinear(cell.exit_position);
-
-#endif
-#if INTERPOLATION_METHOD == 1
-
-    quintic.residuals[3] = sample_residue_tricubic(cell.exit_position, quintic.features[3]);
-
+#elif INTERPOLATION_METHOD == 1
+quintic.residuals[3] = sample_residue_tricubic(cell.exit_position, quintic.features[3]);
 #endif
 
 #if STATS_ENABLED == 1

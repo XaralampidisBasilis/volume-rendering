@@ -6,7 +6,7 @@
 #include "./math/math"
 #include "./matrix/matrix"
 #include "./random/random"
-#include "./sdf/box_bounds"
+#include "./sdf/point_box_bounds"
 #include "./colors/to_color"
 #include "./colors/posterize"
 #include "./geometry/principal_curvatures"

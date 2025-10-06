@@ -20,6 +20,15 @@ float lambertian = clamp(light_angle, 0.0, 1.0);
 float specular = clamp(halfway_angle, 0.0, 1.0);
 specular = pow(specular, u_shading.shininess);
 
+// Modulations
+float modulate_edges = smoothstep(0.0, 0.5, abs(view_angle));
+float modulate_gradient = mix(0.2, 1.0, smoothstep(0.0, 0.1, length(hit.gradient)));
+float modulate_curvature = mean(smoothstep(-1.2, 0.0, hit.curvatures.x), smoothstep(-1.2, 0.0, hit.curvatures.y)); 
+
+modulate_edges = mix(1.0, modulate_edges, u_shading.modulate_edges);
+modulate_gradient = mix(1.0, modulate_gradient, u_shading.modulate_gradient);
+modulate_curvature = mix(1.0, modulate_curvature, u_shading.modulate_curvature);
+
 // Colors 
 frag.color_material = colormap(hit.value, u_shading.colormap);
 frag.color_ambient = frag.color_material * u_shading.reflect_ambient;
@@ -27,30 +36,13 @@ frag.color_diffuse = frag.color_material * u_shading.reflect_diffuse  * lamberti
 frag.color_specular = frag.color_material + (1.0 - frag.color_material) * u_shading.reflect_specular * specular;
 frag.color_directional = mix(frag.color_diffuse, frag.color_specular, specular);
 
-// Modulations
-float edges_modulation = smoothstep(0.0, 0.5, abs(view_angle));
-float gradient_modulation = mix(0.2, 1.0, smoothstep(0.0, 0.1, length(hit.gradient)));
-float curvature_modulation = mean(smoothstep(-1.2, 0.0, hit.curvatures.x), smoothstep(-1.2, 0.0, hit.curvatures.y)); 
-
-edges_modulation = mix(1.0, edges_modulation, u_shading.modulate_edges);
-gradient_modulation = mix(1.0, gradient_modulation, u_shading.modulate_gradient);
-curvature_modulation = mix(1.0, curvature_modulation, u_shading.modulate_curvature);
-
-frag.color_directional *= mmin(edges_modulation, gradient_modulation);
-frag.color_ambient *= curvature_modulation;
+frag.color_directional *= mmin(modulate_edges, modulate_gradient);
+frag.color_ambient *= modulate_curvature;
 
 // Compose colors
 frag.color = frag.color_ambient + frag.color_directional;
-
-// Assign frag color
 fragColor = vec4(frag.color, 1.0);
 
-// Discard fragment
 #if DISCARDING_ENABLED == 1
-fragColor.rgb *= hit.discarded ? 0.0 : 1.0;
+fragColor.a *= hit.discarded ? 0.0 : 1.0;
 #endif
-
-// #if DISCARDING_ENABLED == 1
-// if (hit.discarded) discard;
-// #endif
-

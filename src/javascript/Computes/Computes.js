@@ -75,9 +75,11 @@ export default class Computes extends EventEmitter
         await tf.nextFrame()
 
         this.occupancyMap.computeTensor()
-        this.occupancyMap.computeBoundingBox()
         this.distanceMap.computeTensor()
         await tf.nextFrame()
+
+        if (this.configs.boundingBoxEnabled) 
+            this.occupancyMap.computeBoundingBox()
 
         this.occupancyMap.computeTexture()
         this.occupancyMap.tensor.dispose()
@@ -106,8 +108,10 @@ export default class Computes extends EventEmitter
         console.time('onChangeIsosurfaceValue@Computes') 
 
         this.occupancyMap.computeTensor()
-        this.occupancyMap.computeBoundingBox()
         this.distanceMap.computeTensor()
+
+        if (this.configs.boundingBoxEnabled) 
+            this.occupancyMap.computeBoundingBox()
 
         this.occupancyMap.updateTexture()
         this.occupancyMap.tensor.dispose()
@@ -135,8 +139,10 @@ export default class Computes extends EventEmitter
         await tf.nextFrame()
 
         this.occupancyMap.computeTensor()
-        this.occupancyMap.computeBoundingBox()
         this.distanceMap.computeTensor()
+
+        if (this.configs.boundingBoxEnabled) 
+            this.occupancyMap.computeBoundingBox()
 
         this.occupancyMap.computeTexture()
         this.occupancyMap.tensor.dispose()
@@ -172,9 +178,11 @@ export default class Computes extends EventEmitter
         await tf.nextFrame()
 
         this.occupancyMap.computeTensor()
-        this.occupancyMap.computeBoundingBox()
         this.distanceMap.computeTensor()
         await tf.nextFrame()
+
+        if (this.configs.boundingBoxEnabled) 
+            this.occupancyMap.computeBoundingBox()
 
         this.occupancyMap.computeTexture()
         this.occupancyMap.tensor.dispose()
@@ -194,8 +202,10 @@ export default class Computes extends EventEmitter
         console.time('onChangeInterpolationMethod@Computes') 
 
         this.occupancyMap.computeTensor()
-        this.occupancyMap.computeBoundingBox()
         this.distanceMap.computeTensor()
+
+        if (this.configs.boundingBoxEnabled) 
+            this.occupancyMap.computeBoundingBox()
 
         this.occupancyMap.updateTexture()
         this.occupancyMap.tensor.dispose()

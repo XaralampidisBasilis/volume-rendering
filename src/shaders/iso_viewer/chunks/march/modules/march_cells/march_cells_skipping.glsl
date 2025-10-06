@@ -8,10 +8,6 @@ for (int k = 0; k < MAX_GROUPS; k++)
         #include "../march_blocks/update_block"
 
         if (block.occupied || block.terminated) break;
-
-        // #if DEBUG_ENABLED == 1
-        // if (j >= u_debug.max_blocks) break;
-        // #endif
     }
 
     if (!(block.occupied || block.terminated)) continue;
@@ -24,17 +20,9 @@ for (int k = 0; k < MAX_GROUPS; k++)
         #include "./intersected_cell"
 
         if (cell.intersected || cell.terminated || cell.exit_distance > block.exit_distance) break; 
- 
-        // #if DEBUG_ENABLED == 1
-        // if (i >= u_debug.max_cells) break;
-        // #endif
     }   
 
     if (cell.intersected || cell.terminated) break;
-
-    // #if DEBUG_ENABLED == 1
-    // if (k >= u_debug.max_groups)  break;
-    // #endif
 
     #if STATS_ENABLED == 1
     stats.num_groups += 1;

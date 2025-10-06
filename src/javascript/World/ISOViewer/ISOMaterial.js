@@ -18,11 +18,14 @@ export default function()
             dimensions        : new THREE.Vector3(),
             spacing           : new THREE.Vector3(),
             inv_dimensions    : new THREE.Vector3(),
-            min_coords        : new THREE.Vector3(),
-            max_coords        : new THREE.Vector3(),
             blocked_dimensions: new THREE.Vector3(),
             block_size        : 0,
+        }),
 
+        u_bbox: new THREE.Uniform
+        ({
+            min_position: new THREE.Vector3(),
+            max_position: new THREE.Vector3(),
         }),
 
         u_textures: new THREE.Uniform
@@ -68,6 +71,7 @@ export default function()
 
         BERNSTEIN_ENABLED: 1,
         SKIPPING_ENABLED : 1,
+        BBOX_ENABLED     : 1,
 
         STATS_ENABLED     : 1,
         DEBUG_ENABLED     : 1,
@@ -85,9 +89,10 @@ export default function()
     const material = new THREE.ShaderMaterial
     ({    
         side: THREE.BackSide,
-        transparent: false,
-        depthTest: true,
-        depthWrite: true,
+        blending: THREE.NormalBlending,
+        depthTest: false,
+        depthWrite: false,
+        transparent: true,           
 
         glslVersion: THREE.GLSL3,
         uniforms: uniforms,
