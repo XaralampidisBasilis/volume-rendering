@@ -189,7 +189,7 @@ export default class Controls
             maxGroups: folder.add(uniforms, 'max_groups').min(0).max(defines.MAX_GROUPS).step(1),
             maxBlocks: folder.add(uniforms, 'max_blocks').min(0).max(defines.MAX_BLOCKS_PER_GROUP).step(1),
             maxCells : folder.add(uniforms, 'max_cells').min(0).max(defines.MAX_CELLS_PER_BLOCK).step(1),
-            // variable1 : folder.add(uniforms, 'variable1').min(0).max(1).step(0.001),
+            variable1 : folder.add(uniforms, 'variable1').min(0).max(1).step(0.001),
             // variable2 : folder.add(uniforms, 'variable2').min(0).max(1).step(0.001),
             // variable3 : folder.add(uniforms, 'variable3').min(0).max(1).step(0.001),
             // variable4 : folder.add(uniforms, 'variable4').min(0).max(1).step(0.001),

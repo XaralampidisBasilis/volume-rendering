@@ -13,4 +13,3 @@ ray.octant = (bits.z << 2) | (bits.y << 1) | (bits.x << 0);
 // For a specific ray direction, this result is the 
 // mean span distance that a ray passes from a cell. 
 ray.spacing = 1.0 / sum(abs(ray.direction));
-ray.spacing /= 5.0;

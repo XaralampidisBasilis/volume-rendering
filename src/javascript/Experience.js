@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import Configs from './Utils/Configs'
-import Debug from './Utils/Debug'
 import Sizes from './Utils/Sizes'
 import Time from './Utils/Time'
 import Mouse from './Utils/Mouse'

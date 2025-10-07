@@ -18,8 +18,8 @@ export default class Configs extends EventEmitter
         'bspline',
     ])
     static MarchingMethods = Object.freeze([
-        'analytic',
-        'approximate',
+        'cells',
+        'traces',
     ])
     static SkippingMethods = Object.freeze([
         'occupancy',
@@ -39,7 +39,7 @@ export default class Configs extends EventEmitter
         
         this.interpolationMethod = 'tricubic'
         this.gradientsMethod = 'bspline'
-        this.marchingMethod = 'analytic'
+        this.marchingMethod = 'cells'
         this.skippingMethod = 'anisotropicDistance'
         this.colormap = 'pasteljet'
 

@@ -3,7 +3,7 @@
 trace.prev_distance = trace.distance;
 
 // Increment distance
-trace.distance += ray.spacing;
+trace.distance += trace.spacing;
 
 // Compute position
 trace.position = camera.position + ray.direction * trace.distance; 

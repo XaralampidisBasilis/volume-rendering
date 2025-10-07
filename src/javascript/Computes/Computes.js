@@ -90,8 +90,7 @@ export default class Computes extends EventEmitter
         await tf.nextFrame()
 
         console.timeEnd('start@Computes') 
-        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
-        console.log('')
+        this.printResources()
     }
 
     async change(event)
@@ -120,8 +119,7 @@ export default class Computes extends EventEmitter
         this.distanceMap.tensor.dispose()
 
         console.timeEnd('onChangeIsosurfaceValue@Computes')
-        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
-        console.log('') 
+        this.printResources() 
     }
 
     async onChangeBlockSize(event)
@@ -153,8 +151,7 @@ export default class Computes extends EventEmitter
         await tf.nextFrame()
 
         console.timeEnd('onChangeBlockSize@Computes')
-        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
-        console.log('') 
+        this.printResources() 
     }
 
     async onChangeDownscaleFactor(event)
@@ -193,8 +190,7 @@ export default class Computes extends EventEmitter
         await tf.nextFrame()
 
         console.timeEnd('onChangeDownscaleFactor@Computes') 
-        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
-        console.log('')
+        this.printResources()
     }
 
     async onChangeInterpolationMethod(event)
@@ -214,8 +210,7 @@ export default class Computes extends EventEmitter
         this.distanceMap.tensor.dispose()
 
         console.timeEnd('onChangeInterpolationMethod@Computes') 
-        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
-        console.log('')
+        this.printResources()
     }
 
     async onChangeSkippingMethod(event)
@@ -233,7 +228,6 @@ export default class Computes extends EventEmitter
         this.distanceMap.tensor.dispose()
 
         console.timeEnd('onChangeSkippingMethod@Computes') 
-        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
         console.log('')
     }
 
@@ -263,5 +257,11 @@ export default class Computes extends EventEmitter
         instance = null
 
         console.log('Computes destroyed')
+    }
+    
+    printResources()
+    {
+        console.log(`Num of tensors: ${tf.memory().numTensors}, Num of textures: ${this.renderer.instance.info.memory.textures}`)
+        console.log(``)
     }
 }

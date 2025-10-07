@@ -31,7 +31,9 @@ export default class VolumeMap
         const shape = this.volume.dimensions.toReversed()
         const newShape = shape.map((x) => Math.ceil(this.downscaleFactor * x))
         const newSpacing = this.volume.spacing.toReversed().map((x, i) => shape[i]/newShape[i] * x)
-
+        
+        this.dimensions.fromArray(newShape.toReversed())
+        this.spacing.fromArray(newSpacing.toReversed())
         this.tensor = tf.tidy(() =>
         {
             let data = new Float32Array(this.volume.data)
@@ -39,11 +41,7 @@ export default class VolumeMap
             tensor = resizeTrilinear(tensor, newShape, false, true)
             tensor = normalize(tensor)
             return tensor
-        })
-        
-        this.dimensions.fromArray(newShape.toReversed())
-        this.spacing.fromArray(newSpacing.toReversed())
-            
+        })  
         console.timeEnd('computeTensor@VolumeMap') 
     }
 

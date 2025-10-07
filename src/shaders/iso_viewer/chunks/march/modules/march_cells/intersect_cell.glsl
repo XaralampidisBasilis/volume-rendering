@@ -4,6 +4,5 @@
 
 #elif INTERPOLATION_METHOD == 1
 #include "./intersect_cell/intersect_cell_tricubic"
-
 #endif
 
